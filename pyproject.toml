@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "backend-api"
+version = "0.1.0"
+description = ""
+authors = ["SamerIssam <samer.salem@kpmg.co.uk>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.109.0"
+uvicorn = "^0.27.0"
+mangum = "^0.17.0"
+pytest = "^7.4.4"
+httpx = "^0.26.0"
+pytest-cov = "^4.1.0"
+python-multipart = "^0.0.6"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.1.0"
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "."
+]
+addopts = "-v -rsxX"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
