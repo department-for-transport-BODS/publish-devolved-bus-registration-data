@@ -5,6 +5,8 @@ from io import StringIO
 from pydantic import BaseModel, Field, ValidationError, ValidationInfo, validator
 from fastapi import FastAPI, File, UploadFile
 import csv
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi import HTTPException
 
 
 # first_name,last_name,addresss
@@ -15,6 +17,18 @@ class person(BaseModel):
 
 
 app = FastAPI()
+
+origins = [
+    '*'
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
@@ -48,7 +62,8 @@ async def create_upload_file(file: UploadFile = File(...)):
         #     f.write(contents)
         return {"filename": file.filename}
     except ValidationError as e:
-        return e.errors()
+        '''If the data is invalid, FastAPI will raise a ValidationError exception.'''
+        raise HTTPException(status_code=406, detail=e.errors())
 
 
 lambda_handler = Mangum(app, lifespan="off")
