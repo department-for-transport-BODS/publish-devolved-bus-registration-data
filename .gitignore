@@ -1,0 +1,6 @@
+__pycache__
+.vscode
+.coverage
+.DS_Store
+.aws-sam
+tests/.pytest_cache
