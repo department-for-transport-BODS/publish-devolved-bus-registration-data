@@ -1,0 +1,78 @@
+{
+  "name": "portal",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^16.18.76",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "aws-amplify": "^6.0.13",
+    "axios": "^1.6.7",
+    "cookie-parser": "^1.4.6",
+    "csurf": "^1.11.0",
+    "govuk-frontend": "^5.0.0",
+    "govuk-react": "^0.10.6",
+    "nth-check": "^2.1.1",
+    "postcss": "^8.4.33",
+    "react": "^18.2.0",
+    "react-csv-reader": "^4.0.0",
+    "react-dom": "^18.2.0",
+    "react-favicon": "^2.0.3",
+    "react-head": "^3.4.2",
+    "react-portal": "^4.2.2",
+    "react-router-dom": "^6.21.3",
+    "react-scripts": "^5.0.1",
+    "styled-components": "^6.1.8",
+    "typescript": "^4.9.5",
+    "universal-cookie": "^7.0.2",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "sass": "sass src/Sass:src/Css --watch --no-source-map"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.23.9",
+    "@babel/core": "^7.23.9",
+    "@babel/preset-env": "^7.23.9",
+    "@babel/preset-react": "^7.23.3",
+    "@babel/preset-typescript": "^7.23.3",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
+    "eslint": "^8.56.0",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "sass": "^1.70.0"
+  },
+  "overrides": {
+    "nth-check": "$nth-check",
+    "postcss": "$postcss"
+  },
+  "proxy": "http://localhost:8000"
+}
