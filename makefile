@@ -1,20 +1,20 @@
-run-dev: run-dev-frontend  run-dev-backend
+DIRNAME=`basename ${PWD}`
 
-run-dev-frontend: ## Run the frontend
-	@echo "Running frontend..."
-	@cd frontend && make run
-	@echo "Done"
+help:
+	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 
-run-dev-backend: ## Run the backend
-	@echo "Running backend..."
-	@cd backend && make run
-	@echo "Done"
+start-services: ## Start the Docker container services
+	docker-compose --env-file ./config/.env up 
 
-d-run-backend: ## Run the backend in detached mode
-	@echo "Running backend in detached mode..."
-	@docker-compose up --build backend
-	@echo "Done"
-d-stop-backend: ## Stop the backend
-	@echo "Stopping backend..."
-	@docker-compose down
-	@echo "Done"
+stop-services: ## Stop and remove the Docker container services
+	docker-compose --envfile ./config/.env down
+
+sss: ## Start a Specific Service
+	docker-compose --env-file ./config/.env up ${service}
+# initialise-database:
+
+# Clean up the Docker image
+clean-services: ## Stop and remove the Docker container services
+	docker-compose --env-file ./config/.env down
+	docker rm -f postgres pgadmin 2>/dev/null
+	docker volume rm ${DIRNAME}_postgres-data 2>/dev/null

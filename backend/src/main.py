@@ -7,7 +7,7 @@ from fastapi import FastAPI, File, UploadFile
 import csv
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import HTTPException
-from .utils.csv_validator import Registration, validate_csv
+from .utils.csv_validator import Registration, csv_data_structure_check, delete_url_field_and_rename_loc_to_field
 from dotenv import load_dotenv
 from .utils.logger import log
 
@@ -58,7 +58,13 @@ async def create_upload_file(file: UploadFile = File(...)):
     csv_str = contents.decode("utf-8")
     # Convert the CSV data into a dictionary
     csv_data = list(csv.DictReader(StringIO(csv_str)))
-    return validate_csv(csv_data)
+    validated_records =  csv_data_structure_check(csv_data)
+    if validated_records.get('Invalid_records'):
+        validated_records['Invalid_records'] = delete_url_field_and_rename_loc_to_field(validated_records['Invalid_records'])
+    return validated_records
+    # if validated_records.get('Invalid_records'):
+    #     raise HTTPException(status_code=400, detail=validated_records)
+
 
     # try:
     #     # Validate the data and deserialize it into a Python object.
