@@ -1,7 +1,28 @@
-__pycache__
-.vscode
+### macOS ###
+*.DS_Store
+
+### VisualStudioCode ###
+.vscode/*
+
+### Python ###
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Unit test / coverage reports
+htmlcov/
 .coverage
-.DS_Store
-.aws-sam
-tests/.pytest_cache
+.coverage.*
+.cache
+.pytest_cache/
+coverage.xml
+
+# pyenv
+.python-version
+
+# SAM default build folder
+.aws-sam/
+
+# dotenv environment variables file
 .env
