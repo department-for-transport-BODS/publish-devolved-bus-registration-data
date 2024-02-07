@@ -6,7 +6,7 @@ from .logger import log
 class Registration(BaseModel):
     licenceNumber: str = Field(example="PC2021320")
     registrationNumber: str = Field(example="PD0001111/43010100")
-    routeNumber: int = Field(..., example=1)
+    routeNumber: str = Field(..., example="1")
     routeDescription: str = Field(..., example="Wigan - Highfield Grange Circular")
     variationNumber: int = Field(..., example=1)
     startPoint: str = Field(..., example="Wigan")
