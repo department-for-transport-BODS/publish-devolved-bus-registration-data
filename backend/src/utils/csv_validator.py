@@ -40,18 +40,18 @@ def csv_data_structure_check(csv_data: [dict]) -> dict:
     '''
     # Convert the CSV data into a list of dictionaries
     # csv_data = list(csv.DictReader(file))
-    pydantic_models = []
+    Valid_records = []
     validation_errors = []
     
     for idx, data_dict in enumerate(csv_data):
         try:
             # Validate each record and deserialize it into a Python object.
             pydantic_model = Registration(**data_dict)
-            pydantic_models.append(pydantic_model)
+            Valid_records.append(pydantic_model)
         except ValidationError as e:
             errors = e.errors()
             validation_errors.append({"recrod_number": idx + 1,"errors": errors})
-    return {"Invalid_records":validation_errors,"Valid_records":pydantic_models}
+    return {"Invalid_records":validation_errors,"Valid_records":Valid_records}
 
 
 def delete_url_field_and_rename_loc_to_field(validation_errors: [dict]) -> [dict]:
