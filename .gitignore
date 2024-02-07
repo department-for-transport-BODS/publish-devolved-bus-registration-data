@@ -20,6 +20,7 @@ coverage.xml
 
 # pyenv
 .python-version
+.venv/
 
 # SAM default build folder
 .aws-sam/
