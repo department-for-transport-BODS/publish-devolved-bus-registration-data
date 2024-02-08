@@ -1,13 +1,18 @@
-.PHONY: pytest
+help:
+	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 
-run:
+run: ## Run the backend api locally
 	uvicorn src.main:app --reload --port 8000
 
-pytest:
+pytest: ## Run the tests
 	pytest  --cov=. --cov-report term-missing #--cov-report=html
 
-slocal:
+slocal: ## Run the backend api locally using sam
 	sam local start-api #--docker-network host
 
-sbuild:
+fix-lint: ## Fix the linting issues
+	ruff . --fix
+	isort .
+
+sbuild: ## Build the backend api using sam
 	sam build
