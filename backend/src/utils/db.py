@@ -1,7 +1,10 @@
-import boto3
 import os
+
+import boto3
 import psycopg2
+
 from .logger import log
+
 
 def connect_to_db():
     # Connect to the database
