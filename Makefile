@@ -1,4 +1,14 @@
+ifneq (,$(wildcard ./config/.env))
+    include ./config/.env
+    export
+endif
+
 DIRNAME=`basename ${PWD}`
+PG_EXEC=psql "host=$(POSTGRES_HOST) port=$(POSTGRES_PORT) user=$(POSTGRES_USER) password=$(POSTGRES_PASSWORD) gssencmode='disable'
+
+cmd-exists-%:
+	@hash $(*) > /dev/null 2>&1 || \
+		(echo "ERROR: '$(*)' must be installed and available on your PATH."; exit 1)
 
 help:
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
@@ -38,3 +48,9 @@ run-backend-docker: build-backend-docker ## Run the backend api using docker
 fix-backend-lint: ## Fix the linting issues
 	ruff ./backend --fix
 	isort ./backend
+
+run-db-initialise: cmd-exists-psql ## Initialise the database with users/roles and schema
+	for file in `find ./sql/localdev -type f | sort | cut -c3-`; do ${PG_EXEC}" -f $$file; done
+
+run-db-migrations: cmd-exists-psql ## Run the database migrations found under ./sql
+	for file in `find ./sql -type f -depth 1 | sort | cut -c3-`; do ${PG_EXEC} dbname=epp" -f $$file; done
