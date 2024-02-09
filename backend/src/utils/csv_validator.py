@@ -67,7 +67,7 @@ def csv_data_structure_check(csv_data: [dict]) -> dict:
     # Convert the CSV data into a list of dictionaries
     # csv_data = list(csv.DictReader(file))
     valid_records = []
-    validation_errors = []
+    validation_errors = {}
     
     for idx, data_dict in enumerate(csv_data):
         try:
@@ -79,12 +79,13 @@ def csv_data_structure_check(csv_data: [dict]) -> dict:
             errors  = e.errors()
             # Extract the field, message and type from the errors of a ValidationError object.
             modified_errors = extract_field_mgs_type_from_errors(errors)
-            validation_errors.append({"record_number": idx + 2,"errors": modified_errors})
+            # validation_errors.append({"record_number": idx + 2,"errors": modified_errors})
+            validation_errors.update({f"{idx + 2}": modified_errors})
         except Exception as e:
             log.error(f"Error: {e}")
     return {"invalid_records":validation_errors,"valid_records":len(valid_records)}
 
-def extract_field_mgs_type_from_errors(errors: [dict]) -> [dict]:
+def extract_field_mgs_type_from_errors(errors: [dict]) -> dict:
     """Extracts the field, message and type from the errors of a ValidationError object.
 
     Args:
@@ -95,12 +96,17 @@ def extract_field_mgs_type_from_errors(errors: [dict]) -> [dict]:
     """
     modified_errors = []
     for error in errors:
-        modified_error = {
-                        "field": error.get("loc"),
-                        "message": error.get("msg"),
-                        "type": error.get("type")
-                }
-        modified_errors.append(modified_error)
+        # modified_error = {
+        #                 "field": error.get("loc"),
+        #                 "message": error.get("msg"),
+        #                 "type": error.get("type")
+        #         }
+        if len(error.get("loc")) == 1:
+            field_name = error.get("loc")[0]
+            modified_errors.append({field_name:error.get("msg")})
+        else:
+            log.warning(f"Warning: Fields has more than one element. {error.get('loc')}")
+
     return modified_errors
 
 

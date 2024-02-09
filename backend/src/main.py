@@ -34,6 +34,9 @@ def read_item():
 @app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...)):
     contents = await file.read()
+    if ENVIRONMENT == "localdev":
+        log.debug("Sleeping for 2 seconds to simulate file upload")
+        sleep(2)
     # Decode the CSV data
     csv_str = contents.decode("utf-8")
     # Convert the CSV data into a dictionary
