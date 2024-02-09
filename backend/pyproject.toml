@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "backend-api"
+name = "backend"
 version = "0.1.0"
 description = ""
 authors = ["SamerIssam <samer.salem@kpmg.co.uk>"]
@@ -14,9 +14,14 @@ pytest = "^7.4.4"
 httpx = "^0.26.0"
 pytest-cov = "^4.1.0"
 python-multipart = "^0.0.6"
+boto3 = "^1.34.34"
+psycopg2 = "^2.9.9"
+python-dotenv = "^1.0.1"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.1.0"
+ruff = "^0.2.1"
+isort = "^5.13.2"
 
 [tool.pytest.ini_options]
 pythonpath = [
