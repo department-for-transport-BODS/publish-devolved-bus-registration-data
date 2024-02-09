@@ -19,7 +19,7 @@ const TempPage: React.FC = () => {
             <FullColumnLayout title="Temp Page" description="Temp Page" hideCookieBanner={true}>
                 <UploadCSV />
             </FullColumnLayout>
-                <Footer />
+            <Footer />
         </>
     );
 };

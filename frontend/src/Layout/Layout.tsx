@@ -36,14 +36,15 @@ export const BaseLayout = ({
 
     useEffect(() => {
         setShowBanner(true);
+        console.log('showBanner', showBanner);
+        console.log('title', title);
     });
 
     return (
         <>
-            <Header />
                 <HeadProvider>
                     <div className="Home">
-                        <Title>EP Project</Title>
+                        <Title>{title? title: "EP Project"}</Title>
                         <Meta name="description" content={'Upload CSV'} />
                         <Meta name="viewport" content="width=device-width, initial-scale=1" />
                         <Meta charSet="utf-8" />
@@ -51,6 +52,7 @@ export const BaseLayout = ({
                     </div>
                     {/* Rest of the component */}
                 </HeadProvider>
+            <Header />
            
             <div className="govuk-width-container">
                 <main className="govuk-main-wrapper">{children}</main>
