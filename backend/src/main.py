@@ -1,69 +1,46 @@
-import os
-from fastapi import FastAPI
-from mangum import Mangum
-from io import StringIO
-from pydantic import BaseModel, Field, ValidationError, ValidationInfo, validator
-from fastapi import FastAPI, File, UploadFile
 import csv
+from io import StringIO
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import HTTPException
+from mangum import Mangum
 
-
-# first_name,last_name,addresss
-class person(BaseModel):
-    first_name: str = Field(..., min_length=1, max_length=5)
-    last_name: str = Field(..., min_length=1, max_length=20)
-    address: str
-
+from .utils.config import (ALLOW_HEADER, ALLOW_METHODS, ALLOW_ORIGINS,
+                           AWS_REGION, ENVIRONMENT)
+from .utils.csv_validator import csv_data_structure_check
+from .utils.logger import log
 
 app = FastAPI()
-
-origins = [
-    '*'
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=ALLOW_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=ALLOW_METHODS,
+    allow_headers=ALLOW_HEADER,
 )
-
 
 @app.get("/")
 def read_root():
     return {
         "message": "FastAPI running on AWS Lambda and is executed in region "
-        + os.getenv("AWS_REGION", "Running locally")
+        + AWS_REGION
         + ", using runtime environment "
-        + os.getenv("AWS_EXECUTION_ENV", "Running locally")
+        + ENVIRONMENT
     }
-
 
 @app.get("/items")
 def read_item():
     return {"item_id": 1}
 
-
-@app.post("/uploadfile/")
+@app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...)):
     contents = await file.read()
     # Decode the CSV data
     csv_str = contents.decode("utf-8")
     # Convert the CSV data into a dictionary
     csv_data = list(csv.DictReader(StringIO(csv_str)))
-
-    try:
-        # Validate the data and deserialize it into a Python object.
-        pydantic_model = [person(**data_dict) for data_dict in csv_data]
-        print(pydantic_model)
-        # with open("uploaded_file.csv", "wb") as f:
-        #     f.write(contents)
-        return {"filename": file.filename}
-    except ValidationError as e:
-        '''If the data is invalid, FastAPI will raise a ValidationError exception.'''
-        raise HTTPException(status_code=406, detail=e.errors())
-
+    validated_records =  csv_data_structure_check(csv_data)
+    if validated_records.get('invalid_records'):
+        raise HTTPException(status_code=422, detail=validated_records)
+    return validated_records
 
 lambda_handler = Mangum(app, lifespan="off")
