@@ -5,8 +5,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Env settings
-ENVIRONMENT = getenv("PROJECT_ENV", "Running locally")
-AWS_REGION = getenv("AWS_REGION", "Running locally")
+ENVIRONMENT = getenv("PROJECT_ENV", "localdev")
+AWS_REGION = getenv("AWS_REGION", "localdev")
 
 # Middleware settings
 ALLOW_ORIGINS = ['*']

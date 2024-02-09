@@ -1,6 +1,5 @@
 import csv
 from io import StringIO
-
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
@@ -8,6 +7,7 @@ from mangum import Mangum
 from .utils.config import (ALLOW_HEADER, ALLOW_METHODS, ALLOW_ORIGINS,
                            AWS_REGION, ENVIRONMENT)
 from .utils.csv_validator import csv_data_structure_check
+from .utils.logger import log
 
 app = FastAPI()
 app.add_middleware(
@@ -18,7 +18,6 @@ app.add_middleware(
     allow_headers=ALLOW_HEADER,
 )
 
-
 @app.get("/")
 def read_root():
     return {
@@ -28,13 +27,11 @@ def read_root():
         + ENVIRONMENT
     }
 
-
 @app.get("/items")
 def read_item():
     return {"item_id": 1}
 
-
-@app.post("/uploadfile/")
+@app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...)):
     contents = await file.read()
     # Decode the CSV data
@@ -42,7 +39,7 @@ async def create_upload_file(file: UploadFile = File(...)):
     # Convert the CSV data into a dictionary
     csv_data = list(csv.DictReader(StringIO(csv_str)))
     validated_records =  csv_data_structure_check(csv_data)
-    if validated_records.get('Invalid_records'):
+    if validated_records.get('invalid_records'):
         raise HTTPException(status_code=422, detail=validated_records)
     return validated_records
 
