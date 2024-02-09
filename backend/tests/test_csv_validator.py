@@ -1,5 +1,4 @@
 from pydantic import ValidationError
-
 from src.utils.csv_validator import (Registration,
                                      extract_field_mgs_type_from_errors)
 
@@ -51,30 +50,29 @@ def test_extract_field_mgs_type_from_errors():
 def test_registration_model():
     # Create a valid registration object
     registration_data = {
-        "licenceNumber": "PC2021320",
-        "registrationNumber": "PD0001111/43010100",
-        "routeNumber": "1",
-        "routeDescription": "Wigan - Highfield Grange Circular",
-        "variationNumber": 1,
-        "startPoint": "Wigan",
-        "finishPoint": "Highfield Grange Circular",
-        "via": "",
-        "subsidised": True,
-        "subsidyDetail": "Transport for Greater Manchester (TFGM)",
-        "isShortNotice": False,
-        "receivedDate": "09/01/2023",
-        "grantedDate": "09/01/2023",
-        "effectiveDate": "9/24/2023",
-        "endDate": "8/31/2028",
-        "operatorId": "1028807",
-        "busServiceTypeId": "Standard",
-        "busServiceTypeDescription": "Normal Stopping",
-        "trafficAreaId": "C",
-        "applicationType": "New",
-        "publicationTest": "Revised timetable to improve reliability",
-        "otherDetails": None
+        "licenceNumber": "PC7654321",
+        "registrationNumber": "PD7654321/87654321",
+        "routeNumber": "2",
+        "routeDescription": "City Center - Suburb - Main Street",
+        "variationNumber": 2,
+        "startPoint": "City Center",
+        "finishPoint": "Suburb",
+        "via": "Main Street",
+        "subsidised": "Yes",
+        "subsidyDetail": "Transport for Local Authority (LA)",
+        "isShortNotice": "No",
+        "receivedDate": "01/02/2000",
+        "grantedDate": "01/03/2000",
+        "effectiveDate": "01/04/2000",
+        "endDate": "01/05/2000",
+        "operatorId": "1234567",
+        "busServiceTypeId": "Limited",
+        "busServiceTypeDescription": "Limited Stopping",
+        "trafficAreaId": "D",
+        "applicationType": "Change",
+        "publicationText": "Change of Route",
+        "otherDetails": "Operates only on weekdays"
     }
-
 
     # Assert that the object is valid
     try:
