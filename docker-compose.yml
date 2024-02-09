@@ -5,13 +5,14 @@ services:
     image: postgres:15
     hostname: localhost
     ports:
-      - "5433:5432"
+      - "5432:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
+
   pgadmin:
     build:
       context: .
@@ -19,7 +20,7 @@ services:
       args:
         - POSTGRES_PORT=${POSTGRES_PORT}
         - POSTGRES_USER=${POSTGRES_USER}
-        - POSTGRES_HOST=${POSTGRES_HOST}
+        - POSTGRES_HOST="postgres"
     container_name: pgadmin
     depends_on:
       - postgres
@@ -30,24 +31,28 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${POSTGRES_PASSWORD}
       PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
     restart: unless-stopped
+
   backend:
     build:
       context: ./backend
+      dockerfile: ../docker/python-backend/Dockerfile
     volumes:
       - ./backend/src:/app/src
     ports:
       - 8000:8000
     environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
+      - DB_HOST="postgres"
+      - DB_PORT=${POSTGRES_PORT}
       - DB_USER=${POSTGRES_USER}
       - DB_PASSWORD=${POSTGRES_PASSWORD}
     depends_on:
       - postgres
-  frontend:
-    build:
-      context: ./frontend
-    ports:
-      - 3000:3000
+
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #   ports:
+  #     - 3000:3000
+
 volumes:
   postgres-data:
