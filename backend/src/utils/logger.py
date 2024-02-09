@@ -30,7 +30,7 @@ class ColoredFormatter(logging.Formatter):
         return self.msg_format(record)
 
 
-log = logging.getLogger('Backend-Logger')
+log = logging.getLogger('backendLogger')
 log_level = os.environ.get("LOGGER_LEVEL", 'DEBUG')
 log.setLevel(log_level)
 
