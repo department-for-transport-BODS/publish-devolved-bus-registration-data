@@ -31,7 +31,7 @@ def read_root():
 def read_item():
     return {"item_id": 1}
 
-@app.post("/uploadfile/")
+@app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...)):
     contents = await file.read()
     # Decode the CSV data
