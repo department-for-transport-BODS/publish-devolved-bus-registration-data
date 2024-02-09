@@ -9,10 +9,6 @@ from .utils.config import (ALLOW_HEADER, ALLOW_METHODS, ALLOW_ORIGINS,
 from .utils.csv_validator import csv_data_structure_check
 from .utils.logger import log
 
-load_dotenv()
-log.info(f"Running in regions: {os.getenv('AWS_REGION', 'Running locally')}")
-log.info(f"Running in environment: {os.getenv('PROJECT_ENV', 'localdev')}")
-
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
