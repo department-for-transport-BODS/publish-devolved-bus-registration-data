@@ -83,6 +83,24 @@ export const FullColumnLayout = ({
     </BaseLayout>
 );
 
+export const TowThirdsOneThirdLayout = ({
+    title,
+    description,
+    errors = [],
+    children,
+    hideCookieBanner = false,
+    hideHelp = false,
+}: PropsWithChildren<LayoutProps>): ReactElement => (
+    <BaseLayout
+        title={title}
+        description={description}
+        errors={errors}
+        hideCookieBanner={hideCookieBanner}
+        hideHelp={hideHelp}
+    >
+        <div className="govuk-grid-row">{children}</div>
+    </BaseLayout>
+);
 export const TwoThirdsLayout = ({
     title,
     description,
