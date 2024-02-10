@@ -10,6 +10,10 @@ import TempPage from './pages/temp';
 import Basic from './pages/basic';
 import DefaultPage from './pages/default';
 import Form from './pages/Form';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import PartlyUploading from './pages/uploadConfirmation';
+import SuccessfullyUPloaded from './pages/uploadConfirmationSuccessfully';
+// import Conrima
 // import { Button } from 'govuk-react'
 // import React from 'react';
 // import { Button } from 'govuk-react';
@@ -25,7 +29,6 @@ import Form from './pages/Form';
 //   </div>
 // );
 
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
   return (
@@ -38,6 +41,8 @@ function App() {
         <Route path="/basic" element={<Basic />} />
         <Route path="/default" element={<DefaultPage />} />
         <Route path="/form" element={<Form />} />
+        <Route path="/partlyuploaded" element={<PartlyUploading />} />
+        <Route path="/successfullyuploaded" element={<SuccessfullyUPloaded />} />
       </Routes>
     </BrowserRouter>
   );

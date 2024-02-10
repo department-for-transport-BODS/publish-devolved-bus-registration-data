@@ -78,7 +78,7 @@ const UploadCSV: React.FC = () => {
                                         <button type="submit" className="govuk-button" data-module="govuk-button">
                                                 Continue
                                         </button>
-                                        <button type="submit" className="govuk-button govuk-button--secondary" data-module="govuk-button">
+                                        <button className="govuk-button govuk-button--secondary" data-module="govuk-button">
                                                 Cancel
                                         </button>
                                 </div>
