@@ -13,7 +13,7 @@ import FullColumnLayout from '../Layout/Layout';
 import UploadCSV from '../components/UploadCSV';
 // const height = { height: 'auto' };
 
-const TempPage: React.FC = () => {
+const UploadCSVPage: React.FC = () => {
     return (
         <>
             <FullColumnLayout title="Temp Page" description="Temp Page" hideCookieBanner={true}>
@@ -24,4 +24,4 @@ const TempPage: React.FC = () => {
     );
 };
 
-export default TempPage;
+export default UploadCSVPage;

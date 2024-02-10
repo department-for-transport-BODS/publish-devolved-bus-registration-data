@@ -3,6 +3,7 @@ import '../Css/App.css';
 import Footer from '../Layout/Footer';
 import {TwoThirdsLayout} from '../Layout/Layout';
 import ImportantBanner from '../components/NotificationBanner';
+import ServiceCount from '../components/ServiceCount';
 // const height = { height: 'auto' };
 
 // interface PartlyUploadsProps {
@@ -14,30 +15,16 @@ const PartlyUploading: React.FC = () => {
         <>
             <TwoThirdsLayout title="Temp Page" description="Temp Page" hideCookieBanner={true}>
             <ImportantBanner message="Some of your data has failed to upload" />
-            <div className="">
-                <h2>
-                    Summary of successfully uploaded records
-                </h2>
-            </div>
-            <div className='govuk-!-font-size-48 govuk-!-font-weight-bold govuk-!-margin-bottom-0'>
-                <h2>82</h2>
-            </div>
-            <div className='govuk-!-font-size-24'>
-                <p>Registered services</p>
-            </div>
-            <div className=''>
-                <h2>
-                    Summary of records that failed to upload
-                </h2>
-            </div>
-            <div className='govuk-!-font-size-48 govuk-!-font-weight-bold govuk-!-margin-bottom-0'>
-                <h2>5</h2>
-            </div>
-            <div className='govuk-!-font-size-24 govuk-!-font-weight-bold'>
-                <p>
-                    Services failed to upload
-                </p>
-            </div>
+            <ServiceCount  
+                title="Summary of successfully uploaded records" 
+                count={1099 } 
+                description="Registered services"
+                 />
+            <ServiceCount
+                title="Summary of records that failed to upload"
+                count={5}
+                description="Services failed to upload"
+            />
             </TwoThirdsLayout>
             <div className="govuk-grid-row">
                 <div className="govuk-grid-column-full">
@@ -83,6 +70,7 @@ const PartlyUploading: React.FC = () => {
                     </div>
                 </div>
             </div>
+
             <Footer />
         </>
     );
