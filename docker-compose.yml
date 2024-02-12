@@ -33,27 +33,5 @@ services:
       PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
     restart: unless-stopped
 
-  backend:
-    build:
-      context: ./backend
-      dockerfile: ../docker/python-backend/Dockerfile
-    volumes:
-      - ./backend/src:/app/src
-    ports:
-      - 8000:8000
-    environment:
-      - DB_HOST="postgres"
-      - DB_PORT=${POSTGRES_PORT}
-      - DB_USER=${POSTGRES_USER}
-      - DB_PASSWORD=${POSTGRES_PASSWORD}
-    depends_on:
-      - postgres
-
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #   ports:
-  #     - 3000:3000
-
 volumes:
   postgres-data:
