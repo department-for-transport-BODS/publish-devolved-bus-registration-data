@@ -3,13 +3,14 @@ services:
   postgres:
     container_name: postgres
     image: postgres:15
-    hostname: localhost
+    hostname: postgres
     ports:
       - "5432:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
+      - ${PWD}/sql/localdev:/docker-entrypoint-initdb.d:ro
       - postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
 

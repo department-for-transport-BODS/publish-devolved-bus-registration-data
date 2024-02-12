@@ -53,4 +53,7 @@ run-db-initialise: cmd-exists-psql ## Initialise the database with users/roles a
 	for file in `find ./sql/localdev -type f | sort | cut -c3-`; do ${PG_EXEC}" -f $$file; done
 
 run-db-migrations: cmd-exists-psql ## Run the database migrations found under ./sql
-	for file in `find ./sql -type f -depth 1 | sort | cut -c3-`; do ${PG_EXEC} dbname=epp" -f $$file; done
+	for file in `find ./sql -type f -depth 1 | sort | cut -c3-`; do ${PG_EXEC} dbname=$(PROJECT_NAME)" -f $$file; done
+
+run-db-destroy: cmd-exists-psql ## Delete the database
+	${PG_EXEC}" -c "DROP DATABASE $(PROJECT_NAME); "
