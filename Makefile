@@ -11,10 +11,10 @@ cmd-exists-%:
 		(echo "ERROR: '$(*)' must be installed and available on your PATH."; exit 1)
 
 help:
-	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
+	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/[:].*[##]/:/'
 
 start-services: ## Start the Docker container services
-	docker-compose --env-file ./config/.env up  ${service}
+	docker-compose --env-file ./config/.env up
 
 stop-services: ## Stop the Docker container services
 	docker-compose --envfile ./config/.env down
@@ -23,6 +23,21 @@ clean-services: ## Stop and remove all related Docker container services
 	docker-compose --env-file ./config/.env down
 	docker rm -f postgres pgadmin 2>/dev/null
 	docker volume rm ${DIRNAME}_postgres-data 2>/dev/null
+
+build-frontend: ## Build the frontend locally
+	@echo "Building frontend locally..."
+	@npm install --prefix ./frontend; npm run --prefix ./frontend build
+
+run-frontend: ## Run the frontend locally
+	@echo "Running frontend locally..."
+	@cd ./frontend; npm run start
+
+build-frontend-docker: ## Build the frontend using docker
+	docker build -t react-frontend ./frontend -f ./docker/react-frontend/Dockerfile
+
+run-frontend-docker: build-frontend-docker ## Run the backend api using docker
+	docker rm -f react-frontend || true
+	docker run -t --name react-frontend -p3000:3000 react-frontend
 
 run-backend: ## Run the backend api locally
 	echo '[INFO] Don't forget to run "poetry shell -C ./backend && poetry install -C ./backend --no-root"
@@ -50,10 +65,13 @@ fix-backend-lint: ## Fix the linting issues
 	isort ./backend
 
 run-db-initialise: cmd-exists-psql ## Initialise the database with users/roles and schema
-	for file in `find ./sql/localdev -type f | sort | cut -c3-`; do ${PG_EXEC}" -f $$file; done
+	@echo "Initialising the database..."
+	@for file in `find ./sql/localdev -type f | sort | cut -c3-`; do ${PG_EXEC}" -f $$file; done
 
 run-db-migrations: cmd-exists-psql ## Run the database migrations found under ./sql
-	for file in `find ./sql -type f -depth 1 | sort | cut -c3-`; do ${PG_EXEC} dbname=$(PROJECT_NAME)" -f $$file; done
+	@echo "Running available database migrations..."
+	@for file in `find ./sql -type f -depth 1 | sort | cut -c3-`; do ${PG_EXEC} dbname=$(PROJECT_NAME)" -f $$file; done
 
 run-db-destroy: cmd-exists-psql ## Delete the database
-	${PG_EXEC}" -c "DROP DATABASE $(PROJECT_NAME); "
+	@echo "Destroying the database..."
+	@${PG_EXEC}" -c "DROP DATABASE $(PROJECT_NAME) WITH (FORCE); "

@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS ep_registration (
     start_point VARCHAR(255),
     finish_point VARCHAR(255),
     via VARCHAR(255),
-    subsidised VARCHAR(5),
+    subsidised VARCHAR(10),
     subsidy_detail VARCHAR(255),
     is_short_notice BOOLEAN,
     received_date DATE,
