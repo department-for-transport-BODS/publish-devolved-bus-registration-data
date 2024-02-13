@@ -35,13 +35,8 @@ run-frontend: build-frontend ## Run the frontend locally
 build-backend: ## Build the backend api using sam
 	@cd ./backend; nodemon --watch './src/**/*.py' --signal SIGTERM --exec 'sam' build -e "py" &
 
-<<<<<<< HEAD
-run-backend: build-backend ## Run the backend api locally using sam
-	@cd ./backend; sam local start-api --warm-containers=EAGER
-=======
 run-backend: ## Run the backend api locally using sam
 	@cd ./backend; sam local start-api
->>>>>>> 32b1552 (Update backend dynamically on changes to source code)
 
 run-backend-pytest: ## Run the tests for backend
 	echo '[INFO] Don't forget to run "poetry shell -C ./backend && poetry install -C ./backend --no-root"
