@@ -28,37 +28,19 @@ build-frontend: ## Build the frontend locally
 	@echo "Building frontend locally..."
 	@npm install --prefix ./frontend; npm run --prefix ./frontend build
 
-run-frontend: ## Run the frontend locally
+run-frontend: build-frontend ## Run the frontend locally
 	@echo "Running frontend locally..."
 	@cd ./frontend; npm run start
 
-build-frontend-docker: ## Build the frontend using docker
-	docker build -t react-frontend ./frontend -f ./docker/react-frontend/Dockerfile
+build-backend: ## Build the backend api using sam
+	@cd ./backend; sam build
 
-run-frontend-docker: build-frontend-docker ## Run the backend api using docker
-	docker rm -f react-frontend || true
-	docker run -t --name react-frontend -p3000:3000 react-frontend
-
-run-backend: ## Run the backend api locally
-	echo '[INFO] Don't forget to run "poetry shell -C ./backend && poetry install -C ./backend --no-root"
-	uvicorn src.main:app --reload --port 8000 --app-dir=./backend
+run-backend: build-backend ## Run the backend api locally using sam
+	@cd ./backend; sam local start-api --warn-container=EAGER
 
 run-backend-pytest: ## Run the tests for backend
 	echo '[INFO] Don't forget to run "poetry shell -C ./backend && poetry install -C ./backend --no-root"
 	cd ./backend; pytest --cov=. --cov-report term-missing
-
-build-backend-sam: ## Build the backend api using sam
-	sam build --template-file=./backend/template.yaml
-
-run-backend-sam: ## Run the backend api locally using sam
-	sam local start-api --template-file=./backend/template.yaml
-
-build-backend-docker: ## Build the backend api using docker
-	docker build -t python-backend ./backend -f ./docker/python-backend/Dockerfile
-
-run-backend-docker: build-backend-docker ## Run the backend api using docker
-	docker rm -f python-backend || true
-	docker run -t --name python-backend -p8000:8000 python-backend
 
 fix-backend-lint: ## Fix the linting issues
 	ruff ./backend --fix
@@ -75,3 +57,5 @@ run-db-migrations: cmd-exists-psql ## Run the database migrations found under ./
 run-db-destroy: cmd-exists-psql ## Delete the database
 	@echo "Destroying the database..."
 	@${PG_EXEC}" -c "DROP DATABASE $(PROJECT_NAME) WITH (FORCE); "
+
+# run-application-full: start-services run-db-migrations run-backend run-frontend
