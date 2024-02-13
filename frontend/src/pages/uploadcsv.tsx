@@ -2,6 +2,7 @@ import React from 'react';
 import Header from '../Layout/Header';
 import '../Css/App.css';
 import Footer from '../Layout/Footer';
+import {useLocation} from 'react-router-dom';
 // interface HeaderProps {
 //     isAuthed: boolean;
 //     csrfToken: string;
@@ -14,6 +15,8 @@ import UploadCSV from '../components/UploadCSV';
 // const height = { height: 'auto' };
 
 const UploadCSVPage: React.FC = () => {
+    const location = useLocation();
+    console.log({location});
     return (
         <>
             <FullColumnLayout title="Temp Page" description="Temp Page" hideCookieBanner={true}>

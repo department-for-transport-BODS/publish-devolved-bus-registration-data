@@ -3,7 +3,7 @@ from io import StringIO
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
-
+from time import sleep
 from .utils.config import (ALLOW_HEADER, ALLOW_METHODS, ALLOW_ORIGINS,
                            AWS_REGION, ENVIRONMENT)
 from .utils.csv_validator import csv_data_structure_check
@@ -34,6 +34,9 @@ def read_item():
 @app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...)):
     contents = await file.read()
+    if ENVIRONMENT == "localdev":
+        log.debug("Sleeping for 2 seconds to simulate file upload")
+        sleep(2)
     # Decode the CSV data
     csv_str = contents.decode("utf-8")
     # Convert the CSV data into a dictionary

@@ -7,6 +7,7 @@ import ServiceCount from '../components/ServiceCount';
 import {TowThirdsOneThirdLayout} from '../Layout/Layout';
 import {BaseLayout} from '../Layout/Layout';
 import LoginForm from '../components/LoginForm';
+import HelpAndSupport from '../components/HelpAndSupport';
 // const height = { height: 'auto' };
 
 // interface PartlyUploadsProps {
@@ -40,6 +41,7 @@ const LoginPage: React.FC = () => {
                         </div>
                     </div>
                 </div>
+            <HelpAndSupport />
             </TowThirdsOneThirdLayout>
             <Footer />
         </>
