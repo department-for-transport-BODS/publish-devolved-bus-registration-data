@@ -33,7 +33,7 @@ run-frontend: build-frontend ## Run the frontend locally
 	@cd ./frontend; npm run start
 
 build-backend: ## Build the backend api using sam
-	@cd ./backend; nodemon --watch './src/**/*.py' --signal SIGTERM --exec 'sam' build -e "py" &
+	@cd ./backend; nodemon --watch './src/**/*.py' --signal SIGTERM --exec 'sam' build -e "py"
 
 run-backend: ## Run the backend api locally using sam
 	@cd ./backend; sam local start-api

@@ -81,8 +81,12 @@ In order to start these services up, it is necessary to run:
 # Start up the frontend
 make run-frontend
 
-# Start up the backend, and rebuild automatically with changes on ./src
-make build-backend && make run-backend
+# Build the backend and set watcher to rebuild automatically with changes 
+# on ./src
+make build-backend
+
+# Start up the backend
+make run-backend
 ```
 
 It is advisable (and at times necessary) to run each service in separate 
