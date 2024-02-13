@@ -24,7 +24,7 @@ directory:
 cp .env.local.template .env
 ```
 
-### Step 3: Start Services
+### Step 3: Start Supporting Services
 
 There are different options available when it comes to running the services 
 locally. For database administration, this is managed using the previously 
@@ -58,3 +58,30 @@ make run-db-migrations
 
 This will fully initialise the database and populate it with the necessary
 tables/triggers that allow for storage of data by the application.
+
+
+### Step 5: Start Up the Application Frontend / Backend
+
+The frontend application is written in React and uses NPM to manage the 
+build and run of its components.
+
+The backend api is written in Python and uses AWS SAM for deployment into 
+any target environment. For local testing AWS SAM provides an option to run
+these services locally (using Docker on the backend, although this process
+is hidden from the end user). 
+
+In order to start these services up, it is necessary to run:
+
+```sh
+# Start up the frontend
+make run-frontend
+
+# Start up the backend
+make run-backend
+```
+
+It is advisable (and at times necessary) to run each service in separate 
+terminals to be able to take full advantage of any debug logging that may
+occur as a result of running these applications. It is worth noting that 
+changes to the underlying codebase should be reflected in the already
+running application(s), without the need for additional rebuilding.
