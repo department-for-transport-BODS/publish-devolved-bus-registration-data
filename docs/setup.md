@@ -1,6 +1,7 @@
 # Prerequisites
 * [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)
-* [Node (v18.x.x) / NPM (v9.x.x)](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+* [Node (v18.x.x) / npm (v9.x.x)](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+* [nodemon (npm Package)](https://www.npmjs.com/package//nodemon)
 * [PostgreSQL Client (psql)](https://www.postgresql.org/download/)
 * [Docker Desktop](https://www.docker.com/get-started/) **or another container runtime of your choosing**
 
@@ -80,8 +81,8 @@ In order to start these services up, it is necessary to run:
 # Start up the frontend
 make run-frontend
 
-# Start up the backend
-make run-backend
+# Start up the backend, and rebuild automatically with changes on ./src
+make build-backend && make run-backend
 ```
 
 It is advisable (and at times necessary) to run each service in separate 
