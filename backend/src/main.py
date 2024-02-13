@@ -4,10 +4,10 @@ from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 
-from .utils.config import (ALLOW_HEADER, ALLOW_METHODS, ALLOW_ORIGINS,
+from utils.config import (ALLOW_HEADER, ALLOW_METHODS, ALLOW_ORIGINS,
                            AWS_REGION, ENVIRONMENT)
-from .utils.csv_validator import csv_data_structure_check
-from .utils.logger import log
+from utils.csv_validator import csv_data_structure_check
+from utils.logger import log
 
 app = FastAPI()
 app.add_middleware(
