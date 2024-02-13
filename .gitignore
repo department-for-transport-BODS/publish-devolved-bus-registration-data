@@ -27,3 +27,15 @@ coverage.xml
 
 # dotenv environment variables file
 .env
+
+### NodeJS ###
+# Dependency directories
+**/node_modules/**
+
+# Diagnostic reports (https://nodejs.org/api/report.html)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Logs
+logs
+*.log
+npm-debug.log*
