@@ -1,5 +1,6 @@
 import React from 'react';
 import { FullColumnLayout } from '../Layout/Layout';
+import HelpAndSupport from '../components/HelpAndSupport';
 
 const Home: React.FC = () => {
     return (
@@ -13,16 +14,16 @@ const Home: React.FC = () => {
             </p>
             <div>
                 <p>The service can be used by:</p>
-                <ul className="govuk-list govuk-list--bullet">
+                <ul className="govuk-list govuk-list--bullet govuk-!-margin-left-2">
                     <li>Enhanced partnerships in England</li>
                     <li>Franchises in England</li>
                 </ul>
             </div>
             <div>
-                <p>The service can be used by:</p>
-                <ul className="govuk-list govuk-list--bullet">
-                    <li>Enhanced partnerships in England</li>
-                    <li>Franchises in England</li>
+                <p>Use this service to:</p>
+                <ul className="govuk-list govuk-list--bullet govuk-!-margin-left-2">
+                    <li>Register enhanced partnership bus</li>
+                    <li>View enhanced partnerships registered services</li>
                 </ul>
             </div>
             <div>
@@ -33,11 +34,7 @@ const Home: React.FC = () => {
   </svg>
 </a>
             </div>
-            <div>
-            Help and support
-
-If you are having problems, please contact the Enhanced partnerships service team via this link: Contact us
-            </div>
+        <HelpAndSupport /> 
         </FullColumnLayout>
         </>
     );

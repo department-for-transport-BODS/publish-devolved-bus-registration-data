@@ -4,25 +4,38 @@ import Footer from '../Layout/Footer';
 import {TwoThirdsLayout} from '../Layout/Layout';
 import ImportantBanner from '../components/NotificationBanner';
 import ServiceCount from '../components/ServiceCount';
-// const height = { height: 'auto' };
+import InvalidFeieldsTable, {InvalidFeieldsDataProps} from '../components/InvalidFeieldsTable';
+import {useLocation} from 'react-router-dom';
 
-// interface PartlyUploadsProps {
-//     title: string;
-//     validRecords: number;
-// }
+export interface PartlyUploadingProps{
+    UploadedValidRecords: number,
+    InvalidRecordsCount: number,
+    InvalidFieldsData: InvalidFeieldsDataProps
+}
 const PartlyUploading: React.FC = () => {
+    const location = useLocation();
+    const data = location.state?.detail;
+    console.log({data});
+    const SuccessfulRecords= location.state?.detail.valid_records
+    const InvalidFieldsData = location.state?.detail.invalid_records;
+    console.log(InvalidFieldsData);
+
+    // const InvalidFieldsData : InvalidFeieldsDataProps= {
+    //     12: [{ "Fieldx": "should be int" }, { "Fieldy": "should be a date" },{ "Fieldz": "should be int" }],
+    //     14: [{ "Fieldy": "can not be str" }]
+    //   };
     return (
         <>
             <TwoThirdsLayout title="Temp Page" description="Temp Page" hideCookieBanner={true}>
             <ImportantBanner message="Some of your data has failed to upload" />
             <ServiceCount  
                 title="Summary of successfully uploaded records" 
-                count={1099 } 
+                count={SuccessfulRecords } 
                 description="Registered services"
                  />
             <ServiceCount
                 title="Summary of records that failed to upload"
-                count={5}
+                count={Object.keys(InvalidFieldsData).length}
                 description="Services failed to upload"
             />
             </TwoThirdsLayout>
@@ -30,32 +43,7 @@ const PartlyUploading: React.FC = () => {
                 <div className="govuk-grid-column-full">
                     <div className='govuk-width-container'>
                         <div className='row'>
-                            <table className="govuk-table">
-                                <thead className="govuk-table__head">
-                                    <tr className="govuk-table__row">
-                                    <th scope="col" className="govuk-table__header app-custom-class">Date</th>
-                                    <th scope="col" className="govuk-table__header app-custom-class">Rate for vehicles</th>
-                                    <th scope="col" className="govuk-table__header app-custom-class">Rate for bicycles</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="govuk-table__body">
-                                    <tr className="govuk-table__row">
-                                    <th scope="row" className="govuk-table__header">First 6 weeks</th>
-                                    <td className="govuk-table__cell">£109.80 per week</td>
-                                    <td className="govuk-table__cell">£59.10 per week</td>
-                                    </tr>
-                                    <tr className="govuk-table__row">
-                                    <th scope="row" className="govuk-table__header">Next 33 weeks</th>
-                                    <td className="govuk-table__cell">£159.80 per week</td>
-                                    <td className="govuk-table__cell">£89.10 per week</td>
-                                    </tr>
-                                    <tr className="govuk-table__row">
-                                    <th scope="row" className="govuk-table__header">Total estimated pay</th>
-                                    <td className="govuk-table__cell">£4,282.20</td>
-                                    <td className="govuk-table__cell">£2,182.20</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <InvalidFeieldsTable data={InvalidFieldsData} />
                         </div>
                         <div className="row">
                             <div className="govuk-button-group govuk-!-margin-bottom-8">

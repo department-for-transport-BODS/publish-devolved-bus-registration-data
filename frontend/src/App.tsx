@@ -13,21 +13,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import PartlyUploading from './pages/uploadConfirmation';
 import SuccessfullyUPloaded from './pages/uploadConfirmationSuccessfully';
 import LoginPage from './pages/login';
-// import Conrima
-// import { Button } from 'govuk-react'
-// import React from 'react';
-// import { Button } from 'govuk-react';
+import Uploading from './pages/Uploading';
 
-// interface MyComponentProps {
-//   title: string;
-// }
-
-// const MyComponent: React.FC<MyComponentProps> = ({ title }: MyComponentProps) => (
-//   <div>
-//     <h1>{title}</h1>
-//     <Button />
-//   </div>
-// );
 
 
 function App() {
@@ -43,6 +30,7 @@ function App() {
         <Route path="/partlyuploaded" element={<PartlyUploading />} />
         <Route path="/successfullyuploaded" element={<SuccessfullyUPloaded />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/uploading" element={<Uploading />} />
       </Routes>
     </BrowserRouter>
   );
