@@ -1,21 +1,29 @@
-import React, { useState } from "react";
+import React, { ReactElement, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { SendCSV } from "../utils/SendCSV";
 
+interface UploadCSVProps {
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
-const UploadCSV: React.FC = () => {
-const navigate = useNavigate();
+const UploadCSV: React.FC<UploadCSVProps> = ({
+  setIsLoading,
+}): ReactElement => {
+  const navigate = useNavigate();
   const [recievedError, setRecievedError] = useState<
-    string | null | ErrorTyping
+     null | ErrorTyping
   >(null);
 
   interface ErrorTyping {
-    message: string | undefined | null;
-    code: string | null | undefined;
-    data: string | null | undefined;
+    message: string;
+    code?: string;
   }
 
-  const handleFileError = (error: any) => {
-    setRecievedError(error.message);
+  const handleFileError = (error: Error) => {
+    const errorData = {
+      message: error.message,
+    };
+    setRecievedError(errorData);
   };
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -26,33 +34,26 @@ const navigate = useNavigate();
   };
 
   const fileVirosCheck = (file: File) => {
-        const allowedExtensions = /(\.csv)$/i;
-        if (!allowedExtensions.exec(file.name)) {
-          handleFileError(new Error("Invalid file type"));
-          return false;
-        }
-        return true;
-          }
+    const allowedExtensions = /(\.csv)$/i;
+    if (!allowedExtensions.exec(file.name)) {
+      return false;
+    }
+    return true;
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (selectedFile) {
-        if (fileVirosCheck(selectedFile)) {
-                const formData = new FormData();
-                console.log({ selectedFile })
-                formData.append("file", selectedFile);
-                console.log({ formData });
-                // send form to uplod page
-                formData.forEach((value, key) => {
-                        console.log(key, value);
-                        });
-                navigate('/uploading', { state: {"form":selectedFile} }); 
-          
-        } else{
-                handleFileError(new Error("Invalid file type"));
-        }
-
-
+      if (fileVirosCheck(selectedFile)) {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+        setIsLoading(true);
+        await SendCSV(formData, navigate);
+      } else {
+        handleFileError(new Error("The file format must be.CSV"));
+      }
+    } else {
+      handleFileError(new Error("No file selected"));
     }
   };
 
@@ -71,6 +72,9 @@ const navigate = useNavigate();
               There is a problem <br />
               {(recievedError as ErrorTyping).code} <br />
             </h2>
+            <p className="govuk-error-message">
+              {(recievedError as ErrorTyping).message} <br />
+            </p>
           </div>
         )}
 
@@ -85,18 +89,36 @@ const navigate = useNavigate();
                 Upload the registrations <br /> CSV below
               </h1>
             </legend>
-            <div className="govuk-form-group govuk-!-margin-bottom-8">
-              <label className="govuk-label" htmlFor="file-upload-1">
-                Upload in .CSV format
-              </label>
-              <input
-                className="govuk-file-upload"
-                id="target"
-                name="fileUpload1"
-                type="file"
-                onChange={handleFileChange}
-              />
-            </div>
+            {recievedError ? (
+              <div className="govuk-form-group govuk-!-margin-bottom-8 govuk-form-group--error">
+                <label className="govuk-label" htmlFor="file-upload-1">
+                  Upload in .CSV format
+                </label>
+                <p className="govuk-error-message">
+                  File must be in .csv format
+                </p>
+                <input
+                  className="govuk-file-upload govuk-input--error govuk-input"
+                  id="target"
+                  name="fileUpload1"
+                  type="file"
+                  onChange={handleFileChange}
+                />
+              </div>
+            ) : (
+              <div className="govuk-form-group govuk-!-margin-bottom-8">
+                <label className="govuk-label" htmlFor="file-upload-1">
+                  Upload in .CSV format
+                </label>
+                <input
+                  className="govuk-file-upload"
+                  id="target"
+                  name="fileUpload1"
+                  type="file"
+                  onChange={handleFileChange}
+                />
+              </div>
+            )}
             <div className="govuk-button-group govuk-!-margin-bottom-8">
               <button
                 type="submit"
@@ -105,11 +127,15 @@ const navigate = useNavigate();
               >
                 Continue
               </button>
+
               <button
                 className="govuk-button govuk-button--secondary"
                 data-module="govuk-button"
+                onClick={() => {
+                  navigate("/", { replace: true });
+                }}
               >
-                Cancel
+                Cancel (return to homepage)
               </button>
             </div>
           </fieldset>

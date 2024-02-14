@@ -1,30 +1,24 @@
-import React from 'react';
-import Header from '../Layout/Header';
-import '../Css/App.css';
-import Footer from '../Layout/Footer';
-import {useLocation} from 'react-router-dom';
-// interface HeaderProps {
-//     isAuthed: boolean;
-//     csrfToken: string;
-//     identifier: string | undefined;
-//     user: boolean;
-// }
-// import CsrfForm from '../components/CsrfForm';
-import FullColumnLayout from '../Layout/Layout';
-import UploadCSV from '../components/UploadCSV';
-// const height = { height: 'auto' };
+import React from "react";
+import Footer from "../Layout/Footer";
+import FullColumnLayout from "../Layout/Layout";
+import UploadCSV from "../components/UploadCSV";
 
 const UploadCSVPage: React.FC = () => {
-    const location = useLocation();
-    console.log({location});
-    return (
-        <>
-            <FullColumnLayout title="Temp Page" description="Temp Page" hideCookieBanner={true}>
-                <UploadCSV />
-            </FullColumnLayout>
-            <Footer />
-        </>
-    );
+  const [isloading, setIsLoading] = React.useState<boolean>(false);
+
+  return (
+    <>
+      <FullColumnLayout
+        title="Temp Page"
+        description="Temp Page"
+        hideCookieBanner={true}
+      >
+        {isloading && <h1>Loading...</h1>}
+        {!isloading && <UploadCSV setIsLoading={setIsLoading} />}
+      </FullColumnLayout>
+      <Footer />
+    </>
+  );
 };
 
 export default UploadCSVPage;
