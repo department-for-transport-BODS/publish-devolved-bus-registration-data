@@ -49,3 +49,16 @@ Resources:
           Properties:
             Path: /uploadfile
             Method: post
+  DataCatalogueFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: ./bodsdatacatalogue
+      Handler: datacatalogue.lambda_handler
+      Runtime: python3.11
+      Architectures:
+        - x86_64
+      Events:
+        HourlyGetDataCatalogue:
+          Type: Schedule
+          Properties:
+            Schedule: rate(1 day)
