@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import CsrfForm from '../components/CsrfForm';
+import CsrfForm from './CsrfForm';
 
 
 
-const Form: React.FC = () => {
+const LoginForm: React.FC = () => {
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
 
@@ -29,10 +29,16 @@ const Form: React.FC = () => {
             </label>
             <input className="govuk-input" id="password" name="password" type="password" spellCheck="false" />
         </div>
-            <button type="submit">Submit</button>
+        <div className="row">
+                            <div className="govuk-button-group govuk-!-margin-bottom-8">
+                                <button type="submit" className="govuk-button" data-module="govuk-button">
+                                        Sign in
+                                </button>
+                            </div>
+                        </div>
         {/* </form> */}
         </CsrfForm>
     );
 };
 
-export default Form;
+export default LoginForm;

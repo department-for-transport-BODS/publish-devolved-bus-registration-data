@@ -20,7 +20,7 @@ const DefaultPage: React.FC = () => {
 
 <body className="govuk-template__body">
   <script>
-    document.body.className += ' js-enabled' + ('noModule' in HTMLScriptElement.prototype ? ' govuk-frontend-supported' : '');
+    document.body.className += ` js-enabled` + (`noModule`` in HTMLScriptElement.prototype ? ` govuk-frontend-supported` : ``);
   </script>
   <a href="#main-content" className="govuk-skip-link" data-module="govuk-skip-link">Skip to main content</a>
   <header className="govuk-header" role="banner" data-module="govuk-header">
