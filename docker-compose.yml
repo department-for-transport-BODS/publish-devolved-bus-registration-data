@@ -13,8 +13,6 @@ services:
       - ${PWD}/sql/localdev:/docker-entrypoint-initdb.d:ro
       - postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
-    # networks:
-    #   - epp-app
 
   pgadmin:
     build:
@@ -34,11 +32,7 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${POSTGRES_PASSWORD}
       PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
     restart: unless-stopped
-    # networks:
-    #   - epp-app
+
 
 volumes:
   postgres-data:
-
-# networks:
-#   epp-app:
