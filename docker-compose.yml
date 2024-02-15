@@ -33,6 +33,5 @@ services:
       PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
     restart: unless-stopped
 
-
 volumes:
   postgres-data:
