@@ -9,6 +9,6 @@ ENVIRONMENT = getenv("PROJECT_ENV", "localdev")
 AWS_REGION = getenv("AWS_REGION", "localdev")
 
 # Middleware settings
-ALLOW_ORIGINS = ['*']
-ALLOW_METHODS= ["*"]
+ALLOW_ORIGINS = ["*"]
+ALLOW_METHODS = ["*"]
 ALLOW_HEADER = ["*"]
