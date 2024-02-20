@@ -270,6 +270,49 @@ Resources:
         - Key: Name
           Value: !Sub '${Environment}-${ProjectName}-data-catalogue-lambda'
 
+  OtcClientApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: OtcApi
+      StageName: !Ref Environment
+
+  OtCApiLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub  ${Environment}-${ProjectName}-otc-api-lambda
+      CodeUri: src/otcclient
+      Handler: app.lambda_handler
+      Events:
+        ApiEvents:
+          Type: Api
+          Properties:
+            Path: /api/v1/otc/{proxy+}
+            Method: ANY
+            RestApiId: !Ref OtcClientApi
+      Environment:
+        Variables:
+          PROJECT_ENV: !Ref Environment
+          PROJECT_NAME: !Ref ProjectName
+          HTTP_PROXY: !If
+            - IsNotLocal
+            - !Sub 'http://squid.${ProjectName}.${Environment}:3128'
+            - !Ref AWS::NoValue
+          HTTPS_PROXY: !If
+            - IsNotLocal
+            - !Sub 'http://squid.${ProjectName}.${Environment}:3128'
+            - !Ref AWS::NoValue
+          LOG_LEVEL: !If
+            - IsNotProd
+            - 'DEBUG'
+            - 'INFO'
+          MS_TENANT_ID:       !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/otc_ms_scope}}'
+          MS_CLIENT_ID:       !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/otc_ms_client_id"}}'
+          OTC_API_URL:        !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/otc_api_url}}'
+          MS_LOGIN_URL:       !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/otc_ms_login_url}}'
+          MS_SCOPE:           !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/otc_ms_scope}}'
+          OTC_CLIENT_SECRET:  !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/otc_client_secret_arn}}'
+          OTC_API_KEY:        !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/otc_api_key_arn}}'
+
   RdsProxyFromDataCatalogueLambdaSecurityGroupIngress:
     Type: AWS::EC2::SecurityGroupIngress
     Condition: IsNotLocal

@@ -7,6 +7,10 @@ from pydantic import BaseModel, Field, AliasChoices
 import logging
 from json import dumps
 from utils.aws import get_secret
+from fastapi import FastAPI, HTTPException
+from mangum import Mangum
+from typing import List
+
 
 
 class OTCAuthorizationTokenException(Exception):
@@ -31,9 +35,8 @@ MS_SCOPE = getenv("MS_SCOPE", None)
 
 
 if ENVIRONMENT != "local":
-    secret = get_secret(getenv("OTC_KEYS"))
-    OTC_CLIENT_SECRET = secret["OTC_CLIENT_SECRET"]
-    OTC_API_KEY = secret["OTC_API_KEY"]
+    OTC_CLIENT_SECRET = get_secret("OTC_CLIENT_SECRET")
+    OTC_API_KEY = get_secret("OTC_API_KEY")
 else: 
     OTC_CLIENT_SECRET = getenv("OTC_CLIENT_SECRET", None)
     OTC_API_KEY = getenv("OTC_API_KEY", None)
@@ -81,14 +84,21 @@ class OTCAuthenticator:
     """
 
     def __init__(self):
+        logger.debug('Initialising authenticator and getting initial token')
         self.cache = TTLCache(maxsize=1, ttl=3600)
+        self.get_token()
 
     @property
     def token(self) -> str:
         """
         Fetch bearer token from Cache (Redis) or send request to generate new token.
         """
-        return self.cache.get("otc-auth-bearer", None) or self.get_token()
+        cache_hit = self.cache.get("otc-auth-bearer", None)
+        if cache_hit is None:
+            logger.debug(f"API Token cache has expired")
+            return self.get_token()
+        else:
+            return cache_hit
 
     def get_token(self) -> str:
         """
@@ -99,6 +109,7 @@ class OTCAuthenticator:
 
         expiry_time - 5mins (to invalidate cache while the first token is still active)
         """
+        logger.debug(f"Attempting to get API token from MS Endpoint")
         url = f"{MS_LOGIN_URL}/{MS_TENANT_ID}/oauth2/v2.0/token"
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
         body = {
@@ -113,10 +124,10 @@ class OTCAuthenticator:
             response.raise_for_status()
         except requests.exceptions.HTTPError as err:
             msg = f"Couldn't fetch Authorization token. {err}"
-            log.error(msg)
-            log.error(f"with credentials {body}")
+            logger.error(msg)
+            logger.error(f"with credentials {body}")
             if response:
-                log.error(f"with content {response.content}")
+                logger.error(f"with content {response.content}")
             raise OTCAuthorizationTokenException(msg)
 
         auth_response = response.json()
@@ -124,6 +135,7 @@ class OTCAuthenticator:
         token_cache_timeout = auth_response["expires_in"] - 60 * 5
         self.cache = TTLCache(maxsize=1, ttl=token_cache_timeout)
         self.cache["otc-auth-bearer"] = auth_response["access_token"]
+        logger.debug(f"Token cache set with timeout {token_cache_timeout}")
         return auth_response["access_token"]
 
 
@@ -148,22 +160,23 @@ class OTCAPIClient:
             response.raise_for_status()
         except requests.Timeout as e:
             msg = f"Timeout Error: {e}"
-            log.error(msg)
+            logger.error(msg)
             raise
 
         except requests.HTTPError as e:
             msg = f"HTTPError: {e}"
-            log.error(msg)
+            logger.error(msg)
             raise
 
         if response.status_code == HTTPStatus.NO_CONTENT:
             msg = f"Empty Response, API return {HTTPStatus.NO_CONTENT} for params {params}"
-            log.error(msg)
+            logger.error(msg)
             raise OTCLicenceNotFound("Licence not found on OTC API")
 
         return response.json()
 
     def _get_licence(self, licence_number):
+        logger.debug(f"Attempting to get licence {licence_number} from OTC")
         try:
             return licence_number, self._request(
                 licenceNo=licence_number, limit=1, page=1, latestVariation="true"
@@ -172,10 +185,11 @@ class OTCAPIClient:
             return licence_number, None
         except Exception as e:
             msg = f"Could not get license {licence_number}: {e}"
-            log.error(msg)
+            logger.error(msg)
             raise
 
     def _parse_licence(self, licence_number, returned_licence):
+        logger.debug(f"Attempting to parse licence {licence_number} received from OTC")
         bus_search_component = returned_licence.get("busSearch", None)
         try:
             if bus_search_component is None:
@@ -188,7 +202,7 @@ class OTCAPIClient:
                 )
         except Exception as e:
             msg = f"Could not get license {licence_number}: {e}"
-            log.error(msg)
+            logger.error(msg)
             return None, None
         try:
             parsed_licence = OTCLicence(**bus_search_component[0])
@@ -196,18 +210,19 @@ class OTCAPIClient:
 
         except Exception as e:
             msg = f"Could not get license detail for licence {licence_number}: {e}"
-            log.error(msg)
+            logger.error(msg)
             parsed_licence_dump = None
         try:
             parsed_operator = Operator(**bus_search_component[0])
             parsed_operator_dump = parsed_operator.model_dump()
         except Exception as e:
             msg = f"Could not get operator detail for licence {licence_number}: {e}"
-            log.error(msg)
+            logger.error(msg)
             parsed_operator_dump = None
         return parsed_licence_dump, parsed_operator_dump
 
     def get_licences(self, licence_numbers: list):
+        logger.info(f"Attempting to get the following licenses from OTC: {', '.join(licence_numbers)}")
         # Remove duplicates
         unique_licence_numbers = list(set(licence_numbers))
 
@@ -236,21 +251,16 @@ class OTCAPIClient:
 
         return response
 
+app = FastAPI(docs_url="/api/v1/otc/docs", redoc_url="/api/v1/otc/redoc", openapi_url="/api/v1/otc/openapi.json")
 
-def lambda_handler(event, context):
+
+@app.post("/api/v1/otc/licences")
+async def query_licences(licences: List[str]):
     try:
-        if not isinstance(event, list):
-            raise ValueError("Input is not a list")
         client = OTCAPIClient()
-        output = client.get_licences(event)
-        return {
-            "statusCode": 200,
-            "headers": {"Content-Type": "application/json"},
-            "body": dumps(output),
-        }
+        output = client.get_licences(licences)
+        return output
     except Exception as e:
-        return {
-            "statusCode": 400,
-            "headers": {"Content-Type": "application/json"},
-            "body": dumps(str(e)),
-        }
+        raise HTTPException(status_code=400, detail=str(e))
+
+lambda_handler = Mangum(app, lifespan="off")

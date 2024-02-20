@@ -47,7 +47,7 @@ deploy-backend: ## Deploy the backend api to target environment using sam
 	@cd ./backend; sam deploy --config-env=$(ENV) --confirm-changeset
 
 run-backend: ## Run the backend api locally using sam
-	@cd ./backend; sam local start-api --port 8000 --warm-containers=EAGER --container-host localhost
+	@cd ./backend; sam local start-api --port 8000 --warm-containers=EAGER --env-vars ../config/local_variables.json --container-host localhost
 
 run-backend-pytest: ## Run the tests for backend
 	echo '[INFO] Don't forget to run "poetry shell -C ./backend && poetry install -C ./backend --no-root"

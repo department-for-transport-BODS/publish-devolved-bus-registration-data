@@ -40,3 +40,4 @@ logs
 *.log
 npm-debug.log*
 test.ipynb
+config/local_variables.json
