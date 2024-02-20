@@ -13,7 +13,7 @@ from utils.config import (
 )
 from utils.csv_validator import csv_data_structure_check
 from utils.logger import log
-from utils.db import send_to_db, mock_data
+from utils.db import send_to_db
 
 app = FastAPI()
 app.add_middleware(
@@ -53,7 +53,6 @@ async def create_upload_file(file: UploadFile = File(...)):
     validated_records = csv_data_structure_check(csv_data)
     validated_records["valid_records_count"] = len(validated_records["valid_records"])
     send_to_db(validated_records["valid_records"])
-    mock_data()
     if validated_records.get("invalid_records"):
         raise HTTPException(status_code=422, detail=validated_records)
     return validated_records
@@ -61,9 +60,9 @@ async def create_upload_file(file: UploadFile = File(...)):
 
 @app.get("/health")
 def health_check():
-    from utils.db import mock_data
+    from utils.db import send_to_db
 
-    mock_data()
+    send_to_db()
     return {"status": "ok"}
 
 
