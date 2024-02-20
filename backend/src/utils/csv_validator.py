@@ -131,7 +131,9 @@ def extract_field_mgs_type_from_errors(errors: [dict]) -> dict:
         #                 "message": error.get("msg"),
         #                 "type": error.get("type")
         #         }
-        if len(error.get("loc")) == 1:
+        if error.get("loc") is None:
+            log.warning("Warning: Field is None")
+        elif len(error.get("loc")) == 1:
             field_name = error.get("loc")[0]
             modified_errors.append({field_name: error.get("msg")})
         else:
