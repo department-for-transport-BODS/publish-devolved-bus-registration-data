@@ -1,5 +1,15 @@
 import logging
 import os
+from rich.console import Console
+console = Console()
+
+# from rich.logging import RichHandler
+# logging.basicConfig(
+#     level="NOTSET",
+#     format="%(message)s",
+#     datefmt="[%X]",
+#     handlers=[RichHandler(rich_tracebacks=True)],
+# )
 
 
 class ColoredFormatter(logging.Formatter):
@@ -43,3 +53,4 @@ console_handler.setFormatter(formatter)
 
 # Attach handler to the logger
 log.addHandler(console_handler)
+

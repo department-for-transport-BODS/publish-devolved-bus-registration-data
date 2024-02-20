@@ -2,55 +2,17 @@ import os
 
 import boto3
 import psycopg2
-from pydantic import BaseModel
 from .logger import log
 from sqlalchemy.orm import Session
 from .csv_validator import Registration
 from sqlalchemy import select, create_engine
 from typing import List
-
+from .validate import validate_licence_number_existence
 # from .db.models import EPRegistration, OTCOperator, OTCLicence
 from sqlalchemy.ext.automap import automap_base
 from sys import exit
-from rich.logging import RichHandler
-import logging
-
-logging.basicConfig(
-    level="NOTSET",
-    format="%(message)s",
-    datefmt="[%X]",
-    handlers=[RichHandler(rich_tracebacks=True)],
-)
-
-from rich.console import Console
-
-console = Console()
 
 
-class LicenceDetails(BaseModel):
-    id: int
-    licence_number: str
-    licence_status: str
-    otc_licence_id: int
-
-
-class OperatorDetails(BaseModel):
-    id: int
-    operator_name: str
-    operator_id: int
-
-
-class LicenceRecord(BaseModel):
-    licence_number: str
-    licence_details: LicenceDetails | None
-    operator_details: OperatorDetails | None
-
-
-class LicenceDetailsError(Exception):
-    def __init__(self, message="Licence details not found", value=None):
-        self.message = message
-        self.value = value
-        super().__init__(self.message)
 
 
 class CreateEngine:
@@ -157,87 +119,6 @@ class AutoMappingModels:
         }
 
 
-class MockData:
-    @classmethod
-    def mock_otc_licencd_and_operator_api(cls, licence_numbers: List[str]) -> dict:
-        # Mockk an API call to get the licence status and operator name
-        return {
-            "licences": [
-                {
-                    "licence_number": "PC7654322",
-                    "licence_details": {
-                        "id": 123,
-                        "licence_number": "string",
-                        "licence_status": "string",
-                        "otc_licence_id": 123,
-                    },
-                    "operator_details": {
-                        "id": 123,
-                        "operator_name": "string",
-                        "operator_id": 123,
-                    },
-                },
-                {
-                    "licence_number": "x001",
-                    "licence_details": None,
-                    "operator_details": None,
-                },
-            ]
-        }
-
-    @classmethod
-    def mock_user_csv_record(cls):
-        reg_record = Registration(
-            licenceNumber="PC7654322",
-            registrationNumber="PD7654321/87654321",
-            routeNumber="2",
-            routeDescription="City Center - Suburb - Main Street",
-            variationNumber=1,
-            startPoint="City Center",
-            finishPoint="Suburb",
-            via="Main Street",
-            subsidised="Fully",
-            subsidyDetail="Transport for Local Authority (LA)",
-            isShortNotice=False,
-            receivedDate="01/01/2000",
-            grantedDate="01/02/2000",
-            effectiveDate="01/03/2000",
-            endDate="01/04/2000",
-            operatorName="Blue Sky Buses",
-            busServiceTypeId="Standard",
-            busServiceTypeDescription="Normal Stopping",
-            trafficAreaId="C",
-            applicationType="New",
-            publicationText="Revised timetable to improve reliability",
-            otherDetails="",
-        )
-        reg_record2 = Registration(
-            licenceNumber="x002",
-            registrationNumber="PD7654321/87654321",
-            routeNumber="2",
-            routeDescription="City Center - Suburb - Main Street",
-            variationNumber=1,
-            startPoint="City Center",
-            finishPoint="Suburb",
-            via="Main Street",
-            subsidised="Fully",
-            subsidyDetail="Transport for Local Authority (LA)",
-            isShortNotice=False,
-            receivedDate="01/01/2000",
-            grantedDate="01/02/2000",
-            effectiveDate="01/03/2000",
-            endDate="01/04/2000",
-            operatorName="Blue Sky Buses",
-            busServiceTypeId="Standard",
-            busServiceTypeDescription="Normal Stopping",
-            trafficAreaId="C",
-            applicationType="New",
-            publicationText="Revised timetable to improve reliability",
-            otherDetails="",
-        )
-        return [reg_record, reg_record2]
-
-
 class DBManager:
     @classmethod
     def fetch_operator_record(
@@ -297,53 +178,20 @@ class DBManager:
         console.log(f"New EP registration record: {ep_registration_record.id}")
 
 
-class OTCApiResponse(BaseModel):
-    otc_licence_id: int
-    licence_status: str
-    operator_name: str
-    operator_id: int
 
 
-def send_to_db():
-    validated_records: List[Registration] = MockData.mock_user_csv_record()
+def send_to_db(validated_records: List[Registration]):
+    # validated_records: List[Registration] = MockData.mock_user_csv_record()
     tables = AutoMappingModels().get_tables()
     OTCOperator = tables["OTCOperator"]
     OTCLicence = tables["OTCLicence"]
     EPRegistration = tables["EPRegistration"]
-    # Collect all the licence numbers from the records
-    licence_numbers = set([record.licence_number for record in validated_records])
-    otc_API_response = MockData.mock_otc_licencd_and_operator_api(licence_numbers)
-    try:
-        licence_details = [
-            LicenceRecord(**record) for record in otc_API_response["licences"]
-        ]
-
-        # get licenceRecord that has licence_number x001
-        licence_detail = lambda licence_number: next(
-            (
-                record
-                for record in licence_details
-                if record.licence_number == licence_number
-            ),
-            None,
-        )
-
-    except Exception:
-        console.print_exception(show_locals=True)
-
-    for record in validated_records:
+    # Check if the licence number exists in the OTC database
+    validated_records = validate_licence_number_existence(validated_records)
+    
+    for idx, record_and_licence in validated_records["valid_records"].items():
         try:
-            # Get licence details
-            licence = licence_detail(record.licence_number)
-            console.log(record.licence_number)
-            console.log(licence)
-            if (
-                licence is None
-                or licence.licence_details is None
-                or licence.operator_details is None
-            ):
-                raise LicenceDetailsError
-
+            record, licence = record_and_licence
             OTCOperator_record = OTCOperator(
                 operator_name=licence.operator_details.operator_name,
                 operator_id=licence.operator_details.operator_id,
@@ -378,3 +226,11 @@ def send_to_db():
             session.rollback()
         finally:
             session.close()
+
+        # remove licence details from the record using lambda
+    for idx, record in validated_records["valid_records"].items():
+        validated_records["valid_records"][idx] = record[0].model_dump(exclude=["serviceCode"])
+    console.log(validated_records)
+    return validated_records
+
+    

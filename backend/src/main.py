@@ -50,9 +50,10 @@ async def create_upload_file(file: UploadFile = File(...)):
     csv_str = contents.decode("utf-8")
     # Convert the CSV data into a dictionary
     csv_data = list(csv.DictReader(StringIO(csv_str)))
+    # Validate the CSV input data
     validated_records = csv_data_structure_check(csv_data)
+    validated_records = send_to_db(validated_records)
     validated_records["valid_records_count"] = len(validated_records["valid_records"])
-    send_to_db(validated_records["valid_records"])
     if validated_records.get("invalid_records"):
         raise HTTPException(status_code=422, detail=validated_records)
     return validated_records
