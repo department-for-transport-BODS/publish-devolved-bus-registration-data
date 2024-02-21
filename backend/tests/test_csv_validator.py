@@ -1,5 +1,7 @@
 from pydantic import ValidationError
-from src.utils.csv_validator import Registration, extract_field_mgs_type_from_errors
+
+from utils.csv_validator import (Registration,
+                                 extract_field_mgs_type_from_errors)
 
 
 def test_extract_field_mgs_type_from_errors():
@@ -21,11 +23,7 @@ def test_extract_field_mgs_type_from_errors():
     result = extract_field_mgs_type_from_errors(errors)
 
     # Assert that the result matches the expected output
-    expected_result = [
-        {"field": ["first_name"], "message": "Field required", "type": "missing"},
-        {"field": None, "message": "Field required", "type": "missing"},
-        {"field": ["address"], "message": None, "type": "missing"},
-    ]
+    expected_result = [{'first_name': 'Field required'}, {'address': None}]
     assert result == expected_result
 
 

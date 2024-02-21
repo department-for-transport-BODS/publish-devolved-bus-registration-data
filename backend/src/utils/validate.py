@@ -1,7 +1,10 @@
-from .pydant_model import LicenceRecord, LicenceDetails, OperatorDetails, OTCApiResponse
 from rich.console import Console
+
 from .custom_exception import LicenceDetailsError
 from .mocker import MockData
+from .pydant_model import (LicenceDetails, LicenceRecord, OperatorDetails,
+                           OTCApiResponse)
+
 console = Console()
 
 

@@ -1,6 +1,8 @@
 
-from .pydant_model import Registration
 from typing import List
+
+from .pydant_model import Registration
+
 
 class MockData:
     @classmethod

@@ -1,7 +1,9 @@
-from pydantic import BaseModel, Field, ValidationError, field_validator
-from datetime import datetime
 import re
+from datetime import datetime
 from typing import Optional
+
+from pydantic import BaseModel, Field, ValidationError, field_validator
+
 
 class Registration(BaseModel):
     licence_number: str = Field(

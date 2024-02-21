@@ -1,8 +1,9 @@
 from typing import Optional
 
 from pydantic import BaseModel, Field, ValidationError, field_validator
-from .pydant_model import Registration
+
 from .logger import log
+from .pydant_model import Registration
 
 
 def csv_data_structure_check(csv_data: [dict]) -> dict:
@@ -52,11 +53,6 @@ def extract_field_mgs_type_from_errors(errors: [dict]) -> dict:
     """
     modified_errors = []
     for error in errors:
-        # modified_error = {
-        #                 "field": error.get("loc"),
-        #                 "message": error.get("msg"),
-        #                 "type": error.get("type")
-        #         }
         if error.get("loc") is None:
             log.warning("Warning: Field is None")
         elif len(error.get("loc")) == 1:
