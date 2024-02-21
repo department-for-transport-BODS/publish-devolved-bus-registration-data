@@ -50,11 +50,3 @@ class CSVHandler:
         except Exception as e:
             print(f"Error: {e}")
         return records
-
-    def validation_and_insertion_steps(self):
-        validated_records = self._validate_csv_data()
-        validated_records = self._check_licence_number_existence(validated_records)
-        self._send_to_db(validated_records)
-        validated_records = self._remove_licence_details(validated_records)
-        validated_records["valid_records_count"] = len(validated_records["valid_records"])
-        return validated_records
