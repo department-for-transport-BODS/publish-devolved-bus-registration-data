@@ -82,16 +82,14 @@ class Registration(BaseModel):
 
 
 class LicenceDetails(BaseModel):
-    id: int
     licence_number: str
     licence_status: str
     otc_licence_id: int
 
 
 class OperatorDetails(BaseModel):
-    id: int
     operator_name: str
-    operator_id: int
+    otc_operator_id: int
 
 
 class LicenceRecord(BaseModel):
@@ -99,8 +97,4 @@ class LicenceRecord(BaseModel):
     licence_details: LicenceDetails | None
     operator_details: OperatorDetails | None
 
-class OTCApiResponse(BaseModel):
-    otc_licence_id: int
-    licence_status: str
-    operator_name: str
-    operator_id: int
+
