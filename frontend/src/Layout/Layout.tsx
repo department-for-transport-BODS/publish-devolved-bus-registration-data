@@ -10,6 +10,7 @@ import Footer from './Footer';
 // import { GlobalSettingReturnHeader } from './GlobalSettingReturnHeader';
 // import Navigation from './Navigation';
 import PhaseBanner from '../components/PhaseBanner';
+import PhaseBanner from '../components/PhaseBanner';
 import Header from './Header';
 import { HeadProvider, Title, Link, Meta } from 'react-head';
 interface LayoutProps {
@@ -38,6 +39,8 @@ export const BaseLayout = ({
         setShowBanner(true);
         console.log('showBanner', showBanner);
         console.log('title', title);
+        console.log('showBanner', showBanner);
+        console.log('title', title);
     });
 
     return (
@@ -53,7 +56,19 @@ export const BaseLayout = ({
                 {/* Rest of the component */}
             </HeadProvider>
             <Header/>
+            <HeadProvider>
+                <div className="Home">
+                    <Title>{title? title: "EP Project"}</Title>
+                    <Meta name="description" content={'Upload CSV'} />
+                    <Meta name="viewport" content="width=device-width, initial-scale=1" />
+                    <Meta charSet="utf-8" />
+                    {/* Additional meta tags or links can be added here */}
+                </div>
+                {/* Rest of the component */}
+            </HeadProvider>
+            <Header/>
             <div className="govuk-width-container">
+                <PhaseBanner />
                 <PhaseBanner />
                 <main className="govuk-main-wrapper">{children}</main>
                 {/* {!hideHelp && <Help />} */}
