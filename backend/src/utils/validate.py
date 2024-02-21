@@ -2,6 +2,7 @@ from .custom_exception import LicenceDetailsError
 from .mocker import MockData
 from .pydant_model import (LicenceDetails, LicenceRecord, OperatorDetails,
                            OTCApiResponse)
+from .logger import log
 
 
 def validate_licence_number_existence(uploaded_records: dict):
@@ -39,7 +40,6 @@ def validate_licence_number_existence(uploaded_records: dict):
 
     valid_records = {}
     for idx, record in uploaded_records["valid_records"].items():
-        console.log(idx)
         try:
             # Get licence details
             licence = licence_detail(record.licence_number)
