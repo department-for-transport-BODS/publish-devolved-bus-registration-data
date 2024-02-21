@@ -1,11 +1,7 @@
-from rich.console import Console
-
 from .custom_exception import LicenceDetailsError
 from .mocker import MockData
 from .pydant_model import (LicenceDetails, LicenceRecord, OperatorDetails,
                            OTCApiResponse)
-
-console = Console()
 
 
 def validate_licence_number_existence(uploaded_records: dict):
@@ -13,7 +9,7 @@ def validate_licence_number_existence(uploaded_records: dict):
     This function takes a list of licence numbers and checks if they exist in the database.
 
     Args:
-        licence_numbers ([list]): A list of licence numbers.
+        uploaded_records (dict): A dictionary containing the records to be validated.
 
     Returns:
         [list]: A list of dictionaries containing the details of the licences.
@@ -38,8 +34,8 @@ def validate_licence_number_existence(uploaded_records: dict):
             None,
         )
 
-    except Exception:
-        console.print_exception(show_locals=True)
+    except Exception as e:
+        log.error("Error: {e}")
 
     valid_records = {}
     for idx, record in uploaded_records["valid_records"].items():
