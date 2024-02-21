@@ -1,18 +1,17 @@
 import os
+from sys import exit
+from typing import List
 
 import boto3
 import psycopg2
-from .logger import log
-from sqlalchemy.orm import Session
-from .csv_validator import Registration
-from sqlalchemy import select, create_engine
-from typing import List
-from .validate import validate_licence_number_existence
+from sqlalchemy import create_engine, select
 # from .db.models import EPRegistration, OTCOperator, OTCLicence
 from sqlalchemy.ext.automap import automap_base
-from sys import exit
+from sqlalchemy.orm import Session
 
-
+from .csv_validator import Registration
+from .logger import console, log
+from .validate import validate_licence_number_existence
 
 
 class CreateEngine:
@@ -78,19 +77,24 @@ def add_or_get_record(column_name: str, value: str, session: Session, Model, rec
     """
     Add a new record to the table if it doesn't exist, or get the id of the existing record.
     """
-    stmt = select(Model).where(getattr(Model, column_name) == value)
-    if not session.query(stmt.exists()).scalar():
-        new_record = record
-        session.add(new_record)
-        session.flush()
-        log.debug(f"New added record id: {new_record.id}, to table: {Model}")
-        session.commit()
-        return new_record.id
-    else:
-        existing_record = (
-            session.query(Model).filter(getattr(Model, column_name) == value).first()
-        )
-        return existing_record.id
+    try:
+        stmt = select(Model).where(getattr(Model, column_name) == value)
+        if not session.query(stmt.exists()).scalar():
+            new_record = record
+            session.add(new_record)
+            session.flush()
+            log.debug(f"New added record id: {new_record.id}, to table: {Model}")
+            session.commit()
+            return new_record.id
+        else:
+            existing_record = (
+                session.query(Model).filter(getattr(Model, column_name) == value).first()
+            )
+            return existing_record.id
+    except Exception as e:
+        log.error(f"Error: {e}")
+        session.rollback()
+        return None
 
 
 class AutoMappingModels:
@@ -187,7 +191,7 @@ def send_to_db(validated_records: List[Registration]):
     OTCLicence = tables["OTCLicence"]
     EPRegistration = tables["EPRegistration"]
     # Check if the licence number exists in the OTC database
-    validated_records = validate_licence_number_existence(validated_records)
+    # validated_records = validate_licence_number_existence(validated_records)
     
     for idx, record_and_licence in validated_records["valid_records"].items():
         try:
@@ -226,11 +230,3 @@ def send_to_db(validated_records: List[Registration]):
             session.rollback()
         finally:
             session.close()
-
-        # remove licence details from the record using lambda
-    for idx, record in validated_records["valid_records"].items():
-        validated_records["valid_records"][idx] = record[0].model_dump(exclude=["serviceCode"])
-    console.log(validated_records)
-    return validated_records
-
-    

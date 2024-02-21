@@ -1,6 +1,8 @@
 import logging
 import os
+
 from rich.console import Console
+
 console = Console()
 
 # from rich.logging import RichHandler

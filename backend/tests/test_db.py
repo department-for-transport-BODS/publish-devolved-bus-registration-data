@@ -1,72 +1,111 @@
-import unittest
-from utils.db import AutoMappingModels
+import os
+from unittest.mock import Mock, patch
+
+import pytest
+from sqlalchemy import Column, Integer, String, create_engine
+from sqlalchemy.orm import Session, declarative_base
+
+from utils.db import AutoMappingModels, DBManager, add_or_get_record
+
+Base = declarative_base()
+@pytest.fixture
+def mocked_db():
+    # Implement your mocked database setup here
+    # For example, you can use an in-memory SQLite database
+    # and return a session object
+    # Make sure to import the necessary modules and classes
+
+    # Example implementation:
+    engine = create_engine('sqlite:///:memory:')
+    session = Session(engine)
+    Base.metadata.create_all(engine)
+    yield session
+    session.close()
 
 
-class TestAutoMappingModels(unittest.TestCase):
-    def setUp(self):
-        self.auto_mapping = AutoMappingModels()
 
-    def test_get_tables(self):
-        expected_tables = {
-            "EPRegistration": self.auto_mapping.EPRegistration,
-            "OTCOperator": self.auto_mapping.OTCOperator,
-            "OTCLicence": self.auto_mapping.OTCLicence,
-        }
-        actual_tables = self.auto_mapping.get_tables()
-        self.assertEqual(actual_tables, expected_tables)
+class TestModel(Base):
+    __tablename__ = "test_model"
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255))
 
 
-import unittest
-from utils.db import MockData
-from sqlalchemy.orm import Session
+
+def test_add_or_get_record_when_record_does_not_exist(mocked_db):
+    session = mocked_db
+    record = TestModel(name="Test Record")
+    result = add_or_get_record("name", "Test Record", session, TestModel, record)
+    assert result == 1  # Assuming the id of the new record is 1
 
 
-class TestAutoMappingModels(unittest.TestCase):
-    def setUp(self):
-        self.auto_mapping = AutoMappingModels()
+def test_add_or_get_record_when_record_exists(mocked_db):
+    session = mocked_db
+    existing_record = TestModel(id=1, name="Test Record")
+    session.add(existing_record)
+    session.commit()
 
-    def test_get_tables(self):
-        expected_tables = {
-            "EPRegistration": self.auto_mapping.EPRegistration,
-            "OTCOperator": self.auto_mapping.OTCOperator,
-            "OTCLicence": self.auto_mapping.OTCLicence,
-        }
-        actual_tables = self.auto_mapping.get_tables()
-        self.assertEqual(actual_tables, expected_tables)
+    record = TestModel(name="Test Record")
+    result = add_or_get_record("name", "Test Record", session, TestModel, record)
+    assert result == 1  # Assuming the id of the existing record is 1
 
 
-class TestDBManager(unittest.TestCase):
-    def setup_class(self):
-        # Create sqlite3 database
-        self.engine = "sqlite:///test.db"
-        self.session = Session()
-        self.tables = AutoMappingModels().get_tables()
+def test_add_or_get_record_with_exception(mocked_db):
+    session = mocked_db
+    record = TestModel(name="Test Record")
+    session.query = Mock(side_effect=Exception("Test Exception"))
 
-        # Add tables to the new database
-        AutoMappingModels().Base.metadata.create_all(self.engine)
-
-        # self.valid_author = Author(
-        #     firstname="Ezzeddin",
-        #     lastname="Aybak",
-        #     email="aybak_email@gmail.com"
-        # )
-
-    def test_add_record(self):
-        # Add a record to the database
-        record = MockData().get_mock_data()
-        self.session.add(record)
-        self.session.commit()
-
-        # Get the record from the database
-        result = self.session.query(self.tables["EPRegistration"]).first()
-
-        # Assert that the record is the same as the one added
-        self.assertEqual(result, record)
-
-    def teardown_class(self):
-        self.session.rollback()
-        self.session.close()
+    result = add_or_get_record("name", "Test Record", session, TestModel, record)
+    assert result is None  
+    
 
 
-if __name__ == "__main__":
-    unittest.main()
+class TestAutoMappingModels:
+    @pytest.fixture
+    def auto_mapping_models(self):
+        return AutoMappingModels()
+
+    def test_get_tables(self, auto_mapping_models):
+        tables = auto_mapping_models.get_tables()
+        assert isinstance(tables, dict)
+        assert "EPRegistration" in tables
+        assert "OTCOperator" in tables
+        assert "OTCLicence" in tables
+        assert isinstance(tables["EPRegistration"], type(auto_mapping_models.EPRegistration))
+        assert isinstance(tables["OTCOperator"], type(auto_mapping_models.OTCOperator))
+        assert isinstance(tables["OTCLicence"], type(auto_mapping_models.OTCLicence))
+        
+        
+
+
+class TestDBManager:
+    @pytest.fixture
+    def mocked_db(self):
+        engine = create_engine('sqlite:///test_db_file.csv')
+        session = Session(engine)
+        Base.metadata.create_all(engine)
+        yield session
+        session.close()
+        # remove the file
+        os.remove("test_db_file.csv")
+
+    @patch('utils.db.add_or_get_record',return_value=1)
+    def test_fetch_operator_record(self, mocked_db):
+        session = mocked_db
+        OTCOperator = TestModel
+        operator_record = TestModel()
+        operator_name = "Test Operator"
+
+        result = DBManager.fetch_operator_record(operator_name, session, OTCOperator, operator_record)
+
+        assert result == 1  
+
+    @patch('utils.db.add_or_get_record',return_value=1)
+    def test_fetch_licence_record(self, mocked_db):
+        session = mocked_db
+        OTCLicence = TestModel
+        licence_record = TestModel()
+        licence_number = "Test Licence"
+
+        result = DBManager.fetch_licence_record(licence_number, session, OTCLicence, licence_record)
+
+        assert result == 1  
