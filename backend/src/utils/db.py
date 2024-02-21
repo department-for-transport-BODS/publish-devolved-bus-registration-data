@@ -195,12 +195,17 @@ def send_to_db(validated_records: List[Registration]):
     
     for idx, record_and_licence in validated_records["valid_records"].items():
         try:
+            # Create a new session
+            session = Session(engine)
+
+            # Prepare operator object and added to the database
             record, licence = record_and_licence
             OTCOperator_record = OTCOperator(
                 operator_name=licence.operator_details.operator_name,
                 operator_id=licence.operator_details.operator_id,
             )
-            session = Session(engine)
+
+            # Add or fetch the operator id from the database
             operator_record_id = DBManager.fetch_operator_record(
                 licence.operator_details.operator_name,
                 session,
@@ -208,11 +213,14 @@ def send_to_db(validated_records: List[Registration]):
                 OTCOperator_record,
             )
 
+            # Prepare licence object and added to the database
             OTCLicence_recrod = OTCLicence(
                 licence_number=licence.licence_details.licence_number,
                 licence_status=licence.licence_details.licence_status,
                 otc_licence_id=licence.licence_details.otc_licence_id,
             )
+
+            # Add or fetch the licence id from the database
             licence_record_id = DBManager.fetch_licence_record(
                 licence.licence_details.licence_number,
                 session,
@@ -220,6 +228,7 @@ def send_to_db(validated_records: List[Registration]):
                 OTCLicence_recrod,
             )
 
+            # Add the record to the EPRegistration table
             DBManager.add_record_to_ep_registration_table(
                 record, operator_record_id, licence_record_id, session, EPRegistration
             )
