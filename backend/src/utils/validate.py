@@ -1,7 +1,7 @@
 from .custom_exception import LicenceDetailsError
 from .mocker import MockData
-from .pydant_model import (LicenceDetails, LicenceRecord, OperatorDetails,
-                           OTCApiResponse)
+from .pydant_model import  LicenceRecord
+                           
 from .logger import log
 
 
@@ -36,7 +36,7 @@ def validate_licence_number_existence(uploaded_records: dict):
         )
 
     except Exception as e:
-        log.error("Error: {e}")
+        log.error(f"Error: {e}")
 
     valid_records = {}
     for idx, record in uploaded_records["valid_records"].items():
@@ -59,10 +59,9 @@ def validate_licence_number_existence(uploaded_records: dict):
                 uploaded_records["invalid_records"].update({idx: [{'LicenceNumber': 'Licence number is not found in the OTC DB'}]})
             else:
                 uploaded_records["invalid_records"][idx].append({'LicenceNumber': 'Licence number is not found in the OTC DB'})
-        except Exception:
-            console.print_exception(show_locals=False)
+        except Exception as e:
+            log.error(f"Error: {e}")
         finally:
            uploaded_records["valid_records"] = valid_records 
 
-    console.log(uploaded_records) 
     return uploaded_records

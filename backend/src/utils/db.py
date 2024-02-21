@@ -202,7 +202,7 @@ def send_to_db(validated_records: List[Registration]):
             record, licence = record_and_licence
             OTCOperator_record = OTCOperator(
                 operator_name=licence.operator_details.operator_name,
-                operator_id=licence.operator_details.operator_id,
+                otc_operator_id=licence.operator_details.otc_operator_id,
             )
 
             # Add or fetch the operator id from the database
@@ -214,7 +214,7 @@ def send_to_db(validated_records: List[Registration]):
             )
 
             # Prepare licence object and added to the database
-            OTCLicence_recrod = OTCLicence(
+            OTCLicence_record = OTCLicence(
                 licence_number=licence.licence_details.licence_number,
                 licence_status=licence.licence_details.licence_status,
                 otc_licence_id=licence.licence_details.otc_licence_id,
@@ -225,7 +225,7 @@ def send_to_db(validated_records: List[Registration]):
                 licence.licence_details.licence_number,
                 session,
                 OTCLicence,
-                OTCLicence_recrod,
+                OTCLicence_record,
             )
 
             # Add the record to the EPRegistration table

@@ -13,15 +13,14 @@ class MockData:
                 {
                     "licence_number": "PC7654322",
                     "licence_details": {
-                        "id": 123,
                         "licence_number": "string",
                         "licence_status": "string",
                         "otc_licence_id": 123,
                     },
                     "operator_details": {
-                        "id": 123,
                         "operator_name": "string",
-                        "operator_id": 123,
+                        "otc_operator_id": 123,
+
                     },
                 },
                 {
