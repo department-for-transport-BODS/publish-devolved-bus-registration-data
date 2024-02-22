@@ -1,8 +1,8 @@
 import re
 from datetime import datetime
 from typing import Optional
-
-from pydantic import BaseModel, Field, ValidationError, field_validator
+from os import getenv
+from pydantic import BaseModel, Field, field_validator
 
 
 class Registration(BaseModel):
@@ -98,3 +98,9 @@ class LicenceRecord(BaseModel):
     operator_details: OperatorDetails | None
 
 
+class DBCreds(BaseModel):
+    DB_HOST: str = Field(default_factory=lambda: getenv("DB_HOST", "localhost"))
+    DB_PORT: str = Field(default_factory=lambda: getenv("DB_PORT", "5433"))
+    DB_USER: str
+    DB_PASSWORD: str
+    DB_NAME: str = Field(default_factory=lambda: getenv("DB_NAME", "postgres"))
