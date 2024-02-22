@@ -6,8 +6,13 @@ from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 
-from utils.config import (ALLOW_HEADER, ALLOW_METHODS, ALLOW_ORIGINS,
-                          AWS_REGION, ENVIRONMENT)
+from utils.config import (
+    ALLOW_HEADER,
+    ALLOW_METHODS,
+    ALLOW_ORIGINS,
+    AWS_REGION,
+    ENVIRONMENT,
+)
 from managers import CSVManager
 from utils.logger import log
 
@@ -47,11 +52,12 @@ async def create_upload_file(file: UploadFile = File(...)):
     # Convert the CSV data into a dictionary
     csv_data = list(csv.DictReader(StringIO(csv_str)))
     csv_handler = CSVManager(csv_data)
-    records_report= csv_handler.validation_and_insertion_steps()
+    records_report = csv_handler.validation_and_insertion_steps()
     # Validate the CSV input data
     if records_report.get("invalid_records"):
         raise HTTPException(status_code=422, detail=records_report)
     return records_report
+
 
 @app.get("/health")
 def health_check():

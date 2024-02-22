@@ -1,7 +1,7 @@
 from .custom_exception import LicenceDetailsError
 from .mocker import MockData
-from .pydant_model import  LicenceRecord
-                           
+from .pydant_model import LicenceRecord
+
 from .logger import log
 
 
@@ -18,7 +18,6 @@ def validate_licence_number_existence(uploaded_records: dict):
     # Collect all the licence numbers from the records
     validated_rocords = uploaded_records["valid_records"]
     otc_API_response = MockData.mock_otc_licencd_and_operator_api(validated_rocords)
-
 
     try:
         licence_details = [
@@ -49,19 +48,28 @@ def validate_licence_number_existence(uploaded_records: dict):
                 or licence.operator_details is None
             ):
                 raise LicenceDetailsError
-            
-            # Add the licence details to the record
-            valid_records.update({idx: [record,licence]})
 
+            # Add the licence details to the record
+            valid_records.update({idx: [record, licence]})
 
         except LicenceDetailsError:
             if idx not in uploaded_records["invalid_records"]:
-                uploaded_records["invalid_records"].update({idx: [{'LicenceNumber': 'Licence number is not found in the OTC DB'}]})
+                uploaded_records["invalid_records"].update(
+                    {
+                        idx: [
+                            {
+                                "LicenceNumber": "Licence number is not found in the OTC DB"
+                            }
+                        ]
+                    }
+                )
             else:
-                uploaded_records["invalid_records"][idx].append({'LicenceNumber': 'Licence number is not found in the OTC DB'})
+                uploaded_records["invalid_records"][idx].append(
+                    {"LicenceNumber": "Licence number is not found in the OTC DB"}
+                )
         except Exception as e:
             log.error(f"Error: {e}")
         finally:
-           uploaded_records["valid_records"] = valid_records 
+            uploaded_records["valid_records"] = valid_records
 
     return uploaded_records
