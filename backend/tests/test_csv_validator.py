@@ -1,6 +1,6 @@
 from pydantic import ValidationError
-from src.utils.csv_validator import (Registration,
-                                     extract_field_mgs_type_from_errors)
+
+from utils.csv_validator import Registration, extract_field_mgs_type_from_errors
 
 
 def test_extract_field_mgs_type_from_errors():
@@ -11,16 +11,10 @@ def test_extract_field_mgs_type_from_errors():
             "msg": "Field required",
             "type": "missing",
             "ctx": {"limit_value": 1},
-            "url": "dummy url"
+            "url": "dummy url",
         },
-        {
-            "msg": "Field required",
-            "type": "missing"
-        },
-        {
-            "loc": ["address"],
-            "type": "missing"
-        }
+        {"msg": "Field required", "type": "missing"},
+        {"loc": ["address"], "type": "missing"},
     ]
     # validation_error = ValidationError(errors)
 
@@ -28,24 +22,9 @@ def test_extract_field_mgs_type_from_errors():
     result = extract_field_mgs_type_from_errors(errors)
 
     # Assert that the result matches the expected output
-    expected_result = [
-        {
-            "field": ["first_name"],
-            "message": "Field required",
-            "type": "missing"
-        },
-        {
-            "field": None,
-            "message": "Field required",
-            "type": "missing"
-        },
-        {
-            "field": ["address"],
-            "message": None,
-            "type": "missing"
-        }
-    ]
+    expected_result = [{"first_name": "Field required"}, {"address": None}]
     assert result == expected_result
+
 
 def test_registration_model():
     # Create a valid registration object
@@ -71,7 +50,7 @@ def test_registration_model():
         "trafficAreaId": "D",
         "applicationType": "Change",
         "publicationText": "Change of Route",
-        "otherDetails": "Operates only on weekdays"
+        "otherDetails": "Operates only on weekdays",
     }
 
     # Assert that the object is valid

@@ -99,7 +99,6 @@ class CatalogueEntry(BaseModel):
 
 
 class TimetableData:
-
     def __init__(self):
         self.engine = create_engine(db_url)
 
