@@ -2,6 +2,7 @@ import React, { ReactElement, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { SendCSV } from "../utils/SendCSV";
 
+
 interface UploadCSVProps {
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -33,7 +34,7 @@ const UploadCSV: React.FC<UploadCSVProps> = ({
     }
   };
 
-  const fileVirusCheck = (file: File) => {
+  const fileVirosCheck = (file: File) => {
     const allowedExtensions = /(\.csv)$/i;
     if (!allowedExtensions.exec(file.name)) {
       return false;
@@ -44,7 +45,7 @@ const UploadCSV: React.FC<UploadCSVProps> = ({
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (selectedFile) {
-      if (fileVirusCheck(selectedFile)) {
+      if (fileVirosCheck(selectedFile)) {
         const formData = new FormData();
         formData.append("file", selectedFile);
         setIsLoading(true);
@@ -144,5 +145,4 @@ const UploadCSV: React.FC<UploadCSVProps> = ({
     </div>
   );
 };
-
 export default UploadCSV;

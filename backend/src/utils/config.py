@@ -5,10 +5,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Env settings
-ENVIRONMENT = getenv("PROJECT_ENV", "localdev")
-AWS_REGION = getenv("AWS_REGION", "localdev")
+ENVIRONMENT = getenv("PROJECT_ENV", "Running locally")
+AWS_REGION = getenv("AWS_REGION", "Running locally")
 
 # Middleware settings
-ALLOW_ORIGINS = ['*']
-ALLOW_METHODS= ["*"]
+ALLOW_ORIGINS = ["*"]
+ALLOW_METHODS = ["*"]
 ALLOW_HEADER = ["*"]

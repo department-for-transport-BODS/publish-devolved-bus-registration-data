@@ -1,13 +1,13 @@
 import React from 'react';
 import '../Css/App.css';
 import Footer from '../Layout/Footer';
-import {TwoThirdsOneThirdLayout} from '../Layout/Layout';
+import {TowThirdsOneThirdLayout} from '../Layout/Layout';
 import LoginForm from '../components/LoginForm';
 import HelpAndSupport from '../components/HelpAndSupport';
 
 const LoginPage: React.FC = () => (
     <>
-        <TwoThirdsOneThirdLayout title="Temp Page" description="Temp Page" hideCookieBanner={true}>
+        <TowThirdsOneThirdLayout title="Temp Page" description="Temp Page" hideCookieBanner={true}>
             <div className="govuk-grid-row">
                 <div className="govuk-grid-column-two-thirds">
                     <h1 className="govuk-heading-xl">Sign in</h1>
@@ -32,7 +32,7 @@ const LoginPage: React.FC = () => (
                 </div>
             </div>
             <HelpAndSupport />
-        </TwoThirdsOneThirdLayout>
+        </TowThirdsOneThirdLayout>
         <Footer />
     </>
 );

@@ -38,6 +38,8 @@ export const BaseLayout = ({
         setShowBanner(true);
         console.log('showBanner', showBanner);
         console.log('title', title);
+        console.log('showBanner', showBanner);
+        console.log('title', title);
     });
 
     return (
@@ -83,7 +85,7 @@ export const FullColumnLayout = ({
     </BaseLayout>
 );
 
-export const TwoThirdsOneThirdLayout = ({
+export const TowThirdsOneThirdLayout = ({
     title,
     description,
     errors = [],

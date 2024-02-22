@@ -15,7 +15,7 @@ const InvalidFeieldsTable: React.FC<InvalidFeieldsTableProps> = ({data}) => {
 
   return (
     <table className="govuk-table">
-      <caption className="govuk-table__caption govuk-table__caption--m">Dates and amounts</caption>
+      <caption className="govuk-table__caption govuk-table__caption--m"></caption>
       <thead className="govuk-table__head">
         <tr className="govuk-table__row">
           <th scope="col" className="govuk-table__header">Row number</th>

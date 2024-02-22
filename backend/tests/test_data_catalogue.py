@@ -9,6 +9,7 @@ test_script_path = path.dirname(path.abspath(__file__))
 text_zip_path = path.join(test_script_path, "assets", "text.zip")
 valid_zip_path = path.join(test_script_path, "assets", "valid_catalogue.zip")
 
+
 def test_invalid_path(requests_mock):
     requests_mock.get(DATA_CATALOGUE_URL, exc=requests.exceptions.HTTPError)
     with patch("bodsdatacatalogue.datacatalogue.Session"):
@@ -24,20 +25,16 @@ def test_invalid_zipfile(requests_mock):
 
 
 def test_missing_file(requests_mock):
-    requests_mock.get(
-        DATA_CATALOGUE_URL, content=open(text_zip_path, "rb").read()
-    )
+    requests_mock.get(DATA_CATALOGUE_URL, content=open(text_zip_path, "rb").read())
     with patch("bodsdatacatalogue.datacatalogue.Session"):
         with pytest.raises(KeyError):
             lambda_handler(None, None)
 
-def test_valid_file(requests_mock):
 
-    requests_mock.get(
-        DATA_CATALOGUE_URL, content=open(valid_zip_path, "rb").read()
-    )
+def test_valid_file(requests_mock):
+    requests_mock.get(DATA_CATALOGUE_URL, content=open(valid_zip_path, "rb").read())
     with patch("bodsdatacatalogue.datacatalogue.Session"):
         try:
             lambda_handler(None, None)
         except Exception as e:
-            pytest.fail(f'Failed to refresh database {e}')
+            pytest.fail(f"Failed to refresh database {e}")

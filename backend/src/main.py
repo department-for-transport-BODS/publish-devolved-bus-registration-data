@@ -1,12 +1,19 @@
 import csv
 from io import StringIO
+from time import sleep
+
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 
-from utils.config import (ALLOW_HEADER, ALLOW_METHODS, ALLOW_ORIGINS,
-                           AWS_REGION, ENVIRONMENT)
-from utils.csv_validator import csv_data_structure_check
+from utils.config import (
+    ALLOW_HEADER,
+    ALLOW_METHODS,
+    ALLOW_ORIGINS,
+    AWS_REGION,
+    ENVIRONMENT,
+)
+from managers import CSVManager
 from utils.logger import log
 
 app = FastAPI()
@@ -18,6 +25,7 @@ app.add_middleware(
     allow_headers=ALLOW_HEADER,
 )
 
+
 @app.get("/")
 def read_root():
     return {
@@ -27,9 +35,11 @@ def read_root():
         + ENVIRONMENT
     }
 
+
 @app.get("/items")
 def read_item():
     return {"item_id": 1}
+
 
 @app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...)):
@@ -41,9 +51,20 @@ async def create_upload_file(file: UploadFile = File(...)):
     csv_str = contents.decode("utf-8")
     # Convert the CSV data into a dictionary
     csv_data = list(csv.DictReader(StringIO(csv_str)))
-    validated_records =  csv_data_structure_check(csv_data)
-    if validated_records.get('invalid_records'):
-        raise HTTPException(status_code=422, detail=validated_records)
-    return validated_records
+    csv_handler = CSVManager(csv_data)
+    records_report = csv_handler.validation_and_insertion_steps()
+    # Validate the CSV input data
+    if records_report.get("invalid_records"):
+        raise HTTPException(status_code=422, detail=records_report)
+    return records_report
+
+
+@app.get("/health")
+def health_check():
+    from utils.db import send_to_db
+
+    send_to_db()
+    return {"status": "ok"}
+
 
 lambda_handler = Mangum(app, lifespan="off")
