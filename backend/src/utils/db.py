@@ -12,21 +12,41 @@ from sqlalchemy.orm import Session
 from .csv_validator import Registration
 from .logger import console, log
 from .validate import validate_licence_number_existence
-
-
+from botocore.exceptions import ClientError
+import json
+from .aws import get_secret
+from .pydant_model import DBCreds
 class CreateEngine:
     @staticmethod
-    def get_engine():
-        DB_HOST = os.environ.get("DB_HOST", "localhost")
-        DB_PORT = os.environ.get("DB_PORT", "5433")
-        DB_USER = os.environ.get("DB_USER", "postgres")
-        DB_PASSWORD = os.environ.get("DB_PASSWORD", "postgres")
-        DB_NAME = os.environ.get("DB_NAME", "postgres")
-        engine = None
+    def get_DB_creds():
+        
+        try:
+            if os.environ.get("PROJECT_ENV", "localdev") != "localdev":
+                secret = get_secret()
+                creds = DBCreds(**json.loads(secret["text_secret_data"]))
+            else:
+                creds = DBCreds(
+                DB_USER = os.environ.get("DB_USER", "postgres"),
+                DB_PASSWORD = os.environ.get("DB_PASSWORD", "postgres"),
+                )
+        except Exception as e:
+            print(f"The error '{e}' occurred")
+            exit(1)
+        
+        return creds
 
+
+
+
+
+
+    @staticmethod
+    def get_engine():
+        engine = None
+        creds = CreateEngine.get_DB_creds()
         try:
             engine = create_engine(
-                f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+                f"postgresql://{creds.DB_USER}:{creds.DB_PASSWORD}@{creds.DB_HOST}:{creds.DB_PORT}/{creds.DB_NAME}"
             )
             connection = engine.connect()
             print("Connection to PostgreSQL DB successful")
