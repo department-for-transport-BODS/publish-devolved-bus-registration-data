@@ -28,7 +28,7 @@ build-frontend: ## Build the frontend locally
 	@echo "Building frontend locally..."
 	@npm install --prefix ./frontend; npm run --prefix ./frontend build
 
-run-frontend: build-frontend ## Run the frontend locally
+run-frontend: ## Run the frontend locally
 	@echo "Running frontend locally..."
 	@cd ./frontend; npm run start
 
@@ -43,6 +43,7 @@ run-backend-pytest: ## Run the tests for backend
 	cd ./backend; pytest --cov=. --cov-report term-missing
 
 fix-backend-lint: ## Fix the linting issues
+	ruff format ./backend 
 	ruff ./backend --fix
 	isort ./backend
 
