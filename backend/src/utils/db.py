@@ -5,28 +5,43 @@ from typing import List
 import boto3
 import psycopg2
 from sqlalchemy import create_engine, select
+
 # from .db.models import EPRegistration, OTCOperator, OTCLicence
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 
 from .csv_validator import Registration
 from .logger import console, log
-from .validate import validate_licence_number_existence
+import json
+from .aws import get_secret
+from .pydant_model import DBCreds
 
 
 class CreateEngine:
     @staticmethod
-    def get_engine():
-        DB_HOST = os.environ.get("DB_HOST", "localhost")
-        DB_PORT = os.environ.get("DB_PORT", "5433")
-        DB_USER = os.environ.get("DB_USER", "postgres")
-        DB_PASSWORD = os.environ.get("DB_PASSWORD", "postgres")
-        DB_NAME = os.environ.get("DB_NAME", "postgres")
-        engine = None
+    def get_DB_creds():
+        try:
+            if os.environ.get("PROJECT_ENV", "localdev") != "localdev":
+                secret = get_secret()
+                creds = DBCreds(**json.loads(secret["text_secret_data"]))
+            else:
+                creds = DBCreds(
+                    DB_USER=os.environ.get("DB_USER", "postgres"),
+                    DB_PASSWORD=os.environ.get("DB_PASSWORD", "postgres"),
+                )
+        except Exception as e:
+            print(f"The error '{e}' occurred")
+            exit(1)
 
+        return creds
+
+    @staticmethod
+    def get_engine():
+        engine = None
+        creds = CreateEngine.get_DB_creds()
         try:
             engine = create_engine(
-                f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+                f"postgresql://{creds.DB_USER}:{creds.DB_PASSWORD}@{creds.DB_HOST}:{creds.DB_PORT}/{creds.DB_NAME}"
             )
             connection = engine.connect()
             print("Connection to PostgreSQL DB successful")
@@ -88,7 +103,9 @@ def add_or_get_record(column_name: str, value: str, session: Session, Model, rec
             return new_record.id
         else:
             existing_record = (
-                session.query(Model).filter(getattr(Model, column_name) == value).first()
+                session.query(Model)
+                .filter(getattr(Model, column_name) == value)
+                .first()
             )
             return existing_record.id
     except Exception as e:
@@ -182,8 +199,6 @@ class DBManager:
         console.log(f"New EP registration record: {ep_registration_record.id}")
 
 
-
-
 def send_to_db(validated_records: List[Registration]):
     # validated_records: List[Registration] = MockData.mock_user_csv_record()
     tables = AutoMappingModels().get_tables()
@@ -192,7 +207,7 @@ def send_to_db(validated_records: List[Registration]):
     EPRegistration = tables["EPRegistration"]
     # Check if the licence number exists in the OTC database
     # validated_records = validate_licence_number_existence(validated_records)
-    
+
     for idx, record_and_licence in validated_records["valid_records"].items():
         try:
             # Create a new session

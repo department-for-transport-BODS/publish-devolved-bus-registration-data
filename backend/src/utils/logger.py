@@ -55,4 +55,3 @@ console_handler.setFormatter(formatter)
 
 # Attach handler to the logger
 log.addHandler(console_handler)
-

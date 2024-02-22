@@ -8,6 +8,8 @@ from sqlalchemy.orm import Session, declarative_base
 from utils.db import AutoMappingModels, DBManager, add_or_get_record
 
 Base = declarative_base()
+
+
 @pytest.fixture
 def mocked_db():
     # Implement your mocked database setup here
@@ -16,19 +18,17 @@ def mocked_db():
     # Make sure to import the necessary modules and classes
 
     # Example implementation:
-    engine = create_engine('sqlite:///:memory:')
+    engine = create_engine("sqlite:///:memory:")
     session = Session(engine)
     Base.metadata.create_all(engine)
     yield session
     session.close()
 
 
-
 class TestModel(Base):
     __tablename__ = "test_model"
     id = Column(Integer, primary_key=True)
     name = Column(String(255))
-
 
 
 def test_add_or_get_record_when_record_does_not_exist(mocked_db):
@@ -55,8 +55,7 @@ def test_add_or_get_record_with_exception(mocked_db):
     session.query = Mock(side_effect=Exception("Test Exception"))
 
     result = add_or_get_record("name", "Test Record", session, TestModel, record)
-    assert result is None  
-    
+    assert result is None
 
 
 class TestAutoMappingModels:
@@ -70,17 +69,17 @@ class TestAutoMappingModels:
         assert "EPRegistration" in tables
         assert "OTCOperator" in tables
         assert "OTCLicence" in tables
-        assert isinstance(tables["EPRegistration"], type(auto_mapping_models.EPRegistration))
+        assert isinstance(
+            tables["EPRegistration"], type(auto_mapping_models.EPRegistration)
+        )
         assert isinstance(tables["OTCOperator"], type(auto_mapping_models.OTCOperator))
         assert isinstance(tables["OTCLicence"], type(auto_mapping_models.OTCLicence))
-        
-        
 
 
 class TestDBManager:
     @pytest.fixture
     def mocked_db(self):
-        engine = create_engine('sqlite:///test_db_file.csv')
+        engine = create_engine("sqlite:///test_db_file.csv")
         session = Session(engine)
         Base.metadata.create_all(engine)
         yield session
@@ -88,24 +87,28 @@ class TestDBManager:
         # remove the file
         os.remove("test_db_file.csv")
 
-    @patch('utils.db.add_or_get_record',return_value=1)
+    @patch("utils.db.add_or_get_record", return_value=1)
     def test_fetch_operator_record(self, mocked_db):
         session = mocked_db
         OTCOperator = TestModel
         operator_record = TestModel()
         operator_name = "Test Operator"
 
-        result = DBManager.fetch_operator_record(operator_name, session, OTCOperator, operator_record)
+        result = DBManager.fetch_operator_record(
+            operator_name, session, OTCOperator, operator_record
+        )
 
-        assert result == 1  
+        assert result == 1
 
-    @patch('utils.db.add_or_get_record',return_value=1)
+    @patch("utils.db.add_or_get_record", return_value=1)
     def test_fetch_licence_record(self, mocked_db):
         session = mocked_db
         OTCLicence = TestModel
         licence_record = TestModel()
         licence_number = "Test Licence"
 
-        result = DBManager.fetch_licence_record(licence_number, session, OTCLicence, licence_record)
+        result = DBManager.fetch_licence_record(
+            licence_number, session, OTCLicence, licence_record
+        )
 
-        assert result == 1  
+        assert result == 1

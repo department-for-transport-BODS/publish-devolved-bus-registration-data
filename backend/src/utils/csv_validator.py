@@ -1,6 +1,5 @@
-from typing import Optional
 
-from pydantic import BaseModel, Field, ValidationError, field_validator
+from pydantic import ValidationError
 
 from .logger import log
 from .pydant_model import Registration
@@ -25,18 +24,16 @@ def csv_data_structure_check(csv_data: [dict]) -> dict:
         try:
             # Validate each record and deserialize it into a Python object.
             pydantic_model = Registration(**data_dict)
-            valid_records.update({f"{idx + 2}": pydantic_model}) # .model_dump(exclude=["serviceCode"])
+            valid_records.update(
+                {f"{idx + 2}": pydantic_model}
+            )  # .model_dump(exclude=["serviceCode"])
         except ValidationError as e:
             # Get json schema errors
             errors = e.errors()
             # Extract the field, message and type from the errors of a ValidationError object.
             modified_errors = extract_field_mgs_type_from_errors(errors)
-            # validation_errors.append({"record_number": idx + 2,"errors": modified_errors})
-            from rich.console import Console
-            console = Console()
-            console.log(f"Validation Errors: {validation_errors}")
             validation_errors.update({f"{idx + 2}": modified_errors})
-            print("Validation Errors:",validation_errors)
+            print("Validation Errors:", validation_errors)
         except Exception as e:
             log.error(f"Error: {e}")
     return {"invalid_records": validation_errors, "valid_records": valid_records}

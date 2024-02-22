@@ -1,4 +1,3 @@
-
 from typing import List
 
 from .pydant_model import Registration
@@ -20,7 +19,6 @@ class MockData:
                     "operator_details": {
                         "operator_name": "string",
                         "otc_operator_id": 123,
-
                     },
                 },
                 {
@@ -82,4 +80,3 @@ class MockData:
             otherDetails="",
         )
         return [reg_record, reg_record2]
-
