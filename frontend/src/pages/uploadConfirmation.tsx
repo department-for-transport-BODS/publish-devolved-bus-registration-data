@@ -16,7 +16,7 @@ export interface PartlyUploadingProps {
 }
 const PartlyUploading: React.FC = () => {
   const location = useLocation();
-  const SuccessfulRecords = location.state?.detail.valid_records;
+  const SuccessfulRecords = location.state?.detail.valid_records_count;
   const InvalidFieldsData = location.state?.detail.invalid_records;
   return (
     <>
