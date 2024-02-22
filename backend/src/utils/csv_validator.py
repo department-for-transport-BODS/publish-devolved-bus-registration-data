@@ -31,10 +31,6 @@ def csv_data_structure_check(csv_data: [dict]) -> dict:
             errors = e.errors()
             # Extract the field, message and type from the errors of a ValidationError object.
             modified_errors = extract_field_mgs_type_from_errors(errors)
-            # validation_errors.append({"record_number": idx + 2,"errors": modified_errors})
-            from rich.console import Console
-            console = Console()
-            console.log(f"Validation Errors: {validation_errors}")
             validation_errors.update({f"{idx + 2}": modified_errors})
             print("Validation Errors:",validation_errors)
         except Exception as e:
