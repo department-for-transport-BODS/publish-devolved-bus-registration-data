@@ -48,7 +48,7 @@ make clean-services
 ```
 
 As part of the startup of PostgreSQL, the initial project database will be created 
-with roles defined within the `./sql/localdev` directory.
+with roles defined within the `./sql/local` directory.
 
 ### Step 4: Initialise the Database Schema
 
