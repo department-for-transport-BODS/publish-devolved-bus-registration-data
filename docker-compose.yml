@@ -10,9 +10,11 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - ${PWD}/sql/localdev:/docker-entrypoint-initdb.d:ro
+      - ${PWD}/sql/local:/docker-entrypoint-initdb.d:ro
       - postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
+    networks: 
+    - lambda-local
 
   pgadmin:
     build:
@@ -32,6 +34,13 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${POSTGRES_PASSWORD}
       PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: "False"
     restart: unless-stopped
+    networks: 
+    - lambda-local
 
 volumes:
   postgres-data:
+
+networks:
+  lambda-local:
+    name: lambda-local
+    driver: bridge

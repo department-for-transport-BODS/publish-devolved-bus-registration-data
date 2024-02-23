@@ -25,8 +25,8 @@ class ColoredFormatter(logging.Formatter):
     RESET = "\033[0m"
 
     def msg_format(self, record):
-        logger_mod = os.environ.get("LOGGER_MOD", "localdev")
-        if logger_mod == "localdev":
+        logger_mod = os.environ.get("LOGGER_MOD", "local")
+        if logger_mod == "local":
             color = self.COLORS.get(record.levelname, self.RESET)
             logger_message = (
                 f"{color}{record.levelname}{self.RESET}: {record.log_date}"
@@ -43,7 +43,7 @@ class ColoredFormatter(logging.Formatter):
 
 
 log = logging.getLogger("backendLogger")
-log_level = os.environ.get("LOGGER_LEVEL", "DEBUG")
+log_level = os.environ.get("LOG_LEVEL", "DEBUG")
 log.setLevel(log_level)
 
 # Console logger
