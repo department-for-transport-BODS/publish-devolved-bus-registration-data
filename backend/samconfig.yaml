@@ -21,14 +21,16 @@ default:
       container_host: localhost
       warm_containers: EAGER
       parameter_overrides:
+        ProjectName="epp"
         Environment="local"
-        RdsDbHostAddress="localhost"
+        RdsDbHostAddr="localhost"
   local_invoke:
     parameters:
       docker_network: lambda-local
       parameter_overrides:
+        ProjectName="epp"
         Environment="local"
-        RdsDbHostAddress="postgres"
+        RdsDbHostAddr="postgres"
 
 dev:
   deploy:

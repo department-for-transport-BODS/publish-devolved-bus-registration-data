@@ -32,6 +32,9 @@ Parameters:
   VpcSubnets:
     Type: AWS::SSM::Parameter::Value<List<AWS::EC2::Subnet::Id>>
     Default: ''
+  RdsDbHostAddr:
+    Type: String
+    Default: ''
   RdsSecurityGroupId:
     Type: AWS::SSM::Parameter::Value<AWS::EC2::SecurityGroup::Id>
     Default: ''
@@ -52,6 +55,16 @@ Resources:
       EndpointConfiguration: 
         Type: REGIONAL
       TracingEnabled: true
+      Auth:
+        ResourcePolicy:
+          CustomStatements:
+            - Effect: Allow
+              Principal: '*'
+              Action: execute-api:Invoke
+              Resource: execute-api:/*/*/*
+              Condition:
+                StringEquals:
+                  aws:UserAgent: 'Amazon CloudFront'
 
   CsvHandlerLambda:
     Type: AWS::Serverless::Function
@@ -87,7 +100,10 @@ Resources:
             - IsNotProd
             - 'DEBUG'
             - 'INFO'
-          POSTGRES_HOST: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/endpoint}}'
+          POSTGRES_HOST:  !If
+            - IsNotLocal
+            - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/endpoint}}'
+            - !Ref RdsDbHostAddr
           POSTGRES_PORT: 5432
           POSTGRES_DB: !Ref ProjectName
           POSTGRES_CREDENTIALS: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/name}}'
@@ -222,7 +238,10 @@ Resources:
             - IsNotProd
             - 'DEBUG'
             - 'INFO'
-          POSTGRES_HOST: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/endpoint}}'
+          POSTGRES_HOST:  !If
+            - IsNotLocal
+            - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/endpoint}}'
+            - !Ref RdsDbHostAddr
           POSTGRES_PORT: 5432
           POSTGRES_DB: !Ref ProjectName
           POSTGRES_CREDENTIALS: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/name}}'
