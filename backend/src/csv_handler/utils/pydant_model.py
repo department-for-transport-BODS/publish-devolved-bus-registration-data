@@ -99,8 +99,8 @@ class LicenceRecord(BaseModel):
 
 
 class DBCreds(BaseModel):
-    DB_HOST: str = Field(default_factory=lambda: getenv("DB_HOST", "localhost"))
-    DB_PORT: str = Field(default_factory=lambda: getenv("DB_PORT", "5433"))
-    DB_USER: str
-    DB_PASSWORD: str
-    DB_NAME: str = Field(default_factory=lambda: getenv("DB_NAME", "postgres"))
+    PG_HOST: str = Field(default_factory=lambda: getenv("POSTGRES_HOST", "postgres"))
+    PG_PORT: str = Field(default_factory=lambda: getenv("POSTGRES_PORT", "5432"))
+    PG_DB: str = Field(default_factory=lambda: getenv("POSTGRES_DB", "postgres"))
+    PG_USER: str = Field(alias="username")
+    PG_PASSWORD: str = Field(alias="password")
