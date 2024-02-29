@@ -26,17 +26,27 @@ clean-services: ## Stop and remove all related Docker container services
 
 build-frontend: ## Build the frontend locally
 	@echo "Building frontend locally..."
-	@npm install --prefix ./frontend; npm run --prefix ./frontend build
+	@cd ./frontend; npm install && npm run build
 
 run-frontend: ## Run the frontend locally
 	@echo "Running frontend locally..."
 	@cd ./frontend; npm run start
 
+deploy-frontend: ## Deploy the frontend to target environment
+	@echo "Deploying the frontend to the $(ENV) environment in AWS..."
+	@cd ./frontend; aws s3 sync ./build s3://$(ENV)-epp-deployment-frontend
+
 build-backend: ## Build the backend api using sam
+	@cd ./backend; sam build
+
+build-backend-sync: ## Build the backend api using sam and keep contents synced for test
 	@cd ./backend; nodemon --watch './src/**/*.py' --signal SIGTERM --exec 'sam' build -e "py"
 
+deploy-backend: ## Deploy the backend api to target environment using sam
+	@cd ./backend; sam deploy --config-env=$(ENV) --confirm-changeset
+
 run-backend: ## Run the backend api locally using sam
-	@cd ./backend; sam local start-api
+	@cd ./backend; sam local start-api --port 8000 --warm-containers=EAGER --container-host localhost
 
 run-backend-pytest: ## Run the tests for backend
 	echo '[INFO] Don't forget to run "poetry shell -C ./backend && poetry install -C ./backend --no-root"
@@ -49,7 +59,7 @@ fix-backend-lint: ## Fix the linting issues
 
 run-db-initialise: cmd-exists-psql ## Initialise the database with users/roles and schema
 	@echo "Initialising the database..."
-	@for file in `find ./sql/localdev -type f | sort | cut -c3-`; do ${PG_EXEC}" -f $$file; done
+	@for file in `find ./sql/local -type f | sort | cut -c3-`; do ${PG_EXEC}" -f $$file; done
 
 run-db-migrations: cmd-exists-psql ## Run the database migrations found under ./sql
 	@echo "Running available database migrations..."

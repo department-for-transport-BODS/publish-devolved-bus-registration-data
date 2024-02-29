@@ -1,16 +1,13 @@
 import boto3
 from botocore.exceptions import ClientError
 from os import getenv
+from .config import AWS_REGION
 
-
-def get_secret():
-    secret_name = getenv("SECRET_NAME", None)
-    region_name = "us-west-2"
-
+def get_secret(secret_name: str):
     session = boto3.session.Session()
     client = session.client(
         service_name="secretsmanager",
-        region_name=region_name,
+        region_name=AWS_REGION,
     )
 
     try:

@@ -1,11 +1,10 @@
 import csv
-from io import StringIO
-from time import sleep
-
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from io import StringIO
+from managers import CSVManager
 from mangum import Mangum
-
+from time import sleep
 from utils.config import (
     ALLOW_HEADER,
     ALLOW_METHODS,
@@ -13,7 +12,6 @@ from utils.config import (
     AWS_REGION,
     ENVIRONMENT,
 )
-from managers import CSVManager
 from utils.logger import log
 
 app = FastAPI()
@@ -26,7 +24,7 @@ app.add_middleware(
 )
 
 
-@app.get("/")
+@app.get("/api")
 def read_root():
     return {
         "message": "FastAPI running on AWS Lambda and is executed in region "
@@ -36,15 +34,15 @@ def read_root():
     }
 
 
-@app.get("/items")
+@app.get("/api/items")
 def read_item():
     return {"item_id": 1}
 
 
-@app.post("/uploadfile")
+@app.post("/api/uploadfile")
 async def create_upload_file(file: UploadFile = File(...)):
     contents = await file.read()
-    if ENVIRONMENT == "localdev":
+    if ENVIRONMENT == "local":
         log.debug("Sleeping for 2 seconds to simulate file upload")
         sleep(2)
     # Decode the CSV data
@@ -59,7 +57,7 @@ async def create_upload_file(file: UploadFile = File(...)):
     return records_report
 
 
-@app.get("/health")
+@app.get("/api/health")
 def health_check():
     from utils.db import send_to_db
 
