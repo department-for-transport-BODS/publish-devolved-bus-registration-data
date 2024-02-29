@@ -3,6 +3,7 @@ ifneq (,$(wildcard ./config/.env))
     export
 endif
 
+ENV?=local
 DIRNAME=`basename ${PWD}`
 PG_EXEC=psql "host=$(POSTGRES_HOST) port=$(POSTGRES_PORT) user=$(POSTGRES_USER) password=$(POSTGRES_PASSWORD) gssencmode='disable'
 
@@ -25,16 +26,16 @@ clean-services: ## Stop and remove all related Docker container services
 	docker volume rm ${DIRNAME}_postgres-data 2>/dev/null
 
 build-frontend: ## Build the frontend locally
-	@echo "Building frontend locally..."
-	@cd ./frontend; npm install && npm run build
+	@echo "Building frontend for $(ENV)..."
+	@cd ./frontend; REACT_APP_ENV=$(ENV) npm install && npm run build
 
 run-frontend: ## Run the frontend locally
-	@echo "Running frontend locally..."
-	@cd ./frontend; npm run start
+	@echo "Running frontend for $(ENV)..."
+	@cd ./frontend; REACT_APP_ENV=$(ENV) npm run start
 
 deploy-frontend: ## Deploy the frontend to target environment
 	@echo "Deploying the frontend to the $(ENV) environment in AWS..."
-	@cd ./frontend; aws s3 sync ./build s3://$(ENV)-epp-deployment-frontend
+	@cd ./frontend; aws s3 sync ./build s3://$(ENV)-$(PROJECT_NAME)-deployment-frontend
 
 build-backend: ## Build the backend api using sam
 	@cd ./backend; sam build
