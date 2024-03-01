@@ -1,47 +1,39 @@
-import os
-from sys import exit
-from typing import List
-
-import boto3
-import psycopg2
+import json
+from os import getenv
 from sqlalchemy import create_engine, select
-
-# from .db.models import EPRegistration, OTCOperator, OTCLicence
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
-
+from sys import exit
+from typing import List
+from .aws import get_secret
 from .csv_validator import Registration
 from .logger import console, log
-import json
-from .aws import get_secret
 from .pydant_model import DBCreds
-
 
 class CreateEngine:
     @staticmethod
-    def get_DB_creds():
+    def get_db_creds():
         try:
-            if os.environ.get("PROJECT_ENV", "localdev") != "localdev":
-                secret = get_secret()
+            if getenv("PROJECT_ENV", "local") != "local":
+                secret = get_secret(getenv("POSTGRES_CREDENTIALS"))
                 creds = DBCreds(**json.loads(secret["text_secret_data"]))
             else:
-                creds = DBCreds(
-                    DB_USER=os.environ.get("DB_USER", "postgres"),
-                    DB_PASSWORD=os.environ.get("DB_PASSWORD", "postgres"),
-                )
+                creds = DBCreds(**{
+                    "username": getenv("POSTGRES_USER", "postgres"),
+                    "password": getenv("POSTGRES_PASSWORD", "postgres")
+                })
         except Exception as e:
             print(f"The error '{e}' occurred")
             exit(1)
-
         return creds
 
     @staticmethod
     def get_engine():
         engine = None
-        creds = CreateEngine.get_DB_creds()
+        creds = CreateEngine.get_db_creds()
         try:
             engine = create_engine(
-                f"postgresql://{creds.DB_USER}:{creds.DB_PASSWORD}@{creds.DB_HOST}:{creds.DB_PORT}/{creds.DB_NAME}"
+                f"postgresql://{creds.PG_USER}:{creds.PG_PASSWORD}@{creds.PG_HOST}:{creds.PG_PORT}/{creds.PG_DB}"
             )
             connection = engine.connect()
             print("Connection to PostgreSQL DB successful")
@@ -50,42 +42,6 @@ class CreateEngine:
             print(f"The error '{e}' occurred")
             exit(1)
         return engine
-
-
-def get_results_db_conn():
-    conn = None
-    environment = os.environ.get("PROJECT_ENV", "localdev")
-    log.debug(f"env: {environment}")
-    if environment != "localdev":
-        log.info("Using argo environment")
-        aws_region = os.getenv("REGION", "eu-west-2")
-        session = boto3.session.Session()
-        rds = session.client(service_name="rds", region_name=aws_region)
-        os.environ["POSTGRES_TOKEN"] = rds.generate_db_auth_token(
-            DBHostname=os.environ.get("POSTGRES_HOST"),
-            Port=int(os.environ.get("POSTGRES_PORT")),
-            DBUsername=os.environ.get("POSTGRES_USER"),
-            Region=aws_region,
-        )
-    log.info(f'Automation host: {os.environ.get("POSTGRES_HOST")}')
-    log.info(f'Automation port: {os.environ.get("POSTGRES_PORT")}')
-    log.info(f'Automation user: {os.environ.get("POSTGRES_USER")}')
-    log.info(f'Automation DB: {os.environ.get("POSTGRES_DATABASE")}')
-    conn = psycopg2.connect(
-        host=os.environ.get("POSTGRES_HOST", "localhost"),
-        port=os.environ.get("POSTGRES_PORT", "5433"),
-        database=os.environ.get("POSTGRES_DATABASE", "postgres"),
-        user=os.environ.get("POSTGRES_USER", "postgres"),
-        password=os.environ.get("POSTGRES_TOKEN", "postgres"),
-    )
-    if conn is not None:
-        print("Connection established to PostgreSQL.")
-    else:
-        print("Connection not established to PostgreSQL.")
-    return conn
-
-
-engine = CreateEngine.get_engine()
 
 
 def add_or_get_record(column_name: str, value: str, session: Session, Model, record):
@@ -118,7 +74,7 @@ class AutoMappingModels:
     def __init__(self):
         self.engine = CreateEngine.get_engine()
         self.Base = automap_base()
-        self.Base.prepare(autoload_with=engine)
+        self.Base.prepare(autoload_with=self.engine)
         self.EPRegistration = self.Base.classes.ep_registration
         self.OTCOperator = self.Base.classes.otc_operator
         self.OTCLicence = self.Base.classes.otc_licence
@@ -201,7 +157,9 @@ class DBManager:
 
 def send_to_db(validated_records: List[Registration]):
     # validated_records: List[Registration] = MockData.mock_user_csv_record()
-    tables = AutoMappingModels().get_tables()
+    models = AutoMappingModels()
+    engine = models.engine
+    tables = models.get_tables()
     OTCOperator = tables["OTCOperator"]
     OTCLicence = tables["OTCLicence"]
     EPRegistration = tables["EPRegistration"]

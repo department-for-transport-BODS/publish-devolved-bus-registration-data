@@ -1,0 +1,92 @@
+version: 0.1
+
+default:
+  global:
+    parameters: {}
+  build:
+    parameters:
+      cached: true
+      parallel: true
+  deploy:
+    parameters:
+      capabilities: "CAPABILITY_NAMED_IAM"
+      confirm_changeset: true
+      region: "eu-west-2"
+      resolve_s3: true
+  sync:
+    parameters:
+      watch: true
+  local_start_api:
+    parameters:
+      container_host: localhost
+      warm_containers: EAGER
+      parameter_overrides:
+        ProjectName="epp"
+        Environment="local"
+        RdsDbHostAddr="localhost"
+  local_invoke:
+    parameters:
+      docker_network: lambda-local
+      parameter_overrides:
+        ProjectName="epp"
+        Environment="local"
+        RdsDbHostAddr="postgres"
+
+dev:
+  deploy:
+    parameters:
+      stack_name: "dev-epp-app-stack"
+      s3_bucket: "dev-epp-deployment-artefacts"
+      capabilities: "CAPABILITY_NAMED_IAM"
+      parameter_overrides:
+        ProjectName="epp"
+        Environment="dev"
+        RdsSecurityGroupId="/dev/epp/ec2/securitygroup/rds"
+        WebProxySecurityGroupId="/dev/epp/ec2/securitygroup/squid"
+        VpcId="/dev/epp/vpc/id"
+        VpcSubnets="/dev/epp/vpc/subnets/private"
+
+test:
+  deploy:
+    parameters:
+      stack_name: "test-epp-app-stack"
+      s3_bucket: "test-epp-deployment-artefacts"
+      capabilities: "CAPABILITY_NAMED_IAM"
+      parameter_overrides:
+        ProjectName="epp"
+        Environment="test"
+        RdsSecurityGroupId="/test/epp/ec2/securitygroup/rds"
+        WebProxySecurityGroupId="/test/epp/ec2/securitygroup/squid"
+        VpcId="/test/epp/vpc/id"
+        VpcSubnets="/test/epp/vpc/subnets/private"
+
+uat:
+  deploy:
+    parameters:
+      stack_name: "uat-epp-app-stack"
+      s3_bucket: "uat-epp-deployment-artefacts"
+      capabilities: "CAPABILITY_NAMED_IAM"
+      parameter_overrides:
+        ProjectName="epp"
+        Environment="uat"
+        RdsSecurityGroupId="/uat/epp/ec2/securitygroup/rds"
+        WebProxySecurityGroupId="/uat/epp/ec2/securitygroup/squid"
+        VpcId="/uat/epp/vpc/id"
+        VpcSubnets="/uat/epp/vpc/subnets/private"
+
+prod:
+  sync:
+    parameters:
+      watch: false
+  deploy:
+    parameters:
+      stack_name: "prod-epp-app-stack"
+      s3_bucket: "prod-epp-deployment-artefacts"
+      capabilities: "CAPABILITY_NAMED_IAM"
+      parameter_overrides:
+        ProjectName="epp"
+        Environment="prod"
+        RdsSecurityGroupId="/prod/epp/ec2/securitygroup/rds"
+        WebProxySecurityGroupId="/prod/epp/ec2/securitygroup/squid"
+        VpcId="/prod/epp/vpc/id"
+        VpcSubnets="/prod/epp/vpc/subnets/private"
