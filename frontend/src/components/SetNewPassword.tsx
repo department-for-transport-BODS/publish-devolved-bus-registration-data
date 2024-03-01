@@ -1,50 +1,34 @@
-import { SignInInput } from "aws-amplify/auth";
 import React, { useState } from "react";
 
 type Props = {
-  email: string;
-  setEmail: React.Dispatch<string>;
   errors?: string[];
-  handleSignIn: (formData: SignInInput) => void;
+  handleSetNewPassword: (password:string) => void;
+  setErrorMsg: (msg: string) => void;
 };
 
-const LoginForm: React.FC<Props> = ({ errors , handleSignIn,email, setEmail}) => {
+const SetNewPassword: React.FC<Props> = ({ errors , handleSetNewPassword, setErrorMsg}) => {
 
 
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = {
-      username: email, 
-      password: password,
-    };
-    setPassword(""); 
-    setEmail(""); 
-    handleSignIn(formData); 
+    if (password !== confirmPassword) {
+      setErrorMsg("Passwords do not match");
+    }else{
+      // samer@SAMER!1
+      setPassword(""); // Clear the password
+      handleSetNewPassword(password); // Pass the correct object to handleSignIn
+
+    }
   };
   return (
     <>
       <form onSubmit={handleSubmit}>
         <div className="govuk-form-group">
-          <label className="govuk-label" htmlFor="email">
-            Email address
-          </label>
-          <input
-            className="govuk-input"
-            id="email"
-            name="email"
-            type="email"
-            spellCheck="false"
-            aria-describedby="email-hint"
-            autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div className="govuk-form-group">
           <label className="govuk-label" htmlFor="password">
-            Password
+            New Password
           </label>
           <input
             className="govuk-input"
@@ -52,8 +36,20 @@ const LoginForm: React.FC<Props> = ({ errors , handleSignIn,email, setEmail}) =>
             name="password"
             type="password"
             spellCheck="false"
-            value={password}
             onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        <div className="govuk-form-group">
+          <label className="govuk-label" htmlFor="password">
+            ConfirmPassword
+          </label>
+          <input
+            className="govuk-input"
+            id="confirmPassword"
+            name="confirmPassword"
+            type="password"
+            spellCheck="false"
+            onChange={(e) => setConfirmPassword(e.target.value)}
           />
         </div>
         <div className="row">
@@ -63,7 +59,7 @@ const LoginForm: React.FC<Props> = ({ errors , handleSignIn,email, setEmail}) =>
               className="govuk-button"
               data-module="govuk-button"
             >
-              Sign in
+              Submit new password
             </button>
           </div>
         </div>
@@ -72,4 +68,4 @@ const LoginForm: React.FC<Props> = ({ errors , handleSignIn,email, setEmail}) =>
   );
 };
 
-export default LoginForm;
+export default SetNewPassword;

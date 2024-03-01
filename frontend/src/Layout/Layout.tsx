@@ -1,14 +1,5 @@
-// import Head from 'next/head';
 import React, { PropsWithChildren, ReactElement, useEffect, useState } from 'react';
-// import { Portal } from 'react-portal';
-// import favicon from '../assets/images/favicon.ico';
-// import Help from '../components/Help';
 import { ErrorInfo } from '../interfaces';
-// import { buildTitle } from '../utils';
-// import CookieBanner from './CookieBanner';
-import Footer from './Footer';
-// import { GlobalSettingReturnHeader } from './GlobalSettingReturnHeader';
-// import Navigation from './Navigation';
 import PhaseBanner from '../components/PhaseBanner';
 import Header from './Header';
 import { HeadProvider, Title, Link, Meta } from 'react-head';
@@ -20,28 +11,13 @@ interface LayoutProps {
     showNavigation?: boolean;
     hideHelp?: boolean;
     referer?: string | null;
+    isLoggedIn?: boolean;
 }
 
 export const BaseLayout = ({
     title,
-    description,
-    errors = [],
     children,
-    hideCookieBanner,
-    showNavigation,
-    hideHelp,
-    referer,
 }: PropsWithChildren<LayoutProps>): ReactElement => {
-    const [showBanner, setShowBanner] = useState(false);
-
-    useEffect(() => {
-        setShowBanner(true);
-        console.log('showBanner', showBanner);
-        console.log('title', title);
-        console.log('showBanner', showBanner);
-        console.log('title', title);
-    });
-
     return (
         <>
             <HeadProvider>
@@ -54,7 +30,7 @@ export const BaseLayout = ({
                 </div>
                 {/* Rest of the component */}
             </HeadProvider>
-            <Header/>
+            <Header  />
             <div className="govuk-width-container">
                 <PhaseBanner />
                 <main className="govuk-main-wrapper">{children}</main>
@@ -71,6 +47,7 @@ export const FullColumnLayout = ({
     children,
     hideCookieBanner = false,
     hideHelp = false,
+    isLoggedIn = false
 }: PropsWithChildren<LayoutProps>): ReactElement => (
     <BaseLayout
         title={title}
@@ -78,6 +55,7 @@ export const FullColumnLayout = ({
         errors={errors}
         hideCookieBanner={hideCookieBanner}
         hideHelp={hideHelp}
+        isLoggedIn={isLoggedIn}
     >
         <div className="govuk-grid-row">
             <div className="govuk-grid-column-full">{children}</div>
@@ -92,6 +70,7 @@ export const TowThirdsOneThirdLayout = ({
     children,
     hideCookieBanner = false,
     hideHelp = false,
+    isLoggedIn = false
 }: PropsWithChildren<LayoutProps>): ReactElement => (
     <BaseLayout
         title={title}
@@ -99,6 +78,7 @@ export const TowThirdsOneThirdLayout = ({
         errors={errors}
         hideCookieBanner={hideCookieBanner}
         hideHelp={hideHelp}
+        isLoggedIn={isLoggedIn}
     >
         <div className="govuk-grid-row">{children}</div>
     </BaseLayout>
@@ -110,6 +90,7 @@ export const TwoThirdsLayout = ({
     children,
     hideCookieBanner = false,
     hideHelp = false,
+    isLoggedIn = false
 }: PropsWithChildren<LayoutProps>): ReactElement => (
     <BaseLayout
         title={title}
@@ -117,6 +98,7 @@ export const TwoThirdsLayout = ({
         errors={errors}
         hideCookieBanner={hideCookieBanner}
         hideHelp={hideHelp}
+        isLoggedIn={isLoggedIn}
     >
         <div className="govuk-grid-row">
             <div className="govuk-grid-column-two-thirds">{children}</div>

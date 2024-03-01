@@ -1,6 +1,25 @@
-import React, { ReactElement } from "react";
+import React, { ReactElement,useContext,useEffect } from "react";
+import { IsLoggedInContext } from"../utils/login/LoginProvider";
+type Props = {
+  isLoggedIn?: boolean;
+};
 
-const Header = (): ReactElement => {
+const Header = (): ReactElement<Props> => {
+
+
+  const {isLoggedIn,signOutHandler} = useContext(IsLoggedInContext);
+  console.log("isLoggedIn: ", isLoggedIn); 
+  const handleSignOut = () => {
+    if(signOutHandler){
+      signOutHandler();
+  }
+}
+useEffect(() => {
+  console.log("isLoggedIn from header: ", isLoggedIn);
+
+
+  }, [isLoggedIn]);
+
   return (
     <>
       <header className="govuk-header" role="banner" data-module="govuk-header">
@@ -29,7 +48,12 @@ const Header = (): ReactElement => {
             <span className="govuk-header__service-name">
               Enhanced Partnerships Registrations
             </span>
-          </div>
+              {isLoggedIn ? (
+                <span className="govuk-header__service-name" style={{ float: "right" }}>
+                  <button className="govuk-button govuk-!-margin-0" onClick={handleSignOut}>Sign Out</button>
+                </span>
+              ) : null}
+            </div>
         </div>
       </header>
     </>

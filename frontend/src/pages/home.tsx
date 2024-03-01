@@ -1,11 +1,23 @@
-import React from "react";
+import React, {  useContext, useEffect } from "react";
 import { FullColumnLayout } from "../Layout/Layout";
 import HelpAndSupport from "../components/HelpAndSupport";
 import { Link } from "react-router-dom";
+import {IsLoggedInContext} from "../utils/login/LoginProvider";
+
+
+
 const Home: React.FC = () => {
+  const {isLoggedIn } = useContext(IsLoggedInContext);
+  // const isLoggedIn = IsLoggedInContext;
+  useEffect(() => {
+      console.log("Is logged in", isLoggedIn);
+      // }
+      }
+  , []);
+  
   return (
     <>
-      <FullColumnLayout title="Home" description="Home" hideCookieBanner={true}>
+      <FullColumnLayout title="Home" description="Home" hideCookieBanner={true} isLoggedIn={isLoggedIn}>
         <h1 className="govuk-heading-xl">
           Enhanced Partnerships Registration tool
         </h1>
@@ -29,7 +41,7 @@ const Home: React.FC = () => {
         </div>
         <div>
           <Link
-            to="/uploadcsv"
+            to={isLoggedIn ? "/uploadcsv" : "/login"}
             className="govuk-button govuk-button--start"
             data-module="govuk-button"
           >
