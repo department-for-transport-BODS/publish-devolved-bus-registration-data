@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from main import app
+from app import app
 
 client = TestClient(app)
 
@@ -94,8 +94,9 @@ client = TestClient(app)
 
 
 def test_read_root():
-    response = client.get("/")
-    assert response.status_code == 200
-    assert response.json() == {
-        "message": "FastAPI running on AWS Lambda and is executed in region Running locally, using runtime environment Running locally"
-    }
+    response = client.get("/api")
+    assert response.status_code == 403
+    # assert response.json() == {
+    #     "message": "FastAPI running on AWS Lambda and is executed in region Running locally, using runtime environment Running locally"
+    # }
+    assert response.json() == {'detail': 'Not authenticated'}
