@@ -1,7 +1,7 @@
 import boto3
 from botocore.exceptions import ClientError
-from os import getenv
-from .config import AWS_REGION
+from central_config import AWS_REGION
+
 
 def get_secret(secret_name: str):
     session = boto3.session.Session()
