@@ -1,30 +1,17 @@
 import csv
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, HTTPException, UploadFile, APIRouter, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from io import StringIO
 from managers import CSVManager
 from mangum import Mangum
 from time import sleep
-from utils.config import (
-    ALLOW_HEADER,
-    ALLOW_METHODS,
-    ALLOW_ORIGINS,
-    AWS_REGION,
-    ENVIRONMENT,
-)
+from utils.config import app,AWS_REGION,ENVIRONMENT 
 from utils.logger import log
-
-app = FastAPI()
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=ALLOW_ORIGINS,
-    allow_credentials=True,
-    allow_methods=ALLOW_METHODS,
-    allow_headers=ALLOW_HEADER,
-)
+from auth.verifier import get_token_header
 
 
-@app.get("/api")
+
+@app.get("/")
 def read_root():
     return {
         "message": "FastAPI running on AWS Lambda and is executed in region "
@@ -33,13 +20,18 @@ def read_root():
         + ENVIRONMENT
     }
 
+@app.get("/health")
+def health_check():
+    from utils.db import send_to_db
 
-@app.get("/api/items")
+    send_to_db()
+    return {"status": "ok"}
+
+@app.get("/items")
 def read_item():
     return {"item_id": 1}
 
-
-@app.post("/api/uploadfile")
+@app.post("/uploadfile")
 async def create_upload_file(file: UploadFile = File(...)):
     contents = await file.read()
     if ENVIRONMENT == "local":
@@ -55,14 +47,5 @@ async def create_upload_file(file: UploadFile = File(...)):
     if records_report.get("invalid_records"):
         raise HTTPException(status_code=422, detail=records_report)
     return records_report
-
-
-@app.get("/api/health")
-def health_check():
-    from utils.db import send_to_db
-
-    send_to_db()
-    return {"status": "ok"}
-
 
 lambda_handler = Mangum(app, lifespan="off")

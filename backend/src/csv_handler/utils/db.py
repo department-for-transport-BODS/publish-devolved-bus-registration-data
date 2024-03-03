@@ -14,7 +14,7 @@ class CreateEngine:
     @staticmethod
     def get_db_creds():
         try:
-            if getenv("PROJECT_ENV", "local") != "local":
+            if getenv("PROJECT_ENV", "localdev") != "localdev":
                 secret = get_secret(getenv("POSTGRES_CREDENTIALS"))
                 creds = DBCreds(**json.loads(secret["text_secret_data"]))
             else:
