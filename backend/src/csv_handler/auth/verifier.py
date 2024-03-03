@@ -1,42 +1,31 @@
-
 from fastapi import Depends, HTTPException
-from fastapi.security import HTTPBearer
-from utils.logger import log, console
-import cognitojwt
-from os import getenv
-
-REGION = getenv("REGION", "")
-USERPOOL_ID = getenv("USERPOOL_ID")
-APP_CLIENT_ID = getenv('APP_CLIENT_ID')
-
-from fastapi import HTTPException
 from fastapi.security import HTTPBearer
 from utils.logger import console
 import cognitojwt
-from os import getenv
+
+
 from utils.exceptions import RegionIsNotSet, UserPoolIdIsNotSet, AppClientIdIsNotSet
-
-
+from central_config import PROJECT_ENV, AWS_REGION, USERPOOL_ID, APP_CLIENT_ID
 
 
 http_bearer = HTTPBearer()
 
+
 class TokenVerifier:
     def __init__(self, token: str):
         self.token = token
-        self._initialize_params
-    
-    def _initialize_params(self):
-        self.REGION = getenv("REGION", "REGION is not set")
-        self.USERPOOL_ID = getenv("USERPOOL_ID", "USERPOOL_ID is not set")
-        self.APP_CLIENT_ID = getenv('APP_CLIENT_ID', "APP_CLIENT_ID is not set")
-        if (self.REGION == "REGION is not set"):
-            raise RegionIsNotSet
-        if (self.USERPOOL_ID == "USERPOOL_ID is not set"):
-            raise UserPoolIdIsNotSet
-        if (self.APP_CLIENT_ID == "APP_CLIENT_ID is not set"):
-            raise AppClientIdIsNotSet
+        self._initialize_params()
 
+    def _initialize_params(self):
+        self.REGION = AWS_REGION
+        self.USERPOOL_ID = USERPOOL_ID
+        self.APP_CLIENT_ID = APP_CLIENT_ID
+        if self.REGION == "REGION is not set":
+            raise RegionIsNotSet
+        if self.USERPOOL_ID == "USERPOOL_ID is not set":
+            raise UserPoolIdIsNotSet
+        if self.APP_CLIENT_ID == "APP_CLIENT_ID is not set":
+            raise AppClientIdIsNotSet
 
     def verify_token(self):
         try:
@@ -56,11 +45,12 @@ class TokenVerifier:
             console.log(e)
             return False
 
+
 def token_verifier(token: str = Depends(http_bearer)):
+    if PROJECT_ENV == "localdev" and token.credentials == "localdev":
+        return
     print("token", token.credentials)
     verify = TokenVerifier(token.credentials).verify_token()
     print("verify", verify)
     if not verify:
         raise HTTPException(status_code=403, detail="Unauthorized")
-
-        

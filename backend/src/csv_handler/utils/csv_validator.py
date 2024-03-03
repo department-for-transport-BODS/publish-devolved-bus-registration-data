@@ -1,4 +1,3 @@
-
 from pydantic import ValidationError
 
 from .logger import log

@@ -10,6 +10,7 @@ from .csv_validator import Registration
 from .logger import console, log
 from .pydant_model import DBCreds
 
+
 class CreateEngine:
     @staticmethod
     def get_db_creds():
@@ -18,10 +19,12 @@ class CreateEngine:
                 secret = get_secret(getenv("POSTGRES_CREDENTIALS"))
                 creds = DBCreds(**json.loads(secret["text_secret_data"]))
             else:
-                creds = DBCreds(**{
-                    "username": getenv("POSTGRES_USER", "postgres"),
-                    "password": getenv("POSTGRES_PASSWORD", "postgres")
-                })
+                creds = DBCreds(
+                    **{
+                        "username": getenv("POSTGRES_USER", "postgres"),
+                        "password": getenv("POSTGRES_PASSWORD", "postgres"),
+                    }
+                )
         except Exception as e:
             print(f"The error '{e}' occurred")
             exit(1)
