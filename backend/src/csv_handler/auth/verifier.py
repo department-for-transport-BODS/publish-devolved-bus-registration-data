@@ -52,7 +52,7 @@ class TokenVerifier:
             verified_claims: dict = cognitojwt.decode(
                 self.token,
                 self.REGION,
-                self.APP_CLIENT_ID,
+                self.USERPOOL_ID,
                 app_client_id=self.APP_CLIENT_ID,
             )
             console.log(verified_claims)
@@ -76,8 +76,8 @@ def token_verifier(token: str = Depends(http_bearer)):
         HTTPException: If the token is invalid, raise an HTTPException with status code 403.
     """
     # Verify if its in localdev and token is localdev
-    if PROJECT_ENV == "localdev" and token.credentials == "localdev":
-        return
+    # if PROJECT_ENV == "localdev" and token.credentials == "localdev":
+    #     return
     verify = TokenVerifier(token.credentials).verify_token()
     log.debug(f"Token verification status: {verify}")
     if not verify:
