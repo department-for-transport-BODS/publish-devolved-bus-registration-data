@@ -5,6 +5,9 @@ load_dotenv()
 # ENV
 PROJECT_ENV = getenv("PROJECT_ENV", "local")
 
+# LOGGING
+LOGGER_LEVEL = getenv("LOG_LEVEL", "INFO")
+LOGGER_MOD = getenv("LOGGER_MOD", "local")
 # AWS env
 AWS_REGION = getenv("AWS_REGION", "Running locally")
 USERPOOL_ID = getenv("USERPOOL_ID", "USERPOOL_ID is not set")
