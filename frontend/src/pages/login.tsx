@@ -217,5 +217,7 @@ const LoginPage: React.FC<Props> = ({ error, nextPage }) => {
     </>
   );
 };
+  );
+};
 
 export default LoginPage;
