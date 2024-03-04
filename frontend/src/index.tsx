@@ -3,13 +3,20 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+import { Authenticator } from "@aws-amplify/ui-react";
+
+import CustomProvider from "./utils/login/LoginProvider";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <App />
+  <Authenticator.Provider>
+    <CustomProvider>
+      <App />
+    </CustomProvider>
+  </Authenticator.Provider>
   </React.StrictMode>
 );
 
