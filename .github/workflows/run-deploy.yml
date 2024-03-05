@@ -32,7 +32,7 @@ jobs:
   backend:
     runs-on: ubuntu-latest
     outputs:
-      stack-name: ${{ steps.get_stack.outputs.result }}
+      stack-name: ${{ steps.get-stack.outputs.result }}
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -54,6 +54,9 @@ jobs:
             exit 1
           fi
 
+      - name: setup python
+        uses: actions/setup-python@v3
+
       - name: setup sam
         uses: aws-actions/setup-sam@v2
         with:
@@ -62,29 +65,32 @@ jobs:
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          role-to-assume: ${{ vars.AWS_ASSUME_ROLE_ARN }}
-          role-session-name: sam-github-actions
           aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE_ARN }}
+          role-session-name: ${{ env.RC_ENV }}-app-deployment
+          role-duration-seconds: 3600
+          role-skip-session-tagging: true
 
       - name: build backend
         run: |
-          sam build
-        working-directory: ./backend
+          sam build --use-container
+        working-directory: backend
       
       - name: get stack name
-        id: get_stack
+        id: get-stack
         uses: mikefarah/yq@v4.42.1
         with:
-          cmd: yq -r '."${{ env.RC_ENV }}".deploy.parameters.stack_name' ./backend/samconfig.yaml
+          cmd: yq -r '."${{ env.RC_ENV }}".deploy.parameters.stack_name' backend/samconfig.yaml
 
       - name: deploy backend
         run: |
           sam deploy \
-            --stack-name ${{ steps.get_stack.outputs.result }} \
+            --stack-name ${{ steps.get-stack.outputs.result }} \
             --config-env $RC_ENV \
             --region $AWS_REGION \
+            --no-confirm-changeset \
             --no-fail-on-empty-changeset
-        working-directory: ./backend
+        working-directory: backend
 
   frontend:
     runs-on: ubuntu-latest
@@ -98,7 +104,7 @@ jobs:
       - name: setup node
         uses: actions/setup-node@v4
         with:
-          node-version-file: ./frontend/.nvmrc
+          node-version-file: frontend/.nvmrc
 
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v3
@@ -108,25 +114,26 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: get frontend bucket name
+        id: get-bucket
         run: |
-          echo "frontend_bucket_name=$( \
+          echo "frontend-bucket-name=$( \
             aws cloudformation describe-stacks \
-              --stack-name ${{ needs.deploy-backend.outputs.stack-name }} \
+              --stack-name ${{ needs.backend.outputs.stack-name }} \
               --query 'Stacks[0].Outputs[?OutputKey==`FrontendBucketName`].OutputValue' \
               --output text \
-          )" >> $GITHUB_ENV
+          )" >> $GITHUB_OUTPUT
       
       - name: build frontend
         run: |
           npm install && \
             REACT_ENV=$RC_ENV npm run build
-        working-directory: ./frontend
+        working-directory: frontend
 
       - name: clear frontend
         run: |
-          aws s3 rm s3://${{ env.frontend_bucket_name }} --recursive
+          aws s3 rm s3://${{ steps.get-bucket.outputs.frontend-bucket-name }} --recursive
 
       - name: deploy frontend
         run: |
-          aws s3 cp ./build/** s3://${{ env.frontend_bucket_name }} --recursive
-        working-directory: ./frontend
+          aws s3 cp build/** s3://${{ steps.get-bucket.outputs.frontend-bucket-name }} --recursive
+        working-directory: frontend
