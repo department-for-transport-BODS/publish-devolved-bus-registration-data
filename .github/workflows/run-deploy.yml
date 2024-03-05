@@ -99,7 +99,7 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
         with:
-          ref: $RC_VER
+          ref: ${{ env.RC_VER }}
 
       - name: setup node
         uses: actions/setup-node@v4
