@@ -34,11 +34,6 @@ jobs:
     outputs:
       stack-name: ${{ steps.get-stack.outputs.result }}
     steps:
-      - name: checkout
-        uses: actions/checkout@v4
-        with:
-          ref: $RC_VER
-
       - name: validate release candidate version
         run: |
           echo """ \
@@ -53,6 +48,11 @@ jobs:
             echo "Release candidate version [${RC_VER}] does not exist. Exiting"
             exit 1
           fi
+
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RC_VER }}
 
       - name: setup python
         uses: actions/setup-python@v3
