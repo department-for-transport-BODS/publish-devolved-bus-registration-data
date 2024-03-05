@@ -1,0 +1,123 @@
+name: "run-deploy"
+
+on:
+  workflow_dispatch:
+    branches:
+      - main
+    inputs:
+      release_version:
+        type: string
+        description: version tag to be deployed
+        required: true
+        default: 'v0.0.0'
+      environment:
+        type: choice
+        description: deployment environment
+        options: 
+        - 'dev'
+        - 'test'
+        - 'uat'
+        - 'prod'
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  RC_VER: ${{ github.event.inputs.releaes_version }}
+  RC_ENV: ${{ github.event.inputs.environment }}
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    outputs:
+      stack-name: ${{ steps.get_stack.outputs.result }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          ref: $RC_VER
+
+      - name: setup sam
+        uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE_ARN }}
+          role-session-name: sam-github-actions
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: build backend
+        run: |
+          echo """ \
+            Executing deploy job using parameters:
+              (Release Version)    - $RC_VER
+              (Target Environment) - $RC_ENV
+          """
+
+          sam build
+        working-directory: ./backend
+      
+      - name: get stack name
+        id: get_stack
+        uses: mikefarah/yq@v4.42.1
+        with:
+          cmd: yq -r '."${{ env.RC_ENV }}".deploy.parameters.stack_name' ./backend/samconfig.yaml
+
+      - name: deploy backend
+        run: |
+          sam deploy \
+            --stack-name ${{ steps.get_stack.outputs.result }} \
+            --config-env $RC_ENV \
+            --region $AWS_REGION \
+            --no-fail-on-empty-changeset
+        working-directory: ./backend
+
+  frontend:
+    runs-on: ubuntu-latest
+    needs: backend
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          ref: $RC_VER
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ./frontend/.nvmrc
+
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE_ARN }}
+          role-session-name: sam-github-actions
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: get frontend bucket name
+        run: |
+          echo "frontend_bucket_name=$( \
+            aws cloudformation describe-stacks \
+              --stack-name ${{ needs.deploy-backend.outputs.stack-name }} \
+              --query 'Stacks[0].Outputs[?OutputKey==`FrontendBucketName`].OutputValue' \
+              --output text \
+          )" >> $GITHUB_ENV
+      
+      - name: build frontend
+        run: |
+          npm install && \
+            REACT_ENV=$RC_ENV npm run build
+        working-directory: ./frontend
+
+      - name: clear frontend
+        run: |
+          aws s3 rm s3://${{ env.frontend_bucket_name }} --recursive
+
+      - name: deploy frontend
+        run: |
+          aws s3 cp ./build/** s3://${{ env.frontend_bucket_name }} --recursive
+        working-directory: ./frontend
