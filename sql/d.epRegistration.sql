@@ -1,3 +1,4 @@
+
 CREATE TABLE IF NOT EXISTS ep_registration (
     id SERIAL PRIMARY KEY,
     otc_licence_id INTEGER,
@@ -21,7 +22,8 @@ CREATE TABLE IF NOT EXISTS ep_registration (
     traffic_area_id VARCHAR(255),
     application_type VARCHAR(255),
     publication_text VARCHAR(255),
-    other_details VARCHAR(255)
+    other_details VARCHAR(255),
+    UNIQUE (otc_licence_id, registration_number, variation_number)
 );
 
 ALTER TABLE ep_registration

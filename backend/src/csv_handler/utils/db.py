@@ -1,15 +1,16 @@
 import json
 from os import getenv
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine, select, Table
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, Query
 from sys import exit
 from typing import List
 from .aws import get_secret
 from .csv_validator import Registration
 from .logger import console, log
 from .pydant_model import DBCreds
-
+from sqlalchemy.exc import NoResultFound, IntegrityError 
+from .exceptions import RecordIsAlreadyExist
 
 class CreateEngine:
     @staticmethod
@@ -121,13 +122,13 @@ class DBManager:
         return licence_record_id
 
     @classmethod
-    def add_record_to_ep_registration_table(
+    def upsert_record_to_ep_registration_table(
         cls,
         record: Registration,
         operator_record_id: int,
         licence_record_id: int,
         session: Session,
-        EPRegistration,
+        EPRegistration : Table,
     ):
         ep_registration_record = EPRegistration(
             route_number=record.route_number,
@@ -153,12 +154,36 @@ class DBManager:
             otc_operator_id=operator_record_id,
             otc_licence_id=licence_record_id,
         )
-        session.add(ep_registration_record)
-        session.flush()
-        console.log(f"New EP registration record: {ep_registration_record.id}")
+
+        try:
+            session.add(ep_registration_record)
+            session.flush()
+            log.debug(f"New EP registration record: {ep_registration_record.id}")
+            session.commit()
+        except IntegrityError:
+            raise RecordIsAlreadyExist(f"Record is already exist in the database")
+        
+            
+
+def send_to_db(records: List[Registration]):
+    """ Send the validated records to the database
+    Functionality:
+        - Check if the licence number exists in the OTC database
+        - Prepare operator object and added to the database
+        - Prepare licence object and added to the database
+        - Add the record to the EPRegistration table
+        - Modify the records dictionary to remove records that were not added to the database
+        IF a record exists in the ep_registration table
+            then its moved to invalid_records with reason "Record is already exist in the database"
+        
 
 
-def send_to_db(validated_records: List[Registration]):
+    Args:
+        records (List[Registration]): List of validated records
+
+    Returns:
+        records List: after updating the valid_records and invalid_records
+    """
     # validated_records: List[Registration] = MockData.mock_user_csv_record()
     models = AutoMappingModels()
     engine = models.engine
@@ -168,12 +193,11 @@ def send_to_db(validated_records: List[Registration]):
     EPRegistration = tables["EPRegistration"]
     # Check if the licence number exists in the OTC database
     # validated_records = validate_licence_number_existence(validated_records)
-
-    for idx, record_and_licence in validated_records["valid_records"].items():
-        try:
+    db_invalid_insertion = []
+    for idx, record_and_licence in records["valid_records"].items():
+        try: 
             # Create a new session
             session = Session(engine)
-
             # Prepare operator object and added to the database
             record, licence = record_and_licence
             OTCOperator_record = OTCOperator(
@@ -203,15 +227,24 @@ def send_to_db(validated_records: List[Registration]):
                 OTCLicence,
                 OTCLicence_record,
             )
-
+            log.debug(f"Record with number: {idx} going to db")
             # Add the record to the EPRegistration table
-            DBManager.add_record_to_ep_registration_table(
+            DBManager.upsert_record_to_ep_registration_table(
                 record, operator_record_id, licence_record_id, session, EPRegistration
             )
-
-            session.commit()
-        except Exception:
+        except RecordIsAlreadyExist:
+            records["invalid_records"].update({idx: [{"Duplicated Record": "Record is already exist in the database"}]})
+            db_invalid_insertion.append(idx)
+        except Exception as e:
+            # console.log(f"Error: {e}")
+            # log.error(f"{e}")
             console.print_exception(show_locals=False)
+            # console.print_exception(show_locals=False)
             session.rollback()
         finally:
             session.close()
+    # Remove records from the valid_records dictionary that were not added to the database
+    for idx in db_invalid_insertion:
+        del records["valid_records"][f"{idx}"]
+
+    return records
