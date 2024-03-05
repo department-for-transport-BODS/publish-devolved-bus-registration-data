@@ -13,6 +13,7 @@ import {
   ConfirmSignInInput,
   resetPassword,
   confirmResetPassword,
+  fetchAuthSession,
 } from "aws-amplify/auth";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
 import ConfirmNewPasswordForm from "../components/ConfirmNewPasswordForm";
@@ -35,11 +36,18 @@ const LoginPage: React.FC<Props> = ({ error, nextPage }) => {
     boolean | null
   >(null);
   async function handleSignIn({ username, password }: SignInInput) {
-    // BEGIN: ed8c6549bwf9
     try {
       const { isSignedIn, nextStep } = await signIn({ username, password });
       setIsLoggedIn ? setIsLoggedIn(isSignedIn) : null;
       if (isSignedIn) {
+        fetchAuthSession().then((data) => { 
+          console.log("data from fetchAuthSession: ", data);
+          const jwt = data.tokens?.accessToken.toString();
+          console.log("data from fetchAuthSession: ", jwt);
+        })
+        .catch((error) => {
+          console.error("error from fetchAuthSession: ", error);
+        });
         if (nextPage) {
           navigate(`/${nextPage}`);
         } else {
@@ -207,6 +215,8 @@ const LoginPage: React.FC<Props> = ({ error, nextPage }) => {
       </TowThirdsOneThirdLayout>
       <Footer />
     </>
+  );
+};
   );
 };
 

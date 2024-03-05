@@ -1,48 +1,44 @@
 import csv
-from fastapi import FastAPI, File, HTTPException, UploadFile
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import File, HTTPException, UploadFile, Depends, status
 from io import StringIO
 from managers import CSVManager
 from mangum import Mangum
 from time import sleep
-from utils.config import (
-    ALLOW_HEADER,
-    ALLOW_METHODS,
-    ALLOW_ORIGINS,
-    AWS_REGION,
-    ENVIRONMENT,
-)
 from utils.logger import log
-
-app = FastAPI()
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=ALLOW_ORIGINS,
-    allow_credentials=True,
-    allow_methods=ALLOW_METHODS,
-    allow_headers=ALLOW_HEADER,
-)
+from auth.verifier import token_verifier
+from central_config import app, PROJECT_ENV, AWS_REGION, api_v1_router
 
 
-@app.get("/api")
-def read_root():
-    return {
-        "message": "FastAPI running on AWS Lambda and is executed in region "
-        + AWS_REGION
-        + ", using runtime environment "
-        + ENVIRONMENT
-    }
+@api_v1_router.get("/health", dependencies=[Depends(token_verifier)])
+def health_check():
+    """ 
+    This is a health check endpoint that is used to verify the status of the API.
+    """
+    return {"status": "ok"}
 
 
-@app.get("/api/items")
+@api_v1_router.get("items")
 def read_item():
     return {"item_id": 1}
 
 
-@app.post("/api/uploadfile")
+@api_v1_router.post("uploadfile", dependencies=[Depends(token_verifier)], status_code=status.HTTP_201_CREATED)
 async def create_upload_file(file: UploadFile = File(...)):
+    """ This is the endpoint to upload a CSV file and process it.
+
+    Args:
+        file (UploadFile, optional): The CSV file to be uploaded
+
+    Raises:
+        HTTPException: 
+            status_code: 422 if the CSV file contains invalid records
+            status_code: 201 if all records in the CSV file is successfully processed and inserted into the database
+
+    Returns:
+        _type_: _description_
+    """
     contents = await file.read()
-    if ENVIRONMENT == "local":
+    if PROJECT_ENV == "localdev":
         log.debug("Sleeping for 2 seconds to simulate file upload")
         sleep(2)
     # Decode the CSV data
@@ -57,12 +53,15 @@ async def create_upload_file(file: UploadFile = File(...)):
     return records_report
 
 
-@app.get("/api/health")
-def health_check():
-    from utils.db import send_to_db
+@api_v1_router.get("/")
+def read_root():
+    return {
+        "message": "FastAPI running on AWS Lambda and is executed in region "
+        + AWS_REGION
+        + ", using runtime environment "
+        + PROJECT_ENV
+    }
 
-    send_to_db()
-    return {"status": "ok"}
 
-
+app.include_router(api_v1_router)
 lambda_handler = Mangum(app, lifespan="off")

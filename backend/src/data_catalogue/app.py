@@ -1,6 +1,6 @@
 from csv import DictReader
 from io import BytesIO, TextIOWrapper
-from os import getenv, walk
+from os import getenv
 from pydantic import BaseModel, Field, field_validator, AliasChoices
 from requests import get, Response
 from sqlalchemy import create_engine, Column, String, Boolean, Integer, text
@@ -10,7 +10,8 @@ from utils.aws import get_secret
 from zipfile import ZipFile
 
 import logging
-logging.basicConfig(format='%(levelname)s,%(message)s')
+
+logging.basicConfig(format="%(levelname)s,%(message)s")
 logger = logging.getLogger(__name__)
 logger.setLevel(getattr(logging, getenv("LOG_LEVEL", "INFO")))
 
@@ -40,6 +41,7 @@ db_url = URL.create(
     database=POSTGRES_DB,
     port=POSTGRES_PORT,
 )
+
 
 class DBCatalogueEntry(Base):
     __tablename__ = "bods_data_catalogue"
@@ -135,7 +137,9 @@ class TimetableData:
                     logger.debug(f"Rows in CSV: {len(csv_data)}")
                     validated_data: list = [CatalogueEntry(**row) for row in csv_data]
                     # logger.debug(f"Validated data: {validated_data}")
-                    logger.info(f"Validated data successfully. Count: {len(validated_data)}")
+                    logger.info(
+                        f"Validated data successfully. Count: {len(validated_data)}"
+                    )
                     with Session(self.engine) as session:
                         logger.info("Deleting existing data in database")
                         session.execute(
