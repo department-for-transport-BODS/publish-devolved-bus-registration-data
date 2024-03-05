@@ -39,6 +39,21 @@ jobs:
         with:
           ref: $RC_VER
 
+      - name: validate release candidate version
+        run: |
+          echo """ \
+            Executing deploy job using parameters:
+              (Release Version)    - $RC_VER
+              (Target Environment) - $RC_ENV
+          """
+
+          if [ $(git tag -l "${RC_VER}") ]; then
+            echo "Release candidate version [${RC_VER}] successfully validated"
+          else
+            echo "Release candidate version [${RC_VER}] does not exist. Exiting"
+            exit 1
+          fi
+
       - name: setup sam
         uses: aws-actions/setup-sam@v2
         with:
@@ -53,12 +68,6 @@ jobs:
 
       - name: build backend
         run: |
-          echo """ \
-            Executing deploy job using parameters:
-              (Release Version)    - $RC_VER
-              (Target Environment) - $RC_ENV
-          """
-
           sam build
         working-directory: ./backend
       
