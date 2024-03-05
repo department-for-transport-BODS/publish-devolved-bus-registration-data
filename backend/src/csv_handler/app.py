@@ -17,12 +17,12 @@ def health_check():
     return {"status": "ok"}
 
 
-@api_v1_router.get("items")
+@api_v1_router.get("/items")
 def read_item():
     return {"item_id": 1}
 
 
-@api_v1_router.post("uploadfile", dependencies=[Depends(token_verifier)], status_code=status.HTTP_201_CREATED)
+@api_v1_router.post("/uploadfile", dependencies=[Depends(token_verifier)], status_code=status.HTTP_201_CREATED)
 async def create_upload_file(file: UploadFile = File(...)):
     """ This is the endpoint to upload a CSV file and process it.
 

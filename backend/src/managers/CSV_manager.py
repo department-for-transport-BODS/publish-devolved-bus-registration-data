@@ -18,15 +18,15 @@ class CSVManager:
         Returns:
              Record reports: A dictionary containing the valid and invalid records and the count of valid records.
         """
-        validated_records = self._validate_csv_data()
-        validated_records = self._check_licence_number_existence(validated_records)
-        self._send_to_db(validated_records)
-        validated_records = self._remove_licence_details(validated_records)
+        records = self._validate_csv_data()
+        records = self._check_licence_number_existence(records)
+        records = self._send_to_db(records)
+        records = self._remove_licence_details(records)
         # Add the count of valid records to the validated_records dictionary
-        validated_records["valid_records_count"] = len(
-            validated_records["valid_records"]
+        records["valid_records_count"] = len(
+            records["valid_records"]
         )
-        return validated_records
+        return records
 
     def _validate_csv_data(self):
         return csv_data_structure_check(self.csv_data)
@@ -35,7 +35,7 @@ class CSVManager:
         return validate_licence_number_existence(records)
 
     def _send_to_db(self, records):
-        send_to_db(records)
+        return send_to_db(records)
 
     def _remove_licence_details(self, records):
         """Removing the licence details from validated records."""

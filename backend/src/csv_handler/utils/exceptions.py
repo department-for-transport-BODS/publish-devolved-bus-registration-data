@@ -8,3 +8,6 @@ class UserPoolIdIsNotSet(Exception):
 
 class AppClientIdIsNotSet(Exception):
     pass
+
+class RecordIsAlreadyExist(Exception):
+    pass
