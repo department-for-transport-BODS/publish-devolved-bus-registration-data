@@ -21,7 +21,7 @@ on:
 
 env:
   AWS_REGION: ${{ vars.AWS_REGION }}
-  RC_VER: ${{ github.event.inputs.releaes_version }}
+  RC_VER: ${{ github.event.inputs.release_version }}
   RC_ENV: ${{ github.event.inputs.environment }}
 
 permissions:
@@ -34,6 +34,11 @@ jobs:
     outputs:
       stack-name: ${{ steps.get-stack.outputs.result }}
     steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RC_VER }}
+
       - name: validate release candidate version
         run: |
           echo """ \
@@ -48,11 +53,6 @@ jobs:
             echo "Release candidate version [${RC_VER}] does not exist. Exiting"
             exit 1
           fi
-
-      - name: checkout
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ env.RC_VER }}
 
       - name: setup python
         uses: actions/setup-python@v3
