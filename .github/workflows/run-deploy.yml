@@ -133,9 +133,9 @@ jobs:
 
       - name: clear frontend
         run: |
-          aws s3 rm s3://${{ steps.get-bucket.outputs.frontend-bucket-name }} --recursive
+          aws s3 rm ${{ steps.get-bucket.outputs.frontend-bucket-name }} --recursive
 
       - name: deploy frontend
         run: |
-          aws s3 cp build/** s3://${{ steps.get-bucket.outputs.frontend-bucket-name }} --recursive
+          aws s3 cp build/** ${{ steps.get-bucket.outputs.frontend-bucket-name }} --recursive
         working-directory: frontend
