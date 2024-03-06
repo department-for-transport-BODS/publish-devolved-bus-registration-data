@@ -482,3 +482,8 @@ Outputs:
     Value: !Sub
       - 'https://${CloudFrontDomainName}'
       - CloudFrontDomainName: !GetAtt CloudFrontDistribution.DomainName
+  FrontendBucketName:
+    Description: "Name of Frontend S3 Bucket"
+    Value: !Sub
+      - 's3://${BucketName}'
+      - BucketName: !Ref FrontendBucket
