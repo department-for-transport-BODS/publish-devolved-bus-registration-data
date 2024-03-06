@@ -124,6 +124,8 @@ jobs:
           )" >> $GITHUB_OUTPUT
       
       - name: build frontend
+        env:
+          CI: ""
         run: |
           npm install && \
             REACT_ENV=$RC_ENV npm run build
