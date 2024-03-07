@@ -10,7 +10,7 @@ from .csv_validator import Registration
 from .logger import console, log
 from .pydant_model import DBCreds
 from .exceptions import RecordIsAlreadyExist
-
+from .data import common_keys_comparsion
 class CreateEngine:
     @staticmethod
     def get_db_creds():
@@ -132,7 +132,7 @@ class DBManager:
         # Add record
         # case 1: Record is added with no problem.
 
-        # case 2: Record already exists in the database
+        # case 1: Record already exists in the database
         existing_record = (
             session.query(EPRegistration)
             .filter(
@@ -143,35 +143,18 @@ class DBManager:
             .one_or_none()
         )
 
+
         if existing_record:
-            # case 2.1: Check if all the fields are the same
-            if (
-                existing_record.route_number == record.route_number
-                and existing_record.route_description == record.route_description
-                and existing_record.variation_number == record.variation_number
-                and existing_record.start_point == record.start_point
-                and existing_record.finish_point == record.finish_point
-                and existing_record.via == record.via
-                and existing_record.subsidised == record.subsidised
-                and existing_record.subsidy_detail == record.subsidy_detail
-                and existing_record.is_short_notice == record.is_short_notice
-                and existing_record.received_date == record.received_date
-                and existing_record.granted_date == record.granted_date
-                and existing_record.effective_date == record.effective_date
-                and existing_record.end_date == record.end_date
-                and existing_record.bus_service_type_id == record.bus_service_type_id
-                and existing_record.bus_service_type_description == record.bus_service_type_description
-                and existing_record.traffic_area_id == record.traffic_area_id
-                and existing_record.application_type == record.application_type
-                and existing_record.publication_text == record.publication_text
-                and existing_record.other_details == record.other_details
-            ):
+            record_dict = record.model_dump()
+            existing_record_dict = existing_record.__dict__
+            if common_keys_comparsion(record_dict, existing_record_dict):
+                # case 1.1: Check if all the fields are the same
                 # All fields are the same, reject with an error
                 log.debug(f"Record already exists with the same fields: {existing_record.id}")
                 raise RecordIsAlreadyExist("Record already exists with the same fields")
 
             else:
-                # case 2.2: Not all fields are the same, update the record
+                # case 1.2: Not all fields are the same, update the record
                 existing_record.route_number = record.route_number
                 existing_record.route_description = record.route_description
                 existing_record.variation_number = record.variation_number
@@ -196,7 +179,7 @@ class DBManager:
                 log.debug(f"Updated EP registration record: {existing_record.id}")
 
         else:
-            # case 3: Record does not exist, create a new record
+            # case 2: Record does not exist, create a new record
             ep_registration_record = EPRegistration(
                 route_number=record.route_number,
                 route_description=record.route_description,
@@ -225,14 +208,6 @@ class DBManager:
             session.commit()
             log.debug(f"New EP registration record: {ep_registration_record.id}")
         
-        # raise RecordIsAlreadyExist("Record is already exist in the database")
-
-    # except Exception as e:
-    #     # console.log(f"Errors: {e}")
-    #     log.error("Records Viloating the insertion policy")
-        
-            
-
 def send_to_db(records: List[Registration]):
     # validated_records: List[Registration] = MockData.mock_user_csv_record()
     models = AutoMappingModels()
