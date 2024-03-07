@@ -1,3 +1,4 @@
+from ctypes import Union
 import json
 from os import getenv
 from sqlalchemy import create_engine, select, Table
@@ -9,8 +10,10 @@ from .aws import get_secret
 from .csv_validator import Registration
 from .logger import console, log
 from .pydant_model import DBCreds
-from sqlalchemy.exc import NoResultFound, IntegrityError 
+from sqlalchemy.exc import NoResultFound, IntegrityError
 from .exceptions import RecordIsAlreadyExist
+from sqlalchemy import desc, func
+
 
 class CreateEngine:
     @staticmethod
@@ -122,51 +125,147 @@ class DBManager:
         return licence_record_id
 
     @classmethod
-    def upsert_record_to_ep_registration_table(
-        cls,
-        record: Registration,
-        operator_record_id: int,
-        licence_record_id: int,
-        session: Session,
-        EPRegistration : Table,
-    ):
-        ep_registration_record = EPRegistration(
-            route_number=record.route_number,
-            route_description=record.route_description,
-            variation_number=record.variation_number,
-            start_point=record.start_point,
-            finish_point=record.finish_point,
-            via=record.via,
-            subsidised=record.subsidised,
-            subsidy_detail=record.subsidy_detail,
-            is_short_notice=record.is_short_notice,
-            received_date=record.received_date,
-            granted_date=record.granted_date,
-            effective_date=record.effective_date,
-            end_date=record.end_date,
-            bus_service_type_id=record.bus_service_type_id,
-            bus_service_type_description=record.bus_service_type_description,
-            registration_number=record.registration_number,
-            traffic_area_id=record.traffic_area_id,
-            application_type=record.application_type,
-            publication_text=record.publication_text,
-            other_details=record.other_details,
-            otc_operator_id=operator_record_id,
-            otc_licence_id=licence_record_id,
-        )
+    class DBManager:
+        @classmethod
+        def fetch_operator_record(
+            cls, operator_name: str, session: Session, OTCOperator, operator_record
+        ):
+            operator_record_id = add_or_get_record(
+                "operator_name", operator_name, session, OTCOperator, operator_record
+            )
+            return operator_record_id
 
-        try:
-            session.add(ep_registration_record)
-            session.flush()
-            log.debug(f"New EP registration record: {ep_registration_record.id}")
-            session.commit()
-        except IntegrityError:
-            raise RecordIsAlreadyExist(f"Record is already exist in the database")
-        
-            
+        @classmethod
+        def fetch_licence_record(
+            cls, licence_number: str, session: Session, OTCLicence, licence_record
+        ):
+            console.log(f"licence_number: {licence_number}")
+            licence_record_id = add_or_get_record(
+                "licence_number", licence_number, session, OTCLicence, licence_record
+            )
+            console.log(f"otc_licence_id: {licence_record_id}")
+            return licence_record_id
+
+        @classmethod
+        def record_exists(cls, session: Session, Model, **kwargs) -> bool:
+            try:
+                query = session.query(Model).filter_by(**kwargs)
+                query.one()
+                return True
+            except NoResultFound:
+                return False
+        def upsert_record_to_ep_registration_table(
+            cls,
+            record: Registration,
+            operator_record_id: int,
+            licence_record_id: int,
+            session: Session,
+            EPRegistration: Table,
+        ):
+            ep_registration_record = EPRegistration(
+                route_number=record.route_number,
+                route_description=record.route_description,
+                variation_number=record.variation_number,
+                start_point=record.start_point,
+                finish_point=record.finish_point,
+                via=record.via,
+                subsidised=record.subsidised,
+                subsidy_detail=record.subsidy_detail,
+                is_short_notice=record.is_short_notice,
+                received_date=record.received_date,
+                granted_date=record.granted_date,
+                effective_date=record.effective_date,
+                end_date=record.end_date,
+                bus_service_type_id=record.bus_service_type_id,
+                bus_service_type_description=record.bus_service_type_description,
+                registration_number=record.registration_number,
+                traffic_area_id=record.traffic_area_id,
+                application_type=record.application_type,
+                publication_text=record.publication_text,
+                other_details=record.other_details,
+                otc_operator_id=operator_record_id,
+                otc_licence_id=licence_record_id,
+            )
+
+            try:
+                # check if the record exists
+                if cls.record_exists(
+                    session,
+                    EPRegistration,
+                    otc_licence_id=record.otc_licence_id,
+                    registration_number=record.registration_number,
+                    variation_number=record.variation_number,
+                ):
+                    # update record
+                    session.query(EPRegistration).filter(ep_registration_record.id == EPRegistration.id).update(
+
+                session.add(ep_registration_record)
+                session.flush()
+                log.debug(f"New EP registration record: {ep_registration_record.id}")
+                session.commit()
+            except IntegrityError:
+                raise RecordIsAlreadyExist("Record already exists in the database")
+
+    @classmethod
+    def get_latest_records(cls):
+        models = AutoMappingModels()
+        session = Session(models.engine)
+        EPRegistration = models.EPRegistration
+        OTCLicence = models.OTCLicence
+
+        result = session.query(func.max(EPRegistration.id)).group_by(
+            EPRegistration.otc_licence_id, EPRegistration.registration_number
+        )
+        result2 = session.query(
+            EPRegistration.variation_number, EPRegistration.registration_number
+        ).filter(EPRegistration.id.in_(result))
+        result3 = result2.with_entities(
+            OTCLicence.licence_number,
+            EPRegistration.variation_number,
+            EPRegistration.registration_number,
+        ).filter(OTCLicence.id == EPRegistration.otc_licence_id)
+        from pydantic import BaseModel
+
+        class LatestRecord(BaseModel):
+            variation_number: int
+            registration_number: str
+
+        # records = [LatestRecord(**row) for row in result]
+
+        # console.log(dir(result2))
+        from rich import table
+        from typing import Union
+
+        for row in result2:
+            console.log(LatestRecord(**row._asdict()))
+
+        class OTC(BaseModel):
+            id: int
+            licence_number: str
+            license_status: str
+
+        class REG(BaseModel):
+            variation_number: int
+            registration_number: str
+
+        class JointRecord(BaseModel):
+            otc_licence: OTC
+            ep_registration: REG
+
+        for row in result3:
+            dict_row = row._asdict()
+            # console.log(row)
+            console.log(dict_row)
+            console.log(row[0])
+            # console.log(otc_table.__dict__)
+            # console.log(JointRecord(otc_licence=OTC(**row[0].__dict__), ep_registration=REG(**row[1].__dict__)))
+            # console.log(row._asdict())
+            # console.log(table1.add_row(row.variation_number, row.registration_number))
+        return
+
 
 def send_to_db(records: List[Registration]):
-    """ Send the validated records to the database
+    """Send the validated records to the database
     Functionality:
         - Check if the licence number exists in the OTC database
         - Prepare operator object and added to the database
@@ -175,7 +274,7 @@ def send_to_db(records: List[Registration]):
         - Modify the records dictionary to remove records that were not added to the database
         IF a record exists in the ep_registration table
             then its moved to invalid_records with reason "Record is already exist in the database"
-        
+
 
 
     Args:
@@ -195,7 +294,7 @@ def send_to_db(records: List[Registration]):
     # validated_records = validate_licence_number_existence(validated_records)
     db_invalid_insertion = []
     for idx, record_and_licence in records["valid_records"].items():
-        try: 
+        try:
             # Create a new session
             session = Session(engine)
             # Prepare operator object and added to the database
@@ -233,7 +332,13 @@ def send_to_db(records: List[Registration]):
                 record, operator_record_id, licence_record_id, session, EPRegistration
             )
         except RecordIsAlreadyExist:
-            records["invalid_records"].update({idx: [{"Duplicated Record": "Record is already exist in the database"}]})
+            records["invalid_records"].update(
+                {
+                    idx: [
+                        {"Duplicated Record": "Record is already exist in the database"}
+                    ]
+                }
+            )
             db_invalid_insertion.append(idx)
         except Exception as e:
             # console.log(f"Error: {e}")
@@ -248,3 +353,96 @@ def send_to_db(records: List[Registration]):
         del records["valid_records"][f"{idx}"]
 
     return records
+
+    # def get_latest_records(cls, session: Session, EPRegistration: Table, limit: int) -> List[Registration]:
+    #    'add_column',
+    #    'add_columns',
+    #    'add_entity',
+    #    'all',
+    #    'allows_lambda',
+    #    'apply_labels',
+    #    'as_scalar',
+    #    'autoflush',
+    #    'column_descriptions',
+    #    'correlate',
+    #    'count',
+    #    'cte',
+    #    'delete',
+    #    'dispatch',
+    #    'distinct',
+    #    'enable_assertions',
+    #    'enable_eagerloads',
+    #    'except_',
+    #    'except_all',
+    #    'execution_options',
+    #    'exists',
+    #    'filter',
+    #    'filter_by',
+    #    'first',
+    #    'from_statement',
+    #    'get',
+    #    'get_children',
+    #    'get_execution_options',
+    #    'get_label_style',
+    #    'group_by',
+    #    'having',
+    #    'instances',
+    #    'intersect',
+    #    'intersect_all',
+    #    'is_delete',
+    #    'is_dml',
+    #    'is_insert',
+    #    'is_select',
+    #    'is_single_entity',
+    #    'is_text',
+    #    'is_update',
+    #    'join',
+    #    'label',
+    #    'lazy_loaded_from',
+    #    'limit',
+    #    'load_options',
+    #    'logger',
+    #    'logging_name',
+    #    'memoized_attribute',
+    #    'memoized_instancemethod',
+    #    'merge_result',
+    #    'offset',
+    #    'one',
+    #    'one_or_none',
+    #    'only_return_tuples',
+    #    'options',
+    #    'order_by',
+    #    'outerjoin',
+    #    'params',
+    #    'populate_existing',
+    #    'prefix_with',
+    #    'reset_joinpoint',
+    #    'scalar',
+    #    'scalar_subquery',
+    #    'select_from',
+    #    'selectable',
+    #    'session',
+    #    'set_label_style',
+    #    'slice',
+    #    'statement',
+    #    'subquery',
+    #    'suffix_with',
+    #    'supports_execution',
+    #    'tuples',
+    #    'union',
+    #    'union_all',
+    #    'update',
+    #    'uses_inspection',
+    #    'value',
+    #    'values',
+    #    'where',
+    #    'whereclause',
+    #    'with_entities',
+    #    'with_for_update',
+    #    'with_hint',
+    #    'with_labels',
+    #    'with_parent',
+    #    'with_session',
+    #    'with_statement_hint',
+    #    'with_transformation',
+    #    'yield_per'
