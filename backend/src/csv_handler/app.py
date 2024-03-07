@@ -1,13 +1,14 @@
 import csv
-from fastapi import File, HTTPException, UploadFile, Depends, status
+from typing import Annotated
+from fastapi import File, HTTPException, Header, UploadFile, Depends, status, Query
 from io import StringIO
 from managers import CSVManager
 from mangum import Mangum
 from time import sleep
-from utils.logger import log
+from utils.logger import log, console
 from auth.verifier import token_verifier
 from central_config import app, PROJECT_ENV, AWS_REGION, api_v1_router
-
+from utils.db import DBManager
 
 @api_v1_router.get("/health", dependencies=[Depends(token_verifier)])
 def health_check():
@@ -52,6 +53,80 @@ async def create_upload_file(file: UploadFile = File(...)):
         raise HTTPException(status_code=422, detail=records_report)
     return records_report
 
+
+# @api_v1_router.get("/search", dependencies=[Depends(token_verifier)])
+# async def search_records(
+#     license_name: str = Query(None),
+#     registration: str = Query(None),
+#     registering_organization: str = Query(None),
+#     operator: str = Query(None),
+#     route_number: str = Query(None),
+#     page: int = Query(1, ge=1),
+#     limit: int = Query(10, ge=1),
+#     latest_only: bool = Query(False)
+# ):
+#     """ This is the endpoint to search for records in the database.
+
+#     Args:
+#         license_name (str): The license name to filter the records
+#         registration (str): The registration to filter the records
+#         registering_organization (str): The registering organization to filter the records
+#         operator (str): The operator to filter the records
+#         route_number (str): The route number to filter the records
+#         page (int): The page number for pagination
+#         limit (int): The maximum number of records per page
+#         latest_only (bool): Whether to retrieve only the latest records
+
+#     Returns:
+#         _type_: _description_
+#     """
+#     # Perform the search based on the provided filters
+#     # You can use a database query or any other method to retrieve the matching records
+#     # Adjust the code below to fit your specific implementation
+#     search_results = []
+#     if latest_only:
+#         # Retrieve only the latest records
+#         search_results = get_latest_records()
+#     else:
+#         # Retrieve all records based on the provided filters
+#         search_results = get_records_by_filters(
+#             license_name=license_name,
+#             registration=registration,
+#             registering_organization=registering_organization,
+#             operator=operator,
+#             route_number=route_number
+#         )
+
+#     # Perform pagination
+#     start_index = (page - 1) * limit
+#     end_index = start_index + limit
+#     paginated_results = search_results[start_index:end_index]
+
+#     return {
+#         "page": page,
+#         "limit": limit,
+#         "total_records": len(search_results),
+#         "results": paginated_results
+#     }
+
+
+
+@api_v1_router.get("/search", dependencies=[Depends(token_verifier)])
+async def search_records(user_agent: Annotated[str | None, Header()]):
+    """ This is the endpoint to search for records in the database.
+
+    Args:
+        search_term (str): The search term to be used to search for records in the database
+
+    Returns:
+        _type_: _description_
+    """
+    DBManager.get_latest_records()
+    return {"status": "ok"}
+    # x = Annotated[str | None, Header()]
+    # console.log(Header())
+    # console.log("Searching for records with search term: ", user_agent)
+    # return {"search_term": user_agent}
 
 @api_v1_router.get("/")
 def read_root():
