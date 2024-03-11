@@ -192,7 +192,7 @@ jobs:
           git config --global url.https://${{ github.token }}@github.com/.insteadOf https://github.com/
 
           git add VERSION
-          git commit -m '[AUTO] GitHub actions push for version $new_version'
+          git commit -m "[AUTO] GitHub actions push for version $new_version"
           git push --force
 
           git tag $new_version
