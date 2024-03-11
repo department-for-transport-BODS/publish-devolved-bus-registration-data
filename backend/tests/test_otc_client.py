@@ -58,7 +58,6 @@ def test_invalid_input():
 
 
 def test_malformed_response(requests_mock, caplog):
-
     expected_output = {
         "licences": [
             {

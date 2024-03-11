@@ -5,6 +5,18 @@ from .pydant_model import LicenceRecord
 from .logger import log
 
 
+# get licenceRecord that has licence_number x001
+def licence_detail(licence_number, licence_details):
+    return next(
+        (
+            record
+            for record in licence_details
+            if record.licence_number == licence_number
+        ),
+        None,
+    )
+
+
 def validate_licence_number_existence(uploaded_records: dict):
     """
     This function takes a list of licence numbers and checks if they exist in the database.
@@ -24,16 +36,6 @@ def validate_licence_number_existence(uploaded_records: dict):
             LicenceRecord(**record) for record in otc_API_response["licences"]
         ]
 
-        # get licenceRecord that has licence_number x001
-        licence_detail = lambda licence_number: next(
-            (
-                record
-                for record in licence_details
-                if record.licence_number == licence_number
-            ),
-            None,
-        )
-
     except Exception as e:
         log.error(f"Error: {e}")
 
@@ -41,7 +43,7 @@ def validate_licence_number_existence(uploaded_records: dict):
     for idx, record in uploaded_records["valid_records"].items():
         try:
             # Get licence details
-            licence = licence_detail(record.licence_number)
+            licence = licence_detail(record.licence_number, licence_details)
             if (
                 licence is None
                 or licence.licence_details is None

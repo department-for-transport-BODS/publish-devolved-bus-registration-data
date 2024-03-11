@@ -99,4 +99,6 @@ def test_read_root():
     # assert response.json() == {
     #     "message": "FastAPI running on AWS Lambda and is executed in region Running locally, using runtime environment Running locally"
     # }
-    assert response.json() == {'message': 'FastAPI running on AWS Lambda and is executed in region eu-west-2, using runtime environment localdev'}
+    assert response.json() == {
+        "message": "FastAPI running on AWS Lambda and is executed in region eu-west-2, using runtime environment localdev"
+    }
