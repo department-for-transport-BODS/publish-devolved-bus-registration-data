@@ -190,7 +190,7 @@ jobs:
           path: ${{ github.workspace }}
           key: repo-build-${{ github.sha }}
 
-        run: echo "${{ github.token }}"
+      - run: echo "${{ github.token }}"
       # - name: commit and push changes
       #   run: |
       #     # install yq for parsing yaml files
