@@ -184,17 +184,10 @@ jobs:
           path: ./
           key: repo-build-${{ github.sha }}
 
-      # - name: commit and push changes
-      #   run: |
-      #     git config user.name 'github-actions'
-      #     git config user.email github-actions@github.com
-
-      #     git add VERSION
-      #     git commit -m '[AUTO] GitHub actions push for version ${{ needs.validation.outputs.version }}'
-      #     git push --force
-          
-      #     git tag ${{ needs.validation.outputs.version }}
-      #     git push --tags
+      - run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email github-actions@github.com
+          git config --global url.https://${{ github.token }}@github.com/.insteadOf https://github.com/
 
       - name: commit and push changes
         uses: EndBug/add-and-commit@v9
