@@ -1,0 +1,156 @@
+name: deploy application
+
+on:
+  workflow_dispatch:
+    branches:
+      - main
+    inputs:
+      release_version:
+        type: string
+        description: version to be deployed
+        required: true
+        default: '0.0.0'
+      environment:
+        type: choice
+        description: deployment environment
+        options: 
+        - 'dev'
+        - 'test'
+        - 'uat'
+        - 'prod'
+  repository_dispatch:
+    branch: main
+    types: [automated-deploy-dev]
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  RC_SRC: ${{ vars.DEPLOYMENT_ARTEFACTS_S3_BUCKET }}
+  RC_VER: ${{ github.event.inputs.release_version }}
+  RC_ENV: ${{ github.event.inputs.environment }}
+
+permissions:
+  id-token: write
+
+jobs:
+  validation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: validate job parameters
+        run: |
+          echo """ \
+            Executing deploy job using parameters:
+              (Release Version)    - $RC_VER
+              (Target Environment) - $RC_ENV
+          """
+
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE_ARN }}
+          role-session-name: ${{ env.RC_ENV }}-app-deployment
+          role-duration-seconds: 3600
+          role-skip-session-tagging: true
+          
+      - name: validate release candidate version
+        run: |
+          if [ `aws s3 ls releases/${RC_VER}/ | head` ]; then
+            echo "Release candidate version [${RC_VER}] successfully validated"
+          else
+            echo "Release candidate version [${RC_VER}] does not exist. Exiting"
+            exit 1
+          fi
+
+  backend:
+    runs-on: ubuntu-latest
+    outputs:
+      stack-name: ${{ steps.get-stack.outputs.result }}
+
+    steps:
+      - name: setup python
+        uses: actions/setup-python@v3
+
+      - name: setup sam
+        uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE_ARN }}
+          role-session-name: ${{ env.RC_ENV }}-app-deployment
+          role-duration-seconds: 3600
+          role-skip-session-tagging: true
+
+      - name: retrieve backend
+        run: |
+          rc_path="releases/$RC_VER/backend"
+
+          aws s3 cp s3://$RC_SRC/$rc_path/packaged.yml .
+          aws s3 cp s3://$RC_SRC/$rc_path/samconfig.yml .
+          echo "[INFO] Application component (BACKEND) with version ${RC_VER} successfully downloaded"
+      
+      - name: get stack name
+        id: get-stack
+        uses: mikefarah/yq@v4.42.1
+        with:
+          cmd: yq -r '."${{ env.RC_ENV }}".deploy.parameters.stack_name' samconfig.yml
+
+      - name: deploy backend for ${{ env.RC_ENV }}
+        run: |
+          sam deploy \
+            --template-file packaged.yml \
+            --stack-name ${{ steps.get-stack.outputs.result }} \
+            --config-env $RC_ENV \
+            --region $AWS_REGION \
+            --no-confirm-changeset \
+            --no-fail-on-empty-changeset
+          echo "[INFO] Application component (BACKEND) with version ${RC_VER} successfully deployed into ${RC_ENV^^}"
+
+  frontend:
+    runs-on: ubuntu-latest
+    needs: backend
+
+    steps:
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE_ARN }}
+          role-session-name: ${{ env.RC_ENV }}-app-deployment
+          role-duration-seconds: 3600
+          role-skip-session-tagging: true
+
+      - name: retrieve frontend for ${{ env.RC_ENV }}
+        run: |
+          rc_path="releases/$RC_VER/frontend/$RC_ENV"
+
+          mkdir build/
+          aws s3 cp s3://$RC_SRC/$rc_path/ build/
+          echo "[INFO] Application component (FRONTEND) with version ${RC_VER} successfully downloaded for ${RC_ENV^^}"
+
+      - name: get frontend bucket name
+        id: get-bucket
+        run: |
+          echo "frontend-bucket-name=$( \
+            aws cloudformation describe-stacks \
+              --stack-name ${{ needs.backend.outputs.stack-name }} \
+              --query 'Stacks[0].Outputs[?OutputKey==`FrontendBucketName`].OutputValue' \
+              --output text \
+          )" >> $GITHUB_OUTPUT
+      
+      - name: clear frontend for ${{ env.RC_ENV }}
+        run: |
+          aws s3 rm ${{ steps.get-bucket.outputs.frontend-bucket-name }} --recursive
+          echo "[INFO] S3 Bucket for application component (FRONTEND) successfully cleared for ${RC_ENV^^}"
+
+      - name: deploy frontend for ${{ env.RC_ENV }}
+        run: |
+          aws s3 cp build/ ${{ steps.get-bucket.outputs.frontend-bucket-name }} --recursive
+          echo "[INFO] Application component (FRONTEND) with version ${RC_VER} successfully deployed for ${RC_ENV^^}"
