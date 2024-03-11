@@ -56,7 +56,7 @@ jobs:
           npm install semver
 
           current_version=$(yq e '.version' VERSION)
-          new_version=$(node -p "const semver = require('semver'); semver.inc('$current_version', 'pre$RC_TYP', false)")
+          new_version=$(node -p "const semver = require('semver'); semver.inc('$current_version', '$RC_TYP', false)")
           # yq e -i '.version = "'"$new_version"'"' VERSION
           # echo "[INFO] Updated application version to ${new_version}"
           echo "version=${new_version}" >> "$GITHUB_OUTPUT"
@@ -91,7 +91,7 @@ jobs:
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE_ARN }}
-          role-session-name: ${{ env.RC_ENV }}-app-deployment
+          role-session-name: backend-app-build
           role-duration-seconds: 3600
           role-skip-session-tagging: true
 
@@ -140,7 +140,7 @@ jobs:
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE_ARN }}
-          role-session-name: ${{ env.RC_ENV }}-app-deployment
+          role-session-name: ${{ matrix.environment }}-app-build
           role-duration-seconds: 3600
           role-skip-session-tagging: true
 
@@ -155,9 +155,9 @@ jobs:
           npm install
           REACT_APP_ENV=$ENV npm run build
 
-          echo "[INFO] Uploading application component (FRONTEND) for ${^ENV}"
+          echo "[INFO] Uploading application component (FRONTEND) for ${ENV^^}"
           aws s3 cp --recursive build/ s3://$RC_DST/$rc_path/
-          echo "[INFO] Application component (FRONTEND) with version ${VERSION} successfully uploaded for ${^ENV}"
+          echo "[INFO] Application component (FRONTEND) with version ${VERSION} successfully uploaded for ${ENV^^}"
 
   # commit-and-tag:
   #   if: ${{ always() && ! contains(needs.*.result, 'failure') }}
