@@ -183,20 +183,17 @@ jobs:
           path: ./
           key: repo-build-${{ github.sha }}
 
-      - run: |
-          git config --global user.name 'github-actions'
-          git config --global user.email github-actions@github.com
-
       - name: commit and push changes
-        uses: EndBug/add-and-commit@v9
-        with:
-          add: 'VERSION'
-          committer_name: github-actions
-          committer_email: github-actions@github.com
-          default_author: github_actions
-          message: '[AUTO] GitHub actions push for version ${{ needs.validation.outputs.version }}'
-          tag: '${{ needs.validation.outputs.version }} --force'
-          tag_push: '--force'
+        run: |
+          git config user.name 'github-actions'
+          git config user.email github-actions@github.com
+
+          git add VERSION
+          git commit -m '[AUTO] GitHub actions push for version ${{ needs.validation.outputs.version }}'
+          git push --force
+          
+          git tag ${{ needs.validation.outputs.version }}
+          git push --tags
 
       - name: clear cache(s)
         uses: actions/github-script@v6
