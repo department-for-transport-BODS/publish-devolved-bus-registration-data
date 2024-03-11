@@ -205,7 +205,7 @@ jobs:
       - validation
       - backend
       - frontend
-      - commit-and-clean
+      - commit-and-tag
 
     permissions:
       contents: write
