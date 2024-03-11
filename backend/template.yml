@@ -423,7 +423,8 @@ Resources:
             ForwardedValues:
               QueryString: true
         Logging:
-          Bucket: !GetAtt CloudFrontLoggingBucket.DomainName
+          Bucket: !Sub 'shared-${ProjectName}-cdn-logging-${AWS::AccountId}.s3.amazonaws.com' 
+          Prefix: !Ref Environment
 
   CloudFrontOriginAccessControl:
     Type: AWS::CloudFront::OriginAccessControl
@@ -435,55 +436,15 @@ Resources:
         SigningBehavior: always
         SigningProtocol: sigv4
 
-  CloudFrontLoggingBucket:
-    Type: AWS::S3::Bucket
-    Condition: IsNotLocal
-    Properties:
-      BucketName: !Sub '${Environment}-${ProjectName}-cdn-logging'
-      OwnershipControls:
-        Rules:
-          - ObjectOwnership: BucketOwnerPreferred
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-
-  CloudFrontLoggingBucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Condition: IsNotLocal
-    Properties:
-      Bucket: !Ref CloudFrontLoggingBucket
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Sid: AllowCloudFrontServicePrincipal
-            Effect: Allow
-            Principal:
-              Service: 'cloudfront.amazonaws.com'
-            Action: 
-              - 's3:GetObject'
-              - 's3:PutObject'
-            Resource: !Sub
-              - 'arn:aws:s3:::${Bucket}/*'
-              - Bucket: !Ref CloudFrontLoggingBucket
-            Condition:
-              StringEquals:
-                aws:SourceArn: !Sub
-                  - 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}'
-                  - Distribution: !Ref CloudFrontDistribution
-
 Outputs:
   ApiGatewayUrl:
-    Description: "API Gateway endpoint URL for FastAPI"
-    Value: !Sub "https://${CsvHandlerApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/"
+    Description: 'API Gateway endpoint URL for FastAPI'
+    Value: !Sub 'https://${CsvHandlerApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/'
   CloudFrontDistributionUrl:
-    Description: "CloudFront Distribution Domain Name URL"
+    Description: 'CloudFront Distribution Domain Name URL'
     Value: !Sub
       - 'https://${CloudFrontDomainName}'
       - CloudFrontDomainName: !GetAtt CloudFrontDistribution.DomainName
   FrontendBucketName:
-    Description: "Name of Frontend S3 Bucket"
-    Value: !Sub
-      - 's3://${BucketName}'
-      - BucketName: !Ref FrontendBucket
+    Description: 'Name of Frontend S3 Bucket'
+    Value: !Sub 's3://${FrontendBucket}'
