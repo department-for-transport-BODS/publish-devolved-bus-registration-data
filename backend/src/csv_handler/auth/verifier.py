@@ -67,7 +67,7 @@ class TokenVerifier:
 
 
 def token_verifier(token: str = Depends(http_bearer)):
-    """ Verify the token using the TokenVerifier class.
+    """Verify the token using the TokenVerifier class.
 
     Args:
         token (str, optional): The token to be verified. Defaults to Depends(http_bearer).

@@ -1,37 +1,32 @@
 import csv
-from typing import Annotated
-from fastapi import File, HTTPException, Header, UploadFile, Depends, status, Query
+from fastapi import File, HTTPException, Request, UploadFile, Depends, status, Query
 from io import StringIO
+
+from pydantic import ValidationError
 from managers import CSVManager
 from mangum import Mangum
 from time import sleep
-from utils.logger import log, console
+from utils.exceptions import LimitIsNotSet, LimitExceeded
+from utils.logger import log
 from auth.verifier import token_verifier
 from central_config import app, PROJECT_ENV, AWS_REGION, api_v1_router
 from utils.db import DBManager
-
-@api_v1_router.get("/health", dependencies=[Depends(token_verifier)])
-def health_check():
-    """ 
-    This is a health check endpoint that is used to verify the status of the API.
-    """
-    return {"status": "ok"}
+from utils.pydant_model import SearchQuery
 
 
-@api_v1_router.get("/items")
-def read_item():
-    return {"item_id": 1}
-
-
-@api_v1_router.post("/uploadfile", dependencies=[Depends(token_verifier)], status_code=status.HTTP_201_CREATED)
+@api_v1_router.post(
+    "/uploadfile",
+    dependencies=[Depends(token_verifier)],
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_upload_file(file: UploadFile = File(...)):
-    """ This is the endpoint to upload a CSV file and process it.
+    """This is the endpoint to upload a CSV file and process it.
 
     Args:
         file (UploadFile, optional): The CSV file to be uploaded
 
     Raises:
-        HTTPException: 
+        HTTPException:
             status_code: 422 if the CSV file contains invalid records
             status_code: 201 if all records in the CSV file is successfully processed and inserted into the database
 
@@ -54,87 +49,107 @@ async def create_upload_file(file: UploadFile = File(...)):
     return records_report
 
 
-# @api_v1_router.get("/search", dependencies=[Depends(token_verifier)])
-# async def search_records(
-#     license_name: str = Query(None),
-#     registration: str = Query(None),
-#     registering_organization: str = Query(None),
-#     operator: str = Query(None),
-#     route_number: str = Query(None),
-#     page: int = Query(1, ge=1),
-#     limit: int = Query(10, ge=1),
-#     latest_only: bool = Query(False)
-# ):
-#     """ This is the endpoint to search for records in the database.
-
-#     Args:
-#         license_name (str): The license name to filter the records
-#         registration (str): The registration to filter the records
-#         registering_organization (str): The registering organization to filter the records
-#         operator (str): The operator to filter the records
-#         route_number (str): The route number to filter the records
-#         page (int): The page number for pagination
-#         limit (int): The maximum number of records per page
-#         latest_only (bool): Whether to retrieve only the latest records
-
-#     Returns:
-#         _type_: _description_
-#     """
-#     # Perform the search based on the provided filters
-#     # You can use a database query or any other method to retrieve the matching records
-#     # Adjust the code below to fit your specific implementation
-#     search_results = []
-#     if latest_only:
-#         # Retrieve only the latest records
-#         search_results = get_latest_records()
-#     else:
-#         # Retrieve all records based on the provided filters
-#         search_results = get_records_by_filters(
-#             license_name=license_name,
-#             registration=registration,
-#             registering_organization=registering_organization,
-#             operator=operator,
-#             route_number=route_number
-#         )
-
-#     # Perform pagination
-#     start_index = (page - 1) * limit
-#     end_index = start_index + limit
-#     paginated_results = search_results[start_index:end_index]
-
-#     return {
-#         "page": page,
-#         "limit": limit,
-#         "total_records": len(search_results),
-#         "results": paginated_results
-#     }
-
-
-
-@api_v1_router.get("/search", dependencies=[Depends(token_verifier)])
-async def search_records(user_agent: Annotated[str | None, Header()]):
-    """ This is the endpoint to search for records in the database.
+@api_v1_router.post("/search", status_code=status.HTTP_200_OK,dependencies=[Depends(token_verifier)])
+async def search_records(
+    licenseNumber: str = Query(
+        None,
+        description="The license name to filter the records",
+        pattern="^[a-zA-Z0-9]*$",
+    ),
+    registrationNumber: str = Query(
+        None, description="The registration number to filter the records"
+    ),
+    operatorName: str = Query(None, description="The operator to filter the records"),
+    routeNumber: str = Query(
+        None, description="The route number to filter the records"
+    ),
+    latestOnly: str = Query(
+        "Yes", description="Whether to retrieve only the latest records"
+    ),
+    limit: str = Query(None, description="The maximum number of records per page"),
+    strictMode: str = Query(
+        "No",
+        description="Strict mode for search",
+        examples=[
+            "true",
+            "false",
+        ],
+    ),
+    page: str = Query(None, description="The page number to retrieve"),
+    request: Request = None,
+):
+    """This is the endpoint to search for records in the database.
 
     Args:
-        search_term (str): The search term to be used to search for records in the database
+        licenseNumber (str): The license name to filter the records
+        registrationNumber (str): The registration number to filter the records
+        operator (str): The operator to filter the records
+        routeNumber (str): The route number to filter the records
+        latestOnly (str): Whether to retrieve only the latest records
+        limit (str): The maximum number of records per page
+        strictMode (str): Strict mode for search
 
     Returns:
         _type_: _description_
     """
-    DBManager.get_latest_records()
-    return {"status": "ok"}
-    # x = Annotated[str | None, Header()]
-    # console.log(Header())
-    # console.log("Searching for records with search term: ", user_agent)
-    # return {"search_term": user_agent}
+    try:
+        search_query = SearchQuery(
+            license_number=licenseNumber,
+            registrationNumber=registrationNumber,
+            operatorName=operatorName,
+            routeNumber=routeNumber,
+            latestOnly=latestOnly,
+            limit=limit,
+            strictMode=strictMode,
+            page=page,
+        )
+        records = DBManager.get_records(**search_query.model_dump())
 
-@api_v1_router.get("/")
+        # Get the host and path from the request
+        host = request.headers.get("host")
+        path = request.url.path
+
+        next_page = DBManager.construct_next_page_url(search_query, host, path)
+
+        res = {"Results": records}
+        if next_page:
+            res.update({"NextPage": next_page})
+        return res
+    except ValidationError as e:
+        from utils.pydant_model import (
+            extract_error_fields,
+        )
+
+        # errors = convert_errors(e, CUSTOM_MESSAGES)
+        errors = extract_error_fields(e.errors())
+        raise HTTPException(status_code=422, detail=errors)
+    except LimitIsNotSet as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except LimitExceeded as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+
 def read_root():
     return {
         "message": "FastAPI running on AWS Lambda and is executed in region "
         + AWS_REGION
         + ", using runtime environment "
         + PROJECT_ENV
+    }
+
+
+@api_v1_router.options("/search")
+async def search_records_options():
+    """This is the endpoint to return the options for the search endpoint"""
+    description = {
+        "licenseNumber": "The license name to filter the records",
+        "registrationNumber": "The registration number to filter the records",
+        "operatorName": "The operator to filter the records",
+        "routeNumber": "The route number to filter the records",
+        "latestOnly": "Whether to retrieve only the latest records",
+        "limit": "The maximum number of records per page",
+        "strictMode": "Strict mode for search",
+        "page": "The page number to retrieve",
     }
 
 

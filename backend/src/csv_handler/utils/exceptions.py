@@ -9,5 +9,14 @@ class UserPoolIdIsNotSet(Exception):
 class AppClientIdIsNotSet(Exception):
     pass
 
+
 class RecordIsAlreadyExist(Exception):
+    pass
+
+
+class LimitIsNotSet(Exception):
+    pass
+
+
+class LimitExceeded(Exception):
     pass
