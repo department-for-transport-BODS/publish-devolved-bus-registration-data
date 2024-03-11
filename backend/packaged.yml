@@ -1,0 +1,623 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: "This SAM template deploys the following resources for a serverless application:\
+  \ - Lambda functions that provide the backend functionality of the application.\
+  \ - API Gateway that provides HTTP endpoints for the Lambda functions. - CloudFront\
+  \ distribution that serves as a content delivery network (CDN) to improve the \n\
+  \  performance and security of the application.\n- S3 bucket that is used to host\
+  \ the static files (HTML, CSS, JavaScript, etc.) for the React SPA.\nThe Lambda\
+  \ functions are triggered by API Gateway, and the SPA makes API calls to API Gateway\
+  \ to interact  with the backend. The SPA and its static assets are served to the\
+  \ end users through the CloudFront distribution.\n"
+Globals:
+  Function:
+    Architectures:
+    - x86_64
+    MemorySize: 256
+    Runtime: python3.11
+    Timeout: 60
+Parameters:
+  Environment:
+    Description: The environment into which the stack is being deployed
+    Type: String
+  ProjectName:
+    Description: The name of the project
+    Type: String
+  VpcId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::VPC::Id>
+    Default: ''
+  VpcSubnets:
+    Type: AWS::SSM::Parameter::Value<List<AWS::EC2::Subnet::Id>>
+    Default: ''
+  RdsDbHostAddr:
+    Type: String
+    Default: ''
+  RdsSecurityGroupId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::SecurityGroup::Id>
+    Default: ''
+  WebProxySecurityGroupId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::SecurityGroup::Id>
+    Default: ''
+Conditions:
+  IsNotLocal:
+    Fn::Not:
+    - Fn::Equals:
+      - Ref: Environment
+      - local
+  IsNotProd:
+    Fn::Not:
+    - Fn::Equals:
+      - Ref: Environment
+      - prod
+Resources:
+  CsvHandlerApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name:
+        Ref: AWS::StackName
+      StageName:
+        Ref: Environment
+      EndpointConfiguration:
+        Type: REGIONAL
+      TracingEnabled: true
+      Auth:
+        ResourcePolicy:
+          CustomStatements:
+          - Effect: Allow
+            Principal: '*'
+            Action: execute-api:Invoke
+            Resource: execute-api:/*/*/*
+            Condition:
+              StringEquals:
+                aws:UserAgent: Amazon CloudFront
+    Metadata:
+      SamResourceId: CsvHandlerApi
+  CsvHandlerLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName:
+        Fn::Sub: ${Environment}-${ProjectName}-csv-handler-lambda
+      Role:
+        Fn::GetAtt:
+        - CsvHandlerLambdaExecutionRole
+        - Arn
+      CodeUri: s3://shared-epp-deployment-artefacts-992382470170/releases/v0.0.0/backend/6ae3b0ce8f3130d2c6fea6e07468f20a
+      Handler: app.lambda_handler
+      Events:
+        ApiEvents:
+          Type: Api
+          Properties:
+            Path: /api/{proxy+}
+            Method: ANY
+            RestApiId:
+              Ref: CsvHandlerApi
+      VpcConfig:
+        SubnetIds:
+          Ref: VpcSubnets
+        SecurityGroupIds:
+        - Fn::GetAtt:
+          - CsvHandlerLambdaSecurityGroup
+          - GroupId
+      Environment:
+        Variables:
+          PROJECT_ENV:
+            Ref: Environment
+          PROJECT_NAME:
+            Ref: ProjectName
+          HTTP_PROXY:
+            Fn::If:
+            - IsNotLocal
+            - Fn::Sub: http://squid.${ProjectName}.${Environment}:3128
+            - Ref: AWS::NoValue
+          HTTPS_PROXY:
+            Fn::If:
+            - IsNotLocal
+            - Fn::Sub: http://squid.${ProjectName}.${Environment}:3128
+            - Ref: AWS::NoValue
+          LOG_LEVEL:
+            Fn::If:
+            - IsNotProd
+            - DEBUG
+            - INFO
+          POSTGRES_HOST:
+            Fn::If:
+            - IsNotLocal
+            - Fn::Sub: '{{resolve:ssm:/${Environment}/${ProjectName}/rds/endpoint}}'
+            - Ref: RdsDbHostAddr
+          POSTGRES_PORT: 5432
+          POSTGRES_DB:
+            Ref: ProjectName
+          POSTGRES_CREDENTIALS:
+            Fn::Sub: '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/name}}'
+    Metadata:
+      SamResourceId: CsvHandlerLambda
+  CsvHandlerLambdaSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription:
+        Fn::Sub: Security group for ${Environment}-${ProjectName}-csv-handler-lambda
+          function
+      GroupName:
+        Fn::Sub: ${Environment}-${ProjectName}-csv-handler-lambda
+      SecurityGroupEgress:
+      - IpProtocol: tcp
+        FromPort: 5432
+        ToPort: 5432
+        DestinationSecurityGroupId:
+          Ref: RdsSecurityGroupId
+      - IpProtocol: tcp
+        FromPort: 3128
+        ToPort: 3128
+        DestinationSecurityGroupId:
+          Ref: WebProxySecurityGroupId
+      - IpProtocol: udp
+        FromPort: 3128
+        ToPort: 3128
+        DestinationSecurityGroupId:
+          Ref: WebProxySecurityGroupId
+      VpcId:
+        Ref: VpcId
+      Tags:
+      - Key: Name
+        Value:
+          Fn::Sub: ${Environment}-${ProjectName}-csv-handler-lambda
+    Metadata:
+      SamResourceId: CsvHandlerLambdaSecurityGroup
+  RdsProxyFromCsvHandlerLambdaSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: IsNotLocal
+    Properties:
+      GroupId:
+        Ref: RdsSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 5432
+      ToPort: 5432
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+        - CsvHandlerLambdaSecurityGroup
+        - GroupId
+    Metadata:
+      SamResourceId: RdsProxyFromCsvHandlerLambdaSecurityGroupIngress
+  CsvHandlerLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Condition: IsNotLocal
+    Properties:
+      LogGroupName:
+        Fn::Sub: /aws/lambda/${Environment}-${ProjectName}-csv-handler-lambda
+      KmsKeyId:
+        Fn::Sub: '{{resolve:ssm:/shared/${ProjectName}/kms/cloudwatch}}'
+      RetentionInDays: 30
+    Metadata:
+      SamResourceId: CsvHandlerLambdaLogGroup
+  CsvHandlerLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Condition: IsNotLocal
+    Properties:
+      RoleName:
+        Fn::Sub: ${Environment}-${ProjectName}-csv-handler-lambda-execution-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+    Metadata:
+      SamResourceId: CsvHandlerLambdaExecutionRole
+  CsvHandlerLambdaLoggingPolicy:
+    Type: AWS::IAM::Policy
+    Condition: IsNotLocal
+    Properties:
+      PolicyName:
+        Fn::Sub: ${Environment}-${ProjectName}-csv-handler-lambda-logging-policy
+      Roles:
+      - Ref: CsvHandlerLambdaExecutionRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - logs:CreateLogGroup
+          - logs:CreateLogStream
+          - logs:PutLogEvents
+          Resource:
+            Fn::GetAtt:
+            - CsvHandlerLambdaLogGroup
+            - Arn
+    Metadata:
+      SamResourceId: CsvHandlerLambdaLoggingPolicy
+  CsvHandlerLambdaSecretsAccessPolicy:
+    Type: AWS::IAM::Policy
+    Condition: IsNotLocal
+    Properties:
+      PolicyName:
+        Fn::Sub: ${Environment}-${ProjectName}-csv-handler-lambda-secrets-access-policy
+      Roles:
+      - Ref: CsvHandlerLambdaExecutionRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - secretsmanager:GetResourcePolicy
+          - secretsmanager:GetSecretValue
+          - secretsmanager:DescribeSecret
+          - secretsmanager:ListSecretVersionIds
+          Resource:
+            Fn::Sub: '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/arn}}'
+        - Effect: Allow
+          Action:
+          - kms:Decrypt
+          Resource:
+          - Fn::Sub: '{{resolve:ssm:/shared/${ProjectName}/kms/secretsmanager}}'
+    Metadata:
+      SamResourceId: CsvHandlerLambdaSecretsAccessPolicy
+  DataCatalogueLambda:
+    Type: AWS::Serverless::Function
+    Condition: IsNotLocal
+    Properties:
+      FunctionName:
+        Fn::Sub: ${Environment}-${ProjectName}-data-catalogue-lambda
+      Role:
+        Fn::GetAtt:
+        - DataCatalogueLambdaExecutionRole
+        - Arn
+      CodeUri: s3://shared-epp-deployment-artefacts-992382470170/releases/v0.0.0/backend/e218e6253c29d38bf66fc29ef740163a
+      Handler: app.lambda_handler
+      Events:
+        HourlyGetDataCatalogue:
+          Type: Schedule
+          Properties:
+            Name:
+              Fn::Sub: ${Environment}-${ProjectName}-data-catalogue-lambda-schedule
+            Schedule: rate(1 day)
+      VpcConfig:
+        SubnetIds:
+          Ref: VpcSubnets
+        SecurityGroupIds:
+        - Fn::GetAtt:
+          - DataCatalogueLambdaSecurityGroup
+          - GroupId
+      Environment:
+        Variables:
+          PROJECT_ENV:
+            Ref: Environment
+          PROJECT_NAME:
+            Ref: ProjectName
+          HTTP_PROXY:
+            Fn::If:
+            - IsNotLocal
+            - Fn::Sub: http://squid.${ProjectName}.${Environment}:3128
+            - Ref: AWS::NoValue
+          HTTPS_PROXY:
+            Fn::If:
+            - IsNotLocal
+            - Fn::Sub: http://squid.${ProjectName}.${Environment}:3128
+            - Ref: AWS::NoValue
+          LOG_LEVEL:
+            Fn::If:
+            - IsNotProd
+            - DEBUG
+            - INFO
+          POSTGRES_HOST:
+            Fn::If:
+            - IsNotLocal
+            - Fn::Sub: '{{resolve:ssm:/${Environment}/${ProjectName}/rds/endpoint}}'
+            - Ref: RdsDbHostAddr
+          POSTGRES_PORT: 5432
+          POSTGRES_DB:
+            Ref: ProjectName
+          POSTGRES_CREDENTIALS:
+            Fn::Sub: '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/name}}'
+    Metadata:
+      SamResourceId: DataCatalogueLambda
+  DataCatalogueLambdaSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Condition: IsNotLocal
+    Properties:
+      GroupDescription:
+        Fn::Sub: Security group for ${Environment}-${ProjectName}-data-catalogue-lambda
+          function
+      GroupName:
+        Fn::Sub: ${Environment}-${ProjectName}-data-catalogue-lambda
+      SecurityGroupEgress:
+      - IpProtocol: tcp
+        FromPort: 5432
+        ToPort: 5432
+        DestinationSecurityGroupId:
+          Ref: RdsSecurityGroupId
+      - IpProtocol: tcp
+        FromPort: 3128
+        ToPort: 3128
+        DestinationSecurityGroupId:
+          Ref: WebProxySecurityGroupId
+      - IpProtocol: udp
+        FromPort: 3128
+        ToPort: 3128
+        DestinationSecurityGroupId:
+          Ref: WebProxySecurityGroupId
+      VpcId:
+        Ref: VpcId
+      Tags:
+      - Key: Name
+        Value:
+          Fn::Sub: ${Environment}-${ProjectName}-data-catalogue-lambda
+    Metadata:
+      SamResourceId: DataCatalogueLambdaSecurityGroup
+  RdsProxyFromDataCatalogueLambdaSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: IsNotLocal
+    Properties:
+      GroupId:
+        Ref: RdsSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 5432
+      ToPort: 5432
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+        - DataCatalogueLambdaSecurityGroup
+        - GroupId
+    Metadata:
+      SamResourceId: RdsProxyFromDataCatalogueLambdaSecurityGroupIngress
+  DataCatalogueLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Condition: IsNotLocal
+    Properties:
+      LogGroupName:
+        Fn::Sub: /aws/lambda/${Environment}-${ProjectName}-data-catalogue-lambda
+      KmsKeyId:
+        Fn::Sub: '{{resolve:ssm:/shared/${ProjectName}/kms/cloudwatch}}'
+      RetentionInDays: 30
+    Metadata:
+      SamResourceId: DataCatalogueLambdaLogGroup
+  DataCatalogueLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Condition: IsNotLocal
+    Properties:
+      RoleName:
+        Fn::Sub: ${Environment}-${ProjectName}-data-catalogue-lambda-execution-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+    Metadata:
+      SamResourceId: DataCatalogueLambdaExecutionRole
+  DataCatalogueLambdaLoggingPolicy:
+    Type: AWS::IAM::Policy
+    Condition: IsNotLocal
+    Properties:
+      PolicyName:
+        Fn::Sub: ${Environment}-${ProjectName}-data-catalogue-lambda-logging-policy
+      Roles:
+      - Ref: DataCatalogueLambdaExecutionRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - logs:CreateLogGroup
+          - logs:CreateLogStream
+          - logs:PutLogEvents
+          Resource:
+            Fn::GetAtt:
+            - DataCatalogueLambdaLogGroup
+            - Arn
+    Metadata:
+      SamResourceId: DataCatalogueLambdaLoggingPolicy
+  DataCatalogueLambdaSecretsAccessPolicy:
+    Type: AWS::IAM::Policy
+    Condition: IsNotLocal
+    Properties:
+      PolicyName:
+        Fn::Sub: ${Environment}-${ProjectName}-data-catalogue-lambda-secrets-access-policy
+      Roles:
+      - Ref: DataCatalogueLambdaExecutionRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Action:
+          - secretsmanager:GetResourcePolicy
+          - secretsmanager:GetSecretValue
+          - secretsmanager:DescribeSecret
+          - secretsmanager:ListSecretVersionIds
+          Resource:
+            Fn::Sub: '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/arn}}'
+        - Effect: Allow
+          Action:
+          - kms:Decrypt
+          Resource:
+          - Fn::Sub: '{{resolve:ssm:/shared/${ProjectName}/kms/secretsmanager}}'
+    Metadata:
+      SamResourceId: DataCatalogueLambdaSecretsAccessPolicy
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    Condition: IsNotLocal
+    Properties:
+      BucketName:
+        Fn::Sub: ${Environment}-${ProjectName}-deployment-frontend
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+    Metadata:
+      SamResourceId: FrontendBucket
+  FrontendBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Condition: IsNotLocal
+    Properties:
+      Bucket:
+        Ref: FrontendBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Sid: AllowCloudFrontServicePrincipal
+          Effect: Allow
+          Principal:
+            Service: cloudfront.amazonaws.com
+          Action: s3:GetObject
+          Resource:
+            Fn::Sub:
+            - arn:aws:s3:::${Bucket}/*
+            - Bucket:
+                Ref: FrontendBucket
+          Condition:
+            StringEquals:
+              aws:SourceArn:
+                Fn::Sub:
+                - arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}
+                - Distribution:
+                    Ref: CloudFrontDistribution
+    Metadata:
+      SamResourceId: FrontendBucketPolicy
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Condition: IsNotLocal
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment:
+          Fn::Sub: ${Environment}-${ProjectName}-cdn
+        Origins:
+        - Id: frontendBucket
+          DomainName:
+            Fn::GetAtt:
+            - FrontendBucket
+            - RegionalDomainName
+          OriginAccessControlId:
+            Fn::GetAtt:
+            - CloudFrontOriginAccessControl
+            - Id
+          S3OriginConfig:
+            OriginAccessIdentity: ''
+        - Id: backendApi
+          DomainName:
+            Fn::Sub: ${CsvHandlerApi}.execute-api.${AWS::Region}.amazonaws.com
+          OriginPath:
+            Fn::Sub: /${Environment}
+          CustomOriginConfig:
+            OriginProtocolPolicy: https-only
+        DefaultRootObject: index.html
+        DefaultCacheBehavior:
+          TargetOriginId: frontendBucket
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+          - GET
+          - HEAD
+          - OPTIONS
+          OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+        CacheBehaviors:
+        - TargetOriginId: backendApi
+          PathPattern: /api/*
+          DefaultTTL: 0
+          MinTTL: 0
+          MaxTTL: 0
+          ViewerProtocolPolicy: https-only
+          AllowedMethods:
+          - HEAD
+          - DELETE
+          - POST
+          - GET
+          - OPTIONS
+          - PUT
+          - PATCH
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+          ForwardedValues:
+            QueryString: true
+        Logging:
+          Bucket:
+            Fn::GetAtt:
+            - CloudFrontLoggingBucket
+            - DomainName
+    Metadata:
+      SamResourceId: CloudFrontDistribution
+  CloudFrontOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name:
+          Fn::Sub: ${Environment}-${ProjectName}-cdn-oac
+        Description:
+          Fn::Sub: CloudFront access control used for access to !Sub ${Environment}-${ProjectName}-deployment-frontend
+            S3 bucket
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+    Metadata:
+      SamResourceId: CloudFrontOriginAccessControl
+  CloudFrontLoggingBucket:
+    Type: AWS::S3::Bucket
+    Condition: IsNotLocal
+    Properties:
+      BucketName:
+        Fn::Sub: ${Environment}-${ProjectName}-cdn-logging
+      OwnershipControls:
+        Rules:
+        - ObjectOwnership: BucketOwnerPreferred
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+    Metadata:
+      SamResourceId: CloudFrontLoggingBucket
+  CloudFrontLoggingBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Condition: IsNotLocal
+    Properties:
+      Bucket:
+        Ref: CloudFrontLoggingBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Sid: AllowCloudFrontServicePrincipal
+          Effect: Allow
+          Principal:
+            Service: cloudfront.amazonaws.com
+          Action:
+          - s3:GetObject
+          - s3:PutObject
+          Resource:
+            Fn::Sub:
+            - arn:aws:s3:::${Bucket}/*
+            - Bucket:
+                Ref: CloudFrontLoggingBucket
+          Condition:
+            StringEquals:
+              aws:SourceArn:
+                Fn::Sub:
+                - arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}
+                - Distribution:
+                    Ref: CloudFrontDistribution
+    Metadata:
+      SamResourceId: CloudFrontLoggingBucketPolicy
+Outputs:
+  ApiGatewayUrl:
+    Description: API Gateway endpoint URL for FastAPI
+    Value:
+      Fn::Sub: https://${CsvHandlerApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/
+  CloudFrontDistributionUrl:
+    Description: CloudFront Distribution Domain Name URL
+    Value:
+      Fn::Sub:
+      - https://${CloudFrontDomainName}
+      - CloudFrontDomainName:
+          Fn::GetAtt:
+          - CloudFrontDistribution
+          - DomainName
+  FrontendBucketName:
+    Description: Name of Frontend S3 Bucket
+    Value:
+      Fn::Sub:
+      - s3://${BucketName}
+      - BucketName:
+          Ref: FrontendBucket
