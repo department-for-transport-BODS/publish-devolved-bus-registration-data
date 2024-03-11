@@ -24,7 +24,7 @@ concurrency:
 
 env:
   AWS_REGION: ${{ vars.AWS_REGION }}
-  RC_TYP: ${{ github.event.inputs.change }}
+  RC_TYP: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.change || 'patch' }}
   RC_DST: ${{ vars.DEPLOYMENT_ARTEFACTS_S3_BUCKET }}
 
 jobs:
@@ -163,7 +163,7 @@ jobs:
           echo "[INFO] Application component (FRONTEND) with version ${VERSION} successfully uploaded for ${ENV^^}"
 
   commit-and-tag:
-    if: ${{ always() && ! contains(needs.*.result, 'failure') }}
+    if: ${{ always() && (! contains(needs.*.result, 'failure') || ! contains(needs.*.result, 'cancelled')) }}
     runs-on: ubuntu-latest
     needs:
       - validation
@@ -199,7 +199,7 @@ jobs:
           git push --tags --force
 
   trigger-deploy-dev:
-    if: ${{ always() && ! contains(needs.*.result, 'failure') }}
+    if: ${{ always() && (! contains(needs.*.result, 'failure') || ! contains(needs.*.result, 'cancelled')) }}
     runs-on: ubuntu-latest
     needs: 
       - validation
@@ -216,4 +216,4 @@ jobs:
         with:
           repository: ${{ github.repository }}
           event-type: automated-deploy-dev
-          client-payload: '{ "environment": "dev", "releaseVersion": "${{ needs.validation.outputs.version }}" }'
+          client-payload: '{ "environment": "dev", "release_version": "${{ needs.validation.outputs.version }}" }'
