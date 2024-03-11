@@ -15,7 +15,7 @@ environ["MS_TENANT_ID"] = "testid"
 environ["OTC_API_KEY"] = "testkey"
 environ["OTC_API_URL"] = "https://example.com"
 
-from src.otcclient.app import OTCAuthenticator, app
+from src.otc_client.app import OTCAuthenticator, app
 
 client = TestClient(app)
 
@@ -48,7 +48,7 @@ def test_otc_requests(requests_mock):
     test_licence_numbers = [
         licence["licence_number"] for licence in EXPECTED_OUTPUTS["licences"]
     ]
-    with patch("src.otcclient.app.OTCAuthenticator"):
+    with patch("src.otc_client.app.OTCAuthenticator"):
         returned_output = client.post("/api/v1/otc/licences", json=test_licence_numbers)
 
         assert sorted(
@@ -78,7 +78,7 @@ def test_malformed_response(requests_mock, caplog):
         "https://example.com/?limit=1&page=1&licenceNo=NOTAVALIDLICENCE&latestVariation=true",
         json={"notBus": None},
     )
-    with patch("src.otcclient.app.OTCAuthenticator"):
+    with patch("src.otc_client.app.OTCAuthenticator"):
         returned_output = client.post("/api/v1/otc/licences", json=["NOTAVALIDLICENCE"])
         assert "no busSearch component" in caplog.text
         assert returned_output.json() == expected_output
@@ -87,7 +87,7 @@ def test_malformed_response(requests_mock, caplog):
         "https://example.com/?limit=1&page=1&licenceNo=NOTAVALIDLICENCE&latestVariation=true",
         json={"busSearch": []},
     )
-    with patch("src.otcclient.app.OTCAuthenticator"):
+    with patch("src.otc_client.app.OTCAuthenticator"):
         returned_output = client.post("/api/v1/otc/licences", json=["NOTAVALIDLICENCE"])
         assert "busSearch component contains no record" in caplog.text
         assert returned_output.json() == expected_output
@@ -96,7 +96,7 @@ def test_malformed_response(requests_mock, caplog):
         "https://example.com/?limit=1&page=1&licenceNo=NOTAVALIDLICENCE&latestVariation=true",
         json={"busSearch": [{"licenceNumber": "NOTAVALIDLICENCE"}]},
     )
-    with patch("src.otcclient.app.OTCAuthenticator"):
+    with patch("src.otc_client.app.OTCAuthenticator"):
         returned_output = client.post("/api/v1/otc/licences", json=["NOTAVALIDLICENCE"])
         assert "validation error" in caplog.text
         assert "for OTCLicence" in caplog.text
