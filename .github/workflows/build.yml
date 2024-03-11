@@ -169,7 +169,7 @@ jobs:
       - frontend
 
     permissions:
-      actions: write
+      contents: write
 
     steps:
       - name: checkout
