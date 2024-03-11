@@ -50,8 +50,8 @@ jobs:
         id: increment
         run: |
           # install yq for parsing yaml files
-          wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && \
-            chmod 755 /usr/bin/yq
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && \
+            sudo chmod 755 /usr/bin/yq
           
           npm install semver
 
@@ -69,6 +69,10 @@ jobs:
     defaults:
       run:
         working-directory: backend
+
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - name: checkout
@@ -113,6 +117,10 @@ jobs:
     defaults:
       run:
         working-directory: frontend
+
+    permissions:
+      id-token: write
+      contents: read
 
     strategy:
       matrix:
@@ -167,7 +175,7 @@ jobs:
   #       uses: EndBug/add-and-commit@v9 
   #       with:
   #         add: 'VERSION'
-  #         author_name: devops
+  #         author_name: dftdevops
   #         author_email: devops@epp.dft.gov.uk
   #         default_author: github_actions
   #         message: "[AUTO] Github actions push for version ${{ needs.validate.outputs.version }}"
