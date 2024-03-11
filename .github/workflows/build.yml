@@ -48,7 +48,6 @@ jobs:
           git config --global user.email 'github-actions@github.com'
           git config --global url.https://${{ github.token }}@github.com/.insteadOf https://github.com/
 
-          echo "${{ github.token }}"
           echo """ \
             Executing build and release job using parameters:
               (Release Type) - $RC_TYP
@@ -64,6 +63,8 @@ jobs:
           npm install semver
           current_version=$(yq e '.version' VERSION)
           new_version=$(node -p "const semver = require('semver'); semver.inc('$current_version', '$RC_TYP', false)")
+          yq e -i '.version = "'"$new_version"'"' VERSION
+          echo "[INFO] Updated application version to ${new_version}"
           echo "version=${new_version}" >> "$GITHUB_OUTPUT"
 
           rm -rf ./node_modules/ package*
@@ -190,7 +191,6 @@ jobs:
           path: ${{ github.workspace }}
           key: repo-build-${{ github.sha }}
 
-      - run: echo "${{ github.token }}"
       # - name: commit and push changes
       #   run: |
       #     # install yq for parsing yaml files
@@ -212,16 +212,16 @@ jobs:
       #     git tag $new_version
       #     git push --tags --force
 
-      # - name: commit and push changes
-      #   uses: EndBug/add-and-commit@v9
-      #   with:
-      #     add: 'VERSION'
-      #     committer_name: github-actions
-      #     committer_email: github-actions@github.com
-      #     default_author: github_actions
-      #     message: '[AUTO] GitHub actions push for version ${{ needs.validation.outputs.version }}'
-      #     tag: '${{ needs.validation.outputs.version }} --force'
-      #     tag_push: '--force'
+      - name: commit and push changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          add: 'VERSION'
+          committer_name: github-actions
+          committer_email: github-actions@github.com
+          default_author: github_actions
+          message: '[AUTO] GitHub actions push for version ${{ needs.validation.outputs.version }}'
+          tag: '${{ needs.validation.outputs.version }} --force'
+          tag_push: '--force'
 
       - name: clear cache(s)
         uses: actions/github-script@v6
