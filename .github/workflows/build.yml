@@ -26,15 +26,13 @@ env:
 jobs:
   validation:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     outputs:
       version: ${{ steps.increment.outputs.version }}
 
     steps:
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: setup node
         uses: actions/setup-node@v4
@@ -58,18 +56,9 @@ jobs:
           npm install semver
           current_version=$(yq e '.version' VERSION)
           new_version=$(node -p "const semver = require('semver'); semver.inc('$current_version', '$RC_TYP', false)")
-          yq e -i '.version = "'"$new_version"'"' VERSION
-          echo "[INFO] Updated application version to ${new_version}"
           echo "version=${new_version}" >> "$GITHUB_OUTPUT"
 
           rm -rf ./node_modules/ package*
-
-      - name: cache repo
-        id: repo
-        uses: actions/cache@v3
-        with:
-          path: ./
-          key: repo-build-${{ github.sha }}
 
   backend:
     runs-on: ubuntu-latest
@@ -180,28 +169,40 @@ jobs:
       contents: write
 
     steps:
-      - name: retrieve cached repo
-        id: repo
-        uses: actions/cache@v3
-        with:
-          path: ./
-          key: repo-build-${{ github.sha }}
-
-      # - run: |
-      #     git config --global user.name 'github-actions'
-      #     git config --global user.email github-actions@github.com
-      #     git config --global url.https://${{ github.token }}@github.com/.insteadOf https://github.com/
+      - name: checkout
+        uses: actions/checkout@v4
 
       - name: commit and push changes
-        uses: EndBug/add-and-commit@v9
-        with:
-          add: 'VERSION'
-          committer_name: github-actions
-          committer_email: github-actions@github.com
-          default_author: github_actions
-          message: '[AUTO] GitHub actions push for version ${{ needs.validation.outputs.version }}'
-          tag: '${{ needs.validation.outputs.version }} --force'
-          tag_push: '--force'
+        run: |
+          # install yq for parsing yaml files
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && \
+            sudo chmod 755 /usr/bin/yq
+
+          new_version=${{ needs.validation.outputs.version }}
+          yq e -i '.version = "'"$new_version"'"' VERSION
+          echo "[INFO] Updated application version to ${new_version}"
+
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git config --global url.https://${{ github.token }}@github.com/.insteadOf https://github.com/
+
+          git add 'VERSION'
+          git commit -m '[AUTO] GitHub actions push for version $new_version'
+          git push --force
+
+          git tag $new_version
+          git push --tags --force
+
+      # - name: commit and push changes
+      #   uses: EndBug/add-and-commit@v9
+      #   with:
+      #     add: 'VERSION'
+      #     committer_name: github-actions
+      #     committer_email: github-actions@github.com
+      #     default_author: github_actions
+      #     message: '[AUTO] GitHub actions push for version ${{ needs.validation.outputs.version }}'
+      #     tag: '${{ needs.validation.outputs.version }} --force'
+      #     tag_push: '--force'
 
       - name: clear cache(s)
         uses: actions/github-script@v6
