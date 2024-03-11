@@ -26,6 +26,9 @@ env:
 jobs:
   validation:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
     outputs:
       version: ${{ steps.increment.outputs.version }}
 
@@ -184,10 +187,10 @@ jobs:
           path: ./
           key: repo-build-${{ github.sha }}
 
-      - run: |
-          git config --global user.name 'github-actions'
-          git config --global user.email github-actions@github.com
-          git config --global url.https://${{ github.token }}@github.com/.insteadOf https://github.com/
+      # - run: |
+      #     git config --global user.name 'github-actions'
+      #     git config --global user.email github-actions@github.com
+      #     git config --global url.https://${{ github.token }}@github.com/.insteadOf https://github.com/
 
       - name: commit and push changes
         uses: EndBug/add-and-commit@v9
@@ -229,6 +232,7 @@ jobs:
       - backend
       - frontend
       - commit-and-clean
+
     steps:
       - name: trigger remote
         uses: peter-evans/repository-dispatch@v3
