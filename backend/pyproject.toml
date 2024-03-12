@@ -32,6 +32,9 @@ uvicorn = "^0.27.0"
 pythonpath = [
   "./src/csv_handler",
 ]
+testpaths = [
+  "./tests",
+]
 addopts = "-v -rsxX"
 
 [build-system]

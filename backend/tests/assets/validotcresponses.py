@@ -544,5 +544,5 @@ VALID_AUTH_RESPONSE = {
     "token_type": "Bearer",
     "expires_in": 3599,
     "ext_expires_in": 3599,
-    "access_token": "DummyToken"
+    "access_token": "DummyToken",
 }

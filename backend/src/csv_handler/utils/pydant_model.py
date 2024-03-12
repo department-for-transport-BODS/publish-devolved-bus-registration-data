@@ -1,8 +1,11 @@
 import re
-from datetime import datetime
-from typing import Optional
+from datetime import datetime, date
+from typing import Dict, Optional
 from os import getenv
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import ValidationError
+from typing import List
+from pydantic_core import ErrorDetails
 
 
 class Registration(BaseModel):
@@ -29,14 +32,14 @@ class Registration(BaseModel):
         alias="subsidyDetail",
     )
     is_short_notice: bool = Field(..., json_schema_extra=False, alias="isShortNotice")
-    received_date: str = Field(
+    received_date: date = Field(
         ..., json_schema_extra="01/01/2000", alias="receivedDate"
     )
-    granted_date: str = Field(..., json_schema_extra="01/02/2000", alias="grantedDate")
-    effective_date: str = Field(
+    granted_date: date = Field(..., json_schema_extra="01/02/2000", alias="grantedDate")
+    effective_date: date = Field(
         ..., json_schema_extra="01/03/2000", alias="effectiveDate"
     )
-    end_date: str = Field(..., json_schema_extra="01/04/2000", alias="endDate")
+    end_date: date = Field(..., json_schema_extra="01/04/2000", alias="endDate")
     operator_name: str = Field(
         ..., json_schema_extra="Blue Sky Buses", alias="operatorName"
     )
@@ -61,7 +64,7 @@ class Registration(BaseModel):
         "received_date", "granted_date", "effective_date", "end_date", mode="before"
     )
     def parse_date(cls, v):
-        return datetime.strptime(v, "%m/%d/%Y").strftime("%Y-%m-%d")
+        return datetime.strptime(v, "%m/%d/%Y")
 
     # @computed_field(return_type=int, repr=False)
     # @property
@@ -104,3 +107,108 @@ class DBCreds(BaseModel):
     PG_DB: str = Field(default_factory=lambda: getenv("POSTGRES_DB", "postgres"))
     PG_USER: str = Field(alias="username")
     PG_PASSWORD: str = Field(alias="password")
+
+
+class InvalidLatestOnly(Exception):
+    def __init__(self, message: str, value):
+        self.message = message
+        super().__init__(self.message, value)
+
+
+class CustomValidationError(Exception):
+    def json(self, *, indent: Optional[int] = None, **kwargs) -> str:
+        errors = []
+        for error in self.errors():
+            error_dict = error["exc"].dict()
+            error_dict.pop("ctx", None)  # Remove the 'ctx' key
+            errors.append(error_dict)
+        return self._json(errors, indent=indent, **kwargs)
+
+
+CUSTOM_MESSAGES = {
+    "int_parsing": "This is not an integer! 🤦",
+    "url_scheme": "Hey, use the right URL scheme! I wanted {expected_schemes}.",
+}
+
+
+def convert_errors(
+    e: ValidationError, custom_messages: Dict[str, str]
+) -> List[ErrorDetails]:
+    new_errors: List[ErrorDetails] = []
+    for error in e.errors():
+        custom_message = custom_messages.get(error["type"])
+        if custom_message:
+            ctx = error.get("ctx")
+            error["msg"] = custom_message.format(**ctx) if ctx else custom_message
+        new_errors.append(error)
+    return new_errors
+
+
+class SearchQuery(BaseModel):
+    license_number: Optional[str] = (
+        Field(default=None, alias="licenseNumber", pattern=r"^[a-zA-Z0-9]+$"),
+    )
+    registration_number: Optional[str] = Field(
+        default=None, alias="registrationNumber", pattern=r"^[a-zA-Z0-9]+/[a-zA-Z0-9]+$"
+    )
+
+    operator_name: Optional[str] = Field(
+        default=None, alias="operatorName", pattern=r"^[a-zA-Z0-9\s\']+$"
+    )
+    route_number: Optional[str] = Field(default=None, alias="routeNumber")
+    exclude_variations: bool = Field(alias="latestOnly", default=False)
+    limit: Optional[int] = Field(default=10)
+    strict_mode: Optional[bool] = Field(
+        default=False, alias="strictMode", json_schema_extra="false"
+    )
+    page: Optional[int] = Field(default=None)
+
+    @field_validator("exclude_variations", "strict_mode", mode="before")
+    def validate_latest_only(cls, v):
+        if v is None:
+            return True
+        elif isinstance(v, str):
+            v = v.lower()
+            if v in ["true", "yes"]:
+                return True
+            elif v in ["false", "no"]:
+                return False
+        raise ValueError(
+            "Invalid value for LatestOnly. Must be one of 'True', 'False', 'Yes', 'No'"
+        )
+
+    @model_validator(mode="after")
+    def validate_search_query(cls, values):
+        if (
+            values.license_number is None
+            and values.registration_number is None
+            and values.operator_name is None
+            and values.route_number is None
+        ):
+            raise ValueError("At least one of the search parameters must be provided")
+
+
+class Error(BaseModel):
+    type: str
+    loc: tuple
+    msg: str
+
+
+class ErrorResponse(BaseModel):
+    errors: List[Error]
+
+
+def extract_error_fields(error_obj: List[dict], model_dump=True) -> ErrorResponse:
+    errors = []
+    for error in error_obj:
+        error_fields = {
+            "type": error.get("type"),
+            "loc": error.get("loc"),
+            "msg": error.get("msg"),
+        }
+        errors.append(Error(**error_fields))
+
+    if model_dump:
+        return [error.model_dump() for error in errors]
+
+    return errors

@@ -29,18 +29,17 @@ MS_LOGIN_URL = getenv("MS_LOGIN_URL", None)
 MS_SCOPE = getenv("MS_SCOPE", None)
 
 
-
 if ENVIRONMENT != "local":
     secret = get_secret(getenv("OTC_KEYS"))
     OTC_CLIENT_SECRET = secret["OTC_CLIENT_SECRET"]
     OTC_API_KEY = secret["OTC_API_KEY"]
-else: 
+else:
     OTC_CLIENT_SECRET = getenv("OTC_CLIENT_SECRET", None)
     OTC_API_KEY = getenv("OTC_API_KEY", None)
 
 API_RETURN_LIMIT = 100
 
-logging.basicConfig(format='%(levelname)s,%(message)s')
+logging.basicConfig(format="%(levelname)s,%(message)s")
 logger = logging.getLogger(__name__)
 logger.setLevel(getattr(logging, getenv("LOG_LEVEL", "INFO")))
 
