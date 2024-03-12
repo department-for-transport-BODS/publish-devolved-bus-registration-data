@@ -1,5 +1,5 @@
 import re
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional
 from os import getenv
 from pydantic import BaseModel, Field, field_validator
@@ -29,14 +29,14 @@ class Registration(BaseModel):
         alias="subsidyDetail",
     )
     is_short_notice: bool = Field(..., json_schema_extra=False, alias="isShortNotice")
-    received_date: str = Field(
+    received_date: date = Field(
         ..., json_schema_extra="01/01/2000", alias="receivedDate"
     )
-    granted_date: str = Field(..., json_schema_extra="01/02/2000", alias="grantedDate")
-    effective_date: str = Field(
+    granted_date: date = Field(..., json_schema_extra="01/02/2000", alias="grantedDate")
+    effective_date: date = Field(
         ..., json_schema_extra="01/03/2000", alias="effectiveDate"
     )
-    end_date: str = Field(..., json_schema_extra="01/04/2000", alias="endDate")
+    end_date: date = Field(..., json_schema_extra="01/04/2000", alias="endDate")
     operator_name: str = Field(
         ..., json_schema_extra="Blue Sky Buses", alias="operatorName"
     )
@@ -61,7 +61,7 @@ class Registration(BaseModel):
         "received_date", "granted_date", "effective_date", "end_date", mode="before"
     )
     def parse_date(cls, v):
-        return datetime.strptime(v, "%m/%d/%Y").strftime("%Y-%m-%d")
+        return datetime.strptime(v, "%m/%d/%Y")
 
     # @computed_field(return_type=int, repr=False)
     # @property

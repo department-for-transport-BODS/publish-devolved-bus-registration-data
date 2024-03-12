@@ -1,13 +1,14 @@
 import csv
-from fastapi import File, HTTPException, UploadFile, Depends, status
+from typing import Annotated
+from fastapi import File, HTTPException, Header, UploadFile, Depends, status, Query
 from io import StringIO
 from managers import CSVManager
 from mangum import Mangum
 from time import sleep
-from utils.logger import log
+from utils.logger import log, console
 from auth.verifier import token_verifier
 from central_config import app, PROJECT_ENV, AWS_REGION, api_v1_router
-
+from utils.db import DBManager
 
 @api_v1_router.get("/health", dependencies=[Depends(token_verifier)])
 def health_check():

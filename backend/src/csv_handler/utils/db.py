@@ -2,16 +2,15 @@ import json
 from os import getenv
 from sqlalchemy import create_engine, select, Table
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import Session, Query
+from sqlalchemy.orm import Session
 from sys import exit
 from typing import List
 from .aws import get_secret
 from .csv_validator import Registration
 from .logger import console, log
 from .pydant_model import DBCreds
-from sqlalchemy.exc import NoResultFound, IntegrityError 
 from .exceptions import RecordIsAlreadyExist
-
+from .data import common_keys_comparsion
 class CreateEngine:
     @staticmethod
     def get_db_creds():
@@ -128,62 +127,88 @@ class DBManager:
         operator_record_id: int,
         licence_record_id: int,
         session: Session,
-        EPRegistration : Table,
+        EPRegistration: Table,
     ):
-        ep_registration_record = EPRegistration(
-            route_number=record.route_number,
-            route_description=record.route_description,
-            variation_number=record.variation_number,
-            start_point=record.start_point,
-            finish_point=record.finish_point,
-            via=record.via,
-            subsidised=record.subsidised,
-            subsidy_detail=record.subsidy_detail,
-            is_short_notice=record.is_short_notice,
-            received_date=record.received_date,
-            granted_date=record.granted_date,
-            effective_date=record.effective_date,
-            end_date=record.end_date,
-            bus_service_type_id=record.bus_service_type_id,
-            bus_service_type_description=record.bus_service_type_description,
-            registration_number=record.registration_number,
-            traffic_area_id=record.traffic_area_id,
-            application_type=record.application_type,
-            publication_text=record.publication_text,
-            other_details=record.other_details,
-            otc_operator_id=operator_record_id,
-            otc_licence_id=licence_record_id,
+        # Add record
+        # case 1: Record is added with no problem.
+
+        # case 1: Record already exists in the database
+        existing_record = (
+            session.query(EPRegistration)
+            .filter(
+                EPRegistration.registration_number == record.registration_number,
+                EPRegistration.otc_operator_id == operator_record_id,
+                EPRegistration.variation_number == record.variation_number,
+            )
+            .one_or_none()
         )
 
-        try:
+
+        if existing_record:
+            record_dict = record.model_dump()
+            existing_record_dict = existing_record.__dict__
+            if common_keys_comparsion(record_dict, existing_record_dict):
+                # case 1.1: Check if all the fields are the same
+                # All fields are the same, reject with an error
+                log.debug(f"Record already exists with the same fields: {existing_record.id}")
+                raise RecordIsAlreadyExist("Record already exists with the same fields")
+
+            else:
+                # case 1.2: Not all fields are the same, update the record
+                existing_record.route_number = record.route_number
+                existing_record.route_description = record.route_description
+                existing_record.variation_number = record.variation_number
+                existing_record.start_point = record.start_point
+                existing_record.finish_point = record.finish_point
+                existing_record.via = record.via
+                existing_record.subsidised = record.subsidised
+                existing_record.subsidy_detail = record.subsidy_detail
+                existing_record.is_short_notice = record.is_short_notice
+                existing_record.received_date = record.received_date
+                existing_record.granted_date = record.granted_date
+                existing_record.effective_date = record.effective_date
+                existing_record.end_date = record.end_date
+                existing_record.bus_service_type_id = record.bus_service_type_id
+                existing_record.bus_service_type_description = record.bus_service_type_description
+                existing_record.traffic_area_id = record.traffic_area_id
+                existing_record.application_type = record.application_type
+                existing_record.publication_text = record.publication_text
+                existing_record.other_details = record.other_details
+                existing_record.otc_licence_id = licence_record_id
+                session.commit()
+                log.debug(f"Updated EP registration record: {existing_record.id}")
+
+        else:
+            # case 2: Record does not exist, create a new record
+            ep_registration_record = EPRegistration(
+                route_number=record.route_number,
+                route_description=record.route_description,
+                variation_number=record.variation_number,
+                start_point=record.start_point,
+                finish_point=record.finish_point,
+                via=record.via,
+                subsidised=record.subsidised,
+                subsidy_detail=record.subsidy_detail,
+                is_short_notice=record.is_short_notice,
+                received_date=record.received_date,
+                granted_date=record.granted_date,
+                effective_date=record.effective_date,
+                end_date=record.end_date,
+                bus_service_type_id=record.bus_service_type_id,
+                bus_service_type_description=record.bus_service_type_description,
+                registration_number=record.registration_number,
+                traffic_area_id=record.traffic_area_id,
+                application_type=record.application_type,
+                publication_text=record.publication_text,
+                other_details=record.other_details,
+                otc_operator_id=operator_record_id,
+                otc_licence_id=licence_record_id,
+            )
             session.add(ep_registration_record)
-            session.flush()
-            log.debug(f"New EP registration record: {ep_registration_record.id}")
             session.commit()
-        except IntegrityError:
-            raise RecordIsAlreadyExist(f"Record is already exist in the database")
+            log.debug(f"New EP registration record: {ep_registration_record.id}")
         
-            
-
 def send_to_db(records: List[Registration]):
-    """ Send the validated records to the database
-    Functionality:
-        - Check if the licence number exists in the OTC database
-        - Prepare operator object and added to the database
-        - Prepare licence object and added to the database
-        - Add the record to the EPRegistration table
-        - Modify the records dictionary to remove records that were not added to the database
-        IF a record exists in the ep_registration table
-            then its moved to invalid_records with reason "Record is already exist in the database"
-        
-
-
-    Args:
-        records (List[Registration]): List of validated records
-
-    Returns:
-        records List: after updating the valid_records and invalid_records
-    """
     # validated_records: List[Registration] = MockData.mock_user_csv_record()
     models = AutoMappingModels()
     engine = models.engine
@@ -233,7 +258,7 @@ def send_to_db(records: List[Registration]):
                 record, operator_record_id, licence_record_id, session, EPRegistration
             )
         except RecordIsAlreadyExist:
-            records["invalid_records"].update({idx: [{"Duplicated Record": "Record is already exist in the database"}]})
+            records["invalid_records"].update({idx: [{"Dublicated Record": "Record is already exist in the database"}]})
             db_invalid_insertion.append(idx)
         except Exception as e:
             # console.log(f"Error: {e}")

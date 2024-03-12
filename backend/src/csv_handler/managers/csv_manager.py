@@ -26,6 +26,7 @@ class CSVManager:
         validated_records["valid_records_count"] = len(
             validated_records["valid_records"]
         )
+        del validated_records["valid_records"]
         return validated_records
 
     def _validate_csv_data(self):

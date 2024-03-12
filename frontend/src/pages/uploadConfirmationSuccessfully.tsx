@@ -17,13 +17,24 @@ export interface SuccessfullyUploadedProps{
 }
 const SuccessfullyUploaded: React.FC = () => {
     const location = useLocation();
-    const SuccessfullyUploadedProps = location.state.valid_records;
+    const SuccessfullyUploadedRecords: number = location.state?.valid_records_count ? location.state.valid_records_count : undefined;
+    if (SuccessfullyUploadedRecords === undefined) {
+        return (
+            <>
+                <FullColumnLayout title="Temp Page" description="Temp Page" hideCookieBanner={true}>
+                   <div>This page can not be visted directly</div> 
+                </FullColumnLayout>
+                <Footer />
+            </>
+        );
+    }
     return (
+
         <>
             <FullColumnLayout title="Temp Page" description="Temp Page" hideCookieBanner={true}>
             <SuccessfullyUpdated />
             <ServiceCount  
-                count={SuccessfullyUploadedProps} 
+                count={SuccessfullyUploadedRecords} 
                 description="Registered services"
                  />
                     <div className="row">
