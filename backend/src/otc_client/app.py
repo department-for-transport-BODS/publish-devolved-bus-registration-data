@@ -35,10 +35,10 @@ MS_SCOPE = getenv("MS_SCOPE", None)
 
 
 if ENVIRONMENT != "local":
-    OTC_CLIENT_SECRET = get_secret("OTC_CLIENT_SECRET")
+    MS_CLIENT_SECRET = get_secret("MS_CLIENT_SECRET")
     OTC_API_KEY = get_secret("OTC_API_KEY")
 else: 
-    OTC_CLIENT_SECRET = getenv("OTC_CLIENT_SECRET", None)
+    MS_CLIENT_SECRET = getenv("MS_CLIENT_SECRET", None)
     OTC_API_KEY = getenv("OTC_API_KEY", None)
 
 API_RETURN_LIMIT = 100
@@ -113,7 +113,7 @@ class OTCAuthenticator:
         url = f"{MS_LOGIN_URL}/{MS_TENANT_ID}/oauth2/v2.0/token"
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
         body = {
-            "client_secret": OTC_CLIENT_SECRET,
+            "client_secret": MS_CLIENT_SECRET,
             "client_id": MS_CLIENT_ID,
             "scope": MS_SCOPE,
             "grant_type": "client_credentials",
@@ -257,6 +257,7 @@ app = FastAPI(docs_url="/api/v1/otc/docs", redoc_url="/api/v1/otc/redoc", openap
 @app.post("/api/v1/otc/licences")
 async def query_licences(licences: List[str]):
     try:
+        print(licences)
         client = OTCAPIClient()
         output = client.get_licences(licences)
         return output

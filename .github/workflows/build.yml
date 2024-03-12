@@ -155,6 +155,24 @@ jobs:
         run: |
           rc_path="releases/$VERSION/frontend/$ENV"
 
+          # export environment variables for build
+          # temp solution until moved to enterprise GH with environments, and nice-name domain
+          if [$ENV = 'dev']; then
+            export REACT_APP_URL=${{ vars.REACT_APP_URL_DEV }}
+          elif [$ENV = 'test']; then
+            export REACT_APP_URL=${{ vars.REACT_APP_URL_DEV }}
+          fi
+          export REACT_APP_USER_POOL_ID=`aws ssm get-parameter --name "${ENV}/epp/cognito/userpool/id' \
+            | jq -r '.Parameter.Value'`
+          export REACT_APP_USER_POOL_CLIENT_ID=`aws ssm get-parameter --name "${ENV}/epp/cognito/userpool/client/id' \
+            | jq -r '.Parameter.Value'`
+          export REACT_APP_LOGIN_DOMAIN=`aws ssm get-parameter --name "${ENV}/epp/cognito/endpoint' \
+            | jq -r '.Parameter.Value'`
+          export REACT_APP_REDIRECT_SIGN_IN="${REACT_APP_URL}/${{ vars.REACT_APP_REDIRECT_SIGN_IN_SUFFIX }}"
+          export REACT_APP_REDIRECT_SIGN_OUT="${REACT_APP_URL}/${{ vars.REACT_APP_REDIRECT_SIGN_OUT_SUFFIX }}"
+          export REACT_APP_RESPONSE_TYPE=${{ vars.REACT_APP_RESPONSE_TYPE }}
+          export REACT_APP_SCOPE=${{ vars.REACT_APP_SCOPE }}
+
           npm install
           REACT_APP_ENV=$ENV npm run build
 

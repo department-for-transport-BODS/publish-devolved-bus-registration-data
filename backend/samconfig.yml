@@ -18,15 +18,17 @@ default:
       watch: true
   local_start_api:
     parameters:
-      container_host: localhost
+      docker_network: lambda-local
       warm_containers: EAGER
+      region: 'eu-west-2'
       parameter_overrides:
         ProjectName='epp'
         Environment='local'
-        RdsDbHostAddr='localhost'
+        RdsDbHostAddr='postgres'
   local_invoke:
     parameters:
       docker_network: lambda-local
+      region: 'eu-west-2'
       parameter_overrides:
         ProjectName='epp'
         Environment='local'

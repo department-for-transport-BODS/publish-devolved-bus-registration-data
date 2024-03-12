@@ -88,14 +88,8 @@ Resources:
         Variables:
           PROJECT_ENV: !Ref Environment
           PROJECT_NAME: !Ref ProjectName
-          HTTP_PROXY: !If
-            - IsNotLocal
-            - !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-            - !Ref AWS::NoValue
-          HTTPS_PROXY: !If
-            - IsNotLocal
-            - !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-            - !Ref AWS::NoValue
+          HTTP_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
+          HTTPS_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
           LOG_LEVEL: !If
             - IsNotProd
             - 'DEBUG'
@@ -107,6 +101,8 @@ Resources:
           POSTGRES_PORT: 5432
           POSTGRES_DB: !Ref ProjectName
           POSTGRES_CREDENTIALS: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/name}}'
+          USERPOOL_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/cognito/userpool/id}}'
+          APP_CLIENT_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/cognito/userpool/client/id}}'
 
   CsvHandlerLambdaSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -244,25 +240,19 @@ Resources:
         Variables:
           PROJECT_ENV: !Ref Environment
           PROJECT_NAME: !Ref ProjectName
-          HTTP_PROXY: !If
-            - IsNotLocal
-            - !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-            - !Ref AWS::NoValue
-          HTTPS_PROXY: !If
-            - IsNotLocal
-            - !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-            - !Ref AWS::NoValue
+          HTTP_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
+          HTTPS_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
           LOG_LEVEL: !If
             - IsNotProd
             - 'DEBUG'
             - 'INFO'
-          OTC_API_URL: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/api/endpoint}}'
           MS_LOGIN_URL: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/ms/login/endpoint}}'
           MS_SCOPE: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/ms/scope}}'
-          MS_CLIENT_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/ms/client/id"}}'
           MS_TENANT_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/ms/tenant/id}}'
+          MS_CLIENT_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/ms/client/id"}}'
+          MS_CLIENT_SECRET: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/otc/ms/client/secret/name}}'
+          OTC_API_URL: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/api/endpoint}}'
           OTC_API_KEY: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/otc/apikey/name}}'
-          OTC_CLIENT_SECRET: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/otc/clientsecret/name}}'
 
   OtcClientLambdaSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -371,14 +361,8 @@ Resources:
         Variables:
           PROJECT_ENV: !Ref Environment
           PROJECT_NAME: !Ref ProjectName
-          HTTP_PROXY: !If
-            - IsNotLocal
-            - !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-            - !Ref AWS::NoValue
-          HTTPS_PROXY: !If
-            - IsNotLocal
-            - !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-            - !Ref AWS::NoValue
+          HTTP_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
+          HTTPS_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
           LOG_LEVEL: !If
             - IsNotProd
             - 'DEBUG'

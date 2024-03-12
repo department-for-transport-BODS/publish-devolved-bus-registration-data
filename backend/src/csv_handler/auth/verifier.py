@@ -75,8 +75,8 @@ def token_verifier(token: str = Depends(http_bearer)):
     Raises:
         HTTPException: If the token is invalid, raise an HTTPException with status code 403.
     """
-    # Verify if its in localdev and token is localdev
-    if PROJECT_ENV == "localdev" and token.credentials == "localdev":
+    # Verify if its in local and token is local
+    if PROJECT_ENV == "local" and token.credentials == "local":
         return
     verify = TokenVerifier(token.credentials).verify_token()
     log.debug(f"Token verification status: {verify}")
