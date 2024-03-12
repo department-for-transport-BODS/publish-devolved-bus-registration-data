@@ -1,8 +1,7 @@
 import axios, { AxiosError } from "axios";
-import { getApiUrl } from "../config";
 
 export const SendCSV = async (formData: FormData, navigate:any) => {
-    const apiBaseUrl = getApiUrl();
+    const apiBaseUrl = process.env.REACT_APP_URL? process.env.REACT_APP_URL : '';
 
     try {
         let jwt = "";

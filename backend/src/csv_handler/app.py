@@ -34,7 +34,7 @@ async def create_upload_file(file: UploadFile = File(...)):
         _type_: _description_
     """
     contents = await file.read()
-    if PROJECT_ENV == "localdev":
+    if PROJECT_ENV == "local":
         log.debug("Sleeping for 2 seconds to simulate file upload")
         sleep(2)
     # Decode the CSV data
