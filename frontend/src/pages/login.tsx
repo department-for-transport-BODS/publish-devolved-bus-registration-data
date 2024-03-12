@@ -40,14 +40,6 @@ const LoginPage: React.FC<Props> = ({ error, nextPage }) => {
       const { isSignedIn, nextStep } = await signIn({ username, password });
       setIsLoggedIn ? setIsLoggedIn(isSignedIn) : null;
       if (isSignedIn) {
-        fetchAuthSession().then((data) => { 
-          console.log("data from fetchAuthSession: ", data);
-          const jwt = data.tokens?.accessToken.toString();
-          console.log("data from fetchAuthSession: ", jwt);
-        })
-        .catch((error) => {
-          console.error("error from fetchAuthSession: ", error);
-        });
         if (nextPage) {
           navigate(`/${nextPage}`);
         } else {
