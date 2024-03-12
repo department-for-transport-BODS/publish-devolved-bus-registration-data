@@ -157,21 +157,21 @@ jobs:
 
           # export environment variables for build
           # temp solution until moved to enterprise GH with environments, and nice-name domain
-          if [$ENV = 'dev']; then
-            export REACT_APP_URL=${{ vars.REACT_APP_URL_DEV }}
-          elif [$ENV = 'test']; then
-            export REACT_APP_URL=${{ vars.REACT_APP_URL_DEV }}
+          if [[ $ENV -eq 'dev' ]]; then
+            export REACT_APP_URL="${{ vars.REACT_APP_URL_DEV }}"
+          elif [[ $ENV -eq 'test' ]]; then
+            export REACT_APP_URL="${{ vars.REACT_APP_URL_DEV }}"
           fi
-          export REACT_APP_USER_POOL_ID=`aws ssm get-parameter --name "${ENV}/epp/cognito/userpool/id' \
+          export REACT_APP_USER_POOL_ID=`aws ssm get-parameter --name "${ENV}/epp/cognito/userpool/id" \
             | jq -r '.Parameter.Value'`
-          export REACT_APP_USER_POOL_CLIENT_ID=`aws ssm get-parameter --name "${ENV}/epp/cognito/userpool/client/id' \
+          export REACT_APP_USER_POOL_CLIENT_ID=`aws ssm get-parameter --name "${ENV}/epp/cognito/userpool/client/id" \
             | jq -r '.Parameter.Value'`
-          export REACT_APP_LOGIN_DOMAIN=`aws ssm get-parameter --name "${ENV}/epp/cognito/endpoint' \
+          export REACT_APP_LOGIN_DOMAIN=`aws ssm get-parameter --name "${ENV}/epp/cognito/endpoint" \
             | jq -r '.Parameter.Value'`
           export REACT_APP_REDIRECT_SIGN_IN="${REACT_APP_URL}/${{ vars.REACT_APP_REDIRECT_SIGN_IN_SUFFIX }}"
           export REACT_APP_REDIRECT_SIGN_OUT="${REACT_APP_URL}/${{ vars.REACT_APP_REDIRECT_SIGN_OUT_SUFFIX }}"
-          export REACT_APP_RESPONSE_TYPE=${{ vars.REACT_APP_RESPONSE_TYPE }}
-          export REACT_APP_SCOPE=${{ vars.REACT_APP_SCOPE }}
+          export REACT_APP_RESPONSE_TYPE="${{ vars.REACT_APP_RESPONSE_TYPE }}"
+          export REACT_APP_SCOPE="${{ vars.REACT_APP_SCOPE }}"
 
           npm install
           REACT_APP_ENV=$ENV npm run build
@@ -181,7 +181,7 @@ jobs:
           echo "[INFO] Application component (FRONTEND) with version ${VERSION} successfully uploaded for ${ENV^^}"
 
   commit-and-tag:
-    if: ${{ always() && (! contains(needs.*.result, 'failure') || ! contains(needs.*.result, 'cancelled')) }}
+    if: ${{ always() && !cancelled() && !contains(needs.*.result, 'failure') }}
     runs-on: ubuntu-latest
     needs:
       - validation
