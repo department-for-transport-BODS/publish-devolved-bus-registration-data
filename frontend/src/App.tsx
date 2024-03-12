@@ -12,6 +12,8 @@ import LoginPage from "./pages/login";
 import { Amplify } from "aws-amplify";
 import AmplifyConfiguration from "./utils/login/AmplifyConfig";
 import RequireAuth from "./utils/login/requireAuth";
+import Registration from "./pages/registrations";
+import viewRegistrations from "./pages/viewRegistrations";
 function App() {
   Amplify.configure(AmplifyConfiguration);
   return (
@@ -31,6 +33,13 @@ function App() {
         <Route
           path="/successfullyuploaded"
           element={<RequireAuth component={SuccessfullyUPloaded} />}
+        />
+        <Route path="/registrations"
+          element={<RequireAuth component={Registration} />}
+        />
+        <Route 
+          path="/view-registrations"
+          element={<RequireAuth component={viewRegistrations} />}
         />
         <Route path="/login" element={<LoginPage />} />
       </Routes>
