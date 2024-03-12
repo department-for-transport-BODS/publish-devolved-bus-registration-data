@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import Footer from "../Layout/Footer";
-import { TowThirdsOneThirdLayout } from "../Layout/Layout";
+import { TwoThirdsOneThirdLayout } from "../Layout/Layout";
 import LoginForm from "../components/LoginForm";
 import SetNewPassword from "../components/SetNewPassword";
 import HelpAndSupport from "../components/HelpAndSupport";
@@ -111,7 +111,7 @@ const LoginPage: React.FC<Props> = ({ error, nextPage }) => {
 
   return (
     <>
-      <TowThirdsOneThirdLayout
+      <TwoThirdsOneThirdLayout
         title="Temp Page"
         description="Temp Page"
         hideCookieBanner={true}
@@ -196,7 +196,7 @@ const LoginPage: React.FC<Props> = ({ error, nextPage }) => {
           </div>
         </div>
         <HelpAndSupport />
-      </TowThirdsOneThirdLayout>
+      </TwoThirdsOneThirdLayout>
       <Footer />
     </>
   );
