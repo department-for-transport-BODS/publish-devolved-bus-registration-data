@@ -45,7 +45,7 @@ build-backend-sync: ## Build the backend api using sam and keep contents synced 
 	@cd ./backend; nodemon --watch './src/**/*.py' --signal SIGTERM --exec 'sam' build -e "py"
 
 deploy-backend: ## Deploy the backend api to target environment using sam
-	@cd ./backend; sam deploy --config-env=$(ENV) --confirm-changeset
+	@cd ./backend; sam deploy --config-env=$(ENV) --confirm-changeset --resolve-s3
 
 run-backend-api: ## Run the backend api for CsvHandler and OtcClient locally using sam
 	@cd ./backend; sam local start-api --port 8000

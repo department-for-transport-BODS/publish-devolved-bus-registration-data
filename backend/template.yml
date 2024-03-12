@@ -343,7 +343,7 @@ Resources:
     Type: AWS::Serverless::Function
     Condition: IsNotLocal
     Properties:
-      FunctionName: !Sub '${Environment}-${ProjectName}-otc-client-lambda'
+      FunctionName: !Sub '${Environment}-${ProjectName}-data-catalogue-lambda'
       Role: !GetAtt DataCatalogueLambdaExecutionRole.Arn
       CodeUri: src/data_catalogue
       Handler: app.lambda_handler
@@ -351,7 +351,7 @@ Resources:
         HourlyGetDataCatalogue:
           Type: Schedule
           Properties:
-            Name:  !Sub '${Environment}-${ProjectName}-otc-client-lambda-schedule'
+            Name:  !Sub '${Environment}-${ProjectName}-data-catalogue-lambda-schedule'
             Schedule: rate(1 day)
       VpcConfig:
         SubnetIds: !Ref VpcSubnets
@@ -379,8 +379,8 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Condition: IsNotLocal
     Properties:
-      GroupDescription: !Sub 'Security group for ${Environment}-${ProjectName}-otc-client-lambda function'
-      GroupName: !Sub '${Environment}-${ProjectName}-otc-client-lambda'
+      GroupDescription: !Sub 'Security group for ${Environment}-${ProjectName}-data-catalogue-lambda function'
+      GroupName: !Sub '${Environment}-${ProjectName}-data-catalogue-lambda'
       SecurityGroupEgress: 
         - IpProtocol: tcp
           FromPort: 5432
@@ -397,7 +397,7 @@ Resources:
       VpcId: !Ref VpcId
       Tags:
         - Key: Name
-          Value: !Sub '${Environment}-${ProjectName}-otc-client-lambda'
+          Value: !Sub '${Environment}-${ProjectName}-data-catalogue-lambda'
 
   RdsProxyFromDataCatalogueLambdaSecurityGroupIngress:
     Type: AWS::EC2::SecurityGroupIngress
@@ -413,7 +413,7 @@ Resources:
     Type: 'AWS::Logs::LogGroup'
     Condition: IsNotLocal
     Properties:
-      LogGroupName: !Sub '/aws/lambda/${Environment}-${ProjectName}-otc-client-lambda'
+      LogGroupName: !Sub '/aws/lambda/${Environment}-${ProjectName}-data-catalogue-lambda'
       KmsKeyId: !Sub '{{resolve:ssm:/shared/${ProjectName}/kms/cloudwatch}}'
       RetentionInDays: 30
 
@@ -421,7 +421,7 @@ Resources:
     Type: 'AWS::IAM::Role'
     Condition: IsNotLocal
     Properties:
-      RoleName: !Sub '${Environment}-${ProjectName}-otc-client-lambda-execution-role'
+      RoleName: !Sub '${Environment}-${ProjectName}-data-catalogue-lambda-execution-role'
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -436,7 +436,7 @@ Resources:
     Type: 'AWS::IAM::Policy'
     Condition: IsNotLocal
     Properties:
-      PolicyName: !Sub '${Environment}-${ProjectName}-otc-client-lambda-logging-policy'
+      PolicyName: !Sub '${Environment}-${ProjectName}-data-catalogue-lambda-logging-policy'
       Roles:
         - !Ref DataCatalogueLambdaExecutionRole
       PolicyDocument:
@@ -453,7 +453,7 @@ Resources:
     Type: 'AWS::IAM::Policy'
     Condition: IsNotLocal
     Properties:
-      PolicyName: !Sub '${Environment}-${ProjectName}-otc-client-lambda-secrets-access-policy'
+      PolicyName: !Sub '${Environment}-${ProjectName}-data-catalogue-lambda-secrets-access-policy'
       Roles:
         - !Ref DataCatalogueLambdaExecutionRole
       PolicyDocument:
