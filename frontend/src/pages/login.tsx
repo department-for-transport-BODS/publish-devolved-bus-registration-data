@@ -13,7 +13,6 @@ import {
   ConfirmSignInInput,
   resetPassword,
   confirmResetPassword,
-  fetchAuthSession,
 } from "aws-amplify/auth";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
 import ConfirmNewPasswordForm from "../components/ConfirmNewPasswordForm";
@@ -56,7 +55,6 @@ const LoginPage: React.FC<Props> = ({ error, nextPage }) => {
       const errorMsg = (error as Error)?.message;
       setErrorMsg(errorMsg);
     }
-    // END: ed8c6549bwf9
   }
 
   const handleSetNewPassword = (password: string) => {
@@ -84,12 +82,6 @@ const LoginPage: React.FC<Props> = ({ error, nextPage }) => {
     setRequestPasswordReset(false);
     resetPassword({ username: email })
       .then((data) => {
-        // const isPasswordReset = data.isPasswordReset
-        //   ? data.isPasswordReset
-        //   : false;
-        // if (isPasswordReset) {
-        //   navigate("/reset-password");
-        // }// 
         const nextStep = data.nextStep ? data.nextStep.resetPasswordStep : "";
         if (nextStep === "CONFIRM_RESET_PASSWORD_WITH_CODE") {
           setConfirmPasswordReset(true);

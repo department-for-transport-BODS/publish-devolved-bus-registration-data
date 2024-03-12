@@ -51,7 +51,7 @@ run-backend: ## Run the backend api locally using sam
 
 run-backend-pytest: ## Run the tests for backend
 	echo '[INFO] Don't forget to run "poetry shell -C ./backend && poetry install -C ./backend --no-root"
-	cd ./backend; pytest --continue-on-collection-errors --cov=. --cov-report term-missing
+	cd ./backend; pytest --continue-on-collection-errors --cov=./src --cov-report term-missing
 
 fix-backend-lint: ## Fix the linting issues
 	ruff format ./backend 
