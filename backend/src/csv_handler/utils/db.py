@@ -139,7 +139,6 @@ class DBManager:
         session: Session,
         EPRegistration: Table,
     ):
-<<<<<<< HEAD
         """Add or update the record to the EPRegistration table
 
         Args:
@@ -153,11 +152,6 @@ class DBManager:
             RecordIsAlreadyExist: If the record already exists in the database
         """
         # Add or update the record to the EPRegistration table
-=======
-        # Add record
-        # case 1: Record is added with no problem.
-
->>>>>>> 9c97351 (Feature/Historical Capture of Data (#20))
         # case 1: Record already exists in the database
         existing_record = (
             session.query(EPRegistration)
@@ -169,23 +163,15 @@ class DBManager:
             .one_or_none()
         )
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 9c97351 (Feature/Historical Capture of Data (#20))
         if existing_record:
             record_dict = record.model_dump()
             existing_record_dict = existing_record.__dict__
             if common_keys_comparsion(record_dict, existing_record_dict):
                 # case 1.1: Check if all the fields are the same
                 # All fields are the same, reject with an error
-<<<<<<< HEAD
                 log.debug(
                     f"Record already exists with the same fields: {existing_record.id}"
                 )
-=======
-                log.debug(f"Record already exists with the same fields: {existing_record.id}")
->>>>>>> 9c97351 (Feature/Historical Capture of Data (#20))
                 raise RecordIsAlreadyExist("Record already exists with the same fields")
 
             else:
@@ -204,13 +190,9 @@ class DBManager:
                 existing_record.effective_date = record.effective_date
                 existing_record.end_date = record.end_date
                 existing_record.bus_service_type_id = record.bus_service_type_id
-<<<<<<< HEAD
                 existing_record.bus_service_type_description = (
                     record.bus_service_type_description
                 )
-=======
-                existing_record.bus_service_type_description = record.bus_service_type_description
->>>>>>> 9c97351 (Feature/Historical Capture of Data (#20))
                 existing_record.traffic_area_id = record.traffic_area_id
                 existing_record.application_type = record.application_type
                 existing_record.publication_text = record.publication_text
@@ -248,7 +230,6 @@ class DBManager:
             session.add(ep_registration_record)
             session.commit()
             log.debug(f"New EP registration record: {ep_registration_record.id}")
-<<<<<<< HEAD
 
     @classmethod
     def get_records(
@@ -379,9 +360,6 @@ class DBManager:
         return f"{host}{path}?{params_str}"
 
 
-=======
-        
->>>>>>> 9c97351 (Feature/Historical Capture of Data (#20))
 def send_to_db(records: List[Registration]):
     # validated_records: List[Registration] = MockData.mock_user_csv_record()
     models = AutoMappingModels()
@@ -432,7 +410,6 @@ def send_to_db(records: List[Registration]):
                 record, operator_record_id, licence_record_id, session, EPRegistration
             )
         except RecordIsAlreadyExist:
-<<<<<<< HEAD
             records["invalid_records"].update(
                 {
                     idx: [
@@ -440,9 +417,6 @@ def send_to_db(records: List[Registration]):
                     ]
                 }
             )
-=======
-            records["invalid_records"].update({idx: [{"Dublicated Record": "Record is already exist in the database"}]})
->>>>>>> 9c97351 (Feature/Historical Capture of Data (#20))
             db_invalid_insertion.append(idx)
         except Exception:
             # console.log(f"Error: {e}")
