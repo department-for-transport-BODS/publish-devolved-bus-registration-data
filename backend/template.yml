@@ -249,7 +249,7 @@ Resources:
           MS_LOGIN_URL: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/ms/login/endpoint}}'
           MS_SCOPE: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/ms/scope}}'
           MS_TENANT_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/ms/tenant/id}}'
-          MS_CLIENT_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/ms/client/id"}}'
+          MS_CLIENT_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/ms/client/id}}'
           MS_CLIENT_SECRET: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/otc/ms/client/secret/name}}'
           OTC_API_URL: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/api/endpoint}}'
           OTC_API_KEY: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/otc/apikey/name}}'
