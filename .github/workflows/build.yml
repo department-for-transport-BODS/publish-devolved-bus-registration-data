@@ -162,11 +162,11 @@ jobs:
           elif [[ $ENV -eq 'test' ]]; then
             export REACT_APP_URL="${{ vars.REACT_APP_URL_DEV }}"
           fi
-          export REACT_APP_USER_POOL_ID=`aws ssm get-parameter --name "${ENV}/epp/cognito/userpool/id" \
+          export REACT_APP_USER_POOL_ID=`aws ssm get-parameter --name "/${ENV}/epp/cognito/userpool/id" \
             | jq -r '.Parameter.Value'`
-          export REACT_APP_USER_POOL_CLIENT_ID=`aws ssm get-parameter --name "${ENV}/epp/cognito/userpool/client/id" \
+          export REACT_APP_USER_POOL_CLIENT_ID=`aws ssm get-parameter --name "/${ENV}/epp/cognito/userpool/client/id" \
             | jq -r '.Parameter.Value'`
-          export REACT_APP_LOGIN_DOMAIN=`aws ssm get-parameter --name "${ENV}/epp/cognito/endpoint" \
+          export REACT_APP_LOGIN_DOMAIN=`aws ssm get-parameter --name "/${ENV}/epp/cognito/endpoint" \
             | jq -r '.Parameter.Value'`
           export REACT_APP_REDIRECT_SIGN_IN="${REACT_APP_URL}/${{ vars.REACT_APP_REDIRECT_SIGN_IN_SUFFIX }}"
           export REACT_APP_REDIRECT_SIGN_OUT="${REACT_APP_URL}/${{ vars.REACT_APP_REDIRECT_SIGN_OUT_SUFFIX }}"
@@ -217,7 +217,7 @@ jobs:
           git push --tags --force
 
   trigger-deploy-dev:
-    if: ${{ always() && (! contains(needs.*.result, 'failure') || ! contains(needs.*.result, 'cancelled')) }}
+    if: ${{ always() && !cancelled() && !contains(needs.*.result, 'failure') }}
     runs-on: ubuntu-latest
     needs: 
       - validation
