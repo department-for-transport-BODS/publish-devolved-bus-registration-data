@@ -104,10 +104,11 @@ jobs:
         run: |
           rc_path="releases/$VERSION/backend"
           
-          sam package \
-            --s3-bucket $RC_DST \
-            --s3-prefix $rc_path \
-            --output-template-file packaged.yml
+          sam build && \
+            sam package \
+              --s3-bucket $RC_DST \
+              --s3-prefix $rc_path \
+              --output-template-file packaged.yml
 
           aws s3 cp packaged.yml s3://$RC_DST/$rc_path/
           aws s3 cp samconfig.yml s3://$RC_DST/$rc_path/
