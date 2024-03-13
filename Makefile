@@ -4,8 +4,9 @@ ifneq (,$(wildcard ./config/.env))
 endif
 
 ENV?=local
+FUNC?=DataCatalogueLambda
 DIRNAME=`basename ${PWD}`
-PG_EXEC=psql "host=$(POSTGRES_HOST) port=$(POSTGRES_PORT) user=$(POSTGRES_USER) password=$(POSTGRES_PASSWORD) gssencmode='disable'
+PG_EXEC=psql "host=localhost port=$(POSTGRES_PORT) user=$(POSTGRES_USER) password=$(POSTGRES_PASSWORD) gssencmode='disable'
 
 cmd-exists-%:
 	@hash $(*) > /dev/null 2>&1 || \
@@ -27,7 +28,7 @@ clean-services: ## Stop and remove all related Docker container services
 
 build-frontend: ## Build the frontend locally
 	@echo "Building frontend for $(ENV)..."
-	@cd ./frontend; REACT_APP_ENV=$(ENV) npm install && npm run build
+	@cd ./frontend; rm -rf ./build || true; REACT_APP_ENV=$(ENV) npm install && npm run build
 
 run-frontend: ## Run the frontend locally
 	@echo "Running frontend for $(ENV)..."
@@ -44,10 +45,13 @@ build-backend-sync: ## Build the backend api using sam and keep contents synced 
 	@cd ./backend; nodemon --watch './src/**/*.py' --signal SIGTERM --exec 'sam' build -e "py"
 
 deploy-backend: ## Deploy the backend api to target environment using sam
-	@cd ./backend; sam deploy --config-env=$(ENV) --confirm-changeset
+	@cd ./backend; sam deploy --config-env=$(ENV) --confirm-changeset --resolve-s3
 
-run-backend: ## Run the backend api locally using sam
-	@cd ./backend; sam local start-api --port 8000 --warm-containers=EAGER --container-host localhost
+run-backend-api: ## Run the backend api for CsvHandler and OtcClient locally using sam
+	@cd ./backend; sam local start-api --port 8000
+
+run-backend-function: ## Runs a standalone backend function locally using sam (default: DataCatalogueLambda)
+	@cd ./backend; sam local invoke $(FUNC)
 
 run-backend-pytest: ## Run the tests for backend
 	echo '[INFO] Don't forget to run "poetry shell -C ./backend && poetry install -C ./backend --no-root"

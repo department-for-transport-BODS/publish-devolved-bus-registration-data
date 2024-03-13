@@ -63,7 +63,7 @@ export const FullColumnLayout = ({
     </BaseLayout>
 );
 
-export const TowThirdsOneThirdLayout = ({
+export const TwoThirdsOneThirdLayout = ({
     title,
     description,
     errors = [],

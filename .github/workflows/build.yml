@@ -1,0 +1,252 @@
+name: build and release application
+
+on:
+  workflow_dispatch:
+    branches:
+    - main
+    inputs:
+      change:
+        type: choice
+        description: type of change - one of ['patch', 'minor', 'major']
+        required: true
+        default: 'patch'
+        options: 
+        - patch
+        - minor
+        - major
+  push:
+    branches:
+    - main
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  RC_TYP: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.change || 'patch' }}
+  RC_DST: ${{ vars.DEPLOYMENT_ARTEFACTS_S3_BUCKET }}
+
+jobs:
+  validation:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.increment.outputs.version }}
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: validate job parameters
+        run: |
+          echo """ \
+            Executing build and release job using parameters:
+              (Release Type) - $RC_TYP
+          """
+
+      - name: increment the ${{ env.RC_TYP }} version
+        id: increment
+        run: |
+          if [[ ${GITHUB_REF##*/} != 'main' ]]; then
+            echo "[INFO] Running on a feature branch, skipping version increment"
+            echo "version=${GITHUB_REF##*/}" >> "$GITHUB_OUTPUT"
+          else
+            # install yq for parsing yaml files
+            sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && \
+              sudo chmod 755 /usr/bin/yq
+
+            npm install semver
+            current_version=$(yq e '.version' VERSION)
+            new_version=$(node -p "const semver = require('semver'); semver.inc('$current_version', '$RC_TYP', false)")
+            echo "[INFO] New application version ${new_version}"
+            
+            # outputs
+            echo "version=${new_version}" >> "$GITHUB_OUTPUT"
+          fi
+
+  backend:
+    runs-on: ubuntu-latest
+    needs: validation
+    defaults:
+      run:
+        working-directory: backend
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: setup sam
+        uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE_ARN }}
+          role-session-name: backend-app-build
+          role-duration-seconds: 3600
+          role-skip-session-tagging: true
+
+      - name: package and push backend code
+        env: 
+          VERSION: ${{ needs.validation.outputs.version }}
+        run: |
+          [[ ${GITHUB_REF##*/} != 'main' ]] && rc_path="releases-dev/$VERSION/backend" || rc_path="releases/$VERSION/backend"
+
+          sam build && \
+            sam package \
+              --s3-bucket $RC_DST \
+              --s3-prefix $rc_path \
+              --output-template-file packaged.yml
+
+          aws s3 cp packaged.yml s3://$RC_DST/$rc_path/
+          aws s3 cp samconfig.yml s3://$RC_DST/$rc_path/
+
+          echo "[INFO] Application component (BACKEND) with version ${VERSION} successfully uploaded"
+
+  frontend:
+    runs-on: ubuntu-latest
+    needs: validation
+    defaults:
+      run:
+        working-directory: frontend
+
+    permissions:
+      id-token: write
+      contents: read
+
+    strategy:
+      matrix:
+        environment: [dev, test, uat, prod]
+        isMain:
+          - ${{ contains(github.ref, 'main') }}
+        exclude:
+          - isMain: false
+            environment: test
+          - isMain: false
+            environment: uat
+          - isMain: false
+            environment: prod
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/.nvmrc
+
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_ASSUME_ROLE_ARN }}
+          role-session-name: ${{ matrix.environment }}-app-build
+          role-duration-seconds: 3600
+          role-skip-session-tagging: true
+
+      - name: package and push frontend code
+        env:
+          CI: ""
+          ENV: ${{ matrix.environment }}
+          VERSION: ${{ needs.validation.outputs.version }}
+        run: |
+          [[ ${GITHUB_REF##*/} != 'main' ]] && rc_path="releases-dev/$VERSION/frontend/$ENV" || rc_path="releases/$VERSION/frontend/$ENV"
+
+          # export environment variables for build
+          # temp solution until moved to enterprise GH with environments, and nice-name domain
+          if [[ $ENV -eq 'dev' ]]; then
+            export REACT_APP_URL="${{ vars.REACT_APP_URL_DEV }}"
+          elif [[ $ENV -eq 'test' ]]; then
+            export REACT_APP_URL="${{ vars.REACT_APP_URL_DEV }}"
+          fi
+          export REACT_APP_USER_POOL_ID=`aws ssm get-parameter --name "/${ENV}/epp/cognito/userpool/id" \
+            | jq -r '.Parameter.Value'`
+          export REACT_APP_USER_POOL_CLIENT_ID=`aws ssm get-parameter --name "/${ENV}/epp/cognito/userpool/client/id" \
+            | jq -r '.Parameter.Value'`
+          export REACT_APP_LOGIN_DOMAIN=`aws ssm get-parameter --name "/${ENV}/epp/cognito/endpoint" \
+            | jq -r '.Parameter.Value'`
+          export REACT_APP_REDIRECT_SIGN_IN="${REACT_APP_URL}/${{ vars.REACT_APP_REDIRECT_SIGN_IN_SUFFIX }}"
+          export REACT_APP_REDIRECT_SIGN_OUT="${REACT_APP_URL}/${{ vars.REACT_APP_REDIRECT_SIGN_OUT_SUFFIX }}"
+          export REACT_APP_RESPONSE_TYPE="${{ vars.REACT_APP_RESPONSE_TYPE }}"
+          export REACT_APP_SCOPE="${{ vars.REACT_APP_SCOPE }}"
+
+          npm install
+          REACT_APP_ENV=$ENV npm run build
+
+          echo "[INFO] Uploading application component (FRONTEND) for ${ENV^^}"
+          aws s3 cp --recursive build/ s3://$RC_DST/$rc_path/
+          echo "[INFO] Application component (FRONTEND) with version ${VERSION} successfully uploaded for ${ENV^^}"
+
+  commit-and-tag:
+    if: ${{ always() && !cancelled() && !contains(needs.*.result, 'failure') && contains(github.ref, 'main') }}
+    runs-on: ubuntu-latest
+    needs:
+      - validation
+      - backend
+      - frontend
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: commit and push changes
+        run: |
+          # install yq for parsing yaml files
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && \
+            sudo chmod 755 /usr/bin/yq
+
+          new_version=${{ needs.validation.outputs.version }}
+          yq e -i '.version = "'"$new_version"'"' VERSION
+          echo "[INFO] Updated application version to ${new_version}"
+
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git config --global url.https://${{ github.token }}@github.com/.insteadOf https://github.com/
+
+          git add VERSION
+          git commit -m "[AUTO] GitHub actions push for version $new_version"
+          git push --force
+
+          git tag $new_version
+          git push --tags --force
+
+  trigger-deploy-dev:
+    if: ${{ always() && !cancelled() && !contains(needs.*.result, 'failure') && contains(github.ref, 'main') }}
+    runs-on: ubuntu-latest
+    needs: 
+      - validation
+      - backend
+      - frontend
+      - commit-and-tag
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: trigger remote
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          repository: ${{ github.repository }}
+          event-type: automated-deploy-dev
+          client-payload: '{ "environment": "dev", "release_version": "${{ needs.validation.outputs.version }}" }'
