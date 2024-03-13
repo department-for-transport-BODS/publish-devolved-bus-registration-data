@@ -34,7 +34,7 @@ const UploadCSV: React.FC<UploadCSVProps> = ({
     }
   };
 
-  const fileVirosCheck = (file: File) => {
+  const fileVirusCheck = (file: File) => {
     const allowedExtensions = /(\.csv)$/i;
     if (!allowedExtensions.exec(file.name)) {
       return false;
@@ -45,7 +45,7 @@ const UploadCSV: React.FC<UploadCSVProps> = ({
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (selectedFile) {
-      if (fileVirosCheck(selectedFile)) {
+      if (fileVirusCheck(selectedFile)) {
         const formData = new FormData();
         formData.append("file", selectedFile);
         setIsLoading(true);

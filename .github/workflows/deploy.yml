@@ -47,7 +47,7 @@ jobs:
           """
 
       - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE_ARN }}
@@ -57,7 +57,7 @@ jobs:
           
       - name: validate release candidate version
         run: |
-          rc_path="$RC_SRC/releases/$RC_VER"
+          [[ $RC_VER =~ '^\d[.]\d[.]\d$' ]] && rc_path="$RC_SRC/releases/$RC_VER" || rc_path="$RC_SRC/releases-dev/$RC_VER"
           rc_backend_path="$rc_path/backend"
           rc_frontend_path="$rc_path/frontend/$RC_ENV"
 
@@ -83,7 +83,7 @@ jobs:
       - name: setup python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: 3.11
 
       - name: setup sam
         uses: aws-actions/setup-sam@v2
@@ -91,7 +91,7 @@ jobs:
           use-installer: true
 
       - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE_ARN }}
@@ -101,7 +101,7 @@ jobs:
 
       - name: retrieve backend
         run: |
-          rc_path="releases/$RC_VER/backend"
+          [[ $RC_VER =~ '^\d[.]\d[.]\d$' ]] && rc_path="releases/$RC_VER/backend" || rc_path="releases-dev/$RC_VER/backend"
 
           aws s3 cp s3://$RC_SRC/$rc_path/packaged.yml .
           aws s3 cp s3://$RC_SRC/$rc_path/samconfig.yml .
@@ -130,7 +130,7 @@ jobs:
 
     steps:
       - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: ${{ vars.AWS_ASSUME_ROLE_ARN }}
@@ -140,7 +140,7 @@ jobs:
 
       - name: retrieve frontend for ${{ env.RC_ENV }}
         run: |
-          rc_path="releases/$RC_VER/frontend/$RC_ENV"
+          [[ $RC_VER =~ '^\d[.]\d[.]\d$' ]] && rc_path="releases/$RC_VER/frontend/$RC_ENV" || rc_path="releases-dev/$RC_VER/frontend/$RC_ENV"
 
           mkdir build/
           aws s3 cp s3://$RC_SRC/$rc_path/ build/ --recursive
