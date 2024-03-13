@@ -196,7 +196,7 @@ jobs:
           echo "[INFO] Application component (FRONTEND) with version ${VERSION} successfully uploaded for ${ENV^^}"
 
   commit-and-tag:
-    if: ${{ always() && !cancelled() && !contains(needs.*.result, 'failure') && github.ref == 'main' }}
+    if: ${{ always() && !cancelled() && !contains(needs.*.result, 'failure') && contains(github.ref, 'main') }}
     runs-on: ubuntu-latest
     needs:
       - validation
@@ -232,7 +232,7 @@ jobs:
           git push --tags --force
 
   trigger-deploy-dev:
-    if: ${{ always() && !cancelled() && !contains(needs.*.result, 'failure') && github.ref == 'main' }}
+    if: ${{ always() && !cancelled() && !contains(needs.*.result, 'failure') && contains(github.ref, 'main') }}
     runs-on: ubuntu-latest
     needs: 
       - validation
