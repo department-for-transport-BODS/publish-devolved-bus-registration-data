@@ -80,6 +80,18 @@ Resources:
             Path: /api/v1/{proxy+}
             Method: ANY
             RestApiId: !Ref CsvHandlerApi
+        ApiDocs:
+          Type: Api
+          Properties:
+            Path: /docs
+            Method: GET
+            RestApiId: !Ref CsvHandlerApi
+        ApiOpenApiJson:
+          Type: Api
+          Properties:
+            Path: /openapi.json
+            Method: GET
+            RestApiId: !Ref CsvHandlerApi
       VpcConfig:
         SubnetIds: !Ref VpcSubnets
         SecurityGroupIds:
@@ -535,19 +547,43 @@ Resources:
           CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6 #CACHING ENABLED
         CacheBehaviors:
           - TargetOriginId: backendApi
-            PathPattern: '/api/*'
+            PathPattern: '/api/v1/*'
             DefaultTTL: 0
             MinTTL: 0
             MaxTTL: 0
             ViewerProtocolPolicy: https-only
             AllowedMethods: 
-              - HEAD
-              - DELETE
-              - POST
               - GET
+              - HEAD
               - OPTIONS
               - PUT
+              - POST
               - PATCH
+              - DELETE
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad #CACHING DISABLED
+            ForwardedValues:
+              QueryString: true
+          - TargetOriginId: backendApi
+            PathPattern: '/docs'
+            DefaultTTL: 0
+            MinTTL: 0
+            MaxTTL: 0
+            ViewerProtocolPolicy: https-only
+            AllowedMethods: 
+              - GET
+              - HEAD
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad #CACHING DISABLED
+            ForwardedValues:
+              QueryString: true
+          - TargetOriginId: backendApi
+            PathPattern: '/openapi.json'
+            DefaultTTL: 0
+            MinTTL: 0
+            MaxTTL: 0
+            ViewerProtocolPolicy: https-only
+            AllowedMethods: 
+              - GET
+              - HEAD
             CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad #CACHING DISABLED
             ForwardedValues:
               QueryString: true
