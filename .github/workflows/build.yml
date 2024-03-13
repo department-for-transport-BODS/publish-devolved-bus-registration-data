@@ -135,7 +135,7 @@ jobs:
       matrix:
         environment: [dev, test, uat, prod]
         isMain:
-          - ${{ contains(github.ref, 'main' }}
+          - ${{ contains(github.ref, 'main') }}
         exclude:
           - isMain: false
             environment: test
