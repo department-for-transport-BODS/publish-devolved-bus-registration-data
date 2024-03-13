@@ -175,7 +175,7 @@ jobs:
           if [[ $ENV -eq 'dev' ]]; then
             export REACT_APP_URL="${{ vars.REACT_APP_URL_DEV }}"
           elif [[ $ENV -eq 'test' ]]; then
-            export REACT_APP_URL="${{ vars.REACT_APP_URL_DEV }}"
+            export REACT_APP_URL="${{ vars.REACT_APP_URL_TEST }}"
           fi
           export REACT_APP_USER_POOL_ID=`aws ssm get-parameter --name "/${ENV}/epp/cognito/userpool/id" \
             | jq -r '.Parameter.Value'`
