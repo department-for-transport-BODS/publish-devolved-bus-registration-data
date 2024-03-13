@@ -50,7 +50,7 @@ Resources:
   CsvHandlerApi:
     Type: AWS::Serverless::Api
     Properties:
-      Name: !Ref AWS::StackName
+      Name: !Sub  ${Environment}-${ProjectName}-csv-handler-api
       StageName: !Ref Environment
       EndpointConfiguration: 
         Type: REGIONAL
@@ -61,7 +61,7 @@ Resources:
             - Effect: Allow
               Principal: '*'
               Action: execute-api:Invoke
-              Resource: execute-api:/*/*/*
+              Resource: execute-api:/*
               Condition:
                 StringEquals:
                   aws:UserAgent: 'Amazon CloudFront'
@@ -77,7 +77,7 @@ Resources:
         ApiEvents:
           Type: Api
           Properties:
-            Path: /api/{proxy+}
+            Path: /api/v1/{proxy+}
             Method: ANY
             RestApiId: !Ref CsvHandlerApi
       VpcConfig:
@@ -88,14 +88,8 @@ Resources:
         Variables:
           PROJECT_ENV: !Ref Environment
           PROJECT_NAME: !Ref ProjectName
-          HTTP_PROXY: !If
-            - IsNotLocal
-            - !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-            - !Ref AWS::NoValue
-          HTTPS_PROXY: !If
-            - IsNotLocal
-            - !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-            - !Ref AWS::NoValue
+          HTTP_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
+          HTTPS_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
           LOG_LEVEL: !If
             - IsNotProd
             - 'DEBUG'
@@ -107,6 +101,8 @@ Resources:
           POSTGRES_PORT: 5432
           POSTGRES_DB: !Ref ProjectName
           POSTGRES_CREDENTIALS: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/name}}'
+          USERPOOL_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/cognito/userpool/id}}'
+          APP_CLIENT_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/cognito/userpool/client/id}}'
 
   CsvHandlerLambdaSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -204,6 +200,145 @@ Resources:
             Resource:
               - !Sub '{{resolve:ssm:/shared/${ProjectName}/kms/secretsmanager}}'
 
+  OtcClientApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Sub  ${Environment}-${ProjectName}-otc-client-api
+      StageName: !Ref Environment
+      EndpointConfiguration: 
+        Type: PRIVATE
+      TracingEnabled: true
+      Auth:
+        ResourcePolicy:
+          CustomStatements:
+            - Effect: Allow
+              Principal: '*'
+              Action: execute-api:Invoke
+              Resource: execute-api:/*
+            - Effect: Deny
+              Principal: '*'
+              Action: execute-api:Invoke
+              Resource: execute-api:/*
+              Condition:
+                StringNotEquals:
+                  aws:SourceVpc: !Ref VpcId
+
+  OtcClientLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub  ${Environment}-${ProjectName}-otc-api-lambda
+      CodeUri: src/otc_client
+      Handler: app.lambda_handler
+      Events:
+        ApiEvents:
+          Type: Api
+          Properties:
+            Path: /api/v1/otc/licences
+            Method: POST
+            RestApiId: !Ref OtcClientApi
+      Environment:
+        Variables:
+          PROJECT_ENV: !Ref Environment
+          PROJECT_NAME: !Ref ProjectName
+          HTTP_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
+          HTTPS_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
+          LOG_LEVEL: !If
+            - IsNotProd
+            - 'DEBUG'
+            - 'INFO'
+          MS_LOGIN_URL: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/ms/login/endpoint}}'
+          MS_SCOPE: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/ms/scope}}'
+          MS_TENANT_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/ms/tenant/id}}'
+          MS_CLIENT_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/ms/client/id}}'
+          MS_CLIENT_SECRET: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/otc/ms/client/secret/name}}'
+          OTC_API_URL: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/api/endpoint}}'
+          OTC_API_KEY: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/otc/apikey/name}}'
+
+  OtcClientLambdaSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Condition: IsNotLocal
+    Properties:
+      GroupDescription: !Sub 'Security group for ${Environment}-${ProjectName}-otc-client-lambda function'
+      GroupName: !Sub '${Environment}-${ProjectName}-otc-client-lambda'
+      SecurityGroupEgress: 
+        - IpProtocol: tcp
+          FromPort: 3128
+          ToPort: 3128
+          DestinationSecurityGroupId: !Ref WebProxySecurityGroupId
+        - IpProtocol: udp
+          FromPort: 3128
+          ToPort: 3128
+          DestinationSecurityGroupId: !Ref WebProxySecurityGroupId
+      VpcId: !Ref VpcId
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-${ProjectName}-otc-client-lambda'
+
+  OtcClientLambdaLogGroup:
+    Type: 'AWS::Logs::LogGroup'
+    Condition: IsNotLocal
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${Environment}-${ProjectName}-otc-client-lambda'
+      KmsKeyId: !Sub '{{resolve:ssm:/shared/${ProjectName}/kms/cloudwatch}}'
+      RetentionInDays: 30
+
+  OtcClientLambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Condition: IsNotLocal
+    Properties:
+      RoleName: !Sub '${Environment}-${ProjectName}-otc-client-lambda-execution-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+
+  OtcClientLambdaLoggingPolicy:
+    Type: 'AWS::IAM::Policy'
+    Condition: IsNotLocal
+    Properties:
+      PolicyName: !Sub '${Environment}-${ProjectName}-otc-client-lambda-logging-policy'
+      Roles:
+        - !Ref OtcClientLambdaExecutionRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource: !GetAtt OtcClientLambdaLogGroup.Arn
+
+  OtcClientLambdaSecretsAccessPolicy:
+    Type: 'AWS::IAM::Policy'
+    Condition: IsNotLocal
+    Properties:
+      PolicyName: !Sub '${Environment}-${ProjectName}-otc-client-lambda-secrets-access-policy'
+      Roles:
+        - !Ref OtcClientLambdaExecutionRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - secretsmanager:GetResourcePolicy
+              - secretsmanager:GetSecretValue
+              - secretsmanager:DescribeSecret
+              - secretsmanager:ListSecretVersionIds
+            Resource: 
+              - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/otc/ms/client/secret/arn}}'
+              - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/otc/apikey/arn}}'
+          - Effect: Allow
+            Action:
+              - kms:Decrypt
+            Resource:
+              - !Sub '{{resolve:ssm:/shared/${ProjectName}/kms/secretsmanager}}'
+
   DataCatalogueLambda:
     Type: AWS::Serverless::Function
     Condition: IsNotLocal
@@ -226,14 +361,8 @@ Resources:
         Variables:
           PROJECT_ENV: !Ref Environment
           PROJECT_NAME: !Ref ProjectName
-          HTTP_PROXY: !If
-            - IsNotLocal
-            - !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-            - !Ref AWS::NoValue
-          HTTPS_PROXY: !If
-            - IsNotLocal
-            - !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-            - !Ref AWS::NoValue
+          HTTP_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
+          HTTPS_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
           LOG_LEVEL: !If
             - IsNotProd
             - 'DEBUG'
@@ -423,7 +552,8 @@ Resources:
             ForwardedValues:
               QueryString: true
         Logging:
-          Bucket: !GetAtt CloudFrontLoggingBucket.DomainName
+          Bucket: !Sub 'shared-${ProjectName}-cdn-logging-${AWS::AccountId}.s3.amazonaws.com' 
+          Prefix: !Ref Environment
 
   CloudFrontOriginAccessControl:
     Type: AWS::CloudFront::OriginAccessControl
@@ -435,50 +565,15 @@ Resources:
         SigningBehavior: always
         SigningProtocol: sigv4
 
-  CloudFrontLoggingBucket:
-    Type: AWS::S3::Bucket
-    Condition: IsNotLocal
-    Properties:
-      BucketName: !Sub '${Environment}-${ProjectName}-cdn-logging'
-      OwnershipControls:
-        Rules:
-          - ObjectOwnership: BucketOwnerPreferred
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-
-  CloudFrontLoggingBucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Condition: IsNotLocal
-    Properties:
-      Bucket: !Ref CloudFrontLoggingBucket
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Sid: AllowCloudFrontServicePrincipal
-            Effect: Allow
-            Principal:
-              Service: 'cloudfront.amazonaws.com'
-            Action: 
-              - 's3:GetObject'
-              - 's3:PutObject'
-            Resource: !Sub
-              - 'arn:aws:s3:::${Bucket}/*'
-              - Bucket: !Ref CloudFrontLoggingBucket
-            Condition:
-              StringEquals:
-                aws:SourceArn: !Sub
-                  - 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}'
-                  - Distribution: !Ref CloudFrontDistribution
-
 Outputs:
   ApiGatewayUrl:
-    Description: "API Gateway endpoint URL for FastAPI"
-    Value: !Sub "https://${CsvHandlerApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/"
+    Description: 'API Gateway endpoint URL for FastAPI'
+    Value: !Sub 'https://${CsvHandlerApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/'
   CloudFrontDistributionUrl:
-    Description: "CloudFront Distribution Domain Name URL"
+    Description: 'CloudFront Distribution Domain Name URL'
     Value: !Sub
       - 'https://${CloudFrontDomainName}'
       - CloudFrontDomainName: !GetAtt CloudFrontDistribution.DomainName
+  FrontendBucketName:
+    Description: 'Name of Frontend S3 Bucket'
+    Value: !Sub 's3://${FrontendBucket}'
