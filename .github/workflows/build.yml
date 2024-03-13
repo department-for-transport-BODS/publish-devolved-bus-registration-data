@@ -52,17 +52,22 @@ jobs:
       - name: increment the ${{ env.RC_TYP }} version
         id: increment
         run: |
-          # install yq for parsing yaml files
-          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && \
-            sudo chmod 755 /usr/bin/yq
+          if [[ ${GITHUB_REF##*/} != 'main' ]]; then
+            echo "[INFO] Running on a feature branch, skipping version increment"
+            echo "version=${GITHUB_REF##*/}" >> "$GITHUB_OUTPUT"
+          else
+            # install yq for parsing yaml files
+            sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq && \
+              sudo chmod 755 /usr/bin/yq
 
-          npm install semver
-          current_version=$(yq e '.version' VERSION)
-          new_version=$(node -p "const semver = require('semver'); semver.inc('$current_version', '$RC_TYP', false)")
-          echo "[INFO] New application version ${new_version}"
-          
-          # outputs
-          echo "version=${new_version}" >> "$GITHUB_OUTPUT"
+            npm install semver
+            current_version=$(yq e '.version' VERSION)
+            new_version=$(node -p "const semver = require('semver'); semver.inc('$current_version', '$RC_TYP', false)")
+            echo "[INFO] New application version ${new_version}"
+            
+            # outputs
+            echo "version=${new_version}" >> "$GITHUB_OUTPUT"
+          fi
 
   backend:
     runs-on: ubuntu-latest
@@ -102,8 +107,8 @@ jobs:
         env: 
           VERSION: ${{ needs.validation.outputs.version }}
         run: |
-          rc_path="releases/$VERSION/backend"
-          
+          [[ ${GITHUB_REF##*/} != 'main' ]] && rc_path="releases-dev/$VERSION/backend" || rc_path="releases/$VERSION/backend"
+
           sam build && \
             sam package \
               --s3-bucket $RC_DST \
@@ -112,7 +117,7 @@ jobs:
 
           aws s3 cp packaged.yml s3://$RC_DST/$rc_path/
           aws s3 cp samconfig.yml s3://$RC_DST/$rc_path/
-          
+
           echo "[INFO] Application component (BACKEND) with version ${VERSION} successfully uploaded"
 
   frontend:
@@ -129,6 +134,15 @@ jobs:
     strategy:
       matrix:
         environment: [dev, test, uat, prod]
+        isMain:
+          - ${{ contains(github.ref, 'main' }}
+        exclude:
+          - isMain: false
+            environment: test
+          - isMain: false
+            environment: uat
+          - isMain: false
+            environment: prod
 
     steps:
       - name: checkout
@@ -154,7 +168,7 @@ jobs:
           ENV: ${{ matrix.environment }}
           VERSION: ${{ needs.validation.outputs.version }}
         run: |
-          rc_path="releases/$VERSION/frontend/$ENV"
+          [[ ${GITHUB_REF##*/} != 'main' ]] && rc_path="releases-dev/$VERSION/frontend/$ENV" || rc_path="releases/$VERSION/frontend/$ENV"
 
           # export environment variables for build
           # temp solution until moved to enterprise GH with environments, and nice-name domain
@@ -182,7 +196,7 @@ jobs:
           echo "[INFO] Application component (FRONTEND) with version ${VERSION} successfully uploaded for ${ENV^^}"
 
   commit-and-tag:
-    if: ${{ always() && !cancelled() && !contains(needs.*.result, 'failure') }}
+    if: ${{ always() && !cancelled() && !contains(needs.*.result, 'failure') && github.ref == 'main' }}
     runs-on: ubuntu-latest
     needs:
       - validation
@@ -218,7 +232,7 @@ jobs:
           git push --tags --force
 
   trigger-deploy-dev:
-    if: ${{ always() && !cancelled() && !contains(needs.*.result, 'failure') }}
+    if: ${{ always() && !cancelled() && !contains(needs.*.result, 'failure') && github.ref == 'main' }}
     runs-on: ubuntu-latest
     needs: 
       - validation
