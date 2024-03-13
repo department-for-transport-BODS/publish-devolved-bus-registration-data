@@ -590,6 +590,11 @@ Resources:
         Logging:
           Bucket: !Sub 'shared-${ProjectName}-cdn-logging-${AWS::AccountId}.s3.amazonaws.com' 
           Prefix: !Ref Environment
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ErrorCachingMinTTL: 10
+            ResponseCode: 200
+            ResponsePagePath: '/index.html'
 
   CloudFrontOriginAccessControl:
     Type: AWS::CloudFront::OriginAccessControl
