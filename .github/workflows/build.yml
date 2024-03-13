@@ -137,8 +137,8 @@ jobs:
         isMain:
           - ${{ contains(github.ref, 'main') }}
         exclude:
-          - isMain: false
-            environment: test
+          # - isMain: false
+          #   environment: test
           - isMain: false
             environment: uat
           - isMain: false
@@ -177,6 +177,8 @@ jobs:
           elif [[ $ENV -eq 'test' ]]; then
             export REACT_APP_URL="${{ vars.REACT_APP_URL_TEST }}"
           fi
+          pwd
+          echo "APP URL is - ${REACT_APP_URL}"
           export REACT_APP_USER_POOL_ID=`aws ssm get-parameter --name "/${ENV}/epp/cognito/userpool/id" \
             | jq -r '.Parameter.Value'`
           export REACT_APP_USER_POOL_CLIENT_ID=`aws ssm get-parameter --name "/${ENV}/epp/cognito/userpool/client/id" \
