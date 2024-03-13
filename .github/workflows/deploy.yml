@@ -57,7 +57,7 @@ jobs:
           
       - name: validate release candidate version
         run: |
-          [[ $RC_VER =~ '^\d[.]\d[.]\d$' ]] && rc_path="$RC_SRC/releases/$RC_VER" || rc_path="$RC_SRC/releases-dev/$RC_VER"
+          [[ $RC_VER =~ '^\d+[.]\d+[.]\d+$' ]] && rc_path="$RC_SRC/releases/$RC_VER" || rc_path="$RC_SRC/releases-dev/$RC_VER"
           rc_backend_path="$rc_path/backend"
           rc_frontend_path="$rc_path/frontend/$RC_ENV"
 
@@ -101,7 +101,7 @@ jobs:
 
       - name: retrieve backend
         run: |
-          [[ $RC_VER =~ '^\d[.]\d[.]\d$' ]] && rc_path="releases/$RC_VER/backend" || rc_path="releases-dev/$RC_VER/backend"
+          [[ $RC_VER =~ '^\d+[.]\d+[.]\d+$' ]] && rc_path="releases/$RC_VER/backend" || rc_path="releases-dev/$RC_VER/backend"
 
           aws s3 cp s3://$RC_SRC/$rc_path/packaged.yml .
           aws s3 cp s3://$RC_SRC/$rc_path/samconfig.yml .
@@ -140,7 +140,7 @@ jobs:
 
       - name: retrieve frontend for ${{ env.RC_ENV }}
         run: |
-          [[ $RC_VER =~ '^\d[.]\d[.]\d$' ]] && rc_path="releases/$RC_VER/frontend/$RC_ENV" || rc_path="releases-dev/$RC_VER/frontend/$RC_ENV"
+          [[ $RC_VER =~ '^\d+[.]\d+[.]\d+$' ]] && rc_path="releases/$RC_VER/frontend/$RC_ENV" || rc_path="releases-dev/$RC_VER/frontend/$RC_ENV"
 
           mkdir build/
           aws s3 cp s3://$RC_SRC/$rc_path/ build/ --recursive
