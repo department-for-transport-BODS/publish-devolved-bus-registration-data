@@ -1,7 +1,7 @@
 import axios, { AxiosError } from "axios";
 
 export const SendCSV = async (formData: FormData, navigate:any) => {
-    const apiBaseUrl = process.env.REACT_APP_URL? process.env.REACT_APP_URL : '';
+    const apiBaseUrl = process.env.REACT_APP_API_URL? process.env.REACT_APP_API_URL : '';
 
     try {
         let jwt = "";
@@ -12,7 +12,7 @@ export const SendCSV = async (formData: FormData, navigate:any) => {
             }
         });
         const response = await axios.post(
-            `${apiBaseUrl}/api/v1/uploadfile`,
+            `${apiBaseUrl}uploadfile`,
             formData,
             {
                 headers: {

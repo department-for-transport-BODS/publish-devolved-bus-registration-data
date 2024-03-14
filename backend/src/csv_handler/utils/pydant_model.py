@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 from pydantic import ValidationError
 from typing import List
 from pydantic_core import ErrorDetails
+from .logger import log
 
 
 class Registration(BaseModel):
@@ -102,7 +103,7 @@ class LicenceRecord(BaseModel):
 
 
 class DBCreds(BaseModel):
-    PG_HOST: str = Field(default_factory=lambda: getenv("POSTGRES_HOST", "postgres"))
+    PG_HOST: str = Field(default_factory=lambda: getenv("POSTGRES_HOST", "localhost"))
     PG_PORT: str = Field(default_factory=lambda: getenv("POSTGRES_PORT", "5432"))
     PG_DB: str = Field(default_factory=lambda: getenv("POSTGRES_DB", "postgres"))
     PG_USER: str = Field(alias="username")
