@@ -12,6 +12,7 @@ from .pydant_model import DBCreds, SearchQuery
 from .exceptions import RecordIsAlreadyExist, LimitExceeded, LimitIsNotSet
 from .data import common_keys_comparsion
 from sqlalchemy.orm import Query
+from sqlalchemy.orm import aliased
 
 
 class CreateEngine:
@@ -84,6 +85,7 @@ class AutoMappingModels:
         self.EPRegistration = self.Base.classes.ep_registration
         self.OTCOperator = self.Base.classes.otc_operator
         self.OTCLicence = self.Base.classes.otc_licence
+        self.Bods_data_catalogue = self.Base.classes.bods_data_catalogue
         self.OTCLicence.__repr__ = (
             lambda self: f"<OTCLicence(licence_number='{self.licence_number}', licence_status='{self.licence_status}, otc_licence_id={self.otc_licence_id}')>"
         )
@@ -92,6 +94,9 @@ class AutoMappingModels:
         )
         self.EPRegistration.__repr__ = (
             lambda self: f"<EPRegistration(route_number='{self.route_number}', route_description='{self.route_description}', variation_number='{self.variation_number}', start_point='{self.start_point}', finish_point='{self.finish_point}', via='{self.via}', subsidised='{self.subsidised}', subsidy_detail='{self.subsidy_detail}', is_short_notice='{self.is_short_notice}', received_date='{self.received_date}', granted_date='{self.granted_date}', effective_date='{self.effective_date}', end_date='{self.end_date}', otc_operator_id='{self.otc_operator_id}', bus_service_type_id='{self.bus_service_type_id}', bus_service_type_description='{self.bus_service_type_description}', registration_number='{self.registration_number}', traffic_area_id='{self.traffic_area_id}', application_type='{self.application_type}', publication_text='{self.publication_text}', other_details='{self.other_details}')>"
+        )
+        self.Bods_data_catalogue.__repr__ = (
+            lambda self: f"<Bods_data_catalogue(id='{self.id}', xml_service_code='{self.xml_service_code}', variation_number='{self.variation_number}', service_type_description='{self.service_type_description}', published_status='{self.published_status}', requires_attention='{self.requires_attention}', timeliness_status='{self.timeliness_status}')>"
         )
 
     def get_tables(self):
@@ -358,6 +363,117 @@ class DBManager:
         search_params = search_query.model_dump(exclude_none=True, by_alias=True)
         params_str = "&".join([f"{k}={v}" for k, v in search_params.items()])
         return f"{host}{path}?{params_str}"
+
+    @classmethod
+    def get_all_records(cls):
+        models = AutoMappingModels()
+        session = Session(models.engine)
+        EPRegistration = models.EPRegistration
+        OTCOperator = models.OTCOperator
+        OTCLicence = models.OTCLicence
+        Bods_data_catalogue = models.Bods_data_catalogue
+
+        records = (
+            session.query(
+                EPRegistration.registration_number.label("registrationNumber"),
+                EPRegistration.route_number.label("routeNumber"),
+                EPRegistration.route_description.label("routeDescription"),
+                EPRegistration.variation_number.label("variationNumber"),
+                EPRegistration.start_point.label("startPoint"),
+                EPRegistration.finish_point.label("finishPoint"),
+                EPRegistration.via.label("via"),
+                EPRegistration.subsidised.label("subsidised"),
+                EPRegistration.subsidy_detail.label("subsidyDetail"),
+                EPRegistration.is_short_notice.label("isShortNotice"),
+                EPRegistration.received_date.label("receivedDate"),
+                EPRegistration.granted_date.label("grantedDate"),
+                EPRegistration.effective_date.label("effectiveDate"),
+                EPRegistration.end_date.label("endDate"),
+                EPRegistration.bus_service_type_id.label("busServiceTypeId"),
+                EPRegistration.bus_service_type_description.label(
+                    "busServiceTypeDescription"
+                ),
+                EPRegistration.traffic_area_id.label("trafficAreaId"),
+                EPRegistration.application_type.label("applicationType"),
+                EPRegistration.publication_text.label("publicationText"),
+                OTCOperator.operator_name.label("operatorName"),
+                OTCLicence.licence_number.label("licenceNumber"),
+                OTCLicence.licence_status.label("licenceStatus"),
+                Bods_data_catalogue.requires_attention.label("requiresAttention"),
+            )
+            .join(OTCOperator, EPRegistration.otc_operator_id == OTCOperator.id)
+            .join(OTCLicence, EPRegistration.otc_licence_id == OTCLicence.id)
+            # .join(Bods_data_catalogue, Bods_data_catalogue.xml_service_code.like(OTCLicence.licence_number + '%') )
+            .join(
+                Bods_data_catalogue,
+                EPRegistration.registration_number
+                == Bods_data_catalogue.xml_service_code,
+            )
+        )
+
+        return [rec._asdict() for rec in records.all()]
+
+    @classmethod
+    def get_record_reuiqred_attention_percentage(cls):
+        models = AutoMappingModels()
+        session = Session(models.engine)
+        EPRegistration = models.EPRegistration
+        OTCOperator = models.OTCOperator
+        OTCLicence = models.OTCLicence
+        Bods_data_catalogue = models.Bods_data_catalogue
+
+        subquery_a = (
+            session.query(
+                EPRegistration.registration_number,
+                Bods_data_catalogue.requires_attention,
+                OTCLicence.licence_number,
+                OTCOperator.operator_name,
+            )
+            .join(OTCOperator, EPRegistration.otc_operator_id == OTCOperator.id)
+            .join(OTCLicence, EPRegistration.otc_licence_id == OTCLicence.id)
+            .join(
+                Bods_data_catalogue,
+                Bods_data_catalogue.xml_service_code.like(
+                    OTCLicence.licence_number + "%"
+                ),
+            ).subquery()
+            )
+
+        subquery_b = (
+            session.query(
+                subquery_a.c.licence_number,
+                subquery_a.c.registration_number,
+                subquery_a.c.requires_attention,
+                subquery_a.c.operator_name,
+                func.sum(func.count(subquery_a.c.registration_number)).over().label("total_records"),
+                func.round(
+                    (func.count(subquery_a.c.registration_number) * 100)
+                    / func.nullif(
+                        func.sum(func.count(subquery_a.c.registration_number)).over(), 0
+                    ),
+                    2,
+                ).label("sercies_requiring_attention_percentage"),
+            )
+            .group_by(
+                subquery_a.c.requires_attention,
+                subquery_a.c.registration_number,
+                subquery_a.c.licence_number,
+                subquery_a.c.operator_name,
+            )
+            .subquery()
+        )
+
+        query = session.query(
+            subquery_b.c.registration_number,
+            subquery_b.c.sercies_requiring_attention_percentage,
+            subquery_b.c.licence_number,
+            subquery_b.c.requires_attention,
+            subquery_b.c.operator_name,
+            subquery_b.c.total_records,
+        ).filter(subquery_b.c.requires_attention == "False")
+
+        # console.log(query)
+        return [rec._asdict() for rec in query.all()]
 
 
 def send_to_db(records: List[Registration]):
