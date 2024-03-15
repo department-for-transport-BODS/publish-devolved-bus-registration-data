@@ -5,9 +5,7 @@ from io import StringIO
 from pydantic import ValidationError
 from managers import CSVManager
 from mangum import Mangum
-from time import sleep
 from utils.exceptions import LimitIsNotSet, LimitExceeded
-from utils.logger import log
 from auth.verifier import token_verifier
 from central_config import app, PROJECT_ENV, AWS_REGION, api_v1_router
 from utils.db import DBManager
@@ -35,7 +33,6 @@ async def create_upload_file(file: UploadFile = File(...)):
     """
     contents = await file.read()
     # Decode the CSV data
-    # csv_str = contents.decode("utf-8-sig")
     csv_str = contents.decode("utf-8-sig")
     # Convert the CSV data into a dictionary
     csv_data = list(csv.DictReader(StringIO(csv_str)))
