@@ -34,10 +34,8 @@ async def create_upload_file(file: UploadFile = File(...)):
         _type_: _description_
     """
     contents = await file.read()
-    if PROJECT_ENV == "local":
-        log.debug("Sleeping for 2 seconds to simulate file upload")
-        sleep(2)
     # Decode the CSV data
+    # csv_str = contents.decode("utf-8-sig")
     csv_str = contents.decode("utf-8-sig")
     # Convert the CSV data into a dictionary
     csv_data = list(csv.DictReader(StringIO(csv_str)))

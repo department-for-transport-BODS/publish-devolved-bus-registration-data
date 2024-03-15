@@ -1,14 +1,40 @@
 from typing import List
+import requests
+from .logger import console
+import json
 
 
-def get_licences_details(licence_numbers: List):
-    """
-    This function takes a list of records and returns a list of dictionaries containing the details of the licences.
 
-    Args:
-        records ([list]): A list of dictionaries containing the details of the licences.
+def verify_otc_api(licence_numbers: List):
+        """
+        This function sends a list of licence numbers to the endpoint at localhost:8000/otc/licences.
 
-    Returns:
-        [list]: A list of dictionaries containing the details of the licences.
-    """
-    return licence_numbers
+        Args:
+            licence_numbers (List): A list of licence numbers.
+
+        Returns:
+            None
+        """
+        try:
+            licence_numbers_list = set()
+            console.log("Sending list to OTC API")
+            console.log(licence_numbers)
+            for key,registration in  licence_numbers.items():
+                licence_numbers_list.add(registration.licence_number)
+            console.log(licence_numbers_list)
+            console.log(json.dumps(list(licence_numbers_list)))
+
+            # console.log(licence_numbers)
+            url = "http://localhost:8001/api/v1/otc/licences"
+            response = requests.post(url,data=json.dumps(list(licence_numbers_list)), headers={"Content-Type": "application/json"})
+            # add a list as body of the request
+            if response.status_code == 200:
+
+                print("List sent successfully!")
+                output = response.json()
+                return output
+            else:
+                print("Failed to send list. Error:", response.status_code)
+                print(response)
+        except Exception as e:
+            print(e)

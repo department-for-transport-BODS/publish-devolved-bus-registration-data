@@ -1,6 +1,6 @@
 import json
 from os import getenv
-from sqlalchemy import create_engine, func, select, Table
+from sqlalchemy import MetaData, create_engine, func, select, Table, case, asc, desc
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sys import exit
@@ -12,7 +12,6 @@ from .pydant_model import DBCreds, SearchQuery
 from .exceptions import RecordIsAlreadyExist, LimitExceeded, LimitIsNotSet
 from .data import common_keys_comparsion
 from sqlalchemy.orm import Query
-from sqlalchemy.orm import aliased
 
 
 class CreateEngine:
@@ -128,11 +127,9 @@ class DBManager:
     def fetch_licence_record(
         cls, licence_number: str, session: Session, OTCLicence, licence_record
     ):
-        console.log(f"licence_number: {licence_number}")
         licence_record_id = add_or_get_record(
             "licence_number", licence_number, session, OTCLicence, licence_record
         )
-        console.log(f"otc_licence_id: {licence_record_id}")
         return licence_record_id
 
     @classmethod
@@ -174,9 +171,9 @@ class DBManager:
             if common_keys_comparsion(record_dict, existing_record_dict):
                 # case 1.1: Check if all the fields are the same
                 # All fields are the same, reject with an error
-                log.debug(
-                    f"Record already exists with the same fields: {existing_record.id}"
-                )
+                # log.debug(
+                #     f"Record already exists with the same fields: {existing_record.id}"
+                # )
                 raise RecordIsAlreadyExist("Record already exists with the same fields")
 
             else:
@@ -399,18 +396,17 @@ class DBManager:
                 OTCOperator.operator_name.label("operatorName"),
                 OTCLicence.licence_number.label("licenceNumber"),
                 OTCLicence.licence_status.label("licenceStatus"),
-                Bods_data_catalogue.requires_attention.label("requiresAttention"),
-            )
-            .join(OTCOperator, EPRegistration.otc_operator_id == OTCOperator.id)
-            .join(OTCLicence, EPRegistration.otc_licence_id == OTCLicence.id)
-            # .join(Bods_data_catalogue, Bods_data_catalogue.xml_service_code.like(OTCLicence.licence_number + '%') )
-            .join(
-                Bods_data_catalogue,
-                EPRegistration.registration_number
-                == Bods_data_catalogue.xml_service_code,
-            )
-        )
+                Bods_data_catalogue.requires_attention,
+                Bods_data_catalogue.timeliness_status
 
+            )
+            .filter(EPRegistration.otc_operator_id == OTCOperator.id)
+            .filter(EPRegistration.otc_licence_id == OTCLicence.id)
+            .filter(EPRegistration.registration_number == Bods_data_catalogue.xml_service_code)
+            
+        )
+        console.log(records)
+        
         return [rec._asdict() for rec in records.all()]
 
     @classmethod
@@ -421,58 +417,59 @@ class DBManager:
         OTCOperator = models.OTCOperator
         OTCLicence = models.OTCLicence
         Bods_data_catalogue = models.Bods_data_catalogue
-
-        subquery_a = (
+        subquery_q2 = (
             session.query(
-                EPRegistration.registration_number,
-                Bods_data_catalogue.requires_attention,
+                func.count(EPRegistration.registration_number).label("count"),
                 OTCLicence.licence_number,
+                Bods_data_catalogue.requires_attention,
                 OTCOperator.operator_name,
+                OTCLicence.licence_status
             )
-            .join(OTCOperator, EPRegistration.otc_operator_id == OTCOperator.id)
-            .join(OTCLicence, EPRegistration.otc_licence_id == OTCLicence.id)
+            .join(OTCLicence, OTCLicence.id == EPRegistration.otc_licence_id)
             .join(
                 Bods_data_catalogue,
-                Bods_data_catalogue.xml_service_code.like(
-                    OTCLicence.licence_number + "%"
-                ),
-            ).subquery()
+                EPRegistration.registration_number
+                == Bods_data_catalogue.xml_service_code,
             )
-
-        subquery_b = (
-            session.query(
-                subquery_a.c.licence_number,
-                subquery_a.c.registration_number,
-                subquery_a.c.requires_attention,
-                subquery_a.c.operator_name,
-                func.sum(func.count(subquery_a.c.registration_number)).over().label("total_records"),
-                func.round(
-                    (func.count(subquery_a.c.registration_number) * 100)
-                    / func.nullif(
-                        func.sum(func.count(subquery_a.c.registration_number)).over(), 0
-                    ),
-                    2,
-                ).label("sercies_requiring_attention_percentage"),
-            )
+            .join(OTCOperator, OTCOperator.id == EPRegistration.otc_operator_id)
             .group_by(
-                subquery_a.c.requires_attention,
-                subquery_a.c.registration_number,
-                subquery_a.c.licence_number,
-                subquery_a.c.operator_name,
+                OTCLicence.licence_number,
+                OTCOperator.operator_name,
+                Bods_data_catalogue.requires_attention,
+                OTCLicence.licence_status
             )
             .subquery()
         )
 
-        query = session.query(
-            subquery_b.c.registration_number,
-            subquery_b.c.sercies_requiring_attention_percentage,
-            subquery_b.c.licence_number,
-            subquery_b.c.requires_attention,
-            subquery_b.c.operator_name,
-            subquery_b.c.total_records,
-        ).filter(subquery_b.c.requires_attention == "False")
+        query = (
+            session.query(
+                subquery_q2.c.licence_number,
+                subquery_q2.c.operator_name,
+                subquery_q2.c.licence_status,
+                func.round(
+                    (
+                        100.0
+                        * func.sum(
+                            case(
+                                (
+                                    (
+                                        subquery_q2.c.requires_attention,
+                                        subquery_q2.c.count,
+                                    )
+                                ),
+                                else_=0,
+                            )
+                        )
+                        / func.sum(subquery_q2.c.count)
+                    ),
+                    2,
+                ).label("requires_attention"),
+                func.sum(subquery_q2.c.count).label("total_services"),
+            )
+            .group_by(subquery_q2.c.licence_number, subquery_q2.c.operator_name, subquery_q2.c.licence_status)
+            .order_by(desc("total_services"))
+        )
 
-        # console.log(query)
         return [rec._asdict() for rec in query.all()]
 
 
@@ -520,7 +517,7 @@ def send_to_db(records: List[Registration]):
                 OTCLicence,
                 OTCLicence_record,
             )
-            log.debug(f"Record with number: {idx} going to db")
+            # log.debug(f"Record with number: {idx} going to db")
             # Add the record to the EPRegistration table
             DBManager.upsert_record_to_ep_registration_table(
                 record, operator_record_id, licence_record_id, session, EPRegistration
