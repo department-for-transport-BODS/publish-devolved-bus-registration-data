@@ -3,7 +3,7 @@ import ServiceCount from "./ServiceCount";
 
 interface AccordionSectionProps {
   title: string;
-  status: "Registered" | "Inactive";
+  status: string;
   serviceCount: number;
   serviceDescription?: string ;
   persentage?: boolean;
@@ -29,13 +29,13 @@ const AccordionSection: React.FC<AccordionSectionProps> = ({
               id="accordion-default-heading-1"
             >
               <span>{title}</span>
-              {status === "Registered" ? (
+              {status === "Valid" ? (
                 <span className="govuk-tag govuk-tag--green govuk-!-margin-left-4">
-                  Registered
+                  Valid
                 </span>
               ) : (
                 <span className="govuk-tag govuk-tag--red govuk-!-margin-left-4">
-                  Inactive
+                  Invalid
                 </span>
               )}
             </div>

@@ -1,13 +1,9 @@
-import { useEffect, useState } from "react";
 import axios from "axios";
 
-const useGetAllRecords = () => {
-    const [data, setData] = useState<null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState(null);
+const GetAllRecords = async () => {
 
-    useEffect(() => {
-        const fetchData = async () => {
+
+ 
             try {
                 const apiBaseUrl = process.env.REACT_APP_API_URL || "";
                 let jwt = "";
@@ -28,28 +24,20 @@ const useGetAllRecords = () => {
                     }
                 );
 
-                setData(response.data);
                 // download it as csv
-                const csv = response.data.map((row: any) => Object.values(row).join(",")).join("\n");
-                const blob = new Blob([csv], { type: "text/csv" });
+                const headers = Object.keys(response.data[0]).join(","); // Get the headers from the first row
+                const csv = [headers, ...response.data.map((row: any) => Object.values(row).join(","))].join("\n"); // Include headers in the CSV
+                const blob = new Blob([csv], { type: "text/csv" }); // Set encoding to UTF-8
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement("a");
                 a.href = url;
                 a.download = "all-records.csv"; 
                 a.click();
                 window.URL.revokeObjectURL(url);
+                } catch (error) {
+                console.log(error)
+        }
 
-            } catch (error) {
-                setError(error as any);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
-
-    return { data, loading, error };
 };
 
-export default useGetAllRecords;
+export default GetAllRecords;

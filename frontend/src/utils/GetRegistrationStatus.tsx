@@ -3,8 +3,9 @@ import axios from "axios";
 type viewRegistrationsRecord = {
     licence_number: string;
     operator_name: string;
-    total_records: number;
-    sercies_requiring_attention_percentage: number;
+    total_services: number;
+    requires_attention: number;
+    licence_status: string;
   }
 const useRegistrationStatus = () => {
     const [data, setData] = useState<viewRegistrationsRecord[]|null>(null);
