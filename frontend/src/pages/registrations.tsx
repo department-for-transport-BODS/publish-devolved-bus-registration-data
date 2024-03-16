@@ -18,7 +18,7 @@ const Registration: React.FC = () => {
   
   return (
     <>
-      <FullColumnLayout title="Home" description="Home" hideCookieBanner={true} isLoggedIn={isLoggedIn}>
+      <FullColumnLayout title="Registrations" description="Home" hideCookieBanner={true} isLoggedIn={isLoggedIn}>
         <h1 className="govuk-heading-xl">
           Enhanced Partnerships Registration tool 
         </h1>

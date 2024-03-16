@@ -21,7 +21,7 @@ const PartlyUploading: React.FC = () => {
   return (
     <>
       <TwoThirdsLayout
-        title="Temp Page"
+        title="Partly Uploaded"
         description="Temp Page"
         hideCookieBanner={true}
       >
@@ -45,14 +45,13 @@ const PartlyUploading: React.FC = () => {
             </div>
             <div className="row">
               <div className="govuk-button-group govuk-!-margin-bottom-8">
-                <button
-                  type="submit"
+                <Link
+                  to="/view-registrations"
                   className="govuk-button"
                   data-module="govuk-button"
-                  onClick={() => alert("Not yet implemented")}
                 >
-                  Publish updated data set
-                </button>
+                  Pulish update data set
+                </Link>
                 <Link
                   to="/"
                   className="govuk-button govuk-button--secondary"

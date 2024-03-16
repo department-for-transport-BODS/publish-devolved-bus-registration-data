@@ -14,6 +14,7 @@ import AmplifyConfiguration from "./utils/login/AmplifyConfig";
 import RequireAuth from "./utils/login/requireAuth";
 import Registration from "./pages/registrations";
 import viewRegistrations from "./pages/viewRegistrations";
+import ErrorPage   from "./pages/errorPage";
 function App() {
   Amplify.configure(AmplifyConfiguration);
   return (
@@ -42,6 +43,7 @@ function App() {
           element={<RequireAuth component={viewRegistrations} />}
         />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/error" element={<ErrorPage />} />
       </Routes>
     </BrowserRouter>
   );

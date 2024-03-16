@@ -405,8 +405,7 @@ class DBManager:
             .filter(EPRegistration.registration_number == Bods_data_catalogue.xml_service_code)
             
         )
-        console.log(records)
-        
+
         return [rec._asdict() for rec in records.all()]
 
     @classmethod
@@ -470,6 +469,7 @@ class DBManager:
             .order_by(desc("total_services"))
         )
 
+
         return [rec._asdict() for rec in query.all()]
 
 
@@ -532,10 +532,7 @@ def send_to_db(records: List[Registration]):
             )
             db_invalid_insertion.append(idx)
         except Exception:
-            # console.log(f"Error: {e}")
-            # log.error(f"{e}")
             console.print_exception(show_locals=False)
-            # console.print_exception(show_locals=False)
             session.rollback()
         finally:
             session.close()
