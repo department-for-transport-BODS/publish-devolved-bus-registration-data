@@ -3,6 +3,7 @@ import { FullColumnLayout } from "../Layout/Layout";
 import HelpAndSupport from "../components/HelpAndSupport";
 import { Link } from "react-router-dom";
 import {IsLoggedInContext} from "../utils/login/LoginProvider";
+import Footer from "../Layout/Footer";
 
 
 
@@ -66,6 +67,7 @@ const Home: React.FC = () => {
         </div>
         <HelpAndSupport />
       </FullColumnLayout>
+      <Footer />
     </>
   );
 };

@@ -25,7 +25,7 @@ def verify_otc_api(licence_numbers: List):
             console.log(json.dumps(list(licence_numbers_list)))
 
             # console.log(licence_numbers)
-            url = "http://localhost:8001/api/v1/otc/licences"
+            url = "http://docker.for.mac.localhost:8000/api/v1/otc/licences"
             response = requests.post(url,data=json.dumps(list(licence_numbers_list)), headers={"Content-Type": "application/json"})
             # add a list as body of the request
             if response.status_code == 200:

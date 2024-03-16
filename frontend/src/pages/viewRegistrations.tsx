@@ -37,7 +37,7 @@ const ClickHandler = () => {
   return (
     <>
       <FullColumnLayout
-        title="Home"
+        title="View active registrations"
         description="Home"
         hideCookieBanner={true}
         isLoggedIn={isLoggedIn}

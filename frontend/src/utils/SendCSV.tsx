@@ -1,5 +1,4 @@
 import axios, { AxiosError } from "axios";
-
 export const SendCSV = async (formData: FormData, navigate:any) => {
     const apiBaseUrl = process.env.REACT_APP_API_URL? process.env.REACT_APP_API_URL : '';
 
@@ -23,13 +22,16 @@ export const SendCSV = async (formData: FormData, navigate:any) => {
             }
         );
         navigate("/successfullyuploaded", { state: response?.data, replace: true });
-    } catch (error) {
-        
+    } catch (error: any) {
+        if (error.response.status ===422) {
         const nowData = {
             message: (error as AxiosError).message,
             code: (error as AxiosError).code,
             data: (error as AxiosError).response?.data,
         };
         navigate("/partlyuploaded", { state: nowData.data, replace: true});
+    } else {
+        navigate("/error", { state: {error: error?.message}, replace: true});
     }
+}
 }

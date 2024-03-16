@@ -21,7 +21,7 @@ const SuccessfullyUploaded: React.FC = () => {
     if (SuccessfullyUploadedRecords === undefined) {
         return (
             <>
-                <FullColumnLayout title="Temp Page" description="Temp Page" hideCookieBanner={true}>
+                <FullColumnLayout title="Successfully Uploaded" description="Temp Page" hideCookieBanner={true}>
                    <div>This page can not be visted directly</div> 
                 </FullColumnLayout>
                 <Footer />

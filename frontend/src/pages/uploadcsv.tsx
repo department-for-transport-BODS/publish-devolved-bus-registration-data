@@ -2,6 +2,7 @@ import React from "react";
 import Footer from "../Layout/Footer";
 import FullColumnLayout from "../Layout/Layout";
 import UploadCSV from "../components/UploadCSV";
+import DataProccessingWaiting  from "../components/DataProccessingWaiting";
 type Props = {
   isLoggedIn?: boolean;
 };
@@ -12,12 +13,12 @@ const [isloading, setIsLoading] = React.useState<boolean>(false);
   return (
     <>
       <FullColumnLayout
-        title="Temp Page"
+        title="Upload CSV"
         description="Temp Page"
         hideCookieBanner={true}
         isLoggedIn={isLoggedIn}
       >
-        {isloading && <h1>Loading...</h1>}
+         {isloading && <DataProccessingWaiting />}
         {!isloading && <UploadCSV setIsLoading={setIsLoading} />}
       </FullColumnLayout>
       <Footer />
