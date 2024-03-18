@@ -50,7 +50,7 @@ const PartlyUploading: React.FC = () => {
                   className="govuk-button"
                   data-module="govuk-button"
                 >
-                  Pulish update data set
+                  Publish updated data set
                 </Link>
                 <Link
                   to="/"
