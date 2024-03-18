@@ -17,7 +17,7 @@ const Registration: React.FC = () => {
   // , []);
   const LINKS = [
   {
-    url: "/uploadcsv",
+    url: "/upload-csv",
     text: "Upload a CSV of registered services",
   },
   {
