@@ -29,16 +29,16 @@ def validate_licence_number_existence(uploaded_records: dict):
         [list]: A list of dictionaries containing the details of the licences.
     """
     # Collect all the licence numbers from the records
-    validated_rocords = uploaded_records["valid_records"]
-    console.log(validated_rocords)
-    # otc_API_response = MockData.mock_otc_licencd_and_operator_api(validated_rocords)
-    otc_api_response =  verify_otc_api(validated_rocords)
+    validated_records = uploaded_records["valid_records"]
+    console.log(validated_records)
+    # otc_API_response = MockData.mock_otc_licencd_and_operator_api(validated_records)
+    otc_api_response =  verify_otc_api(validated_records)
     # console.log(otc_API_response)
     # sys.exit()
 
     try:
         licence_details = [
-            LicenceRecord(**record) for record in otc_API_response["licences"]
+            LicenceRecord(**record) for record in otc_api_response["licences"]
         ]
 
     except Exception as e:

@@ -1,5 +1,5 @@
 import axios, { AxiosError } from "axios";
-export const SendCSV = async (formData: FormData, navigate:any) => {
+export const SendCsv = async (formData: FormData, navigate:any) => {
     const apiBaseUrl = process.env.REACT_APP_API_URL? process.env.REACT_APP_API_URL : '';
 
     try {
@@ -11,7 +11,7 @@ export const SendCSV = async (formData: FormData, navigate:any) => {
             }
         });
         const response = await axios.post(
-            `${apiBaseUrl}/uploadfile`,
+            `${apiBaseUrl}/upload-file`,
             formData,
             {
                 headers: {
@@ -21,7 +21,7 @@ export const SendCSV = async (formData: FormData, navigate:any) => {
                 },
             }
         );
-        navigate("/successfullyuploaded", { state: response?.data, replace: true });
+        navigate("/successfully-uploaded", { state: response?.data, replace: true });
     } catch (error: any) {
         if (error.response.status ===422) {
         const nowData = {
@@ -29,7 +29,7 @@ export const SendCSV = async (formData: FormData, navigate:any) => {
             code: (error as AxiosError).code,
             data: (error as AxiosError).response?.data,
         };
-        navigate("/partlyuploaded", { state: nowData.data, replace: true});
+        navigate("/partly-uploaded", { state: nowData.data, replace: true});
     } else {
         navigate("/error", { state: {error: error?.message}, replace: true});
     }

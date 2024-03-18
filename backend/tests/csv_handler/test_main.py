@@ -12,7 +12,7 @@ client = TestClient(app)
 #     test_file.close()
 
 #     # Send a POST request to the endpoint with the test file
-#     response = client.post("/uploadfile/", files={"file": open("test_file.csv", "rb")})
+#     response = client.post("/upload-file/", files={"file": open("test_file.csv", "rb")})
 
 #     # Assert that the response status code is 200
 #     assert response.status_code == 200
@@ -82,7 +82,7 @@ client = TestClient(app)
 #     test_file.close()
 
 #     # Send a POST request to the endpoint with the test file
-#     response = client.post("/uploadfile/", files={"file": open("test_file.csv", "rb")})
+#     response = client.post("/upload-file/", files={"file": open("test_file.csv", "rb")})
 #     # Assert that the response status code is 200
 #     assert response.status_code == 200
 

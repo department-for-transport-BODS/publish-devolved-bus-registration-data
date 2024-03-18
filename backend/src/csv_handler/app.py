@@ -13,7 +13,7 @@ from utils.pydant_model import SearchQuery
 
 
 @api_v1_router.post(
-    "/uploadfile",
+    "/upload-file",
     dependencies=[Depends(token_verifier)],
     status_code=status.HTTP_201_CREATED,
 )

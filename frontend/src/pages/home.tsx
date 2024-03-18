@@ -15,7 +15,7 @@ const Home: React.FC = () => {
   // useEffect(() => {
   //     console.log("Is logged in", isLoggedIn);
   //     if (isLoggedIn) {
-  //       setdistination("/uploadcsv");
+  //       setdestination("/upload-csv");
   //     }
   //     // }
   //     }

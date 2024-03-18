@@ -602,7 +602,7 @@ Resources:
     Properties:
       OriginAccessControlConfig:
         Name: !Sub ${Environment}-${ProjectName}-cdn-oac
-        Description: !Sub 'CloudFront access control used for access to !Sub ${Environment}-${ProjectName}-deployment-frontend S3 bucket'
+        Description: !Sub 'CloudFront access control used for access to ${Environment}-${ProjectName}-deployment-frontend S3 bucket'
         OriginAccessControlOriginType: s3
         SigningBehavior: always
         SigningProtocol: sigv4

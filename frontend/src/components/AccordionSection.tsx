@@ -6,7 +6,7 @@ interface AccordionSectionProps {
   status: string;
   serviceCount: number;
   serviceDescription?: string ;
-  persentage?: boolean;
+  percentage?: boolean;
   serviceRequiringAttentionCount: number;
   serviceRequiringAttentionDescription?: string;
 }
@@ -56,7 +56,7 @@ const AccordionSection: React.FC<AccordionSectionProps> = ({
               <ServiceCount
                 count={serviceRequiringAttentionCount}
                 description={serviceRequiringAttentionDescription}
-                persentage={true}
+                percentage={true}
               />
             </div>
           </div>
