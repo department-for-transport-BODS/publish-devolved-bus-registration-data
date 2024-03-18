@@ -115,7 +115,7 @@ Resources:
           POSTGRES_CREDENTIALS: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/name}}'
           COGNITO_USERPOOL_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/cognito/userpool/id}}'
           COGNITO_APP_CLIENT_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/cognito/userpool/client/id}}'
-          OTC_CLIENT_API_URL: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/api/endpoint}}'
+          OTC_CLIENT_API_URL: !Sub 'https://${OtcClientApi}.execute-api.${AWS::REGION}.amazonaws.com/${Environment}/api/v1/otc/licences'
 
   CsvHandlerLambdaSecurityGroup:
     Type: AWS::EC2::SecurityGroup
