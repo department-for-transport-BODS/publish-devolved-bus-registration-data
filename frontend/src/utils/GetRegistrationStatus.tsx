@@ -24,7 +24,7 @@ const useRegistrationStatus = () => {
                 });
 
                 const response = await axios.get(
-                    `${apiBaseUrl}view-registrations/status`,
+                    `${apiBaseUrl}/view-registrations/status`,
                     {
                         headers: {
                             "Access-Control-Allow-Origin": "*",
