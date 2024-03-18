@@ -14,7 +14,7 @@ const GetAllRecords = async () => {
                 });
 
                 const response = await axios.get(
-                    `${apiBaseUrl}all-records`,
+                    `${apiBaseUrl}/all-records`,
                     {
                         headers: {
                             "Access-Control-Allow-Origin": "*",
