@@ -86,7 +86,7 @@ class AutoMappingModels:
         self.EPRegistration = self.Base.classes.ep_registration
         self.OTCOperator = self.Base.classes.otc_operator
         self.OTCLicence = self.Base.classes.otc_licence
-        self.Bods_data_catalogue = self.Base.classes.bods_data_catalogue
+        self.BODSDataCatalogue = self.Base.classes.bods_data_catalogue
         self.OTCLicence.__repr__ = (
             lambda self: f"<OTCLicence(licence_number='{self.licence_number}', licence_status='{self.licence_status}, otc_licence_id={self.otc_licence_id}')>"
         )
@@ -96,8 +96,8 @@ class AutoMappingModels:
         self.EPRegistration.__repr__ = (
             lambda self: f"<EPRegistration(route_number='{self.route_number}', route_description='{self.route_description}', variation_number='{self.variation_number}', start_point='{self.start_point}', finish_point='{self.finish_point}', via='{self.via}', subsidised='{self.subsidised}', subsidy_detail='{self.subsidy_detail}', is_short_notice='{self.is_short_notice}', received_date='{self.received_date}', granted_date='{self.granted_date}', effective_date='{self.effective_date}', end_date='{self.end_date}', otc_operator_id='{self.otc_operator_id}', bus_service_type_id='{self.bus_service_type_id}', bus_service_type_description='{self.bus_service_type_description}', registration_number='{self.registration_number}', traffic_area_id='{self.traffic_area_id}', application_type='{self.application_type}', publication_text='{self.publication_text}', other_details='{self.other_details}')>"
         )
-        self.Bods_data_catalogue.__repr__ = (
-            lambda self: f"<Bods_data_catalogue(id='{self.id}', xml_service_code='{self.xml_service_code}', variation_number='{self.variation_number}', service_type_description='{self.service_type_description}', published_status='{self.published_status}', requires_attention='{self.requires_attention}', timeliness_status='{self.timeliness_status}')>"
+        self.BODSDataCatalogue.__repr__ = (
+            lambda self: f"<BODSDataCatalogue(id='{self.id}', xml_service_code='{self.xml_service_code}', variation_number='{self.variation_number}', service_type_description='{self.service_type_description}', published_status='{self.published_status}', requires_attention='{self.requires_attention}', timeliness_status='{self.timeliness_status}')>"
         )
 
     def get_tables(self):
@@ -370,7 +370,7 @@ class DBManager:
         EPRegistration = models.EPRegistration
         OTCOperator = models.OTCOperator
         OTCLicence = models.OTCLicence
-        Bods_data_catalogue = models.Bods_data_catalogue
+        BODSDataCatalogue = models.BODSDataCatalogue
 
         records = (
             session.query(
@@ -398,13 +398,13 @@ class DBManager:
                 OTCOperator.operator_name.label("operatorName"),
                 OTCLicence.licence_number.label("licenceNumber"),
                 OTCLicence.licence_status.label("licenceStatus"),
-                Bods_data_catalogue.requires_attention,
-                Bods_data_catalogue.timeliness_status
+                BODSDataCatalogue.requires_attention,
+                BODSDataCatalogue.timeliness_status
 
             )
             .filter(EPRegistration.otc_operator_id == OTCOperator.id)
             .filter(EPRegistration.otc_licence_id == OTCLicence.id)
-            .filter(EPRegistration.registration_number == Bods_data_catalogue.xml_service_code)
+            .filter(EPRegistration.registration_number == BODSDataCatalogue.xml_service_code)
             
         )
 
@@ -417,26 +417,26 @@ class DBManager:
         EPRegistration = models.EPRegistration
         OTCOperator = models.OTCOperator
         OTCLicence = models.OTCLicence
-        Bods_data_catalogue = models.Bods_data_catalogue
+        BODSDataCatalogue = models.BODSDataCatalogue
         subquery_q2 = (
             session.query(
                 func.count(EPRegistration.registration_number).label("count"),
                 OTCLicence.licence_number,
-                Bods_data_catalogue.requires_attention,
+                BODSDataCatalogue.requires_attention,
                 OTCOperator.operator_name,
                 OTCLicence.licence_status
             )
             .join(OTCLicence, OTCLicence.id == EPRegistration.otc_licence_id)
             .join(
-                Bods_data_catalogue,
+                BODSDataCatalogue,
                 EPRegistration.registration_number
-                == Bods_data_catalogue.xml_service_code,
+                == BODSDataCatalogue.xml_service_code,
             )
             .join(OTCOperator, OTCOperator.id == EPRegistration.otc_operator_id)
             .group_by(
                 OTCLicence.licence_number,
                 OTCOperator.operator_name,
-                Bods_data_catalogue.requires_attention,
+                BODSDataCatalogue.requires_attention,
                 OTCLicence.licence_status
             )
             .subquery()
@@ -528,7 +528,7 @@ def send_to_db(records: List[Registration]):
             records["invalid_records"].update(
                 {
                     idx: [
-                        {"Dublicated Record": "Record is already exist in the database"}
+                        {"Duplicated Record": "Record already exists in the database"}
                     ]
                 }
             )
