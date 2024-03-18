@@ -5,6 +5,7 @@ from .env import (
     APP_CLIENT_ID,
     LOGGER_LEVEL,
     LOGGER_MOD,
+    OTC_CLIENT_API_URL
 )
 from .fastapi_conf import app, api_v1_router
 
@@ -17,4 +18,5 @@ __all__ = [
     "APP_CLIENT_ID",
     "LOGGER_LEVEL",
     "LOGGER_MOD",
+    "OTC_CLIENT_API_URL"
 ]
