@@ -7,7 +7,7 @@ interface ServiceCountProps{
     description: string;
 }
 
-const ServiceCount: React.FC<ServiceCountProps> = ({ title, count,description,persentage }) => {
+const ServiceCount: React.FC<ServiceCountProps> = ({ title, count, description, percentage }) => {
     return (
         <>
             <div className="">

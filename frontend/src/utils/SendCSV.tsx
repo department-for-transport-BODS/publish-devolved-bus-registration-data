@@ -11,7 +11,7 @@ export const SendCSV = async (formData: FormData, navigate:any) => {
             }
         });
         const response = await axios.post(
-            `${apiBaseUrl}uploadfile`,
+            `${apiBaseUrl}/uploadfile`,
             formData,
             {
                 headers: {
