@@ -14,7 +14,7 @@ import AmplifyConfiguration from "./utils/login/AmplifyConfig";
 import RequireAuth from "./utils/login/requireAuth";
 import Registration from "./pages/registrations";
 import viewRegistrations from "./pages/viewRegistrations";
-import ErrorPage   from "./pages/errorPage";
+import ErrorPage from "./pages/errorPage";
 function App() {
   Amplify.configure(AmplifyConfiguration);
   return (
