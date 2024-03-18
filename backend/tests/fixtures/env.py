@@ -18,7 +18,7 @@ def set_aws_env():
     print("Teardown aws test env")
     # unset env
     environ.pop("AWS_REGION")
-    environ.pop("USERPOOL_ID")
+    environ.pop("COGNITO_USERPOOL_ID")
     environ.pop("APP_CLIENT_ID")
     environ.pop("POSTGRES_PORT")
     environ.pop("POSTGRES_USER")
