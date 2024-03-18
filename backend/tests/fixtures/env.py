@@ -6,7 +6,7 @@ def set_aws_env():
     print("Setup aws test env")
     # set env
     environ["AWS_REGION"] = "us-west-2"
-    environ["USERPOOL_ID"] = "us-west-2_abcd1234"
+    environ["COGNITO_USERPOOL_ID"] = "us-west-2_abcd1234"
     environ["APP_CLIENT_ID"] = "abcd1234"
     environ["POSTGRES_PORT"] = "5432"
     environ["POSTGRES_USER"] = "test"
