@@ -26,8 +26,8 @@ POSTGRES_DB=epp
 
 # # CSV Handler Lambda Function
 # # ------------------------------------------------------------------------------
-USERPOOL_ID=
-APP_CLIENT_ID=
+COGNITO_USERPOOL_ID=
+COGNITO_APP_CLIENT_ID=
 
 # # OTC Client Lambda Function
 # # ------------------------------------------------------------------------------

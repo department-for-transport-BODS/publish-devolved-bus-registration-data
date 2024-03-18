@@ -59,7 +59,7 @@ def test_create_upload_file_without_authentications():
     test_file.close()
 
     # Send a POST request to the endpoint with the test file
-    response = client.post("api/v1/uploadfile/", files={"file": open(file_name, "rb")})
+    response = client.post("api/v1/upload-file/", files={"file": open(file_name, "rb")})
 
     # Assert that the response status code is 200
     assert response.status_code == 403
@@ -79,7 +79,7 @@ def test_create_upload_file_unsupported_format():
 
     # Send a POST request to the endpoint with the test file
     response = client.post(
-        "api/v1/uploadfile/",
+        "api/v1/upload-file/",
         files={"file": open(file_name, "rb")},
         headers={"Authorization": "Bearer localdev"},
     )
@@ -156,7 +156,7 @@ def test_create_upload_file(mock_validation_and_insertion_steps):
 
     # Send a POST request to the endpoint with the test file
     response = client.post(
-        "api/v1/uploadfile/",
+        "api/v1/upload-file/",
         files={"file": open(file_name, "rb")},
         headers={"Authorization": "Bearer localdev"},
     )

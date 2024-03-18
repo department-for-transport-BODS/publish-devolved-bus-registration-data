@@ -5,14 +5,14 @@ from .pydant_model import Registration
 
 
 def csv_data_structure_check(csv_data: [dict]) -> dict:
-    """This function checks the structure of the CSV data structure and returns a dictionary of valid and invalid records.
+    """
+    This function checks the structure of the CSV data structure and returns a dictionary of valid and invalid records.
     It checks if a record adheres to the structure of the Registration model.
     Functionalities:
     1. Validate each record and deserialize it into a Python object.
     2. Invalid records are stored in a validation_errors list along with the record number.
     3. Valid records are stored in a pydantic_models list.
     4. Returns a dictionary of valid and invalid records.
-
     """
     # Convert the CSV data into a list of dictionaries
     # csv_data = list(csv.DictReader(file))

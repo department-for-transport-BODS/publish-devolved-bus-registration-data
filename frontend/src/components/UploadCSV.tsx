@@ -1,13 +1,13 @@
 import React, { ReactElement, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { SendCSV } from "../utils/SendCSV";
+import { SendCsv } from "../utils/SendCsv";
 
 
-interface UploadCSVProps {
+interface UploadCsvProps {
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const UploadCSV: React.FC<UploadCSVProps> = ({
+const UploadCsv: React.FC<UploadCsvProps> = ({
   setIsLoading,
 }): ReactElement => {
   const navigate = useNavigate();
@@ -49,7 +49,7 @@ const UploadCSV: React.FC<UploadCSVProps> = ({
         const formData = new FormData();
         formData.append("file", selectedFile);
         setIsLoading(true);
-        await SendCSV(formData, navigate);
+        await SendCsv(formData, navigate);
       } else {
         handleFileError(new Error("The file format must be.CSV"));
       }
@@ -145,4 +145,4 @@ const UploadCSV: React.FC<UploadCSVProps> = ({
     </div>
   );
 };
-export default UploadCSV;
+export default UploadCsv;

@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 from pydantic import ValidationError
 from typing import List
 from pydantic_core import ErrorDetails
+from .logger import log
 
 
 class Registration(BaseModel):
@@ -60,6 +61,24 @@ class Registration(BaseModel):
         None, json_schema_extra="", alias="otherDetails"
     )
 
+    @field_validator("route_description",
+                     "subsidy_detail",
+                     "other_details",
+                     "publication_text",
+                     "finish_point", 
+                     "start_point",
+                     "via",
+                     "operator_name",
+                     "application_type",
+                     "bus_service_type_description",
+                    mode="before")
+    def validate_route_description(cls, v):
+        # Add cutation marks to the route description
+        if isinstance(v, str) and len(v) > 0:
+            return f'"{v.strip()}"'
+        return v
+
+
     @field_validator(
         "received_date", "granted_date", "effective_date", "end_date", mode="before"
     )
@@ -102,7 +121,7 @@ class LicenceRecord(BaseModel):
 
 
 class DBCreds(BaseModel):
-    PG_HOST: str = Field(default_factory=lambda: getenv("POSTGRES_HOST", "postgres"))
+    PG_HOST: str = Field(default_factory=lambda: getenv("POSTGRES_HOST", "localhost"))
     PG_PORT: str = Field(default_factory=lambda: getenv("POSTGRES_PORT", "5432"))
     PG_DB: str = Field(default_factory=lambda: getenv("POSTGRES_DB", "postgres"))
     PG_USER: str = Field(alias="username")

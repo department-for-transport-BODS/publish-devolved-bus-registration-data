@@ -1,14 +1,14 @@
 import os
 from unittest.mock import Mock, patch
-
+from utils.pydant_model import DBCreds
 import pytest
 from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.orm import Session, declarative_base
 
-from utils.db import AutoMappingModels, DBManager, add_or_get_record
+from utils.db import AutoMappingModels, DBManager, add_or_get_record, CreateEngine
 
 Base = declarative_base()
-
+from fixtures.env import set_aws_env
 
 @pytest.fixture
 def mocked_db():
@@ -29,6 +29,22 @@ class TestModel(Base):
     __tablename__ = "test_model"
     id = Column(Integer, primary_key=True)
     name = Column(String(255))
+
+class TestCreateEngine:
+    @patch('utils.db.print', return_value='test')
+    @patch('utils.db.get_secret', return_value='test')
+    @patch('utils.db.exit', return_value='test')
+    @patch('utils.db.PROJECT_ENV', return_value='test')
+    @patch('utils.pydant_model.getenv', return_value='test')
+    def test_get_db_creds(cls,mock_getenv, mock_dbcreds,mock_exit,mock_secret,mock_print):
+        create_engine = CreateEngine.get_db_creds()
+        with pytest.raises(Exception):
+            create_engine.get_db_creds()
+        # mock_dbcreds.assert_called()
+        mock_exit.assert_called()
+        mock_exit.assert_called_with(1)
+        mock_secret.assert_called()
+        mock_print.assert_called_with("The error 'string indices must be integers, not 'str'' occurred")
 
 
 def test_add_or_get_record_when_record_does_not_exist(mocked_db):
