@@ -173,9 +173,9 @@ jobs:
           # export environment variables for build
           # temp solution until moved to enterprise GH with environments, and nice-name domain
           if [[ $ENV = 'dev' ]]; then
-            export REACT_APP_URL="${{ vars.REACT_APP_URL_DEV }}"
+            export REACT_APP_API_URL="${{ vars.REACT_APP_API_URL_DEV }}"
           elif [[ $ENV = 'test' ]]; then
-            export REACT_APP_URL="${{ vars.REACT_APP_URL_TEST }}"
+            export REACT_APP_API_URL="${{ vars.REACT_APP_API_URL_TEST }}"
           fi
           export REACT_APP_USER_POOL_ID=`aws ssm get-parameter --name "/${ENV}/epp/cognito/userpool/id" \
             | jq -r '.Parameter.Value'`
