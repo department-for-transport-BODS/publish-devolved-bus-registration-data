@@ -4,7 +4,7 @@ import HelpAndSupport from "../components/HelpAndSupport";
 import { Link } from "react-router-dom";
 import {IsLoggedInContext} from "../utils/login/LoginProvider";
 import  Footer  from "../Layout/Footer";
-
+import { v4 as uuidv4 } from "uuid";
 
 
 const Registration: React.FC = () => {
@@ -15,6 +15,20 @@ const Registration: React.FC = () => {
   //     // }
   //     }
   // , []);
+  const LINKS = [
+  {
+    url: "/uploadcsv",
+    text: "Upload a CSV of registered services",
+  },
+  {
+    url: "/view-registrations",
+    text: "View active registrations",
+  },
+  {
+    url: "/fine-registered-services",
+    text: "Fine registered services",
+  },
+]
   
   return (
     <>
@@ -22,14 +36,13 @@ const Registration: React.FC = () => {
         <h1 className="govuk-heading-xl">
           Enhanced Partnerships Registration tool 
         </h1>
-
-        <Link to="/uploadcsv" className="govuk-link govuk-heading-m">
-          Upload a CSV of registered services
-        </Link>
-        <br />
-        <Link to="/view-registrations" className="govuk-link govuk-heading-m">
-          View active registrations
-        </Link>
+        {LINKS.map((value) => {
+          return (
+              <Link to={value.url} className="govuk-link govuk-heading-m govuk-!-margin-bottom-7" key={uuidv4()}>
+                {value.text}
+              </Link>
+          );
+        })}
       </FullColumnLayout>
       <Footer />
     </>
