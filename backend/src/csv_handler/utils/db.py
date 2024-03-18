@@ -12,13 +12,15 @@ from .pydant_model import DBCreds, SearchQuery
 from .exceptions import RecordIsAlreadyExist, LimitExceeded, LimitIsNotSet
 from .data import common_keys_comparsion
 from sqlalchemy.orm import Query
-
+from central_config.env import PROJECT_ENV
 
 class CreateEngine:
     @staticmethod
     def get_db_creds():
+        creds = None
+
         try:
-            if getenv("PROJECT_ENV", "local") != "local":
+            if PROJECT_ENV != "local":
                 secret = get_secret(getenv("POSTGRES_CREDENTIALS"))
                 creds = DBCreds(**json.loads(secret["text_secret_data"]))
             else:
