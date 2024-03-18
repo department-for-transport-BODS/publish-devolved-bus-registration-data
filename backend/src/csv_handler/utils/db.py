@@ -1,6 +1,6 @@
 import json
 from os import getenv
-from sqlalchemy import create_engine, func, select, Table
+from sqlalchemy import MetaData, create_engine, func, select, Table, case, asc, desc
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sys import exit
@@ -12,13 +12,15 @@ from .pydant_model import DBCreds, SearchQuery
 from .exceptions import RecordIsAlreadyExist, LimitExceeded, LimitIsNotSet
 from .data import common_keys_comparsion
 from sqlalchemy.orm import Query
-
+from central_config.env import PROJECT_ENV
 
 class CreateEngine:
     @staticmethod
     def get_db_creds():
+        creds = None
+
         try:
-            if getenv("PROJECT_ENV", "local") != "local":
+            if PROJECT_ENV != "local":
                 secret = get_secret(getenv("POSTGRES_CREDENTIALS"))
                 creds = DBCreds(**json.loads(secret["text_secret_data"]))
             else:
@@ -84,6 +86,7 @@ class AutoMappingModels:
         self.EPRegistration = self.Base.classes.ep_registration
         self.OTCOperator = self.Base.classes.otc_operator
         self.OTCLicence = self.Base.classes.otc_licence
+        self.BODSDataCatalogue = self.Base.classes.bods_data_catalogue
         self.OTCLicence.__repr__ = (
             lambda self: f"<OTCLicence(licence_number='{self.licence_number}', licence_status='{self.licence_status}, otc_licence_id={self.otc_licence_id}')>"
         )
@@ -92,6 +95,9 @@ class AutoMappingModels:
         )
         self.EPRegistration.__repr__ = (
             lambda self: f"<EPRegistration(route_number='{self.route_number}', route_description='{self.route_description}', variation_number='{self.variation_number}', start_point='{self.start_point}', finish_point='{self.finish_point}', via='{self.via}', subsidised='{self.subsidised}', subsidy_detail='{self.subsidy_detail}', is_short_notice='{self.is_short_notice}', received_date='{self.received_date}', granted_date='{self.granted_date}', effective_date='{self.effective_date}', end_date='{self.end_date}', otc_operator_id='{self.otc_operator_id}', bus_service_type_id='{self.bus_service_type_id}', bus_service_type_description='{self.bus_service_type_description}', registration_number='{self.registration_number}', traffic_area_id='{self.traffic_area_id}', application_type='{self.application_type}', publication_text='{self.publication_text}', other_details='{self.other_details}')>"
+        )
+        self.BODSDataCatalogue.__repr__ = (
+            lambda self: f"<BODSDataCatalogue(id='{self.id}', xml_service_code='{self.xml_service_code}', variation_number='{self.variation_number}', service_type_description='{self.service_type_description}', published_status='{self.published_status}', requires_attention='{self.requires_attention}', timeliness_status='{self.timeliness_status}')>"
         )
 
     def get_tables(self):
@@ -123,11 +129,9 @@ class DBManager:
     def fetch_licence_record(
         cls, licence_number: str, session: Session, OTCLicence, licence_record
     ):
-        console.log(f"licence_number: {licence_number}")
         licence_record_id = add_or_get_record(
             "licence_number", licence_number, session, OTCLicence, licence_record
         )
-        console.log(f"otc_licence_id: {licence_record_id}")
         return licence_record_id
 
     @classmethod
@@ -169,9 +173,9 @@ class DBManager:
             if common_keys_comparsion(record_dict, existing_record_dict):
                 # case 1.1: Check if all the fields are the same
                 # All fields are the same, reject with an error
-                log.debug(
-                    f"Record already exists with the same fields: {existing_record.id}"
-                )
+                # log.debug(
+                #     f"Record already exists with the same fields: {existing_record.id}"
+                # )
                 raise RecordIsAlreadyExist("Record already exists with the same fields")
 
             else:
@@ -359,6 +363,117 @@ class DBManager:
         params_str = "&".join([f"{k}={v}" for k, v in search_params.items()])
         return f"{host}{path}?{params_str}"
 
+    @classmethod
+    def get_all_records(cls):
+        models = AutoMappingModels()
+        session = Session(models.engine)
+        EPRegistration = models.EPRegistration
+        OTCOperator = models.OTCOperator
+        OTCLicence = models.OTCLicence
+        BODSDataCatalogue = models.BODSDataCatalogue
+
+        records = (
+            session.query(
+                EPRegistration.registration_number.label("registrationNumber"),
+                EPRegistration.route_number.label("routeNumber"),
+                EPRegistration.route_description.label("routeDescription"),
+                EPRegistration.variation_number.label("variationNumber"),
+                EPRegistration.start_point.label("startPoint"),
+                EPRegistration.finish_point.label("finishPoint"),
+                EPRegistration.via.label("via"),
+                EPRegistration.subsidised.label("subsidised"),
+                EPRegistration.subsidy_detail.label("subsidyDetail"),
+                EPRegistration.is_short_notice.label("isShortNotice"),
+                EPRegistration.received_date.label("receivedDate"),
+                EPRegistration.granted_date.label("grantedDate"),
+                EPRegistration.effective_date.label("effectiveDate"),
+                EPRegistration.end_date.label("endDate"),
+                EPRegistration.bus_service_type_id.label("busServiceTypeId"),
+                EPRegistration.bus_service_type_description.label(
+                    "busServiceTypeDescription"
+                ),
+                EPRegistration.traffic_area_id.label("trafficAreaId"),
+                EPRegistration.application_type.label("applicationType"),
+                EPRegistration.publication_text.label("publicationText"),
+                OTCOperator.operator_name.label("operatorName"),
+                OTCLicence.licence_number.label("licenceNumber"),
+                OTCLicence.licence_status.label("licenceStatus"),
+                BODSDataCatalogue.requires_attention,
+                BODSDataCatalogue.timeliness_status
+
+            )
+            .filter(EPRegistration.otc_operator_id == OTCOperator.id)
+            .filter(EPRegistration.otc_licence_id == OTCLicence.id)
+            .filter(EPRegistration.registration_number == BODSDataCatalogue.xml_service_code)
+            
+        )
+
+        return [rec._asdict() for rec in records.all()]
+
+    @classmethod
+    def get_record_reuiqred_attention_percentage(cls):
+        models = AutoMappingModels()
+        session = Session(models.engine)
+        EPRegistration = models.EPRegistration
+        OTCOperator = models.OTCOperator
+        OTCLicence = models.OTCLicence
+        BODSDataCatalogue = models.BODSDataCatalogue
+        subquery_q2 = (
+            session.query(
+                func.count(EPRegistration.registration_number).label("count"),
+                OTCLicence.licence_number,
+                BODSDataCatalogue.requires_attention,
+                OTCOperator.operator_name,
+                OTCLicence.licence_status
+            )
+            .join(OTCLicence, OTCLicence.id == EPRegistration.otc_licence_id)
+            .join(
+                BODSDataCatalogue,
+                EPRegistration.registration_number
+                == BODSDataCatalogue.xml_service_code,
+            )
+            .join(OTCOperator, OTCOperator.id == EPRegistration.otc_operator_id)
+            .group_by(
+                OTCLicence.licence_number,
+                OTCOperator.operator_name,
+                BODSDataCatalogue.requires_attention,
+                OTCLicence.licence_status
+            )
+            .subquery()
+        )
+
+        query = (
+            session.query(
+                subquery_q2.c.licence_number,
+                subquery_q2.c.operator_name,
+                subquery_q2.c.licence_status,
+                func.round(
+                    (
+                        100.0
+                        * func.sum(
+                            case(
+                                (
+                                    (
+                                        subquery_q2.c.requires_attention,
+                                        subquery_q2.c.count,
+                                    )
+                                ),
+                                else_=0,
+                            )
+                        )
+                        / func.sum(subquery_q2.c.count)
+                    ),
+                    2,
+                ).label("requires_attention"),
+                func.sum(subquery_q2.c.count).label("total_services"),
+            )
+            .group_by(subquery_q2.c.licence_number, subquery_q2.c.operator_name, subquery_q2.c.licence_status)
+            .order_by(desc("total_services"))
+        )
+
+
+        return [rec._asdict() for rec in query.all()]
+
 
 def send_to_db(records: List[Registration]):
     # validated_records: List[Registration] = MockData.mock_user_csv_record()
@@ -404,7 +519,7 @@ def send_to_db(records: List[Registration]):
                 OTCLicence,
                 OTCLicence_record,
             )
-            log.debug(f"Record with number: {idx} going to db")
+            # log.debug(f"Record with number: {idx} going to db")
             # Add the record to the EPRegistration table
             DBManager.upsert_record_to_ep_registration_table(
                 record, operator_record_id, licence_record_id, session, EPRegistration
@@ -413,16 +528,13 @@ def send_to_db(records: List[Registration]):
             records["invalid_records"].update(
                 {
                     idx: [
-                        {"Dublicated Record": "Record is already exist in the database"}
+                        {"Duplicated Record": "Record already exists in the database"}
                     ]
                 }
             )
             db_invalid_insertion.append(idx)
         except Exception:
-            # console.log(f"Error: {e}")
-            # log.error(f"{e}")
             console.print_exception(show_locals=False)
-            # console.print_exception(show_locals=False)
             session.rollback()
         finally:
             session.close()

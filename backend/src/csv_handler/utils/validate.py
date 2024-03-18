@@ -2,14 +2,15 @@ from .custom_exception import LicenceDetailsError
 from .mocker import MockData
 from .pydant_model import LicenceRecord
 
-from .logger import log
-
-
+from .logger import log,console
+from .api import verify_otc_api
+import sys
 # get licenceRecord that has licence_number x001
 def licence_detail(licence_number, licence_details):
     return next(
         (
             record
+
             for record in licence_details
             if record.licence_number == licence_number
         ),
@@ -28,12 +29,16 @@ def validate_licence_number_existence(uploaded_records: dict):
         [list]: A list of dictionaries containing the details of the licences.
     """
     # Collect all the licence numbers from the records
-    validated_rocords = uploaded_records["valid_records"]
-    otc_API_response = MockData.mock_otc_licencd_and_operator_api(validated_rocords)
+    validated_records = uploaded_records["valid_records"]
+    console.log(validated_records)
+    # otc_API_response = MockData.mock_otc_licencd_and_operator_api(validated_records)
+    otc_api_response =  verify_otc_api(validated_records)
+    # console.log(otc_API_response)
+    # sys.exit()
 
     try:
         licence_details = [
-            LicenceRecord(**record) for record in otc_API_response["licences"]
+            LicenceRecord(**record) for record in otc_api_response["licences"]
         ]
 
     except Exception as e:

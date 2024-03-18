@@ -1,28 +1,29 @@
 import React from "react";
 import Footer from "../Layout/Footer";
 import FullColumnLayout from "../Layout/Layout";
-import UploadCSV from "../components/UploadCSV";
+import UploadCsv from "../components/UploadCsv";
+import DataProccessingWaiting  from "../components/DataProccessingWaiting";
 type Props = {
   isLoggedIn?: boolean;
 };
 
-const UploadCSVPage: React.FC<Props> = ({isLoggedIn=false}) => {
+const UploadCsvPage: React.FC<Props> = ({isLoggedIn=false}) => {
 const [isloading, setIsLoading] = React.useState<boolean>(false);
 
   return (
     <>
       <FullColumnLayout
-        title="Temp Page"
+        title="Upload CSV"
         description="Temp Page"
         hideCookieBanner={true}
         isLoggedIn={isLoggedIn}
       >
-        {isloading && <h1>Loading...</h1>}
-        {!isloading && <UploadCSV setIsLoading={setIsLoading} />}
+         {isloading && <DataProccessingWaiting />}
+        {!isloading && <UploadCsv setIsLoading={setIsLoading} />}
       </FullColumnLayout>
       <Footer />
     </>
   );
 };
 
-export default UploadCSVPage;
+export default UploadCsvPage;

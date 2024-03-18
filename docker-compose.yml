@@ -5,7 +5,7 @@ services:
     image: postgres:15
     hostname: postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -25,6 +25,8 @@ services:
         - POSTGRES_USER=${POSTGRES_USER}
         - POSTGRES_HOST="postgres"
     container_name: pgadmin
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - postgres
     ports:

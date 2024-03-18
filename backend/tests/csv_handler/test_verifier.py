@@ -7,20 +7,11 @@ from utils.exceptions import AppClientIdIsNotSet, RegionIsNotSet, UserPoolIdIsNo
 from cognitojwt import CognitoJWTException
 from fastapi import HTTPException
 
+from fixtures.env import set_aws_env
 
-@fixture
-def set_aws_env():
-    print("Setup aws test env")
-    # set env
-    os.environ["AWS_REGION"] = "us-west-2"
-    os.environ["USERPOOL_ID"] = "us-west-2_abcd1234"
-    os.environ["APP_CLIENT_ID"] = "abcd1234"
-    yield
-    print("Teardown aws test env")
-    # unset env
-    os.environ.pop("AWS_REGION")
-    os.environ.pop("USERPOOL_ID")
-    os.environ.pop("APP_CLIENT_ID")
+
+
+
 
 
 @patch("auth.verifier.AWS_REGION", "test_region")
