@@ -32,7 +32,7 @@ def validate_licence_number_existence(uploaded_records: dict):
     validated_rocords = uploaded_records["valid_records"]
     console.log(validated_rocords)
     # otc_API_response = MockData.mock_otc_licencd_and_operator_api(validated_rocords)
-    otc_API_response =  verify_otc_api(validated_rocords)
+    otc_api_response =  verify_otc_api(validated_rocords)
     # console.log(otc_API_response)
     # sys.exit()
 
