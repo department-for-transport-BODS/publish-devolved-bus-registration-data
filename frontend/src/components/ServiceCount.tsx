@@ -16,7 +16,7 @@ const ServiceCount: React.FC<ServiceCountProps> = ({ title, count,description,pe
                 </h2>
             </div>
             <div className=' govuk-!-margin-0'>
-                <p className='govuk-!-font-size-36 govuk-!-font-weight-bold govuk-!-margin-0'>{count} {persentage ? '%' : ''} </p>
+                <p className='govuk-!-font-size-36 govuk-!-font-weight-bold govuk-!-margin-0'>{count} {percentage ? '%' : ''} </p>
             </div>
             <div className='govuk-!-font-size-16'>
                 <p>{description}</p>
