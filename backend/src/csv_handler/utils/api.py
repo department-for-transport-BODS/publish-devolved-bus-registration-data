@@ -8,13 +8,13 @@ from central_config import OTC_CLIENT_API_URL
 
 def verify_otc_api(licence_numbers: List):
         """
-        This function sends a list of licence numbers to the endpoint at localhost:8000/otc/licences.
+        This function sends a list of licence numbers to the OTC api.
 
         Args:
             licence_numbers (List): A list of licence numbers.
 
         Returns:
-            None
+            [dict]: For eact found licence, with a licence details.
         """
         try:
             licence_numbers_list = set()
@@ -30,7 +30,6 @@ def verify_otc_api(licence_numbers: List):
                 url = OTC_CLIENT_API_URL
             else:
                  raise Exception("OTC_API_URL is not set")
-            # url = "http://docker.for.mac.localhost:8000/api/v1/otc/licences"
             response = requests.post(url,data=json.dumps(list(licence_numbers_list)), headers={"Content-Type": "application/json"})
             # add a list as body of the request
             if response.status_code == 200:
