@@ -3,7 +3,7 @@ import React from 'react';
 interface ServiceCountProps{
     title?: string;
     count: number;
-    persentage?: boolean
+    percentage?: boolean
     description: string;
 }
 
