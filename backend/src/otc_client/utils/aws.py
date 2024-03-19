@@ -1,5 +1,4 @@
 import boto3
-import json
 from botocore.exceptions import ClientError
 from os import getenv
 
@@ -28,7 +27,7 @@ def get_secret(secret_arn: str) -> str:
     try:
         response = client.get_secret_value(SecretId=secret_arn)
         logger.info("The specified secret was successfully retrieved")
-        return json.loads(response["SecretString"])
+        return response["SecretString"]
     except ClientError as e:
         if e.response["Error"]["Code"] == "ResourceNotFoundException":
             logger.error("The specified secret was not found")
