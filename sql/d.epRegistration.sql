@@ -50,7 +50,6 @@ CREATE TABLE IF NOT EXISTS ep_registration (
     UNIQUE (otc_licence_id, registration_number, variation_number)
 );
 
-\c
 SELECT create_constraint_if_not_exists(
   'otc_licence',
   'fk_otc_licence',
