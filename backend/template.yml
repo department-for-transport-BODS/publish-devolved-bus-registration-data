@@ -117,6 +117,8 @@ Resources:
           COGNITO_USERPOOL_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/cognito/userpool/id}}'
           COGNITO_APP_CLIENT_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/cognito/userpool/client/id}}'
           OTC_CLIENT_API_URL: !Sub 'https://${OtcClientApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/api/v1/otc/licences'
+      LoggingConfig:
+        LogGroup: !Ref CsvHandlerLambdaLogGroup
 
   CsvHandlerLambdaSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -273,6 +275,8 @@ Resources:
           MS_CLIENT_SECRET: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/otc/ms/client/secret/name}}'
           OTC_API_URL: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/api/endpoint}}'
           OTC_API_KEY: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/otc/apikey/name}}'
+      LoggingConfig:
+        LogGroup: !Ref OtcClientLambdaLogGroup
 
   OtcClientLambdaSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -394,6 +398,8 @@ Resources:
           POSTGRES_PORT: 5432
           POSTGRES_DB: !Ref ProjectName
           POSTGRES_CREDENTIALS: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/name}}'
+      LoggingConfig:
+        LogGroup: !Ref DataCatalogueLambdaLogGroup
 
   DataCatalogueLambdaSecurityGroup:
     Type: AWS::EC2::SecurityGroup
