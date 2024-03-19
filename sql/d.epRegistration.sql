@@ -1,3 +1,19 @@
+CREATE OR REPLACE FUNCTION create_constraint_if_not_exists (
+    t_name text, c_name text, constraint_sql text
+) 
+RETURNS VOID AS
+$func$
+BEGIN
+    -- Look for our constraint
+    IF NOT EXISTS (SELECT constraint_name 
+                   FROM information_schema.constraint_column_usage 
+                   WHERE table_name = t_name  AND constraint_name = c_name) THEN
+        EXECUTE constraint_sql;
+    END IF;
+END;
+$func$
+LANGUAGE plpgsql;
+
 CREATE TABLE IF NOT EXISTS registration_archive (
     id SERIAL PRIMARY KEY,
     otc_licence_id INTEGER,
@@ -50,15 +66,15 @@ CREATE TABLE IF NOT EXISTS ep_registration (
     UNIQUE (otc_licence_id, registration_number, variation_number)
 );
 
-ALTER TABLE ep_registration
-ADD CONSTRAINT fk_otc_licence
-FOREIGN KEY (otc_licence_id) 
-REFERENCES otc_licence(id);
+SELECT create_constraint_if_not_exists(
+  'ep_registration',
+  'fk_otc_licence',
+  'ALTER TABLE ep_registration ADD CONSTRAINT fk_otc_licence FOREIGN KEY (otc_licence_id) REFERENCES otc_licence(id);');
 
-ALTER TABLE ep_registration
-ADD CONSTRAINT fk_otc_operator
-FOREIGN KEY (otc_operator_id) 
-REFERENCES otc_operator(id);
+SELECT create_constraint_if_not_exists(
+  'ep_registration',
+  'fk_otc_operator',
+  'ALTER TABLE ep_registration ADD CONSTRAINT fk_otc_operator FOREIGN KEY (otc_operator_id) REFERENCES otc_operator(id);');
 
 CREATE OR REPLACE FUNCTION handle_duplicate_records()
 RETURNS TRIGGER AS
