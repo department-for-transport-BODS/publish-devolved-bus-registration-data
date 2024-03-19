@@ -27,7 +27,13 @@ CREATE OR REPLACE FUNCTION handle_duplicate_records()
 RETURNS TRIGGER AS
 $func$
 BEGIN
-    INSERT INTO registration_archive (otc_licence_id, route_number, registration_number, route_description, variation_number, start_point,
+    INSERT INTO registration_archive (
+        otc_licence_id,
+        route_number,
+        registration_number,
+        route_description,
+        variation_number,
+        start_point,
         finish_point,
         via,
         subsidised,
