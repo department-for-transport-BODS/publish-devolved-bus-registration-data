@@ -26,19 +26,17 @@ class MalformedOTCAPIResponse(Exception):
 
 
 ENVIRONMENT = getenv("PROJECT_ENV", "local")
-MS_TENANT_ID = getenv("MS_TENANT_ID", None)
-MS_CLIENT_ID = getenv("MS_CLIENT_ID", None)
-OTC_API_URL = getenv("OTC_API_URL", None)
 MS_LOGIN_URL = getenv("MS_LOGIN_URL", None)
 MS_SCOPE = getenv("MS_SCOPE", None)
-
+MS_TENANT_ID = getenv("MS_TENANT_ID", None)
+MS_CLIENT_ID = getenv("MS_CLIENT_ID", None)
+MS_CLIENT_SECRET = getenv("MS_CLIENT_SECRET", None)
+OTC_API_URL = getenv("OTC_API_URL", None)
+OTC_API_KEY = getenv("OTC_API_KEY", None)
 
 if ENVIRONMENT != "local":
-    MS_CLIENT_SECRET = get_secret("MS_CLIENT_SECRET")
-    OTC_API_KEY = get_secret("OTC_API_KEY")
-else: 
-    MS_CLIENT_SECRET = getenv("MS_CLIENT_SECRET", None)
-    OTC_API_KEY = getenv("OTC_API_KEY", None)
+    MS_CLIENT_SECRET = get_secret(MS_CLIENT_SECRET)
+    OTC_API_KEY = get_secret(OTC_API_KEY)
 
 API_RETURN_LIMIT = 100
 
