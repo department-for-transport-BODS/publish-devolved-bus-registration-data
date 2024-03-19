@@ -185,10 +185,10 @@ jobs:
             | jq -r '.Parameter.Value'`
           export REACT_APP_USER_POOL_CLIENT_ID=`aws ssm get-parameter --name "/${ENV}/epp/cognito/userpool/client/id" \
             | jq -r '.Parameter.Value'`
-          export REACT_APP_LOGIN_DOMAIN=`aws ssm get-parameter --name "/${ENV}/epp/cognito/endpoint" \
+          export REACT_APP_DOMAIN=`aws ssm get-parameter --name "/${ENV}/epp/cognito/endpoint" \
             | jq -r '.Parameter.Value'`
           export REACT_APP_RESPONSE_TYPE="${{ vars.REACT_APP_RESPONSE_TYPE }}"
-          export REACT_APP_SCOPE="${{ vars.REACT_APP_SCOPE }}"
+          export REACT_APP_SCOPES="${{ vars.REACT_APP_SCOPES }}"
 
           npm install
           REACT_APP_ENV=$ENV npm run build
