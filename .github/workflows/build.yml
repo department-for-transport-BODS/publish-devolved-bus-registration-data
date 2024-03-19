@@ -174,12 +174,12 @@ jobs:
           # temp solution until moved to enterprise GH with environments, and nice-name domain
           if [[ $ENV = 'dev' ]]; then
             export REACT_APP_API_URL="${{ vars.REACT_APP_URL_DEV }}/api/v1"
-            export REACT_APP_REDIRECT_SIGN_IN="${REACT_APP_URL_DEV}/${{ vars.REACT_APP_REDIRECT_SIGN_IN_SUFFIX }}"
-            export REACT_APP_REDIRECT_SIGN_OUT="${REACT_APP_URL_DEV}/${{ vars.REACT_APP_REDIRECT_SIGN_OUT_SUFFIX }}"
+            export REACT_APP_REDIRECT_SIGN_IN="${{ vars.REACT_APP_URL_DEV }}/${{ vars.REACT_APP_REDIRECT_SIGN_IN_SUFFIX }}"
+            export REACT_APP_REDIRECT_SIGN_OUT="${{ vars.REACT_APP_URL_DEV }}/${{ vars.REACT_APP_REDIRECT_SIGN_OUT_SUFFIX }}"
           elif [[ $ENV = 'test' ]]; then
             export REACT_APP_API_URL="${{ vars.REACT_APP_URL_TEST }}/api/v1"
-            export REACT_APP_REDIRECT_SIGN_IN="${REACT_APP_URL_TEST}/${{ vars.REACT_APP_REDIRECT_SIGN_IN_SUFFIX }}"
-            export REACT_APP_REDIRECT_SIGN_OUT="${REACT_APP_URL_TEST}/${{ vars.REACT_APP_REDIRECT_SIGN_OUT_SUFFIX }}"
+            export REACT_APP_REDIRECT_SIGN_IN="${{ vars.REACT_APP_URL_TEST }}/${{ vars.REACT_APP_REDIRECT_SIGN_IN_SUFFIX }}"
+            export REACT_APP_REDIRECT_SIGN_OUT="${{ vars.REACT_APP_URL_TEST }}/${{ vars.REACT_APP_REDIRECT_SIGN_OUT_SUFFIX }}"
           fi
           export REACT_APP_USER_POOL_ID=`aws ssm get-parameter --name "/${ENV}/epp/cognito/userpool/id" \
             | jq -r '.Parameter.Value'`
