@@ -26,8 +26,8 @@ const SetNewPassword: React.FC<Props> = ({ errors , handleSetNewPassword, setErr
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <div className="govuk-form-group">
-          <label className="govuk-label" htmlFor="password">
+        <div className="govuk-form-group govuk-!-margin-bottom-3">
+          <label className="govuk-heading-s govuk-!-margin-bottom-2" htmlFor="password">
             New Password
           </label>
           <input
@@ -39,8 +39,8 @@ const SetNewPassword: React.FC<Props> = ({ errors , handleSetNewPassword, setErr
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <div className="govuk-form-group">
-          <label className="govuk-label" htmlFor="password">
+        <div className="govuk-form-group govuk-!-margin-bottom-3">
+          <label className="govuk-heading-s govuk-!-margin-bottom-2" htmlFor="password">
             ConfirmPassword
           </label>
           <input

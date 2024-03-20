@@ -15,6 +15,7 @@ import RequireAuth from "./utils/login/RequireAuth";
 import Registration from "./pages/registrations";
 import viewRegistrations from "./pages/viewRegistrations";
 import ErrorPage from "./pages/errorPage";
+import ContactUs from "./pages/contactUs";
 function App() {
   Amplify.configure(AmplifyConfiguration);
   return (
@@ -44,6 +45,7 @@ function App() {
         />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/error" element={<ErrorPage />} />
+        <Route path="/contact-us" element={<ContactUs />} />
       </Routes>
     </BrowserRouter>
   );
