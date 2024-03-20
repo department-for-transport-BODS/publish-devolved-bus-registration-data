@@ -29,7 +29,7 @@ const useRegistrationStatus = () => {
                         headers: {
                             "Access-Control-Allow-Origin": "*",
                             "Content-Type": "application/json",
-                            Authorization: "Bearer " + jwt,
+                            "Authorization": "Bearer " + jwt,
                         },
                     }
                 );

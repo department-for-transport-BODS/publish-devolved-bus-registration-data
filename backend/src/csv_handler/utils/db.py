@@ -411,7 +411,7 @@ class DBManager:
         return [rec._asdict() for rec in records.all()]
 
     @classmethod
-    def get_record_reuiqred_attention_percentage(cls):
+    def get_record_required_attention_percentage(cls):
         models = AutoMappingModels()
         session = Session(models.engine)
         EPRegistration = models.EPRegistration

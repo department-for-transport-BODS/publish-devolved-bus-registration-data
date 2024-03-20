@@ -1,7 +1,6 @@
 import csv
 from fastapi import File, HTTPException, Request, UploadFile, Depends, status, Query
 from io import StringIO
-
 from pydantic import ValidationError
 from managers import CSVManager
 from mangum import Mangum
@@ -44,7 +43,11 @@ async def create_upload_file(file: UploadFile = File(...)):
     return records_report
 
 
-@api_v1_router.post("/search", status_code=status.HTTP_200_OK,dependencies=[Depends(token_verifier)])
+@api_v1_router.post(
+    "/search",
+    dependencies=[Depends(token_verifier)],
+    status_code=status.HTTP_200_OK
+)
 async def search_records(
     licenseNumber: str = Query(
         None,
@@ -147,13 +150,21 @@ async def search_records_options():
         "page": "The page number to retrieve",
     }
 
-@api_v1_router.get("/view-registrations/status", status_code=status.HTTP_200_OK, dependencies=[Depends(token_verifier)])
+@api_v1_router.get(
+    "/view-registrations/status",
+    dependencies=[Depends(token_verifier)],
+    status_code=status.HTTP_200_OK
+)
 async def view_registrations():
     """This is the endpoint to view all the records in the database"""
-    records = DBManager.get_record_reuiqred_attention_percentage()
+    records = DBManager.get_record_required_attention_percentage()
     return records
 
-@api_v1_router.get("/all-records", status_code=status.HTTP_200_OK,dependencies=[Depends(token_verifier)])
+@api_v1_router.get(
+    "/all-records",
+    dependencies=[Depends(token_verifier)],
+    status_code=status.HTTP_200_OK
+)
 async def get_all_records():
     """This is the endpoint to view all the records in the database"""
     records = DBManager.get_all_records()

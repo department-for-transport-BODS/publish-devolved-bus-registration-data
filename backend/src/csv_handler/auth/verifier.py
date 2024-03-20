@@ -55,14 +55,14 @@ class TokenVerifier:
                 self.USERPOOL_ID,
                 app_client_id=self.APP_CLIENT_ID,
             )
-            console.log(verified_claims)
+            log.debug(verified_claims)
             return True
         except cognitojwt.CognitoJWTException as e:
-            console.log(e)
+            log.debug(e)
             return False
         except Exception as e:
             console.print_exception()
-            console.log(e)
+            log.debug(e)
             return False
 
 
@@ -75,9 +75,7 @@ def token_verifier(token: str = Depends(http_bearer)):
     Raises:
         HTTPException: If the token is invalid, raise an HTTPException with status code 403.
     """
-    # Verify if its in local and token is local
-    if PROJECT_ENV == "local" and token.credentials == "local":
-        return
+    log.debug(f"Bearer token is - {token}")
     verify = TokenVerifier(token.credentials).verify_token()
     log.debug(f"Token verification status: {verify}")
     if not verify:
