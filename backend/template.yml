@@ -574,8 +574,8 @@ Resources:
               - POST
               - PATCH
               - DELETE
-            CachePolicyId: !GetAtt CloudFrontApiGatewayCachePolicy.Id
-            OriginRequestPolicyId: !GetAtt CloudFrontApiGatewayOriginRequestPolicy.Id
+            CachePolicyId: !Sub '{{resolve:ssm:/shared/${ProjectName}/cloudfront/cachepolicy/id}}'
+            OriginRequestPolicyId: !Sub '{{resolve:ssm:/shared/${ProjectName}/cloudfront/originrequestpolicy/id}}'
             ForwardedValues:
               QueryString: true
           - TargetOriginId: backendApi
@@ -587,8 +587,8 @@ Resources:
             AllowedMethods: 
               - GET
               - HEAD
-            CachePolicyId: !GetAtt CloudFrontApiGatewayCachePolicy.Id
-            OriginRequestPolicyId: !GetAtt CloudFrontApiGatewayOriginRequestPolicy.Id
+            CachePolicyId: !Sub '{{resolve:ssm:/shared/${ProjectName}/cloudfront/cachepolicy/id}}'
+            OriginRequestPolicyId: !Sub '{{resolve:ssm:/shared/${ProjectName}/cloudfront/originrequestpolicy/id}}'
             ForwardedValues:
               QueryString: true
           - TargetOriginId: backendApi
@@ -600,8 +600,8 @@ Resources:
             AllowedMethods: 
               - GET
               - HEAD
-            CachePolicyId: !GetAtt CloudFrontApiGatewayCachePolicy.Id
-            OriginRequestPolicyId: !GetAtt CloudFrontApiGatewayOriginRequestPolicy.Id
+            CachePolicyId: !Sub '{{resolve:ssm:/shared/${ProjectName}/cloudfront/cachepolicy/id}}'
+            OriginRequestPolicyId: !Sub '{{resolve:ssm:/shared/${ProjectName}/cloudfront/originrequestpolicy/id}}'
             ForwardedValues:
               QueryString: true
         Logging:
@@ -612,40 +612,6 @@ Resources:
             ErrorCachingMinTTL: 10
             ResponseCode: 200
             ResponsePagePath: '/index.html'
-
-  CloudFrontApiGatewayCachePolicy:
-    Type: AWS::CloudFront::CachePolicy
-    Properties:
-      CachePolicyConfig:
-        DefaultTTL: 0
-        MaxTTL: 1
-        MinTTL: 0
-        Name: ApiGatewayWithAuthorization
-        ParametersInCacheKeyAndForwardedToOrigin:
-          CookiesConfig:
-            CookieBehavior: all
-          HeadersConfig:
-            HeaderBehavior: whitelist
-            Headers:
-            - Authorization
-            - Origin
-            - Referer
-          QueryStringsConfig:
-            QueryStringBehavior: all
-          EnableAcceptEncodingBrotli: true
-          EnableAcceptEncodingGzip: true
-
-  CloudFrontApiGatewayOriginRequestPolicy:
-    Type: AWS::CloudFront::OriginRequestPolicy
-    Properties:
-      OriginRequestPolicyConfig:
-        Name: ApiGatewayWithAuthorization
-        CookiesConfig:
-          CookieBehavior: none
-        HeadersConfig:
-          HeaderBehavior: none
-        QueryStringsConfig:
-          QueryStringBehavior: all 
 
   CloudFrontOriginAccessControl:
     Type: AWS::CloudFront::OriginAccessControl
