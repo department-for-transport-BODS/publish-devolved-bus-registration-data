@@ -26,8 +26,8 @@ const LoginForm: React.FC<Props> = ({ errors , handleSignIn,email, setEmail}) =>
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <div className="govuk-form-group">
-          <label className="govuk-label" htmlFor="email">
+        <div className="govuk-form-group govuk-!-margin-bottom-3">
+          <label className="govuk-heading-s govuk-!-margin-bottom-2" htmlFor="email">
             Email address
           </label>
           <input
@@ -43,7 +43,7 @@ const LoginForm: React.FC<Props> = ({ errors , handleSignIn,email, setEmail}) =>
           />
         </div>
         <div className="govuk-form-group">
-          <label className="govuk-label" htmlFor="password">
+          <label className="govuk-heading-s govuk-!-margin-bottom-2" htmlFor="password">
             Password
           </label>
           <input

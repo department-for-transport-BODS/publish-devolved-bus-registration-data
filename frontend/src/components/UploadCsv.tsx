@@ -51,10 +51,10 @@ const UploadCsv: React.FC<UploadCsvProps> = ({
         setIsLoading(true);
         await SendCsv(formData, navigate);
       } else {
-        handleFileError(new Error("The file format must be.CSV"));
+        handleFileError(new Error("The file format must be .CSV"));
       }
     } else {
-      handleFileError(new Error("No file selected"));
+      handleFileError(new Error("The file format must be .CSV"));
     }
   };
 
@@ -69,13 +69,13 @@ const UploadCsv: React.FC<UploadCsvProps> = ({
             tabIndex={-1}
             data-module="error-summary"
           >
-            <h2 className="govuk-error-summary__title" id="error-summary-title">
+            <p className="govuk-error-summary__title govuk-!-margin-bottom-0" id="error-summary-title">
               There is a problem <br />
               {(recievedError as ErrorTyping).code} <br />
-            </h2>
-            <p className="govuk-error-message">
-              {(recievedError as ErrorTyping).message} <br />
             </p>
+            <a href="#" className="govuk-error-message">
+              {(recievedError as ErrorTyping).message} <br />
+            </a>
           </div>
         )}
 
@@ -96,10 +96,10 @@ const UploadCsv: React.FC<UploadCsvProps> = ({
                   Upload in .CSV format
                 </label>
                 <p className="govuk-error-message">
-                  File must be in .csv format
+                  Please provide the file in .CSV format
                 </p>
                 <input
-                  className="govuk-file-upload govuk-input--error govuk-input"
+                  className="govuk-file-upload"
                   id="target"
                   name="fileUpload1"
                   type="file"

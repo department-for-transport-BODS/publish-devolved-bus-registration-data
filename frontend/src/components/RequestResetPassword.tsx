@@ -17,8 +17,8 @@ const RequestResetPassword : React.FC<Props> = ({ errors , handleRquestPasswordR
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <div className="govuk-form-group">
-          <label className="govuk-label" htmlFor="email">
+        <div className="govuk-form-group govuk-!-margin-bottom-3">
+          <label className="govuk-heading-s govuk-!-margin-bottom-2" htmlFor="email">
             Email address
           </label>
           <input
