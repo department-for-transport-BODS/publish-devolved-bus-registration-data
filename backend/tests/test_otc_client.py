@@ -1,7 +1,7 @@
 from unittest.mock import patch
 from os import environ
-import json
 from fastapi.testclient import TestClient
+from src.otc_client.app import OTCAuthenticator, app
 
 
 from assets.validotcresponses import (
@@ -15,7 +15,6 @@ environ["MS_TENANT_ID"] = "testid"
 environ["OTC_API_KEY"] = "testkey"
 environ["OTC_API_URL"] = "https://example.com"
 
-from src.otc_client.app import OTCAuthenticator, app
 
 client = TestClient(app)
 

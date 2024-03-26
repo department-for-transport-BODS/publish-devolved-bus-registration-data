@@ -1,16 +1,15 @@
 from .custom_exception import LicenceDetailsError
-from .mocker import MockData
 from .pydant_model import LicenceRecord
 
-from .logger import log,console
+from .logger import log
 from .api import verify_otc_api
-import sys
+
+
 # get licenceRecord that has licence_number x001
 def licence_detail(licence_number, licence_details):
     return next(
         (
             record
-
             for record in licence_details
             if record.licence_number == licence_number
         ),
@@ -30,9 +29,8 @@ def validate_licence_number_existence(uploaded_records: dict):
     """
     # Collect all the licence numbers from the records
     validated_records = uploaded_records["valid_records"]
-    console.log(validated_records)
     # otc_API_response = MockData.mock_otc_licencd_and_operator_api(validated_records)
-    otc_api_response =  verify_otc_api(validated_records)
+    otc_api_response = verify_otc_api(validated_records)
     # console.log(otc_API_response)
     # sys.exit()
 

@@ -47,7 +47,8 @@ CREATE TABLE IF NOT EXISTS ep_registration (
     application_type VARCHAR(255),
     publication_text VARCHAR(255),
     other_details VARCHAR(255),
-    UNIQUE (otc_licence_id, registration_number, variation_number)
+    group_id INTEGER NOT NULL,
+    UNIQUE (otc_licence_id, registration_number, variation_number, group_id)
 );
 
 SELECT create_constraint_if_not_exists(

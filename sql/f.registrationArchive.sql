@@ -21,8 +21,10 @@ CREATE TABLE IF NOT EXISTS registration_archive (
     traffic_area_id VARCHAR(255),
     application_type VARCHAR(255),
     publication_text VARCHAR(255),
-    other_details VARCHAR(255));
-    
+    other_details VARCHAR(255),
+    group_id INTEGER
+);
+
 CREATE OR REPLACE FUNCTION handle_duplicate_records()
 RETURNS TRIGGER AS
 $func$
@@ -50,6 +52,7 @@ BEGIN
         application_type,
         publication_text,
         other_details
+        group_id
     )
     VALUES (
         OLD.otc_licence_id,
@@ -74,6 +77,7 @@ BEGIN
         OLD.application_type,
         OLD.publication_text,
         OLD.other_details
+        OLD.group_id
     );
     RETURN NEW;
 END;
