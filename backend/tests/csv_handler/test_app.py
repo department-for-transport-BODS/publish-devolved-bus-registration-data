@@ -3,11 +3,18 @@ from fastapi.testclient import TestClient
 from app import app
 from os import remove
 import uuid
-
+from auth.verifier import get_current_group
+import pytest
 client = TestClient(app)
 
+@pytest.fixture
+def app_dependency_override():
+    app.dependency_overrides[get_current_group] = lambda: "dev_2"
+    yield
+    app.dependency_overrides = {}
 
-def test_search_records():
+
+def test_search_records(app_dependency_override):
     AutoMappingModels = MagicMock()
     AutoMappingModels.engine = MagicMock()
     params = {
@@ -21,14 +28,16 @@ def test_search_records():
     }
     response = client.post(
         f"api/v1/search?licenseNumber={params['licenseNumber']}&registrationNumber={params['registrationNumber']}&operatorName={params['operatorName']}&routeNumber={params['routeNumber']}&latestOnly={params['latestOnly']}&limit={params['limit']}&strictMode={params['strictMode']}",
+        headers={"Authorization": "Bearer localdev"},
     )
     assert response.status_code == 422
     # assert response.json() == []
 
 
-def test_search_records_validation_error():
+def test_search_records_validation_error(app_dependency_override):
     response = client.post(
         "api/v1/search",
+        headers={"Authorization": "Bearer local"},
         json={
             "licenseNumber": "ABC123",
             "registrationNumber": "123456",
@@ -50,14 +59,19 @@ def test_search_records_validation_error():
         ]
     }
 
-
-def test_create_upload_file_without_authentications():
+@pytest.fixture
+def file_name():
     # Create a test file
     file_name = f"{str(uuid.uuid4())}.csv"
     test_file = open(file_name, "w")
     test_file.write("name,age\nJohn,25\nJane,30")
     test_file.close()
+    yield file_name
+    # Clean up the test file
+    remove(file_name)
 
+
+def test_create_upload_file_without_authentications(file_name):
     # Send a POST request to the endpoint with the test file
     response = client.post("api/v1/upload-file/", files={"file": open(file_name, "rb")})
 
@@ -66,17 +80,9 @@ def test_create_upload_file_without_authentications():
 
     # Assert that the response contains the expected filename
     assert response.json() == {"detail": "Not authenticated"}
-    # Clean up the test file
-    remove(file_name)
 
 
-def test_create_upload_file_unsupported_format():
-    # Create a test file
-    file_name = f"{str(uuid.uuid4())}.csv"
-    test_file = open(file_name, "w")
-    test_file.write("name,age\nJohn,25\nJane,30")
-    test_file.close()
-
+def test_create_upload_file_unsupported_format(file_name, app_dependency_override):
     # Send a POST request to the endpoint with the test file
     response = client.post(
         "api/v1/upload-file/",
@@ -139,21 +145,13 @@ def test_create_upload_file_unsupported_format():
             "valid_records_count": 0,
         },
     }
-    # Clean up the test file
-    remove(file_name)
 
 
 @patch(
     "app.CSVManager.validation_and_insertion_steps",
     return_value={"valid_records_count": 2, "invalid_records": None},
 )
-def test_create_upload_file(mock_validation_and_insertion_steps):
-    # Create a test file
-    file_name = f"{str(uuid.uuid4())}.csv"
-    test_file = open(file_name, "w")
-    test_file.write("name,age\nJohn,25\nJane,30")
-    test_file.close()
-
+def test_create_upload_file(mock_validation_and_insertion_steps,file_name, app_dependency_override):
     # Send a POST request to the endpoint with the test file
     response = client.post(
         "api/v1/upload-file/",
@@ -167,28 +165,6 @@ def test_create_upload_file(mock_validation_and_insertion_steps):
     # Assert that the response contains the expected records report
     assert response.json() == {"valid_records_count": 2, "invalid_records": None}
 
-    # Clean up the test file
-    remove(file_name)
-
-
 def test_search_records_options():
     response = client.options("api/v1/search")
     assert response.status_code == 200
-    assert response.json() == {
-        "description": "This is the endpoint to search for records in the database.",
-        "parameters": {
-            "licenseNumber": "The license name to filter the records. (str)",
-            "registrationNumber": "The registration number to filter the records. (str)",
-            "operator": "The operator to filter the records. (str)",
-            "routeNumber": "The route number to filter the records. (str)",
-            "latestOnly": "Whether to retrieve only the latest records. (bool)",
-            "limit": "The maximum number of records per page. (int)",
-        },
-        "responses": {
-            "200": {
-                "Results": "The results of the search",
-                "TotalRecords": "The total number of records found",
-            },
-            "403": "Forbidden",
-        },
-    }

@@ -26,6 +26,14 @@ const GetAllRecords = async () => {
 
                 // download it as csv
                 const headers = Object.keys(response.data[0]).join(","); // Get the headers from the first row
+                // add " to each value that has a comma in it
+                response.data.forEach((row: any) => {
+                    Object.entries(row).forEach(([key, value]) => {
+                        if (typeof value === "string" && value.includes(",")) {
+                            row[key] = `"${value}"`;
+                        }
+                    });
+                })
                 const csv = [headers, ...response.data.map((row: any) => Object.values(row).join(","))].join("\n"); // Include headers in the CSV
                 const blob = new Blob([csv], { type: "text/csv" }); // Set encoding to UTF-8
                 const url = window.URL.createObjectURL(blob);

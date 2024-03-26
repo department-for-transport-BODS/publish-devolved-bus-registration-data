@@ -19,7 +19,7 @@ def get_secret(secret_arn: str) -> str:
     Returns:
     str: The value of the retrieved secret.
     """
-    session = boto3.session.Session()
+    # session = boto3.session.Session()
     client = boto3.client(
         service_name="secretsmanager",
         region_name=getenv("AWS_REGION"),

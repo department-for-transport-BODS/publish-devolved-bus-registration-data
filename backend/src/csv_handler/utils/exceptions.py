@@ -20,3 +20,15 @@ class LimitIsNotSet(Exception):
 
 class LimitExceeded(Exception):
     pass
+
+
+class GroupIsNotAuthorized(Exception):
+    pass
+
+
+class GroupIsNotFound(Exception):
+    pass
+
+
+class RecordBelongsToAnotherUser(Exception):
+    pass

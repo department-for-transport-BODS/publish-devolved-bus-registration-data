@@ -4,8 +4,8 @@ from io import StringIO
 from pydantic import ValidationError
 from managers import CSVManager
 from mangum import Mangum
-from utils.exceptions import LimitIsNotSet, LimitExceeded
-from auth.verifier import token_verifier
+from utils.exceptions import LimitIsNotSet, LimitExceeded, GroupIsNotFound
+from auth.verifier import get_current_group
 from central_config import app, PROJECT_ENV, AWS_REGION, api_v1_router
 from utils.db import DBManager
 from utils.pydant_model import SearchQuery
@@ -13,10 +13,11 @@ from utils.pydant_model import SearchQuery
 
 @api_v1_router.post(
     "/upload-file",
-    dependencies=[Depends(token_verifier)],
     status_code=status.HTTP_201_CREATED,
 )
-async def create_upload_file(file: UploadFile = File(...)):
+async def create_upload_file(
+    file: UploadFile = File(...), group_name: str = Depends(get_current_group)
+):
     """This is the endpoint to upload a CSV file and process it.
 
     Args:
@@ -35,7 +36,7 @@ async def create_upload_file(file: UploadFile = File(...)):
     csv_str = contents.decode("utf-8-sig")
     # Convert the CSV data into a dictionary
     csv_data = list(csv.DictReader(StringIO(csv_str)))
-    csv_handler = CSVManager(csv_data)
+    csv_handler = CSVManager(csv_data, group_name)
     records_report = csv_handler.validation_and_insertion_steps()
     # Validate the CSV input data
     if records_report.get("invalid_records"):
@@ -43,12 +44,9 @@ async def create_upload_file(file: UploadFile = File(...)):
     return records_report
 
 
-@api_v1_router.post(
-    "/search",
-    dependencies=[Depends(token_verifier)],
-    status_code=status.HTTP_200_OK
-)
+@api_v1_router.post("/search", status_code=status.HTTP_200_OK)
 async def search_records(
+    group_name: str = Depends(get_current_group),
     licenseNumber: str = Query(
         None,
         description="The license name to filter the records",
@@ -101,7 +99,7 @@ async def search_records(
             strictMode=strictMode,
             page=page,
         )
-        records = DBManager.get_records(**search_query.model_dump())
+        records = DBManager.get_records(group_name, **search_query.model_dump())
 
         # Get the host and path from the request
         host = request.headers.get("host")
@@ -121,6 +119,9 @@ async def search_records(
         # errors = convert_errors(e, CUSTOM_MESSAGES)
         errors = extract_error_fields(e.errors())
         raise HTTPException(status_code=422, detail=errors)
+    except GroupIsNotFound:
+        raise HTTPException(status_code=403, detail={"message": "User is not found"})
+
     except LimitIsNotSet as e:
         raise HTTPException(status_code=422, detail=str(e))
     except LimitExceeded as e:
@@ -129,10 +130,7 @@ async def search_records(
 
 def read_root():
     return {
-        "message": "FastAPI running on AWS Lambda and is executed in region "
-        + AWS_REGION
-        + ", using runtime environment "
-        + PROJECT_ENV
+        "message": "Welcome to the EP Licences registration API",
     }
 
 
@@ -150,25 +148,28 @@ async def search_records_options():
         "page": "The page number to retrieve",
     }
 
-@api_v1_router.get(
-    "/view-registrations/status",
-    dependencies=[Depends(token_verifier)],
-    status_code=status.HTTP_200_OK
-)
-async def view_registrations():
+
+@api_v1_router.get("/view-registrations/status", status_code=status.HTTP_200_OK)
+async def view_registrations(group_name: str = Depends(get_current_group)):
     """This is the endpoint to view all the records in the database"""
-    records = DBManager.get_record_required_attention_percentage()
+    print("token", group_name)
+    try:
+        records = DBManager.get_record_reuiqred_attention_percentage(group_name)
+        return records
+    except GroupIsNotFound as e:
+        print("GroupIsNotFound", e)
+        return []
+    except Exception as e:
+        print("Exception", e)
+        raise HTTPException(status_code=400, detail={})
+
+
+@api_v1_router.get("/all-records", status_code=status.HTTP_200_OK)
+async def get_all_records(group_name: str = Depends(get_current_group)):
+    """This is the endpoint to view all the records in the database"""
+    records = DBManager.get_all_records(group_name)
     return records
 
-@api_v1_router.get(
-    "/all-records",
-    dependencies=[Depends(token_verifier)],
-    status_code=status.HTTP_200_OK
-)
-async def get_all_records():
-    """This is the endpoint to view all the records in the database"""
-    records = DBManager.get_all_records()
-    return records
 
 app.include_router(api_v1_router)
 lambda_handler = Mangum(app, lifespan="off")

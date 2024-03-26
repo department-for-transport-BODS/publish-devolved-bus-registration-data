@@ -4,8 +4,9 @@ from utils.validate import validate_licence_number_existence
 
 
 class CSVManager:
-    def __init__(self, csv_data: str):
+    def __init__(self, csv_data: str, group_name: str = None):
         self.csv_data = csv_data
+        self.group_name = group_name
 
     def validation_and_insertion_steps(self) -> dict:
         """This function performs the following steps:
@@ -20,7 +21,7 @@ class CSVManager:
         """
         validated_records = self._validate_csv_data()
         validated_records = self._check_licence_number_existence(validated_records)
-        self._send_to_db(validated_records)
+        self._send_to_db(validated_records, self.group_name)
         validated_records = self._remove_licence_details(validated_records)
         # Add the count of valid records to the validated_records dictionary
         validated_records["valid_records_count"] = len(
@@ -35,8 +36,8 @@ class CSVManager:
     def _check_licence_number_existence(self, records):
         return validate_licence_number_existence(records)
 
-    def _send_to_db(self, records):
-        send_to_db(records)
+    def _send_to_db(self, records, group_name):
+        send_to_db(records, group_name)
 
     def _remove_licence_details(self, records):
         """Removing the licence details from validated records."""

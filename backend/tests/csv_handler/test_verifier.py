@@ -1,17 +1,9 @@
 from unittest.mock import MagicMock, patch
 from auth.verifier import TokenVerifier, token_verifier
-from pytest import fixture
-import os
 import pytest
 from utils.exceptions import AppClientIdIsNotSet, RegionIsNotSet, UserPoolIdIsNotSet
 from cognitojwt import CognitoJWTException
 from fastapi import HTTPException
-
-from fixtures.env import set_aws_env
-
-
-
-
 
 
 @patch("auth.verifier.AWS_REGION", "test_region")

@@ -5,7 +5,6 @@ from http import HTTPStatus
 from concurrent.futures import ThreadPoolExecutor
 from pydantic import BaseModel, Field, AliasChoices
 import logging
-from json import dumps
 from utils.aws import get_secret
 from fastapi import FastAPI, HTTPException
 from mangum import Mangum
@@ -81,7 +80,7 @@ class OTCAuthenticator:
     """
 
     def __init__(self):
-        logger.debug('Initialising authenticator and getting initial token')
+        logger.debug("Initialising authenticator and getting initial token")
         self.cache = TTLCache(maxsize=1, ttl=3600)
         self.get_token()
 
@@ -92,7 +91,7 @@ class OTCAuthenticator:
         """
         cache_hit = self.cache.get("otc-auth-bearer", None)
         if cache_hit is None:
-            logger.debug(f"API Token cache has expired")
+            logger.debug("API Token cache has expired")
             return self.get_token()
         else:
             return cache_hit
@@ -106,7 +105,7 @@ class OTCAuthenticator:
 
         expiry_time - 5mins (to invalidate cache while the first token is still active)
         """
-        logger.debug(f"Attempting to get API token from MS Endpoint")
+        logger.debug("Attempting to get API token from MS Endpoint")
         url = f"{MS_LOGIN_URL}/{MS_TENANT_ID}/oauth2/v2.0/token"
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
         body = {
@@ -219,7 +218,9 @@ class OTCAPIClient:
         return parsed_licence_dump, parsed_operator_dump
 
     def get_licences(self, licence_numbers: list):
-        logger.info(f"Attempting to get the following licenses from OTC: {', '.join(licence_numbers)}")
+        logger.info(
+            f"Attempting to get the following licenses from OTC: {', '.join(licence_numbers)}"
+        )
         # Remove duplicates
         unique_licence_numbers = list(set(licence_numbers))
 
@@ -248,7 +249,12 @@ class OTCAPIClient:
 
         return response
 
-app = FastAPI(docs_url="/api/v1/otc/docs", redoc_url="/api/v1/otc/redoc", openapi_url="/api/v1/otc/openapi.json")
+
+app = FastAPI(
+    docs_url="/api/v1/otc/docs",
+    redoc_url="/api/v1/otc/redoc",
+    openapi_url="/api/v1/otc/openapi.json",
+)
 
 
 @app.post("/api/v1/otc/licences")
@@ -259,6 +265,8 @@ async def query_licences(licences: List[str]):
         output = client.get_licences(licences)
         return output
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=400, detail=str(e))
+
 
 lambda_handler = Mangum(app, lifespan="off")
