@@ -5,6 +5,7 @@ from os import remove
 import uuid
 from auth.verifier import get_current_group
 import pytest
+
 client = TestClient(app)
 
 @pytest.fixture
@@ -12,6 +13,13 @@ def app_dependency_override():
     app.dependency_overrides[get_current_group] = lambda: "dev_2"
     yield
     app.dependency_overrides = {}
+
+@pytest.fixture
+def app_dependency_override():
+    app.dependency_overrides[get_current_group] = lambda: "dev_2"
+    yield
+    app.dependency_overrides = {}
+
 
 @pytest.fixture
 def app_dependency_override():
@@ -68,7 +76,6 @@ def test_search_records_validation_error(app_dependency_override):
 <<<<<<< HEAD
 =======
 
->>>>>>> e677796 (parent 8130a06dcb8c958c563b83771c958c804f6c57f2)
 @pytest.fixture
 def file_name():
     # Create a test file
@@ -161,13 +168,9 @@ def test_create_upload_file_unsupported_format(file_name, app_dependency_overrid
     "app.CSVManager.validation_and_insertion_steps",
     return_value={"valid_records_count": 2, "invalid_records": None},
 )
-<<<<<<< HEAD
-def test_create_upload_file(mock_validation_and_insertion_steps,file_name, app_dependency_override):
-=======
 def test_create_upload_file(
     mock_validation_and_insertion_steps, file_name, app_dependency_override
 ):
->>>>>>> e677796 (parent 8130a06dcb8c958c563b83771c958c804f6c57f2)
     # Send a POST request to the endpoint with the test file
     response = client.post(
         "api/v1/upload-file/",
@@ -181,13 +184,7 @@ def test_create_upload_file(
     # Assert that the response contains the expected records report
     assert response.json() == {"valid_records_count": 2, "invalid_records": None}
 
-<<<<<<< HEAD
-def test_search_records_options():
-    response = client.options("api/v1/search")
-    assert response.status_code == 200
-=======
 
 def test_search_records_options():
     response = client.options("api/v1/search")
     assert response.status_code == 200
->>>>>>> e677796 (parent 8130a06dcb8c958c563b83771c958c804f6c57f2)

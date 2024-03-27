@@ -48,7 +48,7 @@ const Footer = (): ReactElement => {
               >
                  Open Government Licence v3.0
               </a>
-              , except where otherwise stated
+              {" "} , except where otherwise stated
             </span>
           </div>
           <div className="govuk-footer__meta-item">
