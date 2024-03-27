@@ -1,6 +1,6 @@
 import re
 from datetime import datetime, date
-from typing import Dict, Optional
+from typing import Dict, Literal, Optional
 from os import getenv
 from pydantic import BaseModel, Field, field_validator, model_validator
 from pydantic import ValidationError
@@ -85,15 +85,6 @@ class Registration(BaseModel):
     def parse_date(cls, v):
         return datetime.strptime(v, "%m/%d/%Y")
 
-    # @computed_field(return_type=int, repr=False)
-    # @property
-    # def service_code(cls):
-    #     """Extract the service code from the registration number and save it as a field in the model"""
-    #     v = cls.registration_number
-    #     if isinstance(v, str):
-    #         parts = v.split("/")
-    #         if len(parts) == 2:
-    #             return int(parts[1])
 
     @field_validator("registration_number")
     def validate_registration_number(cls, v):
@@ -231,3 +222,9 @@ def extract_error_fields(error_obj: List[dict], model_dump=True) -> ErrorRespons
         return [error.model_dump() for error in errors]
 
     return errors
+
+
+
+class AuthenticatedEntity(BaseModel):
+    type: Literal["app", "local_auth"]
+    name: str

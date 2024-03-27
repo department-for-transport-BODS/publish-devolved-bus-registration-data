@@ -8,7 +8,7 @@ from typing import List
 from .aws import get_secret
 from .csv_validator import Registration
 from .logger import console, log
-from .pydant_model import DBCreds, SearchQuery
+from .pydant_model import AuthenticatedEntity, DBCreds, SearchQuery
 from .exceptions import (
     RecordIsAlreadyExist,
     LimitExceeded,
@@ -138,7 +138,7 @@ class DBGroup:
         self.models = models
         self.session = session
 
-    def get_or_create_user(self, group: str = None):
+    def get_or_create_user(self, group_name:str):
         """Check if the user exists in the database, if not, add the user
 
         Args:
@@ -152,14 +152,13 @@ class DBGroup:
         EPGroup = models.EPGroup
         try:
             # check if user in db first:
-            group = self.get_group(group)
+            group = self.get_group(group_name)
             if group:
                 return group
             # Add the user
-            group = EPGroup(local_auth=group)
+            group = EPGroup(local_auth=group_name)
             session.add(group)
             session.commit()
-            console.log(group)
             return group  # Return the ID of the inserted record
         except Exception as e:
             log.error(f"Error: {e}")
@@ -306,7 +305,7 @@ class DBManager:
     @classmethod
     def get_records(
         cls,
-        group_name: str = None,
+        authenticated_entity: AuthenticatedEntity= None,
         exclude_variations: bool = False,
         registration_number: str = None,
         operator_name: str = None,
@@ -339,8 +338,10 @@ class DBManager:
         EPRegistration = models.EPRegistration
         OTCOperator = models.OTCOperator
         OTCLicence = models.OTCLicence
-        EPGroup = DBGroup(models, session).get_group(group_name, raise_exception=True)
-
+        if authenticated_entity.type == "local_auth":
+            EPGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
+        else:
+            EPGroup = None
         records = (
             session.query(
                 EPRegistration.variation_number.label("variationNumber"),
@@ -366,23 +367,29 @@ class DBManager:
                 EPRegistration.application_type.label("applicationType"),
                 EPRegistration.publication_text.label("publicationText"),
             )
-            .filter(EPRegistration.group_id == EPGroup.id)
             .join(OTCOperator, EPRegistration.otc_operator_id == OTCOperator.id)
             .join(OTCLicence, EPRegistration.otc_licence_id == OTCLicence.id)
         )
+        # If EGroup is not None, filter the records by the group
+        # Otherwise, get all the records
+        if EPGroup:
+            records = records.filter(EPRegistration.group_id == EPGroup.id)
 
         if exclude_variations:
             latest_ids = (
-                select(func.max(EPRegistration.variation_number))
-                .filter(EPRegistration.group_id == EPGroup.id)
+                select(func.max(EPRegistration.id))
                 .group_by(
                     EPRegistration.registration_number,
                     EPRegistration.otc_operator_id,
+                    EPRegistration.group_id,
                 )
-                .subquery()
             )
+            if EPGroup:
+                latest_ids = latest_ids.filter(EPRegistration.group_id == EPGroup.id).subquery()
+            else:
+                latest_ids = latest_ids.subquery()
             records = records.filter(
-                EPRegistration.variation_number.in_(select(latest_ids))
+                EPRegistration.id.in_(select(latest_ids))
             )
 
         if license_number:
@@ -428,7 +435,6 @@ class DBManager:
         cls, search_query: SearchQuery, host: str, path: str
     ) -> str:
         """Construct the next page url
-
         Args:
             search_query (SearchQuery): Search query object from the request
             host (str): Host
@@ -452,13 +458,16 @@ class DBManager:
         return f"{host}{path}?{params_str}"
 
     @classmethod
-    def get_all_records(cls, group_name: str = None):
+    def get_all_records(cls, authenticated_entity: AuthenticatedEntity= None):
         models, session = initiate_db_variables()
         EPRegistration = models.EPRegistration
         OTCOperator = models.OTCOperator
         OTCLicence = models.OTCLicence
         BODSDataCatalogue = models.BODSDataCatalogue
-        EPGroup = DBGroup(models, session).get_group(group_name, raise_exception=True)
+        if authenticated_entity.type == "local_auth":
+            EPGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
+        else:
+            EPGroup = None
 
         records = (
             session.query(
@@ -489,7 +498,6 @@ class DBManager:
                 BODSDataCatalogue.requires_attention,
                 BODSDataCatalogue.timeliness_status,
             )
-            .filter(EPRegistration.group_id == EPGroup.id)
             .filter(EPRegistration.otc_operator_id == OTCOperator.id)
             .filter(EPRegistration.otc_licence_id == OTCLicence.id)
             .filter(
@@ -497,16 +505,23 @@ class DBManager:
             )
         )
 
+        if EPGroup:
+            records = records.filter(EPRegistration.group_id == EPGroup.id)
+
         return [rec._asdict() for rec in records.all()]
 
     @classmethod
-    def get_record_reuiqred_attention_percentage(cls, group_name):
+    def get_record_reuiqred_attention_percentage(cls, authenticated_entity: AuthenticatedEntity = None):
         models, session = initiate_db_variables()
         EPRegistration = models.EPRegistration
         OTCOperator = models.OTCOperator
         OTCLicence = models.OTCLicence
         BODSDataCatalogue = models.BODSDataCatalogue
-        EPGroup = DBGroup(models, session).get_group(group_name, raise_exception=True)
+        if authenticated_entity.type == "local_auth":
+            EPGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
+        else:
+            EPGroup = None
+
         subquery_q2 = (
             session.query(
                 func.count(EPRegistration.registration_number).label("count"),
@@ -528,9 +543,12 @@ class DBManager:
                 OTCOperator.operator_name,
                 BODSDataCatalogue.requires_attention,
                 OTCLicence.licence_status,
-            )
-            .subquery()
+            )          
         )
+        if EPGroup:
+            subquery_q2 = subquery_q2.filter(EPRegistration.group_id == EPGroup.id).subquery()
+        else:
+            subquery_q2 = subquery_q2.subquery()
 
         query = (
             session.query(
@@ -568,7 +586,7 @@ class DBManager:
         return [rec._asdict() for rec in query.all()]
 
 
-def send_to_db(records: List[Registration], group_name: str = None):
+def send_to_db(records: List[Registration], group_name = None):
     # validated_records: List[Registration] = MockData.mock_user_csv_record()
     models = AutoMappingModels()
     engine = models.engine

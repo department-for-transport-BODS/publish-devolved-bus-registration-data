@@ -7,30 +7,17 @@ from fastapi import (
     Depends,
     status,
     Query,
-    Form,
 )
 from io import StringIO
 from pydantic import ValidationError
 from managers import CSVManager
 from mangum import Mangum
 from utils.exceptions import LimitIsNotSet, LimitExceeded, GroupIsNotFound
-from auth.verifier import get_current_group
-from central_config import app, AWS_REGION, api_v1_router
+from auth.verifier import get_entity, get_local_authority
+from central_config import app, api_v1_router
 from utils.db import DBManager
-from utils.pydant_model import SearchQuery
-import boto3
-from pycognito import AWSSRP
-from utils.logger import console
-from typing import Annotated
-from pydantic import SecretStr
-from central_config import (
-    USERPOOL_ID,
-    APP_CLIENT_ID,
-)
+from utils.pydant_model import AuthenticatedEntity, SearchQuery
 
-
-class ForceChangePasswordException(Exception):
-    pass
 
 
 @api_v1_router.post(
@@ -38,7 +25,7 @@ class ForceChangePasswordException(Exception):
     status_code=status.HTTP_201_CREATED,
 )
 async def create_upload_file(
-    file: UploadFile = File(...), group_name: str = Depends(get_current_group)
+    file: UploadFile = File(...), authenticated_entity: AuthenticatedEntity = Depends(get_local_authority)
 ):
     """This is the endpoint to upload a CSV file and process it.
 
@@ -58,7 +45,7 @@ async def create_upload_file(
     csv_str = contents.decode("utf-8-sig")
     # Convert the CSV data into a dictionary
     csv_data = list(csv.DictReader(StringIO(csv_str)))
-    csv_handler = CSVManager(csv_data, group_name)
+    csv_handler = CSVManager(csv_data, authenticated_entity.name)
     records_report = csv_handler.validation_and_insertion_steps()
     # Validate the CSV input data
     if records_report.get("invalid_records"):
@@ -68,7 +55,7 @@ async def create_upload_file(
 
 @api_v1_router.post("/search", status_code=status.HTTP_200_OK)
 async def search_records(
-    group_name: str = Depends(get_current_group),
+    authenticated_entity: AuthenticatedEntity = Depends(get_entity),
     licenseNumber: str = Query(
         None,
         description="The license name to filter the records",
@@ -121,7 +108,7 @@ async def search_records(
             strictMode=strictMode,
             page=page,
         )
-        records = DBManager.get_records(group_name, **search_query.model_dump())
+        records = DBManager.get_records(authenticated_entity, **search_query.model_dump())
 
         # Get the host and path from the request
         host = request.headers.get("host")
@@ -172,11 +159,11 @@ async def search_records_options():
 
 
 @api_v1_router.get("/view-registrations/status", status_code=status.HTTP_200_OK)
-async def view_registrations(group_name: str = Depends(get_current_group)):
+async def view_registrations(authenticated_entity: str = Depends(get_entity)):
     """This is the endpoint to view all the records in the database"""
-    print("token", group_name)
     try:
-        records = DBManager.get_record_reuiqred_attention_percentage(group_name)
+
+        records = DBManager.get_record_reuiqred_attention_percentage(authenticated_entity)
         return records
     except GroupIsNotFound as e:
         print("GroupIsNotFound", e)
@@ -185,11 +172,10 @@ async def view_registrations(group_name: str = Depends(get_current_group)):
         print("Exception", e)
         raise HTTPException(status_code=400, detail={})
 
-
 @api_v1_router.get("/all-records", status_code=status.HTTP_200_OK)
-async def get_all_records(group_name: str = Depends(get_current_group)):
+async def get_all_records(authenticated_entity: str = Depends(get_entity)):
     """This is the endpoint to view all the records in the database"""
-    records = DBManager.get_all_records(group_name)
+    records = DBManager.get_all_records(authenticated_entity)
     return records
 
 

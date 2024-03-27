@@ -4,9 +4,9 @@ from utils.validate import validate_licence_number_existence
 
 
 class CSVManager:
-    def __init__(self, csv_data: str, group_name: str = None):
+    def __init__(self, csv_data: str, authenticated_entity_name: str = None):
         self.csv_data = csv_data
-        self.group_name = group_name
+        self.group_name = authenticated_entity_name
 
     def validation_and_insertion_steps(self) -> dict:
         """This function performs the following steps:
