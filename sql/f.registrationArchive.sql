@@ -51,7 +51,7 @@ BEGIN
         traffic_area_id,
         application_type,
         publication_text,
-        other_details
+        other_details,
         group_id
     )
     VALUES (
@@ -76,7 +76,7 @@ BEGIN
         OLD.traffic_area_id,
         OLD.application_type,
         OLD.publication_text,
-        OLD.other_details
+        OLD.other_details,
         OLD.group_id
     );
     RETURN NEW;
