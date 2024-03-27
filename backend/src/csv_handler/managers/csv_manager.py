@@ -1,6 +1,7 @@
 from utils.csv_validator import csv_data_structure_check
 from utils.db import send_to_db
 from utils.validate import validate_licence_number_existence
+from copy import deepcopy
 
 
 class CSVManager:
@@ -20,6 +21,7 @@ class CSVManager:
              Record reports: A dictionary containing the valid and invalid records and the count of valid records.
         """
         validated_records = self._validate_csv_data()
+        validated_records = self._check_duplicate_records(validated_records)
         validated_records = self._check_licence_number_existence(validated_records)
         self._send_to_db(validated_records, self.group_name)
         validated_records = self._remove_licence_details(validated_records)
@@ -32,6 +34,41 @@ class CSVManager:
 
     def _validate_csv_data(self):
         return csv_data_structure_check(self.csv_data)
+
+    def _check_duplicate_records(self, records):
+        records_copy = deepcopy(records)
+        for idx, record in records_copy["valid_records"].items():
+            duplicated_records = []
+            for idx2, records2 in records_copy["valid_records"].items():
+                if (
+                    idx != idx2
+                    and record.licence_number == records2.licence_number
+                    and record.variation_number == records2.variation_number
+                    and record.registration_number == records2.registration_number
+                ):
+                    duplicated_records.append(idx2)
+            if duplicated_records:
+                if records["invalid_records"].get(idx):
+                    records["invalid_records"][idx].appand(
+                        {"CSV contains duplicated records": duplicated_records}
+                    )
+                else:
+                    records["invalid_records"][idx] = [
+                        {
+                            "CSV contains duplicated records": f"""{(', ').join(duplicated_records)}"""
+                        }
+                    ]
+                try:
+                    del records["valid_records"][idx]
+                except KeyError:
+                    pass
+                for i in duplicated_records:
+                    try:
+                        del records["valid_records"][i]
+                    except KeyError:
+                        pass
+
+        return records
 
     def _check_licence_number_existence(self, records):
         return validate_licence_number_existence(records)
