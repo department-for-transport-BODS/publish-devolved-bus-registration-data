@@ -47,7 +47,7 @@ useEffect(() => {
           </div>
           <div className="govuk-header__content">
             <span className="govuk-header__service-name">
-            <a href="" className="govuk-header__link">
+            <a href="/" className="govuk-header__link">
               Enhanced Partnerships Registrations
               </a>
             </span>
