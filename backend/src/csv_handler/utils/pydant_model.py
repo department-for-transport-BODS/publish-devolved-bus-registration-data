@@ -83,7 +83,7 @@ class Registration(BaseModel):
         "received_date", "granted_date", "effective_date", "end_date", mode="before"
     )
     def parse_date(cls, v):
-        return datetime.strptime(v, "%m/%d/%Y")
+        return datetime.strptime(v, "%d/%m/%Y")
 
 
     @field_validator("registration_number")
