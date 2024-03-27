@@ -46,7 +46,7 @@ const PartlyUploading: React.FC = () => {
             <div className="row">
               <div className="govuk-button-group govuk-!-margin-bottom-8">
                 <Link
-                  to="/view-registrations"
+                  to="/upload-csv"
                   className="govuk-button"
                   data-module="govuk-button"
                 >

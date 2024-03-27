@@ -1,14 +1,36 @@
 import csv
-from fastapi import File, HTTPException, Request, UploadFile, Depends, status, Query
+from fastapi import (
+    File,
+    HTTPException,
+    Request,
+    UploadFile,
+    Depends,
+    status,
+    Query,
+    Form,
+)
 from io import StringIO
 from pydantic import ValidationError
 from managers import CSVManager
 from mangum import Mangum
 from utils.exceptions import LimitIsNotSet, LimitExceeded, GroupIsNotFound
 from auth.verifier import get_current_group
-from central_config import app, PROJECT_ENV, AWS_REGION, api_v1_router
+from central_config import app, AWS_REGION, api_v1_router
 from utils.db import DBManager
 from utils.pydant_model import SearchQuery
+import boto3
+from pycognito import AWSSRP
+from utils.logger import console
+from typing import Annotated
+from pydantic import SecretStr
+from central_config import (
+    USERPOOL_ID,
+    APP_CLIENT_ID,
+)
+
+
+class ForceChangePasswordException(Exception):
+    pass
 
 
 @api_v1_router.post(

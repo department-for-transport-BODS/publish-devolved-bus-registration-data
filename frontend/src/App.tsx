@@ -16,6 +16,9 @@ import Registration from "./pages/registrations";
 import viewRegistrations from "./pages/viewRegistrations";
 import ErrorPage from "./pages/errorPage";
 import ContactUs from "./pages/contactUs";
+import PrivacyStatement from "./pages/privacyStatement";
+import AccessibilityStatment from "./pages/accessibilityStatement";
+import CookiePage from "./pages/cookiePage";
 function App() {
   Amplify.configure(AmplifyConfiguration);
   return (
@@ -46,6 +49,11 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/error" element={<ErrorPage />} />
         <Route path="/contact-us" element={<ContactUs />} />
+        <Route path="/privacy-statement" element={<PrivacyStatement />} />
+        <Route
+          path="/accessibility-statement"
+          element={<AccessibilityStatment />} />
+        <Route path="/cookie-page" element={<CookiePage />} />
       </Routes>
     </BrowserRouter>
   );

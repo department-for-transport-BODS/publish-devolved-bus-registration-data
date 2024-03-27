@@ -5,3 +5,14 @@
     background-color: #1d70b8;
     color: #ffff;
 }
+
+
+#header-link{
+    // disable on :hover 
+    // disble on click color will-change
+    &:hover, &:active, &:focus, &:visited {
+        color: #ffffff;
+        background-color: black;
+    }
+
+}
