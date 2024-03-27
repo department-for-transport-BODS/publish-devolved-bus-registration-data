@@ -1,5 +1,6 @@
 import React, { ReactElement,useContext,useEffect } from "react";
 import { IsLoggedInContext } from"../utils/login/LoginProvider";
+import { Link } from "react-router-dom";
 type Props = {
   isLoggedIn?: boolean;
 };
@@ -46,7 +47,9 @@ useEffect(() => {
           </div>
           <div className="govuk-header__content">
             <span className="govuk-header__service-name">
+            <a href="" className="govuk-header__link">
               Enhanced Partnerships Registrations
+              </a>
             </span>
               {isLoggedIn ? (
                 <span className="govuk-header__service-name" style={{ float: "right" }}>

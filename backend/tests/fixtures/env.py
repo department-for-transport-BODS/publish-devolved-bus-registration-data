@@ -1,6 +1,7 @@
 from pytest import fixture
 from os import environ
 
+
 @fixture
 def set_aws_env():
     print("Setup aws test env")

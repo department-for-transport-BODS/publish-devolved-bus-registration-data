@@ -1,6 +1,6 @@
 from typing import List
 import requests
-from .logger import console, log
+from .logger import log
 import json
 from central_config import OTC_CLIENT_API_URL
 

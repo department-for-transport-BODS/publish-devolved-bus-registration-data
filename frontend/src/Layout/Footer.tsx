@@ -4,12 +4,10 @@ import { v4 as uuidv4 } from "uuid";
 const heigh = { height: "-webkit-fill-available" };
 const Footer = (): ReactElement => {
   const LINKS = [
-    { name: "Home", url: "/" },
+    { name: "Privacy", url: "/privacy-statement" },
+    { name: "Cookies", url: "/cookie-page" },
+    { name: "Accessibility statement", url: "/accessibility-statement" },
     { name: "Contact", url: "/contact-us" },
-    { name: "Privacy policy", url: "/" },
-    { name: "Terms and conditions", url: "/" },
-    { name: "Cookies", url: "/" },
-    { name: "Accessibility statement", url: "/" },
 
   ];
   return (

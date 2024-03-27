@@ -10,7 +10,11 @@ ALLOW_HEADER = ["*"]
 API_PREFIX = "/api/v1"
 
 
-app = FastAPI()
+app = FastAPI(
+    docs_url="/api/v1/docs",
+    redoc_url="/api/v1/redoc",
+    openapi_url="/api/v1/openapi.json",
+)
 api_v1_router = APIRouter(prefix=API_PREFIX)
 
 app.add_middleware(

@@ -54,7 +54,7 @@ class TokenVerifier:
                 self.token,
                 self.REGION,
                 self.USERPOOL_ID,
-                app_client_id=self.APP_CLIENT_ID,
+                # app_client_id=self.APP_CLIENT_ID,
             )
             return True
         except Exception:

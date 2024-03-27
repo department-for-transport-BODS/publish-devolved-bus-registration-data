@@ -11,7 +11,6 @@ from mangum import Mangum
 from typing import List
 
 
-
 class OTCAuthorizationTokenException(Exception):
     pass
 
