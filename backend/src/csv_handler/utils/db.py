@@ -1,6 +1,6 @@
 import json
 from os import getenv
-from sqlalchemy import create_engine, func, select, Table, case, desc
+from sqlalchemy import create_engine, func, select, Table, case, desc, or_, and_
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session, Query
 from sys import exit
@@ -458,7 +458,7 @@ class DBManager:
         return f"{host}{path}?{params_str}"
 
     @classmethod
-    def get_all_records(cls, authenticated_entity: AuthenticatedEntity= None):
+    def get_all_records(cls, authenticated_entity: AuthenticatedEntity,latest_only=False):
         models, session = initiate_db_variables()
         EPRegistration = models.EPRegistration
         OTCOperator = models.OTCOperator
@@ -468,6 +468,25 @@ class DBManager:
             EPGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
         else:
             EPGroup = None
+        if latest_only:
+            subquery_q1 = (
+                session.query(
+                    EPRegistration.registration_number,
+                    func.max(EPRegistration.variation_number).label("max_variation_number")
+                )
+                .group_by(EPRegistration.registration_number)
+                .subquery()
+            )
+
+            subquery_q2 = (
+                session.query(EPRegistration.id)
+                .join(subquery_q1, and_(
+                    EPRegistration.registration_number == subquery_q1.c.registration_number,
+                    EPRegistration.variation_number == subquery_q1.c.max_variation_number
+                ))
+            ).subquery()
+
+
 
         records = (
             session.query(
@@ -498,20 +517,24 @@ class DBManager:
                 BODSDataCatalogue.requires_attention,
                 BODSDataCatalogue.timeliness_status,
             )
+            .outerjoin(BODSDataCatalogue, BODSDataCatalogue.xml_service_code == EPRegistration.registration_number)
             .filter(EPRegistration.otc_operator_id == OTCOperator.id)
             .filter(EPRegistration.otc_licence_id == OTCLicence.id)
-            .filter(
-                EPRegistration.registration_number == BODSDataCatalogue.xml_service_code
-            )
+            # .filter(
+            #     EPRegistration.registration_number == BODSDataCatalogue.xml_service_code
+            # )
         )
+        if latest_only:
+            records = records.filter(EPRegistration.id.in_(subquery_q2))
 
         if EPGroup:
             records = records.filter(EPRegistration.group_id == EPGroup.id)
-
+        console.log(records)
+        console.log([rec._asdict() for rec in records.all()])
         return [rec._asdict() for rec in records.all()]
 
     @classmethod
-    def get_record_reuiqred_attention_percentage(cls, authenticated_entity: AuthenticatedEntity = None):
+    def get_record_required_attention_percentage(cls, authenticated_entity: AuthenticatedEntity = None):
         models, session = initiate_db_variables()
         EPRegistration = models.EPRegistration
         OTCOperator = models.OTCOperator
@@ -522,7 +545,25 @@ class DBManager:
         else:
             EPGroup = None
 
+        subquery_q1 = (
+            session.query(
+                EPRegistration.registration_number,
+                func.max(EPRegistration.variation_number).label("max_variation_number")
+            )
+            .group_by(EPRegistration.registration_number)
+            .subquery()
+        )
+
         subquery_q2 = (
+            session.query(EPRegistration.id)
+            .join(subquery_q1, and_(
+                EPRegistration.registration_number == subquery_q1.c.registration_number,
+                EPRegistration.variation_number == subquery_q1.c.max_variation_number
+            ))
+        ).subquery()
+
+
+        subquery_q3 = (
             session.query(
                 func.count(EPRegistration.registration_number).label("count"),
                 OTCLicence.licence_number,
@@ -531,13 +572,14 @@ class DBManager:
                 OTCLicence.licence_status,
             )
             .join(OTCLicence, OTCLicence.id == EPRegistration.otc_licence_id)
-            .join(
+            .outerjoin(
                 BODSDataCatalogue,
                 EPRegistration.registration_number
                 == BODSDataCatalogue.xml_service_code,
             )
             .join(OTCOperator, OTCOperator.id == EPRegistration.otc_operator_id)
             .filter(EPRegistration.group_id == EPGroup.id)
+            .filter(EPRegistration.id.in_(subquery_q2))
             .group_by(
                 OTCLicence.licence_number,
                 OTCOperator.operator_name,
@@ -546,43 +588,53 @@ class DBManager:
             )          
         )
         if EPGroup:
-            subquery_q2 = subquery_q2.filter(EPRegistration.group_id == EPGroup.id).subquery()
+            subquery_q3 = subquery_q3.filter(EPRegistration.group_id == EPGroup.id).subquery()
         else:
-            subquery_q2 = subquery_q2.subquery()
+            subquery_q3 = subquery_q3.subquery()
 
         query = (
             session.query(
-                subquery_q2.c.licence_number,
-                subquery_q2.c.operator_name,
-                subquery_q2.c.licence_status,
-                func.round(
+            subquery_q3.c.licence_number,
+            subquery_q3.c.operator_name,
+            subquery_q3.c.licence_status,
+            func.round(
+                (
+                100.0
+                * func.sum(
+                    case(
                     (
-                        100.0
-                        * func.sum(
-                            case(
-                                (
-                                    (
-                                        subquery_q2.c.requires_attention,
-                                        subquery_q2.c.count,
-                                    )
-                                ),
-                                else_=0,
-                            )
+                        (
+                        or_(subquery_q3.c.requires_attention.is_(True), subquery_q3.c.requires_attention.is_(None)),
+                        subquery_q3.c.count,
                         )
-                        / func.sum(subquery_q2.c.count)
                     ),
-                    2,
-                ).label("requires_attention"),
-                func.sum(subquery_q2.c.count).label("total_services"),
+                    else_=0,
+                    )
+                )
+                / func.sum(subquery_q3.c.count)
+                ),
+                2,
+            ).label("requires_attention"),
+            func.sum(subquery_q3.c.count).label("total_services"),
+            func.sum(case(
+                (
+                   (
+                       subquery_q3.c.requires_attention.is_(None),
+                       subquery_q3.c.count,
+                   )
+                ),
+                else_=0
+            )).label("Registrations_not_in_BODS")
             )
             .group_by(
-                subquery_q2.c.licence_number,
-                subquery_q2.c.operator_name,
-                subquery_q2.c.licence_status,
+            subquery_q3.c.licence_number,
+            subquery_q3.c.operator_name,
+            subquery_q3.c.licence_status,
             )
             .order_by(desc("total_services"))
         )
-
+        console.log(query)
+        console.log([rec._asdict() for rec in query.all()]) 
         return [rec._asdict() for rec in query.all()]
 
 

@@ -31,11 +31,11 @@ const AccordionSection: React.FC<AccordionSectionProps> = ({
               <span>{title}</span>
               {status === "Valid" ? (
                 <span className="govuk-tag govuk-tag--green govuk-!-margin-left-4">
-                  Valid
+                  Valid in OTC
                 </span>
               ) : (
                 <span className="govuk-tag govuk-tag--red govuk-!-margin-left-4">
-                  Invalid
+                  Invalid in OTC
                 </span>
               )}
             </div>
