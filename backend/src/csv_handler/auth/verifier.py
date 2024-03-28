@@ -1,13 +1,19 @@
-from fastapi import Depends, HTTPException, Security, status
-from fastapi.security import HTTPBearer
-from utils.logger import log
 import cognitojwt
 
-from starlette.requests import Request
-from starlette.status import HTTP_401_UNAUTHORIZED
-from utils.exceptions import RegionIsNotSet, UserPoolIdIsNotSet, AppClientIdIsNotSet
 from central_config import AWS_REGION, USERPOOL_ID, APP_CLIENT_ID
+from fastapi import (
+  Depends, 
+  HTTPException, 
+  Request,
+  Security, 
+  status
+)
+from fastapi.security import HTTPBearer
 from typing import Tuple
+from utils.exceptions import RegionIsNotSet, UserPoolIdIsNotSet, AppClientIdIsNotSet
+from utils.logger import log
+from utils.pydant_model import AuthenticatedEntity
+
 
 class CustomHTTPBearer(HTTPBearer):
     def __init__(self, auto_error: bool = True):
