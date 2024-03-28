@@ -25,6 +25,14 @@ const PrivacyStatement: React.FC = () => {
             Open Data Service (BODS). The service is provided by the Department
             for Transport.
           </p>
+          <p className="govuk-heading-m">What data we collect from you</p>
+          <p>
+            Our main purpose is ensuring data regarding devolved bus service
+            registrations is available to inform the validity and accuracy of
+            data hosted within the BODS system about local bus services across
+            England is in the public domain and utilised responsibly. This data
+            is provided by registered users from Local Authorities.
+          </p>
           <p className="govuk-heading-m">
             The personal data we collect from you includes:
           </p>
