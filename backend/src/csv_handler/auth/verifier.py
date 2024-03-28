@@ -1,16 +1,30 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Security, status
 from fastapi.security import HTTPBearer
 from utils.logger import log
 import cognitojwt
 
-from utils.pydant_model import AuthenticatedEntity
+from starlette.requests import Request
+from starlette.status import HTTP_401_UNAUTHORIZED
 from utils.exceptions import RegionIsNotSet, UserPoolIdIsNotSet, AppClientIdIsNotSet
 from central_config import AWS_REGION, USERPOOL_ID, APP_CLIENT_ID
 from typing import Tuple
 
+class CustomHTTPBearer(HTTPBearer):
+    def __init__(self, auto_error: bool = True):
+        super().__init__(auto_error=auto_error)
 
-http_bearer = HTTPBearer()
-
+    async def __call__(self, request: Request):
+        try:
+            return await super().__call__(request)
+        except HTTPException as auth_exc:
+            # Transform HTTP_403_FORBIDDEN to HTTP_401_UNAUTHORIZED
+            if auth_exc.status_code == status.HTTP_403_FORBIDDEN:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Not authenticated",
+                    headers={"WWW-Authenticate": "Bearer"},
+                ) from auth_exc
+            raise
 
 class TokenVerifier:
     """
@@ -62,14 +76,14 @@ class TokenVerifier:
             return False
 
 
-def token_verifier(token: str = Depends(http_bearer)):
+def token_verifier(token: str = Security(CustomHTTPBearer())):
     """Verify the token using the TokenVerifier class.
 
     Args:
         token (str, optional): The token to be verified. Defaults to Depends(http_bearer).
 
     Raises:
-        HTTPException: If the token is invalid, raise an HTTPException with status code 403.
+        HTTPException: If the token is invalid, raise an HTTPException with status code 401.
     """
     # Verify if its in local and token is local
     verification = TokenVerifier(token.credentials)
@@ -78,7 +92,7 @@ def token_verifier(token: str = Depends(http_bearer)):
         return verification.claims
     log.debug(f"Token verification status: {verify}")
     if not verify:
-        raise HTTPException(status_code=403, detail="Unauthorized")
+        raise HTTPException(status_code=401, detail="Not authenticated")
 
 
 def is_an_app(claims: dict) -> Tuple[bool, str]:
@@ -100,16 +114,17 @@ def get_local_authority(claims: dict = Depends(token_verifier)):
     return get_entity(claims, only_local_authority=True)
 
 
-
-
-def get_entity(claims: dict = Depends(token_verifier),only_local_authority=Depends((lambda: False)))-> AuthenticatedEntity|HTTPException:
+def get_entity(
+  claims: dict = Depends(token_verifier),
+  only_local_authority=Depends((lambda: False))
+) -> AuthenticatedEntity|HTTPException:
     """Check the identity weather its a local authority or an app.
 
     Args:
         claims (dict, optional): _description_. Defaults to Depends(token_verifier).
 
     Returns:
-        AuthenticatedEntity: The current user/app, or raise an HTTPException with status code 403.
+        AuthenticatedEntity: The current user/app, or raise an HTTPException with status code 401.
     """
     
     is_local_authority, username = is_a_local_authority(claims)
@@ -121,4 +136,4 @@ def get_entity(claims: dict = Depends(token_verifier),only_local_authority=Depen
         if  is_app and len(app_name) > 0:
             return AuthenticatedEntity(type="app", name=app_name)
 
-    raise HTTPException(status_code=403, detail="Unauthorized!!")
+    raise HTTPException(status_code=401, detail="Not authenticated")

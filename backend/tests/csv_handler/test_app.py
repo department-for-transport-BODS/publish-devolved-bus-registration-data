@@ -73,9 +73,6 @@ def test_search_records_validation_error(app_dependency_override):
         ]
     }
 
-<<<<<<< HEAD
-=======
-
 @pytest.fixture
 def file_name():
     # Create a test file
@@ -93,7 +90,7 @@ def test_create_upload_file_without_authentications(file_name):
     response = client.post("api/v1/upload-file/", files={"file": open(file_name, "rb")})
 
     # Assert that the response status code is 200
-    assert response.status_code == 403
+    assert response.status_code == 401
 
     # Assert that the response contains the expected filename
     assert response.json() == {"detail": "Not authenticated"}

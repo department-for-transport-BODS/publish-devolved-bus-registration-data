@@ -84,13 +84,19 @@ Resources:
         ApiDocs:
           Type: Api
           Properties:
-            Path: /docs
+            Path: /api/v1/docs
+            Method: GET
+            RestApiId: !Ref CsvHandlerApi
+        ApiRedoc:
+          Type: Api
+          Properties:
+            Path: /api/v1/redoc
             Method: GET
             RestApiId: !Ref CsvHandlerApi
         ApiOpenApiJson:
           Type: Api
           Properties:
-            Path: /openapi.json
+            Path: /api/v1/openapi.json
             Method: GET
             RestApiId: !Ref CsvHandlerApi
       VpcConfig:
@@ -557,9 +563,39 @@ Resources:
             - GET
             - HEAD
             - OPTIONS
-          OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf #CORS-S3ORIGIN
-          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6 #CACHING ENABLED
+          OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf # Managed-CORS-S3Origin
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6 # Managed-CachingOptimised
         CacheBehaviors:
+          - TargetOriginId: backendApi
+            PathPattern: '/api/v1/docs'
+            DefaultTTL: 0
+            MinTTL: 0
+            MaxTTL: 0
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: 
+              - GET
+              - HEAD
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad # Managed-CachingDisabled
+          - TargetOriginId: backendApi
+            PathPattern: '/api/v1/redoc'
+            DefaultTTL: 0
+            MinTTL: 0
+            MaxTTL: 0
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: 
+              - GET
+              - HEAD
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad # Managed-CachingDisabled
+          - TargetOriginId: backendApi
+            PathPattern: '/api/v1/openapi.json'
+            DefaultTTL: 0
+            MinTTL: 0
+            MaxTTL: 0
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods: 
+              - GET
+              - HEAD
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad # Managed-CachingDisabled
           - TargetOriginId: backendApi
             PathPattern: '/api/v1/*'
             DefaultTTL: 0
@@ -574,36 +610,8 @@ Resources:
               - POST
               - PATCH
               - DELETE
-            CachePolicyId: !Sub '{{resolve:ssm:/shared/${ProjectName}/cloudfront/cachepolicy/id}}'
-            OriginRequestPolicyId: !Sub '{{resolve:ssm:/shared/${ProjectName}/cloudfront/originrequestpolicy/id}}'
-            ForwardedValues:
-              QueryString: true
-          - TargetOriginId: backendApi
-            PathPattern: '/docs'
-            DefaultTTL: 0
-            MinTTL: 0
-            MaxTTL: 0
-            ViewerProtocolPolicy: https-only
-            AllowedMethods: 
-              - GET
-              - HEAD
-            CachePolicyId: !Sub '{{resolve:ssm:/shared/${ProjectName}/cloudfront/cachepolicy/id}}'
-            OriginRequestPolicyId: !Sub '{{resolve:ssm:/shared/${ProjectName}/cloudfront/originrequestpolicy/id}}'
-            ForwardedValues:
-              QueryString: true
-          - TargetOriginId: backendApi
-            PathPattern: '/openapi.json'
-            DefaultTTL: 0
-            MinTTL: 0
-            MaxTTL: 0
-            ViewerProtocolPolicy: https-only
-            AllowedMethods: 
-              - GET
-              - HEAD
-            CachePolicyId: !Sub '{{resolve:ssm:/shared/${ProjectName}/cloudfront/cachepolicy/id}}'
-            OriginRequestPolicyId: !Sub '{{resolve:ssm:/shared/${ProjectName}/cloudfront/originrequestpolicy/id}}'
-            ForwardedValues:
-              QueryString: true
+            CachePolicyId: !Sub '{{resolve:ssm:/shared/${ProjectName}/cloudfront/cachepolicy/id}}' # Custom-CachingHeader-ApiGatewayRequireAuthorization
+            OriginRequestPolicyId: !Sub '{{resolve:ssm:/shared/${ProjectName}/cloudfront/originrequestpolicy/id}}' # Custom-OriginRequest-ApiGatewayRequireAuthorization
         Logging:
           Bucket: !Sub 'shared-${ProjectName}-cdn-logging-${AWS::AccountId}.s3.amazonaws.com' 
           Prefix: !Ref Environment
