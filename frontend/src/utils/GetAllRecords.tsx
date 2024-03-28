@@ -43,7 +43,8 @@ const GetAllRecords = async () => {
                 a.click();
                 window.URL.revokeObjectURL(url);
                 } catch (error) {
-                console.log(error)
+                     throw new Error("Failed to download CSV");
+                    
         }
 
 };

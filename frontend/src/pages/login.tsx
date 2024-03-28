@@ -161,7 +161,7 @@ const LoginPage: React.FC<Props> = ({ error, nextPage }) => {
           <div className="govuk-grid-column-two-thirds">
             <div className="govuk-!-width-three-quarters">
               <p className="govuk-heading-m govuk-!-font-size-27">
-                Enter you Enhanced
+                Enter your Enhanced
                 <br /> partnership registration account details to sign in
               </p>
               {!confirmPassword &&

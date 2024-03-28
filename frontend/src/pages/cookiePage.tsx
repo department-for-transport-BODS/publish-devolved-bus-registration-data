@@ -19,7 +19,7 @@ const CookiePage: React.FC = () => {
         </h1>
         <div className="govuk-!-font-size-19">
           <p>
-            Cookies are fiels saved on your phone, tablet or computer when you
+            Cookies are files saved on your phone, tablet or computer when you
             visit a website.
           </p>
           <p>
@@ -29,7 +29,7 @@ const CookiePage: React.FC = () => {
           <p className="govuk-heading-m">Essential cookies</p>
           <p>
             Essential cookies keep your information secure while you use this
-            service. We do nt need to ask permission to use them.
+            service. We don&apos;t need to ask permission to use them.
           </p>
 
           <table className="govuk-table">
