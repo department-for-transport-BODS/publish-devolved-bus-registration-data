@@ -19,13 +19,13 @@ from utils.db import DBManager
 from utils.pydant_model import AuthenticatedEntity, SearchQuery
 
 
-
 @api_v1_router.post(
     "/upload-file",
     status_code=status.HTTP_201_CREATED,
 )
 async def create_upload_file(
-    file: UploadFile = File(...), authenticated_entity: AuthenticatedEntity = Depends(get_local_authority)
+    file: UploadFile = File(...),
+    authenticated_entity: AuthenticatedEntity = Depends(get_local_authority),
 ):
     """This is the endpoint to upload a CSV file and process it.
 
@@ -108,7 +108,9 @@ async def search_records(
             strictMode=strictMode,
             page=page,
         )
-        records = DBManager.get_records(authenticated_entity, **search_query.model_dump())
+        records = DBManager.get_records(
+            authenticated_entity, **search_query.model_dump()
+        )
 
         # Get the host and path from the request
         host = request.headers.get("host")
@@ -161,8 +163,9 @@ async def search_records_options():
 async def view_registrations(authenticated_entity: str = Depends(get_entity)):
     """This is the endpoint to view all the records in the database"""
     try:
-
-        records = DBManager.get_record_reuiqred_attention_percentage(authenticated_entity)
+        records = DBManager.get_record_required_attention_percentage(
+            authenticated_entity
+        )
         return records
     except GroupIsNotFound as e:
         print("GroupIsNotFound", e)
@@ -171,10 +174,27 @@ async def view_registrations(authenticated_entity: str = Depends(get_entity)):
         print("Exception", e)
         raise HTTPException(status_code=400, detail={})
 
+
 @api_v1_router.get("/all-records", status_code=status.HTTP_200_OK)
-async def get_all_records(authenticated_entity: str = Depends(get_entity)):
+def get_all_records(
+    authenticated_entity: str = Depends(get_entity),
+    latestOnly: str = Query(
+        "No", description="Whether to retrieve only the latest records"
+    ),
+):
     """This is the endpoint to view all the records in the database"""
-    records = DBManager.get_all_records(authenticated_entity)
+
+    if latestOnly.lower() in ["yes", "true"]:
+        records = DBManager.get_all_records(authenticated_entity, latest_only=True)
+    elif latestOnly.lower() in ["no", "false"]:
+        records = DBManager.get_all_records(authenticated_entity,latest_only=False)
+    else:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "message": "Invalid value for latestOnly, it should be either 'Yes','No', 'True' or 'False'"
+            },
+        )
     return records
 
 

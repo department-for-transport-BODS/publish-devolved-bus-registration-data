@@ -23,10 +23,14 @@ type Props = {
 
 const LoginPage: React.FC<Props> = ({ error, nextPage }) => {
   const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<string[]>(error ? [error] : []);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
   const navigate = useNavigate();
-  const { setIsLoggedIn, signIn } = useContext(IsLoggedInContext);
+  const { isLoggedIn, setIsLoggedIn, signIn } = useContext(IsLoggedInContext);
   const [showError, setShowError] = useState(false);
   const location = useLocation();
   const state = location?.state ? location.state : null;
@@ -35,6 +39,22 @@ const LoginPage: React.FC<Props> = ({ error, nextPage }) => {
     boolean | null
   >(null);
   async function handleSignIn({ username, password }: SignInInput) {
+    if (isLoggedIn){ 
+      setErrorMsg("A user is are already signed in")
+    return}
+
+    if (username ==="" || password ==="") {
+      setErrorMsg("Please enter your email and password");
+    if (username === "") {
+      setEmailError("Enter your email address");
+      setPassword(!password? "" :password)
+    }
+    if (password === "") {
+      setPasswordError("Enter a password");
+      setEmail(email)
+    }
+    return;
+  }
     try {
       const { isSignedIn, nextStep } = await signIn({ username, password });
       setIsLoggedIn ? setIsLoggedIn(isSignedIn) : null;
@@ -152,6 +172,13 @@ const LoginPage: React.FC<Props> = ({ error, nextPage }) => {
                     handleSignIn={handleSignIn}
                     email={email}
                     setEmail={setEmail}
+                    emailError={emailError}
+                    setEmailError={setEmailError}
+                    passwordError={passwordError}
+                    setPasswordError={setPasswordError}
+                    password={password}
+                    setPassword={setPassword}
+
                   />
                 )}
               {confirmPassword && (
