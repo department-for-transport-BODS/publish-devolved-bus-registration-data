@@ -22,7 +22,7 @@ class LimitExceeded(Exception):
     pass
 
 
-class GroupIsNotAuthorized(Exception):
+class GroupIsNotAuthorised(Exception):
     pass
 
 

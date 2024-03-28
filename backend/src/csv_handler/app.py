@@ -129,8 +129,7 @@ async def search_records(
         errors = extract_error_fields(e.errors())
         raise HTTPException(status_code=422, detail=errors)
     except GroupIsNotFound:
-        raise HTTPException(status_code=403, detail={"message": "User is not found"})
-
+        raise HTTPException(status_code=401, detail={"message": "Not authenticated"})
     except LimitIsNotSet as e:
         raise HTTPException(status_code=422, detail=str(e))
     except LimitExceeded as e:
