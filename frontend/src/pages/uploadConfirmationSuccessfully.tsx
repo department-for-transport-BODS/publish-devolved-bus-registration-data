@@ -4,13 +4,8 @@ import Footer from '../Layout/Footer';
 import {FullColumnLayout} from '../Layout/Layout';
 import SuccessfullyUpdated from '../components/SuccessfullyUpdated';
 import ServiceCount from '../components/ServiceCount';
-import {useLocation } from 'react-router-dom';
-// const height = { height: 'auto' };
+import {Link, useLocation } from 'react-router-dom';
 
-// interface PartlyUploadsProps {
-//     title: string;
-//     validRecords: number;
-// }
 export interface SuccessfullyUploadedProps{
     initialProps: any,
     state?: any
@@ -39,9 +34,9 @@ const SuccessfullyUploaded: React.FC = () => {
                  />
                     <div className="row">
                         <div className="govuk-button-group govuk-!-margin-bottom-8 govuk-!-margin-top-7">
-                            <button type="submit" className="govuk-button" data-module="govuk-button">
-                                    View published data set
-                            </button>
+                            <Link to="/view-registrations" className="govuk-button">
+                            View active registrations
+                            </Link>
                         </div>
                     </div>
 
