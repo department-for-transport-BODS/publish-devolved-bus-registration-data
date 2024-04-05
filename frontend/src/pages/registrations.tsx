@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 
 const Registration: React.FC = () => {
   const {isLoggedIn } = useContext(IsLoggedInContext);
+  const TITLE = process.env.REACT_APP_TITLE;
   // const isLoggedIn = IsLoggedInContext;
   // useEffect(() => {
   //     console.log("Is logged in", isLoggedIn);
@@ -34,7 +35,7 @@ const Registration: React.FC = () => {
     <>
       <FullColumnLayout title="Registrations" description="Home" hideCookieBanner={true} isLoggedIn={isLoggedIn}>
         <h1 className="govuk-heading-xl">
-          Enhanced Partnerships Registration tool 
+          {TITLE} 
         </h1>
         {LINKS.map((value) => {
           return (

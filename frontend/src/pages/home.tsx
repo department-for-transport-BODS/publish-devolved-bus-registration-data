@@ -9,7 +9,7 @@ import Footer from "../Layout/Footer";
 
 const Home: React.FC = () => {
   const {isLoggedIn } = useContext(IsLoggedInContext);
-
+  const TITLE = process.env.REACT_APP_TITLE;
 
   // const isLoggedIn = IsLoggedInContext;
   // useEffect(() => {
@@ -23,13 +23,13 @@ const Home: React.FC = () => {
   
   return (
     <>
-      <FullColumnLayout title="Home" description="Home" hideCookieBanner={true} isLoggedIn={isLoggedIn}>
+      <FullColumnLayout title={TITLE? TITLE: ""} description="Home" hideCookieBanner={true} isLoggedIn={isLoggedIn}>
         <h1 className="govuk-heading-xl">
-          Enhanced Partnerships Registration tool
+          {TITLE}
         </h1>
         <p className="govuk-body">
-          This service is for uploading enhanced partnership registrations data
-          for public transport services, excluding rail, in England.
+          This service is for uploading {TITLE?.toLowerCase()}{" "} 
+          for public transport <br /> services, excluding rail, in England.
         </p>
         <div>
           <p>The service can be used by:</p>
