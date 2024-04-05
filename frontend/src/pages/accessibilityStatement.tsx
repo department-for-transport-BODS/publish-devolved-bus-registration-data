@@ -17,7 +17,7 @@ const AccessibilityStatment: React.FC = () => {
         <h1 className="govuk-heading-xl">Accessibility Statement</h1>
         <div className="govuk-!-font-size-19">
           <p>
-            This statement applies to pages on <a href="/">ep.co.uk</a>. <br /> <br />
+            This statement applies to pages on <a href="https://publish.bus-registrations.dft.gov.uk">publish.bus-registrations.dft.gov.uk</a>. <br /> <br />
             This website is run by the Department for Transport. The text should
             be clear and simple to understand. You should be able to:
           </p>

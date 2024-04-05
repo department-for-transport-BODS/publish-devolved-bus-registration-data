@@ -5,7 +5,8 @@ import Footer from "../Layout/Footer";
 
 const CookiePage: React.FC = () => {
   const { isLoggedIn } = useContext(IsLoggedInContext);
-
+  // get title from env
+  const TITLE = process.env.REACT_APP_TITLE;
   return (
     <>
       <TwoThirdsLayout
@@ -15,7 +16,7 @@ const CookiePage: React.FC = () => {
         isLoggedIn={isLoggedIn}
       >
         <h1 className="govuk-heading-xl">
-          Cookies on the Registrations portal
+          Cookies on the {TITLE}
         </h1>
         <div className="govuk-!-font-size-19">
           <p>

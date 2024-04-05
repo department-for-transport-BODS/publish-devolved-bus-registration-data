@@ -9,14 +9,14 @@ import Footer from "../Layout/Footer";
 
 const ContactUs: React.FC = () => {
   const {isLoggedIn } = useContext(IsLoggedInContext);
-
+  const TITLE = process.env.REACT_APP_TITLE;
 
   
   return (
     <>
-      <TwoThirdsLayout title="Home" description="Home" hideCookieBanner={true} isLoggedIn={isLoggedIn}>
+      <TwoThirdsLayout title="Contact Us" description="Home" hideCookieBanner={true} isLoggedIn={isLoggedIn}>
         <h1 className="govuk-heading-xl">
-        Contact the Enhanced Partnerships Service team
+        Contact the {TITLE}
         </h1>
         <p className="govuk-heading-m">
         Feedback and support 

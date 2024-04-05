@@ -7,7 +7,7 @@ type Props = {
 
 const Header = (): ReactElement<Props> => {
 
-
+  const TITLE = process.env.REACT_APP_TITLE;
   const {isLoggedIn,signOutHandler} = useContext(IsLoggedInContext);
   console.log("isLoggedIn: ", isLoggedIn); 
   const handleSignOut = () => {
@@ -48,7 +48,7 @@ useEffect(() => {
           <div className="govuk-header__content">
             <span className="govuk-header__service-name">
             <a href="/" className="govuk-header__link">
-              Enhanced Partnerships Registrations
+            {TITLE}
               </a>
             </span>
               {isLoggedIn ? (
