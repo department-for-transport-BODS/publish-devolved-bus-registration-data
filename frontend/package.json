@@ -24,6 +24,7 @@
     "react-auth-kit": "^3.1.2",
     "react-csv-reader": "^4.0.0",
     "react-dom": "^18.2.0",
+    "react-error-boundary": "^4.0.13",
     "react-favicon": "^2.0.3",
     "react-head": "^3.4.2",
     "react-portal": "^4.2.2",

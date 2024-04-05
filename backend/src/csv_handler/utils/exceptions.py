@@ -32,3 +32,6 @@ class GroupIsNotFound(Exception):
 
 class RecordBelongsToAnotherUser(Exception):
     pass
+
+class NotAuthorised(Exception):
+    pass

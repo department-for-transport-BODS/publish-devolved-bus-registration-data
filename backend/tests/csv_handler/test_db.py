@@ -47,7 +47,7 @@ class TestCreateEngine:
         mock_exit.assert_called_with(1)
         mock_secret.assert_called()
         mock_print.assert_called_with(
-            "The error 'string indices must be integers, not 'str'' occurred"
+            "The error 'string indices must be integers' occurred"
         )
 
 
