@@ -32,10 +32,14 @@ def csv_data_structure_check(csv_data: [dict]) -> dict:
             # Extract the field, message and type from the errors of a ValidationError object.
             modified_errors = extract_field_mgs_type_from_errors(errors)
             validation_errors.update({f"{idx + 2}": modified_errors})
-            print("Validation Errors:", validation_errors)
         except Exception as e:
             log.error(f"Error: {e}")
-    return {"invalid_records": validation_errors, "valid_records": valid_records}
+    
+    if len(validation_errors) == 0:
+        return {"invalid_records": [],"valid_records": valid_records}
+
+    validation_description = "CSV data structure check"
+    return {"invalid_records": [{"records" : validation_errors, "description": validation_description}], "valid_records": valid_records}
 
 
 def extract_field_mgs_type_from_errors(errors: [dict]) -> dict:

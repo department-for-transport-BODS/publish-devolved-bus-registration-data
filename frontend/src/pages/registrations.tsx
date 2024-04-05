@@ -5,11 +5,10 @@ import { Link } from "react-router-dom";
 import {IsLoggedInContext} from "../utils/login/LoginProvider";
 import  Footer  from "../Layout/Footer";
 import { v4 as uuidv4 } from "uuid";
-
+import { TITLE } from "../utils/contants";
 
 const Registration: React.FC = () => {
   const {isLoggedIn } = useContext(IsLoggedInContext);
-  const TITLE = process.env.REACT_APP_TITLE;
   // const isLoggedIn = IsLoggedInContext;
   // useEffect(() => {
   //     console.log("Is logged in", isLoggedIn);

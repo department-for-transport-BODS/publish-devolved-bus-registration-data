@@ -9,7 +9,7 @@ import useRegistrationStatus from "../utils/GetRegistrationStatus";
 import { v4 as uuidv4 } from "uuid";
 import GetAllRecords from "../utils/GetAllRecords";
 import { fetchAuthSession } from "aws-amplify/auth";
-const Registration: React.FC = () => {
+const ViewRegistrations: React.FC = () => {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { data, loading, error } = useRegistrationStatus();
   // const { data, loading, error } = useGetAllRecords();
@@ -113,4 +113,4 @@ const Registration: React.FC = () => {
   );
 };
 
-export default Registration;
+export default ViewRegistrations;

@@ -24,10 +24,10 @@ class CSVManager:
              Record reports: A dictionary containing the valid and invalid records and the count of valid records.
         """
         validated_records = self._validate_csv_data()
-        validated_records = self._check_duplicate_records(validated_records)
-        validated_records = self._check_licence_number_existence(validated_records)
+        self._check_duplicate_records(validated_records)
+        self._check_licence_number_existence(validated_records)
         self._send_to_db(validated_records, self.group_name)
-        validated_records = self._remove_licence_details(validated_records)
+        self._remove_licence_details(validated_records)
         # Add the count of valid records to the validated_records dictionary
         validated_records["valid_records_count"] = len(
             validated_records["valid_records"]
@@ -45,6 +45,7 @@ class CSVManager:
 
     def _check_duplicate_records(self, records):
         records_copy = deepcopy(records)
+        duplicated_check_records = {}
         for idx, record in records_copy["valid_records"].items():
             duplicated_records = []
             for idx2, records2 in records_copy["valid_records"].items():
@@ -56,16 +57,17 @@ class CSVManager:
                 ):
                     duplicated_records.append(idx2)
             if duplicated_records:
-                if records["invalid_records"].get(idx):
-                    records["invalid_records"][idx].appand(
-                        {"CSV contains duplicated records": duplicated_records}
-                    )
-                else:
-                    records["invalid_records"][idx] = [
-                        {
-                            "CSV contains duplicated records": f"""{(', ').join(duplicated_records)}"""
-                        }
-                    ]
+                # if records["invalid_records"].get(idx):
+                #     records["invalid_records"][idx].appand(
+                #         {"CSV contains duplicated records": duplicated_records}
+                #     )
+                # else:
+                # records["invalid_records"]["duplicated_records"][idx] = [
+                duplicated_check_records[idx] = [
+                    {
+                        "": f"""Duplicate of record {(', ').join(duplicated_records)}"""
+                    }
+                ]
                 try:
                     del records["valid_records"][idx]
                 except KeyError:
@@ -75,11 +77,19 @@ class CSVManager:
                         del records["valid_records"][i]
                     except KeyError:
                         pass
-
-        return records
+        if len(duplicated_check_records) > 0:
+            if records.get("invalid_records") is None:
+                records["invalid_records"] = []
+                validation_description = "CSV data structure check"
+                records["invalid_records"].append({"records": duplicated_check_records, "description": validation_description})
+            else:
+                data_structure_invalid = records["invalid_records"][0]
+                data_structure_invalid["records"].update(duplicated_check_records)
+                records["invalid_records"][0] = data_structure_invalid
+        
 
     def _check_licence_number_existence(self, records):
-        return validate_licence_number_existence(records)
+        validate_licence_number_existence(records)
 
     def _send_to_db(self, records, group_name):
         send_to_db(records, group_name)

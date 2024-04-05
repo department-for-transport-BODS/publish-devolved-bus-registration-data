@@ -21,7 +21,6 @@ def verify_otc_api(licence_numbers: List):
         for key, registration in licence_numbers.items():
             licence_numbers_list.add(registration.licence_number)
 
-        # console.log(licence_numbers)
         if OTC_CLIENT_API_URL != "OTC_API_URL is not set":
             url = OTC_CLIENT_API_URL
         else:
