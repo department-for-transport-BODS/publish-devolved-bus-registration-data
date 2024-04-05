@@ -47,6 +47,9 @@ const PartlyUploading: React.FC = () => {
           description="Registered services"
           key={uuidv4()}
         />
+        <h2 className="govuk-!-margin-top-7 govuk-!-margin-bottom-1">
+        Summary of records that failed to upload 
+        </h2>
         {InvalidFieldsData.map((element: any) => (
           <div className="govuk-grid-column-one-quarter" key={uuidv4()}>
             <ServiceCount

@@ -1,7 +1,5 @@
-import React, {  useContext, useEffect, useState } from "react";
-import { FullColumnLayout, TwoThirdsLayout } from "../Layout/Layout";
-import HelpAndSupport from "../components/HelpAndSupport";
-import { Link } from "react-router-dom";
+import React, {  useContext} from "react";
+import { TwoThirdsLayout } from "../Layout/Layout";
 import {IsLoggedInContext} from "../utils/login/LoginProvider";
 import Footer from "../Layout/Footer";
 import { TITLE } from "../utils/contants";
