@@ -1,13 +1,16 @@
+import csv
+from io import StringIO
 from utils.csv_validator import csv_data_structure_check
-from utils.db import send_to_db
+from utils.db import send_to_db, send_report_to_db
 from utils.validate import validate_licence_number_existence
 from copy import deepcopy
 
 
 class CSVManager:
-    def __init__(self, csv_data: str, authenticated_entity_name: str = None):
+    def __init__(self, csv_data: str, authenticated_entity_name: str = None, report_id: str = None):
         self.csv_data = csv_data
         self.group_name = authenticated_entity_name
+        self.report_id = report_id
 
     def validation_and_insertion_steps(self) -> dict:
         """This function performs the following steps:
@@ -30,7 +33,12 @@ class CSVManager:
             validated_records["valid_records"]
         )
         del validated_records["valid_records"]
-        return validated_records
+
+        if validated_records["invalid_records"] == {}:
+            del validated_records["invalid_records"]
+        # Send the report to the database
+        self._send_report_to_db(validated_records, self.group_name, self.report_id)
+
 
     def _validate_csv_data(self):
         return csv_data_structure_check(self.csv_data)
@@ -92,3 +100,20 @@ class CSVManager:
         except Exception as e:
             print(f"Error: {e}")
         return records
+
+    def _send_report_to_db(self, records_report, authenticated_entity_name, report_id):
+        send_report_to_db(records_report, authenticated_entity_name, report_id)
+
+
+
+def process_csv_file(content, authenticated_entity, report_id):
+    # Decode the CSV data
+    csv_str = content.decode("utf-8-sig")
+    # Convert the CSV data into a dictionary
+    csv_data = list(csv.DictReader(StringIO(csv_str)))
+    csv_handler = CSVManager(csv_data, authenticated_entity.name, report_id)
+    csv_handler.validation_and_insertion_steps()
+    # Validate the CSV input data
+    
+
+

@@ -1,4 +1,3 @@
-import csv
 from fastapi import (
     File,
     HTTPException,
@@ -7,25 +6,28 @@ from fastapi import (
     Depends,
     status,
     Query,
+    BackgroundTasks
 )
-from io import StringIO
 from pydantic import ValidationError
-from managers import CSVManager
+from managers import process_csv_file
 from mangum import Mangum
 from utils.exceptions import LimitIsNotSet, LimitExceeded, GroupIsNotFound
 from auth.verifier import get_entity, get_local_authority
 from central_config import app, api_v1_router
 from utils.db import DBManager
 from utils.pydant_model import AuthenticatedEntity, SearchQuery
+from uuid import uuid4
+from utils.logger import log
 
 
 @api_v1_router.post(
     "/upload-file",
-    status_code=status.HTTP_201_CREATED,
+    status_code=status.HTTP_200_OK,
 )
 async def create_upload_file(
+    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
-    authenticated_entity: AuthenticatedEntity = Depends(get_local_authority),
+    authenticated_entity: AuthenticatedEntity = Depends(get_local_authority) 
 ):
     """This is the endpoint to upload a CSV file and process it.
 
@@ -40,18 +42,37 @@ async def create_upload_file(
     Returns:
         _type_: _description_
     """
-    contents = await file.read()
-    # Decode the CSV data
-    csv_str = contents.decode("utf-8-sig")
-    # Convert the CSV data into a dictionary
-    csv_data = list(csv.DictReader(StringIO(csv_str)))
-    csv_handler = CSVManager(csv_data, authenticated_entity.name)
-    records_report = csv_handler.validation_and_insertion_steps()
-    # Validate the CSV input data
-    if records_report.get("invalid_records"):
-        raise HTTPException(status_code=422, detail=records_report)
-    return records_report
+    # Generate a unique ID for the CSV file
+    report_id = str(uuid4())
+    try:
+        content = await file.read()
+        background_tasks.add_task(process_csv_file, content, authenticated_entity, report_id)
+    except Exception as e:
+        log.error(f"Error: {e}")
+        raise HTTPException(status_code=400, detail={"message": "Encountered an error while processing the file"})
 
+    return {"message": "File is being proccessed", "report_id": report_id}
+
+@api_v1_router.get("/get-report", status_code=status.HTTP_200_OK)
+async def get_report(
+    authenticated_entity: AuthenticatedEntity = Depends(get_entity),
+    report_id: str = Query(..., description="The request ID for the report"),
+):
+    """This is the endpoint to get the report for the CSV file uploaded.
+
+    Args:
+        report_id (str): The request ID for the report
+
+    Raises:
+        HTTPException: status_code: 404 if the report is not found
+
+    Returns:
+        report (json) : json format of the report.
+    """
+    records_report = DBManager.get_report_then_delete_it_from_db(authenticated_entity, report_id)
+    if not records_report:
+        raise HTTPException(status_code=404, detail={"message": "Report not found"})
+    return {"Report": records_report, "ReportStatus": "Completed"}
 
 @api_v1_router.post("/search", status_code=status.HTTP_200_OK)
 async def search_records(

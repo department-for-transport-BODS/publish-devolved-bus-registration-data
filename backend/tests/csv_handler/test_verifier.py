@@ -22,7 +22,6 @@ def test_verify_token_valid_token(mock_cognitojwt_decode):
         "valid_token",
         "test_region",
         "test_userpool_id",
-        app_client_id="test_app_client_id",
     )
 
 
@@ -54,8 +53,7 @@ def test_verify_token_missing_region():
 @patch("auth.verifier.USERPOOL_ID", "test_userpool_id")
 @patch("auth.verifier.APP_CLIENT_ID", "test_app_client_id")
 @patch("cognitojwt.decode")
-@patch("auth.verifier.console.log")
-def test_verify_token_invalid_token(mock_console_log, mock_cognitojwt_decode):
+def test_verify_token_invalid_token(mock_cognitojwt_decode):
     # mock_cognitojwt_decode.side_effect = Exception("Invalid token")
     # Create an invalid token
     token = "invalid_token"

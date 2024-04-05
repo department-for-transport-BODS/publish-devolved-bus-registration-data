@@ -94,6 +94,7 @@ class AutoMappingModels:
         self.OTCLicence = self.Base.classes.otc_licence
         self.BODSDataCatalogue = self.Base.classes.bods_data_catalogue
         self.EPGroup = self.Base.classes.ep_group
+        self.EPReport = self.Base.classes.ep_report
         self.OTCLicence.__repr__ = (
             lambda self: f"<OTCLicence(licence_number='{self.licence_number}', licence_status='{self.licence_status}, otc_licence_id={self.otc_licence_id}')>"
         )
@@ -109,6 +110,9 @@ class AutoMappingModels:
         self.EPGroup.__repr__ = (
             lambda self: f"<EPGroup(local_auth='{self.local_auth}')>"
         )
+        self.EPReport.__repr__ = (
+            lambda self: f"<EPReport(id='{self.id}', report_id='{self.report_id}', group_id='{self.group_id}', report='{self.report}')>"
+        )
 
     def get_tables(self):
         return {
@@ -116,6 +120,8 @@ class AutoMappingModels:
             "OTCOperator": self.OTCOperator,
             "OTCLicence": self.OTCLicence,
             "EPUsers": self.EPGroup,
+            "EPReport": self.EPReport,
+            "BODSDataCatalogue": self.BODSDataCatalogue,
         }
 
 
@@ -637,6 +643,27 @@ class DBManager:
         console.log([rec._asdict() for rec in query.all()]) 
         return [rec._asdict() for rec in query.all()]
 
+    @classmethod
+    def get_report_then_delete_it_from_db(cls, authenticated_entity: AuthenticatedEntity, report_id: str):
+        models, session = initiate_db_variables()
+        EPReport = models.EPReport
+        EPGroup = models.EPGroup
+        if authenticated_entity.type == "local_auth":
+            EPGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
+        if not EPGroup:
+            return None
+        report = (
+            session.query(EPReport)
+            .filter(EPReport.report_id == report_id)
+            .filter(EPReport.group_id == EPGroup.id)
+            .one_or_none()
+        )
+        if report:
+            # Delete report from db:
+            session.delete(report)
+            session.commit()
+            return report.report
+        return None
 
 def send_to_db(records: List[Registration], group_name = None):
     # validated_records: List[Registration] = MockData.mock_user_csv_record()
@@ -709,6 +736,7 @@ def send_to_db(records: List[Registration], group_name = None):
                 }
             )
             db_invalid_insertion.append(idx)
+            session.commit()
         except Exception:
             console.print_exception(show_locals=False)
             session.rollback()
@@ -719,3 +747,17 @@ def send_to_db(records: List[Registration], group_name = None):
         del records["valid_records"][f"{idx}"]
 
     return records
+
+
+
+def send_report_to_db(report: dict, group_name: str, report_id: str):
+    models, session = initiate_db_variables()
+
+    EPGroup = DBGroup(models, session).get_or_create_user(group_name)
+    EPReport = models.EPReport
+    report_record = EPReport(
+        report_id=report_id, group_id=EPGroup.id, report=report
+    )
+    session.add(report_record)
+    session.commit()
+    session.close()
