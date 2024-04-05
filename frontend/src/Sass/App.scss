@@ -16,3 +16,32 @@
     }
 
 }
+
+
+.paginated-results a {
+   &:visited{
+    color: #1d70b8;
+  }
+}
+
+
+.border {
+    border: 1px solid #b1b4b6;
+    margin: 10px;
+    border-radius: 3;
+    padding: 10px;
+    
+}
+
+.current-page {
+    background-color: #ffdd00;
+    border-bottom: black 4px solid;
+    text-decoration: none;
+    
+}
+li.three-dots{
+    color: #1d70b8;
+    // text in the in middle vertically
+    line-height:20px;
+
+}

@@ -4,12 +4,11 @@ import HelpAndSupport from "../components/HelpAndSupport";
 import { Link } from "react-router-dom";
 import {IsLoggedInContext} from "../utils/login/LoginProvider";
 import Footer from "../Layout/Footer";
-
+import { TITLE } from "../utils/contants";
 
 
 const ContactUs: React.FC = () => {
   const {isLoggedIn } = useContext(IsLoggedInContext);
-  const TITLE = process.env.REACT_APP_TITLE;
 
   
   return (

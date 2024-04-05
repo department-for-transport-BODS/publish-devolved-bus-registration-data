@@ -535,8 +535,6 @@ class DBManager:
 
         if EPGroup:
             records = records.filter(EPRegistration.group_id == EPGroup.id)
-        console.log(records)
-        console.log([rec._asdict() for rec in records.all()])
         return [rec._asdict() for rec in records.all()]
 
     @classmethod
@@ -639,8 +637,6 @@ class DBManager:
             )
             .order_by(desc("total_services"))
         )
-        console.log(query)
-        console.log([rec._asdict() for rec in query.all()]) 
         return [rec._asdict() for rec in query.all()]
 
     @classmethod
@@ -676,6 +672,8 @@ def send_to_db(records: List[Registration], group_name = None):
     # Check if the licence number exists in the OTC database
     # validated_records = validate_licence_number_existence(validated_records)
     db_invalid_insertion = []
+    already_exists_records = {}
+    belongs_to_another_user = {}
     for idx, record_and_licence in records["valid_records"].items():
         try:
             # Create a new session
@@ -723,12 +721,12 @@ def send_to_db(records: List[Registration], group_name = None):
                 EPGroup,
             )
         except RecordIsAlreadyExist:
-            records["invalid_records"].update(
+            already_exists_records.update(
                 {idx: [{"Duplicated Record": "Record already exists in the database"}]}
             )
             db_invalid_insertion.append(idx)
         except RecordBelongsToAnotherUser:
-            records["invalid_records"].update(
+            belongs_to_another_user.update(
                 {
                     idx: [
                         {"RecordBelongsToAnotherUser": "Record belongs to another user"}
@@ -745,9 +743,14 @@ def send_to_db(records: List[Registration], group_name = None):
     # Remove records from the valid_records dictionary that were not added to the database
     for idx in db_invalid_insertion:
         del records["valid_records"][f"{idx}"]
-
-    return records
-
+    if len(already_exists_records) > 0:
+        records["invalid_records"].append(
+            {"records": already_exists_records, "description": "Record already exists"}
+        )
+    if len(belongs_to_another_user) > 0:
+        records["invalid_records"].append(
+            {"records": belongs_to_another_user, "description": "Record belongs to another user"}
+        )
 
 
 def send_report_to_db(report: dict, group_name: str, report_id: str):

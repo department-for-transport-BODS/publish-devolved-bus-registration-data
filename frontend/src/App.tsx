@@ -13,7 +13,7 @@ import { Amplify } from "aws-amplify";
 import AmplifyConfiguration from "./utils/login/AmplifyConfig";
 import RequireAuth from "./utils/login/RequireAuth";
 import Registration from "./pages/registrations";
-import viewRegistrations from "./pages/viewRegistrations";
+import ViewRegistrations from "./pages/viewRegistrations";
 import ErrorPage from "./pages/errorPage";
 import ContactUs from "./pages/contactUs";
 import PrivacyStatement from "./pages/privacyStatement";
@@ -44,7 +44,7 @@ function App() {
         />
         <Route 
           path="/view-registrations"
-          element={<RequireAuth component={viewRegistrations} />}
+          element={<RequireAuth component={ViewRegistrations} />}
         />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/error" element={<ErrorPage />} />

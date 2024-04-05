@@ -1,13 +1,12 @@
 import React, { ReactElement,useContext,useEffect } from "react";
 import { IsLoggedInContext } from"../utils/login/LoginProvider";
-import { Link } from "react-router-dom";
+import { TITLE } from "../utils/contants";
 type Props = {
   isLoggedIn?: boolean;
 };
 
 const Header = (): ReactElement<Props> => {
 
-  const TITLE = process.env.REACT_APP_TITLE;
   const {isLoggedIn,signOutHandler} = useContext(IsLoggedInContext);
   console.log("isLoggedIn: ", isLoggedIn); 
   const handleSignOut = () => {

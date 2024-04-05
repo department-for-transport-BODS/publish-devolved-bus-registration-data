@@ -5,9 +5,12 @@ interface ServiceCountProps{
     count: number;
     percentage?: boolean
     description: string;
+    descriptionFontWeight?: string;
 }
 
-const ServiceCount: React.FC<ServiceCountProps> = ({ title, count, description, percentage }) => {
+const ServiceCount: React.FC<ServiceCountProps> = ({ title, count, description, percentage, descriptionFontWeight }) => {
+    description.includes("OTC") ? description = "OTC Validation": null;
+    console.log(description);
     return (
         <>
             <div className="">
@@ -19,7 +22,7 @@ const ServiceCount: React.FC<ServiceCountProps> = ({ title, count, description, 
                 <p className='govuk-!-font-size-36 govuk-!-font-weight-bold govuk-!-margin-0'>{count} {percentage ? '%' : ''} </p>
             </div>
             <div className='govuk-!-font-size-16'>
-                <p>{description}</p>
+                <p className={`${descriptionFontWeight ? descriptionFontWeight : ""}`}>{description}</p>
             </div>
         </>
     );

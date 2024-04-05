@@ -26,7 +26,6 @@ else:
 log = logging.getLogger("csv_handler")
 # Usage:
 # log.debug({"key": "value", "key2": "value2"})
-# console.log("this is console message",log_locals=False)
 # log.info("this is info message")
 # log.warning("this is warning message")
 # log.error("this is error message")

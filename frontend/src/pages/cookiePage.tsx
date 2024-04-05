@@ -2,11 +2,11 @@ import React, { useContext } from "react";
 import { TwoThirdsLayout } from "../Layout/Layout";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
 import Footer from "../Layout/Footer";
+import { TITLE } from "../utils/contants";
 
 const CookiePage: React.FC = () => {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   // get title from env
-  const TITLE = process.env.REACT_APP_TITLE;
   return (
     <>
       <TwoThirdsLayout
