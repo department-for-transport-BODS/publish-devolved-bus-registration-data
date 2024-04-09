@@ -25,7 +25,7 @@ concurrency:
 env:
   AWS_REGION: ${{ vars.AWS_REGION }}
   RC_TYP: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.change || 'patch' }}
-  RC_DST: ${{ vars.DEPLOYMENT_ARTEFACTS_S3_BUCKET }}
+  RC_DST_PREFIX: ${{ vars.DEPLOYMENT_ARTEFACTS_S3_BUCKET_PREFIX }}
 
 jobs:
   validation:
@@ -71,6 +71,7 @@ jobs:
 
   backend:
     runs-on: ubuntu-latest
+    environment: ${{ matrix.environment }}
     needs: validation
     defaults:
       run:
@@ -79,6 +80,15 @@ jobs:
     permissions:
       id-token: write
       contents: read
+
+    strategy:
+      matrix:
+        environment: [dev, prod]
+        # isMain:
+        #   - ${{ contains(github.ref, 'main') }}
+        # exclude:
+        #   - isMain: false
+        #     environment: prod
 
     steps:
       - name: checkout
@@ -98,13 +108,14 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ vars.AWS_ASSUME_ROLE_ARN }}
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/shared-epp-github-oidc-role
           role-session-name: backend-app-build
           role-duration-seconds: 3600
           role-skip-session-tagging: true
 
       - name: package and push backend code
         env: 
+          RC_DST: ${{ env.RC_DST_PREFIX }}-${{ vars.AWS_ACCOUNT_ID }}
           VERSION: ${{ needs.validation.outputs.version }}
         run: |
           [[ ${GITHUB_REF##*/} != 'main' ]] && rc_path="releases-dev/$VERSION/backend" || rc_path="releases/$VERSION/backend"
@@ -122,6 +133,7 @@ jobs:
 
   frontend:
     runs-on: ubuntu-latest
+    environment: ${{ matrix.environment }}
     needs: validation
     defaults:
       run:
@@ -166,23 +178,17 @@ jobs:
         env:
           CI: ""
           ENV: ${{ matrix.environment }}
+          RC_DST: ${{ env.RC_DST_PREFIX }}-${{ vars.AWS_ACCOUNT_ID }}
           VERSION: ${{ needs.validation.outputs.version }}
         run: |
           [[ ${GITHUB_REF##*/} != 'main' ]] && rc_path="releases-dev/$VERSION/frontend/$ENV" || rc_path="releases/$VERSION/frontend/$ENV"
 
           # export environment variables for build
           # temp solution until moved to enterprise GH with environments, and nice-name domain
-          if [[ $ENV = 'dev' ]]; then
-            export REACT_APP_URL="${{ vars.REACT_APP_URL_DEV }}"
-            export REACT_APP_API_URL="${{ vars.REACT_APP_URL_DEV }}/api/v1"
-            export REACT_APP_REDIRECT_SIGN_IN="${{ vars.REACT_APP_URL_DEV }}/${{ vars.REACT_APP_REDIRECT_SIGN_IN_SUFFIX }}"
-            export REACT_APP_REDIRECT_SIGN_OUT="${{ vars.REACT_APP_URL_DEV }}/${{ vars.REACT_APP_REDIRECT_SIGN_OUT_SUFFIX }}"
-          elif [[ $ENV = 'test' ]]; then
-            export REACT_APP_URL="${{ vars.REACT_APP_URL_TEST }}"
-            export REACT_APP_API_URL="${{ vars.REACT_APP_URL_TEST }}/api/v1"
-            export REACT_APP_REDIRECT_SIGN_IN="${{ vars.REACT_APP_URL_TEST }}/${{ vars.REACT_APP_REDIRECT_SIGN_IN_SUFFIX }}"
-            export REACT_APP_REDIRECT_SIGN_OUT="${{ vars.REACT_APP_URL_TEST }}/${{ vars.REACT_APP_REDIRECT_SIGN_OUT_SUFFIX }}"
-          fi
+          export REACT_APP_URL="${{ vars.REACT_APP_URL }}"
+          export REACT_APP_API_URL="${{ vars.REACT_APP_URL }}/api/v1"
+          export REACT_APP_REDIRECT_SIGN_IN="${{ vars.REACT_APP_URL }}/${{ vars.REACT_APP_REDIRECT_SIGN_IN_SUFFIX }}"
+          export REACT_APP_REDIRECT_SIGN_OUT="${{ vars.REACT_APP_URL }}/${{ vars.REACT_APP_REDIRECT_SIGN_OUT_SUFFIX }}"
           export REACT_APP_USER_POOL_ID=`aws ssm get-parameter --name "/${ENV}/epp/cognito/userpool/id" \
             | jq -r '.Parameter.Value'`
           export REACT_APP_USER_POOL_CLIENT_ID=`aws ssm get-parameter --name "/${ENV}/epp/cognito/userpool/client/id" \
