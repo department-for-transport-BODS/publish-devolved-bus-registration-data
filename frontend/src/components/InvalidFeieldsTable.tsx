@@ -52,7 +52,7 @@ const InvalidFeieldsTable: React.FC<InvalidFeieldsTableProps> = ({ data, validat
                 style={columnStyle}>
                   {RowNumber}
                 </th>
-                {fieldsReport.map((fieldReport: { [key: string]: string }) => (
+                {[fieldsReport[0]].map((fieldReport: { [key: string]: string }) => (
                   <React.Fragment key={uuidv4()}>
                     <td className="govuk-table__cell"
                     style={columnStyle}>
