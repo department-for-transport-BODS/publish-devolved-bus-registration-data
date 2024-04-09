@@ -169,7 +169,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ vars.AWS_ASSUME_ROLE_ARN }}
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/shared-epp-github-oidc-role
           role-session-name: ${{ matrix.environment }}-app-build
           role-duration-seconds: 3600
           role-skip-session-tagging: true
