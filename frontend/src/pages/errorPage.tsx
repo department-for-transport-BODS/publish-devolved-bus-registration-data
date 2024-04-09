@@ -6,6 +6,7 @@ import HelpAndSupport from "../components/HelpAndSupport";
 import { useContext } from "react";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
 import { useLocation } from "react-router-dom";
+import { TITLE } from "../utils/contants";
 
 const ErrorPage: React.FC = () => {
   const location = useLocation();
@@ -22,7 +23,7 @@ const ErrorPage: React.FC = () => {
         isLoggedIn={isLoggedIn}
       >
         <h1 className="govuk-heading-xl">
-          Enhanced Partnerships Registration tool
+          {TITLE} tool
         </h1>
         <div>
           <div
