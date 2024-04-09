@@ -108,8 +108,8 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/shared-epp-github-oidc-role
-          role-session-name: backend-app-build
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/${{ vars.AWS_ASSUME_ROLE_NAME }}
+          role-session-name: ${{ matrix.environment }}-backend-app-build
           role-duration-seconds: 3600
           role-skip-session-tagging: true
 
@@ -169,8 +169,8 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/shared-epp-github-oidc-role
-          role-session-name: ${{ matrix.environment }}-app-build
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/${{ vars.AWS_ASSUME_ROLE_NAME }}
+          role-session-name: ${{ matrix.environment }}-frontend-app-build
           role-duration-seconds: 3600
           role-skip-session-tagging: true
 
