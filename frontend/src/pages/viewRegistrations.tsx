@@ -9,44 +9,59 @@ import useRegistrationStatus from "../utils/GetRegistrationStatus";
 import { v4 as uuidv4 } from "uuid";
 import GetAllRecords from "../utils/GetAllRecords";
 import { fetchAuthSession } from "aws-amplify/auth";
+import DataProccessingWaiting from "../components/DataProccessingWaiting";
 const ViewRegistrations: React.FC = () => {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { data, loading, error } = useRegistrationStatus();
   // const { data, loading, error } = useGetAllRecords();
-  const [CSVDownloadError, setCSVDownloadError] = useState<string | null>(null);
+  const [ErrorMessage, setErrorMessage] = useState<string[]>([]);
   const [showError, setShowError] = useState(false);
 
   const ClickHandler = () => {
-    console.log("clicked");
     fetchAuthSession()
       .then(() => {
-        GetAllRecords()
+        GetAllRecords().then(() => {
+            setErrorMessage(ErrorMessage.
+              filter((message) => message !== "The CSV has failed to download. Please retry the download process."));
+        })
           .catch((error) => {
-            console.log("error: ", error);
             setShowError(true);
-            setCSVDownloadError(
-              "The CSV has failed to download. Please retry the download process."
-            );
+            const errorMsg = "The CSV has failed to download. Please retry the download process.";
+            if (!ErrorMessage.includes(errorMsg)) {
+              setErrorMessage([...ErrorMessage, errorMsg]);
+            }
           });
       })
       .catch((error) => {
-        console.log("error: ", error);
+        if (!ErrorMessage.includes("Network error, please try again later")) {
+          setErrorMessage([...ErrorMessage, "Network error, please try again later"]);
+        }
       });
   };
 
   useEffect(() => {
-    if (showError) {
-      console.log("error!!");
-      setCSVDownloadError(
-        "The CSV has failed to download. Please retry the download process."
-      );
+    if (ErrorMessage.length > 0) {
+      setShowError(true);
+    }else {
+      setShowError(false);
     }
-  }, [showError]);
-
+  }, [ErrorMessage]);
   useEffect(() => {
     initAll();
   }, [data]);
+  useEffect(() => {
+    console.log("loading",loading)
+    
+  },[loading]);
+  useEffect(() => {
+    if (error) {
+      const errorMsg = "Network error, please try again later";
+      if (!ErrorMessage.includes(errorMsg)) {
+        setErrorMessage([...ErrorMessage, errorMsg]);
+      }
 
+    }
+  },[error]);
   // useEffect(() => {
   // }, []);
 
@@ -78,13 +93,22 @@ const ViewRegistrations: React.FC = () => {
             </h2>
             <div className="govuk-error-message">
               <ul className="govuk-list govuk-error-summary__list">
-                <li>
-                  <a href="#">{CSVDownloadError}</a>
-                </li>
+                {
+                  ErrorMessage.map((message: string, index: number) => {
+                    return (
+                      <li key={index}>
+                        <a href="#">{message}</a>
+                      </li>
+                    );
+                  })
+                }
               </ul>
             </div>
           </div>
         )}
+        {!error && !data &&    <DataProccessingWaiting 
+        title="Retreiving active registrations"
+        description="Once registrations are ready they will be shown here" />}
         {!loading && !error && data && (
           <div
             className="govuk-accordion"

@@ -26,7 +26,6 @@ function RequireAuth({
         }
       } catch (error) {
         // get current page
-        console.log("location: ", location);
         // remove("/" from the location.pathname)
         const currentPath = location.pathname.substring(1);
         // window.location.replace("/login");

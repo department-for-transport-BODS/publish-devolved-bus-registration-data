@@ -32,7 +32,6 @@ const PartlyUploading: React.FC = () => {
       description: element.description,
     });
   });
-  console.log(InvalidFieldsData);
   return (
     <>
       <TwoThirdsLayout
