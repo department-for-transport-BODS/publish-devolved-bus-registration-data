@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { TwoThirdsLayout } from "../Layout/Layout";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
 import Footer from "../Layout/Footer";
+import { TITLE } from "../utils/contants";
 
 const PrivacyStatement: React.FC = () => {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -19,8 +20,8 @@ const PrivacyStatement: React.FC = () => {
         <div className="govuk-!-font-size-19">
           <p className="govuk-heading-m">Who we are</p>
           <p>
-            The Enhanced Partner Devolved Registration Portal (EPP) is a service
-            for Local Authorities acting as Enhanced Partners, to publish data
+            The {TITLE} is a service
+            for Local Authorities acting as {TITLE.toLowerCase()}, to publish data
             about local bus service registrations for integration with the Bus
             Open Data Service (BODS). The service is provided by the Department
             for Transport.
