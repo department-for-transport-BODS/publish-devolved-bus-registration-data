@@ -92,7 +92,7 @@ class CSVManager:
         validate_licence_number_existence(records)
 
     def _send_to_db(self, records, group_name):
-        send_to_db(records, group_name)
+        send_to_db(records, group_name,self.report_id)
 
     def _remove_licence_details(self, records):
         """Removing the licence details from validated records."""

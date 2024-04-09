@@ -48,7 +48,15 @@ CREATE TABLE IF NOT EXISTS ep_registration (
     publication_text VARCHAR(255),
     other_details VARCHAR(255),
     group_id INTEGER NOT NULL,
+    ep_stage_id INTEGER,
     UNIQUE (otc_licence_id, registration_number, variation_number, group_id)
+);
+
+CREATE TABLE IF NOT EXISTS ep_stage(
+    id SERIAL PRIMARY KEY,
+    stage_id VARCHAR(255),
+    stage_user INTEGER,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 SELECT create_constraint_if_not_exists(
@@ -60,3 +68,20 @@ SELECT create_constraint_if_not_exists(
   'otc_operator',
   'fk_otc_operator',
   'ALTER TABLE ep_registration ADD CONSTRAINT fk_otc_operator FOREIGN KEY (otc_operator_id) REFERENCES otc_operator(id);');
+
+
+SELECT create_constraint_if_not_exists(
+  'ep_group',
+  'fk_ep_group',
+  'ALTER TABLE ep_registration ADD CONSTRAINT fk_ep_group FOREIGN KEY (group_id) REFERENCES ep_group(id);');
+
+SELECT create_constraint_if_not_exists(
+    'ep_stage',
+    'fk_ep_stage',
+    'ALTER TABLE ep_registration ADD CONSTRAINT fk_ep_stage FOREIGN KEY (ep_stage_id) REFERENCES ep_stage(id) ON DELETE SET NULL;');
+
+SELECT create_constraint_if_not_exists(
+    'ep_group_id',
+    'fk_ep_group_id',
+    'ALTER TABLE ep_stage ADD CONSTRAINT fk_ep_group_id FOREIGN KEY (stage_user) REFERENCES ep_group(id);');
+

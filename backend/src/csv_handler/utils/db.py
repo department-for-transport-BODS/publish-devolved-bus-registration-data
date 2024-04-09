@@ -95,6 +95,7 @@ class AutoMappingModels:
         self.BODSDataCatalogue = self.Base.classes.bods_data_catalogue
         self.EPGroup = self.Base.classes.ep_group
         self.EPReport = self.Base.classes.ep_report
+        self.EPStage = self.Base.classes.ep_stage
         self.OTCLicence.__repr__ = (
             lambda self: f"<OTCLicence(licence_number='{self.licence_number}', licence_status='{self.licence_status}, otc_licence_id={self.otc_licence_id}')>"
         )
@@ -113,6 +114,10 @@ class AutoMappingModels:
         self.EPReport.__repr__ = (
             lambda self: f"<EPReport(id='{self.id}', report_id='{self.report_id}', group_id='{self.group_id}', report='{self.report}')>"
         )
+        self.EPStage.__repr__ = (
+            lambda self: f"<EPStage(id='{self.id}', stage_id='{self.stage_id}', stage_user='{self.stage_user}', created_at='{self.created_at}')>"
+        )
+        
 
     def get_tables(self):
         return {
@@ -122,6 +127,7 @@ class AutoMappingModels:
             "EPUsers": self.EPGroup,
             "EPReport": self.EPReport,
             "BODSDataCatalogue": self.BODSDataCatalogue,
+            "EPStage": self.EPStage,
         }
 
 
@@ -165,6 +171,7 @@ class DBGroup:
             group = EPGroup(local_auth=group_name)
             session.add(group)
             session.commit()
+            session.close()
             return group  # Return the ID of the inserted record
         except Exception as e:
             log.error(f"Error: {e}")
@@ -212,6 +219,7 @@ class DBManager:
         session: Session,
         EPRegistration: Table,
         EPGroup: Table,
+        EPStage_id: int
     ):
         """Add or update the record to the EPRegistration table
 
@@ -251,31 +259,31 @@ class DBManager:
                 # )
                 raise RecordIsAlreadyExist("Record already exists with the same fields")
 
-            # case 1.2: Not all fields are the same, update the record
-            existing_record.route_number = record.route_number
-            existing_record.route_description = record.route_description
-            existing_record.variation_number = record.variation_number
-            existing_record.start_point = record.start_point
-            existing_record.finish_point = record.finish_point
-            existing_record.via = record.via
-            existing_record.subsidised = record.subsidised
-            existing_record.subsidy_detail = record.subsidy_detail
-            existing_record.is_short_notice = record.is_short_notice
-            existing_record.received_date = record.received_date
-            existing_record.granted_date = record.granted_date
-            existing_record.effective_date = record.effective_date
-            existing_record.end_date = record.end_date
-            existing_record.bus_service_type_id = record.bus_service_type_id
-            existing_record.bus_service_type_description = (
-                record.bus_service_type_description
-            )
-            existing_record.traffic_area_id = record.traffic_area_id
-            existing_record.application_type = record.application_type
-            existing_record.publication_text = record.publication_text
-            existing_record.other_details = record.other_details
-            existing_record.otc_licence_id = licence_record_id
-            session.commit()
-            log.debug(f"Updated EP registration record: {existing_record.id}")
+            # # case 1.2: Not all fields are the same, update the record
+            # existing_record.route_number = record.route_number
+            # existing_record.route_description = record.route_description
+            # existing_record.variation_number = record.variation_number
+            # existing_record.start_point = record.start_point
+            # existing_record.finish_point = record.finish_point
+            # existing_record.via = record.via
+            # existing_record.subsidised = record.subsidised
+            # existing_record.subsidy_detail = record.subsidy_detail
+            # existing_record.is_short_notice = record.is_short_notice
+            # existing_record.received_date = record.received_date
+            # existing_record.granted_date = record.granted_date
+            # existing_record.effective_date = record.effective_date
+            # existing_record.end_date = record.end_date
+            # existing_record.bus_service_type_id = record.bus_service_type_id
+            # existing_record.bus_service_type_description = (
+            #     record.bus_service_type_description
+            # )
+            # existing_record.traffic_area_id = record.traffic_area_id
+            # existing_record.application_type = record.application_type
+            # existing_record.publication_text = record.publication_text
+            # existing_record.other_details = record.other_details
+            # existing_record.otc_licence_id = licence_record_id
+            # session.commit()
+            # log.debug(f"Updated EP registration record: {existing_record.id}")
 
         else:
             # case 2: Record does not exist, create a new record
@@ -303,6 +311,7 @@ class DBManager:
                 otc_operator_id=operator_record_id,
                 otc_licence_id=licence_record_id,
                 group_id=EPGroup.id,
+                ep_stage_id=EPStage_id
             )
             session.add(ep_registration_record)
             session.commit()
@@ -661,7 +670,7 @@ class DBManager:
             return report.report
         return None
 
-def send_to_db(records: List[Registration], group_name = None):
+def send_to_db(records: List[Registration], group_name = None, report_id = None):
     # validated_records: List[Registration] = MockData.mock_user_csv_record()
     models = AutoMappingModels()
     engine = models.engine
@@ -669,11 +678,30 @@ def send_to_db(records: List[Registration], group_name = None):
     OTCOperator = tables["OTCOperator"]
     OTCLicence = tables["OTCLicence"]
     EPRegistration = tables["EPRegistration"]
+    EPStage = tables["EPStage"]
     # Check if the licence number exists in the OTC database
     # validated_records = validate_licence_number_existence(validated_records)
     db_invalid_insertion = []
     already_exists_records = {}
     belongs_to_another_user = {}
+
+
+
+    # Add or create the user
+    EPGroup = DBGroup(models, Session(engine)).get_or_create_user(group_name)
+    console.log(EPGroup)
+    console.log(EPGroup.id)
+    # Initiate a new stage for the records
+    # stage = EPStage(stage_user=EPGroup.id,stage_id=report_id)
+    # add record to the stage table
+    session = Session(engine)
+    EPStage_record = EPStage(stage_user=EPGroup.id, stage_id=report_id)
+    session.add(EPStage_record)
+    session.commit()
+    EPStage_id = EPStage_record.id
+    console.log(EPStage_id)
+    session.close()
+
     for idx, record_and_licence in records["valid_records"].items():
         try:
             # Create a new session
@@ -685,8 +713,6 @@ def send_to_db(records: List[Registration], group_name = None):
                 otc_operator_id=licence.operator_details.otc_operator_id,
             )
 
-            # Add or create the user
-            EPGroup = DBGroup(models, session).get_or_create_user(group_name)
 
             # Add or fetch the operator id from the database
             operator_record_id = DBManager.fetch_operator_record(
@@ -710,7 +736,11 @@ def send_to_db(records: List[Registration], group_name = None):
                 OTCLicence,
                 OTCLicence_record,
             )
-            # log.debug(f"Record with number: {idx} going to db")
+
+
+
+
+
             # Add the record to the EPRegistration table
             DBManager.upsert_record_to_ep_registration_table(
                 record,
@@ -719,6 +749,7 @@ def send_to_db(records: List[Registration], group_name = None):
                 session,
                 EPRegistration,
                 EPGroup,
+                EPStage_id
             )
         except RecordIsAlreadyExist:
             already_exists_records.update(
