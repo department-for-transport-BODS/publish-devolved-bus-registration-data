@@ -36,6 +36,7 @@ permissions:
 jobs:
   validation:
     runs-on: ubuntu-latest
+    environment: ${{ env.RC_ENV }}
 
     steps:
       - name: validate job parameters
@@ -77,6 +78,7 @@ jobs:
 
   backend:
     runs-on: ubuntu-latest
+    environment: ${{ env.RC_ENV }}
     needs: validation
     outputs:
       stack-name: ${{ steps.get-stack.outputs.result }}
@@ -130,6 +132,7 @@ jobs:
 
   frontend:
     runs-on: ubuntu-latest
+    environment: ${{ env.RC_ENV }}
     needs: backend
 
     steps:
