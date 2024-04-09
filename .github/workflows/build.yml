@@ -84,11 +84,11 @@ jobs:
     strategy:
       matrix:
         environment: [dev, prod]
-        # isMain:
-        #   - ${{ contains(github.ref, 'main') }}
-        # exclude:
-        #   - isMain: false
-        #     environment: prod
+        isMain:
+          - ${{ contains(github.ref, 'main') }}
+        exclude:
+          - isMain: false
+            environment: prod
 
     steps:
       - name: checkout
@@ -233,6 +233,7 @@ jobs:
           git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
           git config --global url.https://${{ github.token }}@github.com/.insteadOf https://github.com/
+
 
           git add VERSION
           git commit -m "[AUTO] GitHub actions push for version $new_version"
