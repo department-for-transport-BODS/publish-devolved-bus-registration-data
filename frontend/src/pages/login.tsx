@@ -16,6 +16,7 @@ import {
 } from "aws-amplify/auth";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
 import ConfirmNewPasswordForm from "../components/ConfirmNewPasswordForm";
+import { TITLE } from "../utils/contants";
 type Props = {
   error?: string;
   nextPage?: string;
@@ -132,7 +133,7 @@ const LoginPage: React.FC<Props> = ({ error, nextPage }) => {
   return (
     <>
       <TwoThirdsOneThirdLayout
-        title="Temp Page"
+        title="Sign in"
         description="Temp Page"
         hideCookieBanner={true}
       >
@@ -161,8 +162,7 @@ const LoginPage: React.FC<Props> = ({ error, nextPage }) => {
           <div className="govuk-grid-column-two-thirds">
             <div className="govuk-!-width-three-quarters">
               <p className="govuk-heading-m govuk-!-font-size-27">
-                Enter your Enhanced
-                <br /> partnership registration account details to sign in
+                Enter your {TITLE} account details to sign in
               </p>
               {!confirmPassword &&
                 !confirmPasswordReset &&

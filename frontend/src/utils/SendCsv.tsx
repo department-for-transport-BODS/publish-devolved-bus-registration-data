@@ -43,7 +43,7 @@ const GetReport = async (report_id:string) => {
 }
 }
 const ShowResponse = (report:any, navigate:any) =>{
-    if ("invalid_records" in report) {
+    if (report.invalid_records.length > 0) {
         navigate("/partly-uploaded", { state: {detail: report}, replace: true });
     } else {
         navigate("/successfully-uploaded", { state: report, replace: true });

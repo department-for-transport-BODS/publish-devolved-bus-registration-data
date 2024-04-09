@@ -20,7 +20,7 @@ const ContactUs: React.FC = () => {
         </p>
         <div className="govuk-!-font-size-19 govuk-!-margin-bottom-9">
         <p className="">
-        If you are experiencing technical issues, or if you have any suggestions, comments or criticisms, please contact the Enhanced Partnerships Service team through one of the channels below.
+        If you are experiencing technical issues, or if you have any suggestions, comments or criticisms, please contact the {TITLE} Service team through one of the channels below.
         </p>
         <p>
         The Help Desk is available Monday to Friday, 9am to 5pm <br />(excluding Bank Holidays in England and Wales, and the 24th of December).
