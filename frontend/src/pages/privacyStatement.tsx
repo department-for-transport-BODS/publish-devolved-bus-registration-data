@@ -68,21 +68,23 @@ const PrivacyStatement: React.FC = () => {
           <p className="govuk-heading-m">We also collect data in order to:</p>
           <ul className="govuk-list govuk-list--bullet">
             <li>
-              reply to any feedback you send us, if you&apos;ve asked us to
-              allow you to access government services and make transactions
+              Reply to any feedback you send us, if you&apos;ve asked us to
+              allow you to access government services and make transactions.
             </li>
             <li>
-              provide you with information about local services monitor use of
-              the site to identify security threats communicate service messages
-              aimed at keeping users
+              Provide you with information about local services.
             </li>
             <li>
-              informed of the service provided, which includes service updates
+            Monitor use of the site to identify security threats communicate service messages
+            aimed at keeping users.
+            </li>
+            <li>
+              Informed of the service provided, which includes service updates
               and support that is provided as part of the overall service.
             </li>
             <li>
-              spot check the level of service usage for both authorised
-              contributors and consumers
+              Spot check the level of service usage for both authorised
+              contributors and consumers.
             </li>
           </ul>
 
