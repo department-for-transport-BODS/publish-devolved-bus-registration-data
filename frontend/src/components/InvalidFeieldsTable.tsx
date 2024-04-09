@@ -18,7 +18,6 @@ const InvalidFeieldsTable: React.FC<InvalidFeieldsTableProps> = ({ data, validat
   const columnStyle = {
     width: "160px",
   };
-  // console.log(data);
   return (
       <div key={uuidv4()}>
       <div className="border" style={style}>

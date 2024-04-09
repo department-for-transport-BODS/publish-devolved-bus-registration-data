@@ -15,7 +15,6 @@ const LocalAuthenticator =() => {
     useEffect(() => {
             signOut()
             setUserSignedIn(false);
-            console.log("userSignedIn from logout : ", userSignedIn);
             navigate('/', {state: {isLoggedIn:userSignedIn}});
         // Your code here
     }, []);

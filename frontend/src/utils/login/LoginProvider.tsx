@@ -42,7 +42,6 @@ const CustomProvider: React.FC<{ children: React.ReactNode }> = ({
       })
       .catch((error) => {
         setIsLoggedIn(false);
-        console.log("error from custom provider: ", error);
       });
   }, []);
   return (

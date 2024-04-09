@@ -11,7 +11,6 @@ import { TITLE } from "../utils/contants";
 const ErrorPage: React.FC = () => {
   const location = useLocation();
   const Error = location.state;
-  console.log("Error", Error);
   const { isLoggedIn } = useContext(IsLoggedInContext);
 
   return (

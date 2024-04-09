@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios, { AxiosError }from "axios";
+import { fetchAuthSession } from "aws-amplify/auth";
 type viewRegistrationsRecord = {
     licence_number: string;
     operator_name: string;
@@ -17,13 +18,13 @@ const useRegistrationStatus = () => {
             try {
                 const apiBaseUrl = process.env.REACT_APP_API_URL || "";
                 let jwt = "";
+                fetchAuthSession().then(async () => {
                 Object.entries(localStorage).forEach(([key, value]) => {
                     if (key.includes("accessToken")) {
                         jwt = value.toString();
                     }
                 });
-
-                const response = await axios.get(
+                axios.get(
                     `${apiBaseUrl}/view-registrations/status`,
                     {
                         headers: {
@@ -32,11 +33,14 @@ const useRegistrationStatus = () => {
                             "Authorization": "Bearer " + jwt,
                         },
                     }
-                );
-
+                ).then((response) => {
                 setData(response.data);
-            } catch (error) {
-                setError(error as any);
+                }).catch((error) => {
+                    setError(error);
+                });
+            });
+            } catch (error: AxiosError | any) {
+                setError(error);
             } finally {
                 setLoading(false);
             }

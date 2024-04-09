@@ -72,7 +72,6 @@ export const SendCsv = async (formData: FormData, navigate:any) => {
             ShowResponse(Report.Report, navigate);
         }
     } catch (error: any) {
-        console.log({error});
         navigate("/error", { state: {error: error?.message}, replace: true});
 }
 }

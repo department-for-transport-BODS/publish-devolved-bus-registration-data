@@ -21,7 +21,6 @@ const ConfirmNewPasswordForm: React.FC<Props> = ({ errors , confirmResetPassword
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      console.log(newPassword, confirmPassword)
       setErrorMsg("Passwords do not match");
     }else{
       const formData = {
@@ -29,9 +28,7 @@ const ConfirmNewPasswordForm: React.FC<Props> = ({ errors , confirmResetPassword
         newPassword: newPassword,
         confirmationCode: confirmationCode,
       };
-      console.log("formData: ", formData);  
       confirmResetPassword(formData).then((data) => {
-        console.log("data from confirmResetPassword: ", data);
         handleSignIn({username: email, password: newPassword})          ;
       }
       ).catch((err) => {

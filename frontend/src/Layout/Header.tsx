@@ -8,17 +8,16 @@ type Props = {
 const Header = (): ReactElement<Props> => {
 
   const {isLoggedIn,signOutHandler} = useContext(IsLoggedInContext);
-  console.log("isLoggedIn: ", isLoggedIn); 
   const handleSignOut = () => {
     if(signOutHandler){
       signOutHandler();
   }
 }
-useEffect(() => {
-  console.log("isLoggedIn from header: ", isLoggedIn);
+// useEffect(() => {
+//   console.log("isLoggedIn from header: ", isLoggedIn);
 
 
-  }, [isLoggedIn]);
+//   }, [isLoggedIn]);
 
   return (
     <>

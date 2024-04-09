@@ -13,7 +13,6 @@ const PaginationComponent: React.FC<PaginationProps> = ({
 }) => {
   const clickHandler = (e: any) => {
     e.preventDefault();
-    console.log(e.target.innerText);
     if (e.target.rel === "prev") {
       if (currentPage === 1) return null;
 

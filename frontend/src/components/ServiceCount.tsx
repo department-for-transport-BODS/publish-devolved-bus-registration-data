@@ -10,7 +10,6 @@ interface ServiceCountProps{
 
 const ServiceCount: React.FC<ServiceCountProps> = ({ title, count, description, percentage, descriptionFontWeight }) => {
     description.includes("OTC") ? description = "OTC Validation": null;
-    console.log(description);
     return (
         <>
             <div className="">
