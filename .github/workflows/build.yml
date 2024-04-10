@@ -105,9 +105,9 @@ jobs:
           RC_DST: ${{ env.RC_DST_PREFIX }}-${{ vars.AWS_ACCOUNT_ID }}
           VERSION: ${{ needs.validation.outputs.version }}
         run: |
-          [[ ${GITHUB_REF##*/} != 'main' ]] && rc_path="releases-dev/$VERSION/backend" || rc_path="releases/$VERSION/backend"
+          [[ ${GITHUB_REF##*/} != 'main' ]] && rc_path="releases-dev/$VERSION/sql" || rc_path="releases/$VERSION/sql"
 
-          aws s3 cp sql s3://$RC_DST/$rc_path/ --recursive --exclude '*/local/*'
+          aws s3 cp sql s3://$RC_DST/$rc_path/ --recursive --exclude 'local/*'
 
   backend:
     runs-on: ubuntu-latest
