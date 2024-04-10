@@ -118,7 +118,16 @@ class CSVManager:
 
 def process_csv_file(content, authenticated_entity, report_id):
     # Decode the CSV data
-    csv_str = content.decode("utf-8-sig")
+    csv_str = None
+    for encoding_types in ["utf-8-sig", "utf-8", "Latin-1", "ISO-8859-1"]:
+        try:
+            csv_str = content.decode(encoding_types)
+            break
+        except:
+            pass
+    if csv_str is None:
+        raise Exception("File encoding not found")
+
     # Convert the CSV data into a dictionary
     csv_data = list(csv.DictReader(StringIO(csv_str)))
     csv_handler = CSVManager(csv_data, authenticated_entity.name, report_id)
