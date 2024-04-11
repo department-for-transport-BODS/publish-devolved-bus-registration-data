@@ -5,7 +5,6 @@ from utils.db import send_to_db, send_report_to_db
 from utils.validate import validate_licence_number_existence
 from copy import deepcopy
 
-
 class CSVManager:
     def __init__(self, csv_data: str, authenticated_entity_name: str = None, report_id: str = None):
         self.csv_data = csv_data
@@ -92,7 +91,7 @@ class CSVManager:
         validate_licence_number_existence(records)
 
     def _send_to_db(self, records, group_name):
-        send_to_db(records, group_name)
+        send_to_db(records, group_name,self.report_id)
 
     def _remove_licence_details(self, records):
         """Removing the licence details from validated records."""
@@ -118,7 +117,16 @@ class CSVManager:
 
 def process_csv_file(content, authenticated_entity, report_id):
     # Decode the CSV data
-    csv_str = content.decode("utf-8-sig")
+    csv_str = None
+    for encoding_types in ["utf-8-sig", "utf-8", "Latin-1", "ISO-8859-1"]:
+        try:
+            csv_str = content.decode(encoding_types)
+            break
+        except:
+            pass
+    if csv_str is None:
+        raise Exception("File encoding not found")
+
     # Convert the CSV data into a dictionary
     csv_data = list(csv.DictReader(StringIO(csv_str)))
     csv_handler = CSVManager(csv_data, authenticated_entity.name, report_id)

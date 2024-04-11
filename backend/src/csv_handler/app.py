@@ -6,7 +6,7 @@ from fastapi import (
     Depends,
     status,
     Query,
-    BackgroundTasks
+    BackgroundTasks,
 )
 from pydantic import ValidationError
 from managers import process_csv_file
@@ -15,7 +15,13 @@ from utils.exceptions import LimitIsNotSet, LimitExceeded, GroupIsNotFound
 from auth.verifier import get_entity, get_local_authority
 from central_config import app, api_v1_router
 from utils.db import DBManager
-from utils.pydant_model import AuthenticatedEntity, SearchQuery
+from utils.pydant_model import (
+    AuthenticatedEntity,
+    SearchQuery,
+    StagedRecord,
+    GroupedStegedRecords,
+    Action,
+)
 from uuid import uuid4
 from utils.logger import log
 
@@ -27,7 +33,7 @@ from utils.logger import log
 async def create_upload_file(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
-    authenticated_entity: AuthenticatedEntity = Depends(get_local_authority) 
+    authenticated_entity: AuthenticatedEntity = Depends(get_local_authority),
 ):
     """This is the endpoint to upload a CSV file and process it.
 
@@ -46,12 +52,18 @@ async def create_upload_file(
     report_id = str(uuid4())
     try:
         content = await file.read()
-        background_tasks.add_task(process_csv_file, content, authenticated_entity, report_id)
+        background_tasks.add_task(
+            process_csv_file, content, authenticated_entity, report_id
+        )
     except Exception as e:
         log.error(f"Error: {e}")
-        raise HTTPException(status_code=400, detail={"message": "Encountered an error while processing the file"})
+        raise HTTPException(
+            status_code=400,
+            detail={"message": "Encountered an error while processing the file"},
+        )
 
     return {"message": "File is being proccessed", "report_id": report_id}
+
 
 @api_v1_router.get("/get-report", status_code=status.HTTP_200_OK)
 async def get_report(
@@ -69,10 +81,111 @@ async def get_report(
     Returns:
         report (json) : json format of the report.
     """
-    records_report = DBManager.get_report_then_delete_it_from_db(authenticated_entity, report_id)
+    records_report = DBManager.get_report_then_delete_it_from_db(
+        authenticated_entity, report_id
+    )
     if not records_report:
         raise HTTPException(status_code=404, detail={"message": "Report not found"})
     return {"Report": records_report, "ReportStatus": "Completed"}
+
+
+@api_v1_router.get("/get-staged-process", status_code=status.HTTP_200_OK)
+async def get_staged_process(
+    authenticated_entity: AuthenticatedEntity = Depends(get_entity),
+):
+    """This is the endpoint to get the staged records in the database.
+
+    Args:
+        authenticated_entity (AuthenticatedEntity): The authenticated entity
+
+    Returns:
+        _type_: _description_
+    """
+    processes = DBManager.get_staged_process(authenticated_entity)
+    return {"processes": processes, "status": "Completed"}
+
+
+@api_v1_router.get("/get-staged", status_code=status.HTTP_200_OK)
+async def get_staged_records(
+    authenticated_entity: AuthenticatedEntity = Depends(get_entity),
+    stage_id: str = Query(..., description="The staged records ID"),
+):
+    """This is the endpoint to get the staged records in the database.
+
+    Args:
+        authenticated_entity (AuthenticatedEntity): The authenticated entity
+
+    Returns:
+        _type_: _description_
+    """
+    records = DBManager.get_staged_records(authenticated_entity, stage_id)
+    staged_records = []
+    for record in records:
+        staged_records.append(StagedRecord(**record))
+    grouped_records = {}
+
+    for record in staged_records:
+        if record.licence_number not in grouped_records:
+            grouped_records[record.licence_number] = GroupedStegedRecords(
+                licence_number=record.licence_number,
+                operator_name=record.operator_name,
+                registration_numbers=[],
+            )
+        grouped_records[record.licence_number].registration_numbers.append(
+            record.registration_number
+        )
+    values = list(grouped_records.values())
+    return {"records": values, "status": "Completed"}
+
+
+@api_v1_router.post("/staged-records/{action}", status_code=status.HTTP_200_OK)
+def get_staged_records_action(
+    action: str,
+    authenticated_entity: AuthenticatedEntity = Depends(get_entity),
+    stage_id: str = Query(
+        ..., description="The staged records ID", pattern="^[a-zA-Z0-9\-]*$"
+    ),
+):
+    """This is the endpoint to get the staged records in the database.
+
+    Args:
+        authenticated_entity (AuthenticatedEntity): The authenticated entity
+
+    Returns:
+        _type_: _description_
+    """
+    try:
+        action = Action(action=action)
+
+    except ValidationError as e:
+        return {
+            "message": "Invalid action, action should be either 'commit' or 'discard'"
+        }
+    try:
+        result = None
+        # Commit the staged records
+        if action.action == "commit":
+            result = DBManager.commit_staged_records(authenticated_entity, stage_id)
+            if result:
+                return {"message": "Staged records committed successfully"}
+        # Discard the staged records
+        if action.action == "discard":
+            result = DBManager.commit_staged_records(
+                authenticated_entity, stage_id, commit=False
+            )
+            if result:
+                return {"message": "Staged records discarded successfully"}
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"message": "Staged records not found"},
+        )
+    except Exception as e:
+        log.error(f"Error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"message": "Encountered an error while processing the request"},
+        )
+
 
 @api_v1_router.post("/search", status_code=status.HTTP_200_OK)
 async def search_records(
@@ -208,7 +321,7 @@ def get_all_records(
     if latestOnly.lower() in ["yes", "true"]:
         records = DBManager.get_all_records(authenticated_entity, latest_only=True)
     elif latestOnly.lower() in ["no", "false"]:
-        records = DBManager.get_all_records(authenticated_entity,latest_only=False)
+        records = DBManager.get_all_records(authenticated_entity, latest_only=False)
     else:
         raise HTTPException(
             status_code=422,

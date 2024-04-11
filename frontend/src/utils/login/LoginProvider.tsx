@@ -6,6 +6,7 @@ import {
   getCurrentUser,
   SignInOutput,
 } from "aws-amplify/auth";
+import Cookies from "universal-cookie";
 export type UserLoggedIn = {
   isLoggedIn?: boolean;
   setIsLoggedIn?: Dispatch<boolean>;
@@ -20,7 +21,9 @@ const CustomProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const cookies = new Cookies();
   const signOutHandler = () => {
+    cookies.remove("stage_id")
     signOut();
     setIsLoggedIn(false);
     window.location.reload();

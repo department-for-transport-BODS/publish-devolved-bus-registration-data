@@ -19,6 +19,7 @@ import ContactUs from "./pages/contactUs";
 import PrivacyStatement from "./pages/privacyStatement";
 import AccessibilityStatment from "./pages/accessibilityStatement";
 import CookiePage from "./pages/cookiePage";
+import PreValidations from "./pages/preValidation";
 function App() {
   Amplify.configure(AmplifyConfiguration);
   return (
@@ -42,6 +43,9 @@ function App() {
         <Route path="/registrations"
           element={<RequireAuth component={Registration} />}
         />
+        <Route path="/pre-validation" element={
+          <RequireAuth component={PreValidations} />
+        } />
         <Route 
           path="/view-registrations"
           element={<RequireAuth component={ViewRegistrations} />}
