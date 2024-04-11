@@ -103,6 +103,7 @@ jobs:
               else
                 echo "[ERROR] Release candidate version [${RC_VER}] does not exist for component (DATABASE). Exiting"
                 exit 1
+              fi
             else
               echo "[ERROR] Release candidate version [${RC_VER}] does not exist for component (FRONTEND). Exiting"
               exit 1
