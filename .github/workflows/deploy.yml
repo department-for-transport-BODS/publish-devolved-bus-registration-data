@@ -40,6 +40,15 @@ jobs:
       github.event_name == 'repository_dispatch' && github.event.client_payload.environment }}
 
     steps:
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/${{ vars.AWS_ASSUME_ROLE_NAME }}
+          role-session-name: ${{ env.RC_ENV }}-app-deployment-validation
+          role-duration-seconds: 3600
+          role-skip-session-tagging: true
+
       - name: validate job parameters
         run: |
           get_latest_version() {
@@ -75,15 +84,6 @@ jobs:
             """
           fi
 
-      - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/${{ vars.AWS_ASSUME_ROLE_NAME }}
-          role-session-name: ${{ env.RC_ENV }}-app-deployment-validation
-          role-duration-seconds: 3600
-          role-skip-session-tagging: true
-          
       - name: validate release candidate version
         env:
           RC_SRC: ${{ env.RC_SRC_PREFIX }}-${{ vars.AWS_ACCOUNT_ID }}
