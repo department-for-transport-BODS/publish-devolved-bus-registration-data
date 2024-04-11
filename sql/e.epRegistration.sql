@@ -52,12 +52,6 @@ CREATE TABLE IF NOT EXISTS ep_registration (
     UNIQUE (otc_licence_id, registration_number, variation_number, group_id)
 );
 
-CREATE TABLE IF NOT EXISTS ep_stage(
-    id SERIAL PRIMARY KEY,
-    stage_id VARCHAR(255),
-    stage_user INTEGER,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
 
 SELECT create_constraint_if_not_exists(
   'otc_licence',
@@ -80,8 +74,4 @@ SELECT create_constraint_if_not_exists(
     'fk_ep_stage',
     'ALTER TABLE ep_registration ADD CONSTRAINT fk_ep_stage FOREIGN KEY (ep_stage_id) REFERENCES ep_stage(id) ON DELETE SET NULL;');
 
-SELECT create_constraint_if_not_exists(
-    'ep_group_id',
-    'fk_ep_group_id',
-    'ALTER TABLE ep_stage ADD CONSTRAINT fk_ep_group_id FOREIGN KEY (stage_user) REFERENCES ep_group(id);');
 
