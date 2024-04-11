@@ -73,6 +73,7 @@ jobs:
                 (Release Version)    - $RC_VER
                 (Target Environment) - $RC_ENV
             """
+          fi
 
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v4
