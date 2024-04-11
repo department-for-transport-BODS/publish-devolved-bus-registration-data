@@ -228,3 +228,17 @@ def extract_error_fields(error_obj: List[dict], model_dump=True) -> ErrorRespons
 class AuthenticatedEntity(BaseModel):
     type: Literal["app", "local_auth"]
     name: str
+
+
+class StagedRecord(BaseModel):
+    registration_number: str
+    licence_number: str
+    operator_name: str
+
+class GroupedStegedRecords(BaseModel):
+    licence_number: str
+    operator_name: str
+    registration_numbers: List[str]
+
+class Action(BaseModel):
+    action: Literal["commit", "discard"]

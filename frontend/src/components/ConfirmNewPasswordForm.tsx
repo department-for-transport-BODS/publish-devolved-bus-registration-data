@@ -73,7 +73,7 @@ const ConfirmNewPasswordForm: React.FC<Props> = ({ errors , confirmResetPassword
         </div>
         <div className="govuk-form-group">
           <label className="govuk-label" htmlFor="password">
-            ConfirmPassword
+            Confirm Password
           </label>
           <input
             className="govuk-input"

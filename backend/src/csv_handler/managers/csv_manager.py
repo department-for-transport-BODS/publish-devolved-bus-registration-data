@@ -5,7 +5,6 @@ from utils.db import send_to_db, send_report_to_db
 from utils.validate import validate_licence_number_existence
 from copy import deepcopy
 
-
 class CSVManager:
     def __init__(self, csv_data: str, authenticated_entity_name: str = None, report_id: str = None):
         self.csv_data = csv_data

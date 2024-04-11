@@ -1,9 +1,6 @@
 import axios from "axios";
 
 const GetAllRecords = async () => {
-
-
- 
             try {
                 const apiBaseUrl = process.env.REACT_APP_API_URL || "";
                 let jwt = "";

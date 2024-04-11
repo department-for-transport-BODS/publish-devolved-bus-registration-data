@@ -563,6 +563,7 @@ class DBManager:
                 EPRegistration.registration_number,
                 func.max(EPRegistration.variation_number).label("max_variation_number")
             )
+            .filter(EPRegistration.ep_stage_id is None)
             .group_by(EPRegistration.registration_number)
             .subquery()
         )
@@ -669,6 +670,103 @@ class DBManager:
             session.commit()
             return report.report
         return None
+
+    @classmethod
+    def get_staged_records(cls, authenticated_entity: AuthenticatedEntity, stage_id: str=None):
+        models, session = initiate_db_variables()
+        EPStage = models.EPStage
+        EPGroup = models.EPGroup
+        EPLicence = models.OTCLicence
+        EPOperator = models.OTCOperator
+        EPRegistration = models.EPRegistration
+        if authenticated_entity.type == "local_auth":
+            EPGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
+        if not EPGroup:
+            return None
+        staged_process = (
+            session.query(EPStage.id).filter(EPStage.stage_id == stage_id).subquery()
+        )
+
+        staged_records = (
+            session.query(EPRegistration.registration_number, EPLicence.licence_number, EPOperator.operator_name)
+            .filter(EPRegistration.ep_stage_id == select(staged_process.c.id))
+            .filter(EPRegistration.otc_licence_id == EPLicence.id)
+            .filter(EPRegistration.otc_operator_id == EPOperator.id)
+            
+        )
+        console.log(staged_records)
+
+        return [rec._asdict() for rec in staged_records.all()]
+
+    @classmethod
+    def commit_staged_records(cls, authenticated_entity: AuthenticatedEntity, stage_id: str, commit: bool = True):
+        models, session = initiate_db_variables()
+        EPStage = models.EPStage
+        EPGroup = models.EPGroup
+        EPRegistration = models.EPRegistration
+        if authenticated_entity.type == "local_auth":
+            EPGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
+        if not EPGroup:
+            return None
+
+        try:
+            if not  commit:
+                # Get the staged process id
+                staged_process_id = (
+                    session.query(EPStage.id)
+                    .filter(EPStage.stage_id == stage_id)
+                    .filter(EPStage.stage_user == EPGroup.id)
+                )
+                staged_process_subquery = staged_process_id.subquery()
+                staged_records = (
+                    session.query(EPRegistration)
+                    .filter(EPRegistration.ep_stage_id == select(staged_process_subquery).scalar_subquery())
+                )
+                staged_records.delete(synchronize_session=False)
+
+            # Get the staged process
+            staged_process = (
+                    session.query(EPStage)
+                    .filter(EPStage.stage_id == stage_id)
+                    .filter(EPStage.stage_user == EPGroup.id)
+                )
+            # Delete the staged process
+            deleted_count = staged_process.delete(synchronize_session=False)
+            session.commit()
+            session.close()
+            if deleted_count > 0:
+                return True
+            return False
+        except Exception as e:
+            console.log(e)
+            session.rollback()
+            session.close()
+
+
+    @classmethod
+    def commit_discard_changes(cls, session: Session, commit: bool = False):
+        if commit:
+            session.commit()
+        else:
+            session.rollback()
+        session.close()
+
+    @classmethod
+    def get_staged_process(cls, authenticated_entity: AuthenticatedEntity):
+        models, session = initiate_db_variables()
+        EPStage = models.EPStage
+        EPGroup = models.EPGroup
+        if authenticated_entity.type == "local_auth":
+            EPGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
+        if not EPGroup:
+            return None
+        staged_process = (
+            session.query(EPStage.stage_id, EPStage.created_at)
+            .filter(EPStage.stage_user == EPGroup.id)
+        )
+        console.log(staged_process.all())
+        return [rec._asdict() for rec in staged_process.all()]
+
 
 def send_to_db(records: List[Registration], group_name = None, report_id = None):
     # validated_records: List[Registration] = MockData.mock_user_csv_record()
@@ -782,6 +880,18 @@ def send_to_db(records: List[Registration], group_name = None, report_id = None)
         records["invalid_records"].append(
             {"records": belongs_to_another_user, "description": "Record belongs to another user"}
         )
+    # console.log(records)
+    # if len(records["valid_records"]) == 0:
+    #     ## Delete the staged process
+    #     session = Session(engine)
+    #     staged_process = (
+    #         session.query(EPStage)
+    #         .filter(EPStage.stage_id == EPStage_id)
+    #         .filter(EPStage.stage_user == EPGroup.id)
+    #     )
+    #     staged_process.delete()
+    #     session.commit()
+    #     session.close()
 
 
 def send_report_to_db(report: dict, group_name: str, report_id: str):
