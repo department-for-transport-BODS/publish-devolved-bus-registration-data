@@ -563,11 +563,10 @@ class DBManager:
                 EPRegistration.registration_number,
                 func.max(EPRegistration.variation_number).label("max_variation_number")
             )
-            .filter(EPRegistration.ep_stage_id is None)
+            .filter(EPRegistration.ep_stage_id.is_(None))
             .group_by(EPRegistration.registration_number)
             .subquery()
         )
-
         subquery_q2 = (
             session.query(EPRegistration.id)
             .join(subquery_q1, and_(
