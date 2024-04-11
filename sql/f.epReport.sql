@@ -1,4 +1,4 @@
-CREATE TABLE ep_report (
+CREATE TABLE IF NOT EXISTS ep_report (
     id SERIAL PRIMARY KEY,
     report_id VARCHAR(255) NOT NULL,
     group_id INTEGER NOT NULL,
