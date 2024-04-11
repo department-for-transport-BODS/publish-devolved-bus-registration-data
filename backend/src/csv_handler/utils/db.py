@@ -488,7 +488,7 @@ class DBManager:
                 session.query(
                     EPRegistration.registration_number,
                     func.max(EPRegistration.variation_number).label("max_variation_number")
-                )
+                ).filter(EPRegistration.ep_stage_id.is_(None))
                 .group_by(EPRegistration.registration_number)
                 .subquery()
             )
@@ -534,6 +534,7 @@ class DBManager:
             )
             .outerjoin(BODSDataCatalogue, BODSDataCatalogue.xml_service_code == EPRegistration.registration_number)
             .filter(EPRegistration.otc_operator_id == OTCOperator.id)
+            .filter(EPRegistration.ep_stage_id.is_(None))
             .filter(EPRegistration.otc_licence_id == OTCLicence.id)
             # .filter(
             #     EPRegistration.registration_number == BODSDataCatalogue.xml_service_code
