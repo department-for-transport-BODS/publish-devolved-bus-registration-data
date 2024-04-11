@@ -107,7 +107,7 @@ const ViewRegistrations: React.FC = () => {
           </div>
         )}
         {!error && !data &&    <DataProccessingWaiting 
-        title="Retreiving active registrations"
+        title="Retrieving active registrations"
         description="Once registrations are ready they will be shown here" />}
         {!loading && !error && data && (
           <div
