@@ -9,7 +9,7 @@ on:
         type: string
         description: version to be deployed
         required: true
-        default: '0.0.0'
+        default: 'latest'
       environment:
         type: choice
         description: deployment environment
