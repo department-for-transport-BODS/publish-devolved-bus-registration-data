@@ -142,7 +142,7 @@ jobs:
         run: |
           [[ $VERSION =~ ^[0-9]+(\.[0-9]+){2}$ ]] && rc_path="releases" || rc_path="releases-dev"
           lambda_function_name="${RC_ENV}-epp-pg-mutate-lambda"
-          read -r -d '' payload << EOF
+          cat <<EOF > $GITHUB_WORKSPACE/payload.json
           {
             "type": "run_migrations",
             "userCredentialsArn": "${RC_ENV}/epp/rds/user/epp_app_rw",
@@ -155,7 +155,8 @@ jobs:
           }
           EOF
 
-          response=$(aws lambda invoke --function-name $lambda_function_name --region ${{ env.AWS_REGION }} --payload "$payload" response.txt 2>&1)
+          openssl base64 -out $GITHUB_WORKSPACE/encoded_payload.json -in $GITHUB_WORKSPACE/payload.json 
+          response=$(aws lambda invoke --function-name $lambda_function_name --region $AWS_REGION --payload file://$GITHUB_WORKSPACE/encoded_payload.json response.txt 2>&1)
           if [[ "$response" == *"FunctionError"* ]]; then
             echo "[ERROR] Deployment of application component (DATABASE) with version ${VERSION} failed with error:"
             echo "${response}"
@@ -221,7 +222,7 @@ jobs:
             --config-env $RC_ENV \
             --region $AWS_REGION \
             --no-confirm-changeset \
-            --no-fail-on-empty-changeset`
+            --no-fail-on-empty-changeset
           echo "[INFO] Application component (BACKEND) with version ${VERSION} successfully deployed into ${RC_ENV^^}"
 
   frontend:
