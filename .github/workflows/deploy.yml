@@ -278,12 +278,12 @@ jobs:
 
       - name: invalidate cloudfront cache for ${{ env.RC_ENV }}
         run: |
-          echo "[INFO] Executing invalidation against CloudFront Distribution Id ${{ steps.get-values.outputs.frontend-bucket-name }}"
-          invalidation_id=$(aws cloudfront create-invalidation --distribution-id ${{ steps.get-values.outputs.frontend-bucket-name }} --paths '/*' --output json \
+          echo "[INFO] Executing invalidation against CloudFront Distribution Id ${{ steps.get-values.outputs.cloudfront-distribution-id }}"
+          invalidation_id=$(aws cloudfront create-invalidation --distribution-id ${{ steps.get-values.outputs.cloudfront-distribution-id }} --paths '/*' --output json \
             | jq -r '.Invalidation.Id')
           
           echo "[INFO] Waiting for invalidation to complete..."
-          aws cloudfront wait invalidation-completed --distribution-id ${{ steps.get-values.outputs.frontend-bucket-name }} --id $invalidation_id
+          aws cloudfront wait invalidation-completed --distribution-id ${{ steps.get-values.outputs.cloudfront-distribution-id }} --id $invalidation_id
 
           if [ $? -eq 0 ]; then
             echo "[INFO] CloudFront cache for application in ${RC_ENV^^} was successfully invalidated"
