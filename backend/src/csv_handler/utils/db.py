@@ -655,7 +655,7 @@ class DBManager:
         PDBRDReport = models.PDBRDReport
         PDBRDGroup = models.PDBRDGroup
         if authenticated_entity.type == "local_auth":
-            PDBRDGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
+            PDBRDGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=False)
         if not PDBRDGroup:
             return None
         report = (
