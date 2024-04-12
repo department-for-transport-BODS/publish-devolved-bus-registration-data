@@ -254,8 +254,8 @@ jobs:
           aws s3 cp s3://$RC_SRC/$rc_path/ build/ --recursive
           echo "[INFO] Application component (FRONTEND) with version ${VERSION} successfully downloaded for ${RC_ENV^^}"
 
-      - name: get frontend bucket name
-        id: get-bucket
+      - name: get stack values
+        id: get-values
         run: |
           echo "frontend-bucket-name=$( \
             aws cloudformation describe-stacks \
@@ -263,15 +263,37 @@ jobs:
               --query 'Stacks[0].Outputs[?OutputKey==`FrontendBucketName`].OutputValue' \
               --output text \
           )" >> $GITHUB_OUTPUT
+          
+          echo "cloudfront-distribution-id=$( \
+            aws cloudformation describe-stacks \
+              --stack-name ${{ needs.backend.outputs.stack-name }} \
+              --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontDistributionId`].OutputValue' \
+              --output text \
+          )" >> $GITHUB_OUTPUT
       
       - name: clear frontend for ${{ env.RC_ENV }}
         run: |
-          aws s3 rm ${{ steps.get-bucket.outputs.frontend-bucket-name }} --recursive
+          aws s3 rm ${{ steps.get-values.outputs.frontend-bucket-name }} --recursive
           echo "[INFO] S3 Bucket for application component (FRONTEND) successfully cleared for ${RC_ENV^^}"
+
+      - name: invalidate cloudfront cache for ${{ env.RC_ENV }}
+        run: |
+          echo "[INFO] Executing invalidation against CloudFront Distribution Id ${{ steps.get-values.outputs.frontend-bucket-name }}"
+          invalidation_id=$(aws cloudfront create-invalidation --distribution-id ${{ steps.get-values.outputs.frontend-bucket-name }} --paths '/*' --output json \
+            | jq -r '.Invalidation.Id')
+          
+          echo "[INFO] Waiting for invalidation to complete..."
+          aws cloudfront wait invalidation-completed --distribution-id ${{ steps.get-values.outputs.frontend-bucket-name }} --id $invalidation_id
+
+          if [ $? -eq 0 ]; then
+            echo "[INFO] CloudFront cache for application in ${RC_ENV^^} was successfully invalidated"
+          elif [ $? -eq 255 ]; then
+            echo "[WARN] CloudFront cache for application in ${RC_ENV^^} could not be invalidated"
+        continue-on-error: true
 
       - name: deploy frontend for ${{ env.RC_ENV }}
         env:
           VERSION: ${{ needs.validation.outputs.version }}
         run: |
-          aws s3 cp build/ ${{ steps.get-bucket.outputs.frontend-bucket-name }} --recursive
-          echo "[INFO] Application component (FRONTEND) with version ${VERSION} successfully deployed for ${RC_ENV^^}"
+          aws s3 cp build/ ${{ steps.get-values.outputs.frontend-bucket-name }} --recursive
+          echo "[INFO] Application component (FRONTEND) with version ${RC_VER} successfully deployed for ${RC_ENV^^}"

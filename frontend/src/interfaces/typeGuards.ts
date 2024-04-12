@@ -26,7 +26,7 @@ import {
     TicketRepresentationAttributeWithErrors,
     WithErrors,
 } from '.';
-// import { validFareTypes } from '../constants';
+// import { validFareTypes } from '../Constants';
 import { PassengerType } from './dbTypes';
 import {
     Ticket,

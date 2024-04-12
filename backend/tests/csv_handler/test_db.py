@@ -86,11 +86,11 @@ class TestAutoMappingModels:
     def test_get_tables(self, auto_mapping_models):
         tables = auto_mapping_models.get_tables()
         assert isinstance(tables, dict)
-        assert "EPRegistration" in tables
+        assert "PDBRDRegistration" in tables
         assert "OTCOperator" in tables
         assert "OTCLicence" in tables
         assert isinstance(
-            tables["EPRegistration"], type(auto_mapping_models.EPRegistration)
+            tables["PDBRDRegistration"], type(auto_mapping_models.PDBRDRegistration)
         )
         assert isinstance(tables["OTCOperator"], type(auto_mapping_models.OTCOperator))
         assert isinstance(tables["OTCLicence"], type(auto_mapping_models.OTCLicence))

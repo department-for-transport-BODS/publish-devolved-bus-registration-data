@@ -6,7 +6,7 @@ import HelpAndSupport from "../components/HelpAndSupport";
 import { useContext } from "react";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
 import { useLocation } from "react-router-dom";
-import { TITLE } from "../utils/contants";
+import { TITLE } from "../utils/Constants";
 
 const ErrorPage: React.FC = () => {
   const location = useLocation();
