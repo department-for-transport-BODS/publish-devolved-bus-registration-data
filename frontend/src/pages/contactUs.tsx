@@ -2,7 +2,7 @@ import React, {  useContext} from "react";
 import { TwoThirdsLayout } from "../Layout/Layout";
 import {IsLoggedInContext} from "../utils/login/LoginProvider";
 import Footer from "../Layout/Footer";
-import { TITLE } from "../utils/contants";
+import { TITLE } from "../utils/Constants";
 
 
 const ContactUs: React.FC = () => {

@@ -1,6 +1,6 @@
 import React, { ReactElement,useContext,useEffect } from "react";
 import { IsLoggedInContext } from"../utils/login/LoginProvider";
-import { TITLE } from "../utils/contants";
+import { TITLE } from "../utils/Constants";
 type Props = {
   isLoggedIn?: boolean;
 };

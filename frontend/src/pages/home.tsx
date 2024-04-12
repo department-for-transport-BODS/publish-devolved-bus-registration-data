@@ -4,7 +4,7 @@ import HelpAndSupport from "../components/HelpAndSupport";
 import { Link } from "react-router-dom";
 import {IsLoggedInContext} from "../utils/login/LoginProvider";
 import Footer from "../Layout/Footer";
-import { TITLE } from "../utils/contants";
+import { TITLE } from "../utils/Constants";
 
 
 

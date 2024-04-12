@@ -118,7 +118,7 @@ Resources:
             - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/endpoint}}'
             - !Ref RdsDbHostAddr
           POSTGRES_PORT: 5432
-          POSTGRES_DB: !Ref ProjectName
+          POSTGRES_DB: !Sub '${ProjectName}_db'
           POSTGRES_CREDENTIALS: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/name}}'
           COGNITO_USERPOOL_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/cognito/userpool/id}}'
           COGNITO_APP_CLIENT_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/cognito/userpool/client/id}}'
@@ -402,7 +402,7 @@ Resources:
             - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/endpoint}}'
             - !Ref RdsDbHostAddr
           POSTGRES_PORT: 5432
-          POSTGRES_DB: !Ref ProjectName
+          POSTGRES_DB: !Sub '${ProjectName}_db'
           POSTGRES_CREDENTIALS: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/name}}'
       LoggingConfig:
         LogGroup: !Ref DataCatalogueLambdaLogGroup
@@ -635,6 +635,9 @@ Outputs:
   ApiGatewayUrl:
     Description: 'API Gateway endpoint URL for FastAPI'
     Value: !Sub 'https://${CsvHandlerApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/'
+  CloudFrontDistributionId:
+    Description: 'CloudFront Distribution ID'
+    Value: !Ref CloudFrontDistribution
   CloudFrontDistributionUrl:
     Description: 'CloudFront Distribution Domain Name URL'
     Value: !Sub

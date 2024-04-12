@@ -25,7 +25,7 @@ First copy the `.env.local.template` file to `.env` within the _config/_
 directory:
 
 ```sh
-# Assuming you're in the epp-app root directory
+# Assuming you're in the pdbrd-app root directory
 cp .env.local.template .env
 ```
 

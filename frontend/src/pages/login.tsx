@@ -16,7 +16,7 @@ import {
 } from "aws-amplify/auth";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
 import ConfirmNewPasswordForm from "../components/ConfirmNewPasswordForm";
-import { TITLE } from "../utils/contants";
+import { TITLE } from "../utils/Constants";
 type Props = {
   error?: string;
   nextPage?: string;

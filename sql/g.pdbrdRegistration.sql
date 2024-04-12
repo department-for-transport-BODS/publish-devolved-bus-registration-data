@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS ep_registration (
+CREATE TABLE IF NOT EXISTS pdbrd_registration (
     id SERIAL PRIMARY KEY,
     otc_licence_id INTEGER,
     route_number VARCHAR(255),
@@ -23,28 +23,28 @@ CREATE TABLE IF NOT EXISTS ep_registration (
     publication_text VARCHAR(255),
     other_details VARCHAR(255),
     group_id INTEGER NOT NULL,
-    ep_stage_id INTEGER,
+    pdbrd_stage_id INTEGER,
     UNIQUE (otc_licence_id, registration_number, variation_number, group_id)
 );
 
 
 SELECT create_constraint_if_not_exists(
-    'otc_licence',
+    'pdbrd_registration',
     'fk_otc_licence',
-    'ALTER TABLE ep_registration ADD CONSTRAINT fk_otc_licence FOREIGN KEY (otc_licence_id) REFERENCES otc_licence(id);');
+    'ALTER TABLE pdbrd_registration ADD CONSTRAINT fk_otc_licence FOREIGN KEY (otc_licence_id) REFERENCES otc_licence(id);');
 
 SELECT create_constraint_if_not_exists(
-    'otc_operator',
+    'pdbrd_registration',
     'fk_otc_operator',
-    'ALTER TABLE ep_registration ADD CONSTRAINT fk_otc_operator FOREIGN KEY (otc_operator_id) REFERENCES otc_operator(id);');
+    'ALTER TABLE pdbrd_registration ADD CONSTRAINT fk_otc_operator FOREIGN KEY (otc_operator_id) REFERENCES otc_operator(id);');
 
 
 SELECT create_constraint_if_not_exists(
-    'ep_group',
-    'fk_ep_group',
-    'ALTER TABLE ep_registration ADD CONSTRAINT fk_ep_group FOREIGN KEY (group_id) REFERENCES ep_group(id);');
+    'pdbrd_registration',
+    'fk_pdbrd_group',
+    'ALTER TABLE pdbrd_registration ADD CONSTRAINT fk_pdbrd_group FOREIGN KEY (group_id) REFERENCES pdbrd_group(id);');
 
 SELECT create_constraint_if_not_exists(
-    'ep_stage',
-    'fk_ep_stage',
-    'ALTER TABLE ep_registration ADD CONSTRAINT fk_ep_stage FOREIGN KEY (ep_stage_id) REFERENCES ep_stage(id) ON DELETE SET NULL;');
+    'pdbrd_registration',
+    'fk_pdbrd_stage',
+    'ALTER TABLE pdbrd_registration ADD CONSTRAINT fk_pdbrd_stage FOREIGN KEY (pdbrd_stage_id) REFERENCES pdbrd_stage(id) ON DELETE SET NULL;');

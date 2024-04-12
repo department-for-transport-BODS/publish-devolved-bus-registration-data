@@ -22,7 +22,7 @@ default:
       warm_containers: EAGER
       region: 'eu-west-2'
       parameter_overrides:
-        ProjectName='epp'
+        ProjectName='pdbrd'
         Environment='local'
         RdsDbHostAddr='postgres'
   local_invoke:
@@ -30,51 +30,51 @@ default:
       docker_network: lambda-local
       region: 'eu-west-2'
       parameter_overrides:
-        ProjectName='epp'
+        ProjectName='pdbrd'
         Environment='local'
         RdsDbHostAddr='postgres'
 
 dev:
   deploy:
     parameters:
-      stack_name: 'dev-epp-app-stack'
+      stack_name: 'dev-pdbrd-app-stack'
       s3_prefix: dev
       capabilities: 'CAPABILITY_NAMED_IAM'
       parameter_overrides:
-        ProjectName='epp'
+        ProjectName='pdbrd'
         Environment='dev'
-        RdsSecurityGroupId='/dev/epp/ec2/securitygroup/rds'
-        WebProxySecurityGroupId='/dev/epp/ec2/securitygroup/squid'
-        VpcId='/dev/epp/vpc/id'
-        VpcSubnets='/dev/epp/vpc/subnets/private'
+        RdsSecurityGroupId='/dev/pdbrd/ec2/securitygroup/rds'
+        WebProxySecurityGroupId='/dev/pdbrd/ec2/securitygroup/squid'
+        VpcId='/dev/pdbrd/vpc/id'
+        VpcSubnets='/dev/pdbrd/vpc/subnets/private'
 
 test:
   deploy:
     parameters:
-      stack_name: 'test-epp-app-stack'
+      stack_name: 'test-pdbrd-app-stack'
       s3_prefix: test
       capabilities: 'CAPABILITY_NAMED_IAM'
       parameter_overrides:
-        ProjectName='epp'
+        ProjectName='pdbrd'
         Environment='test'
-        RdsSecurityGroupId='/test/epp/ec2/securitygroup/rds'
-        WebProxySecurityGroupId='/test/epp/ec2/securitygroup/squid'
-        VpcId='/test/epp/vpc/id'
-        VpcSubnets='/test/epp/vpc/subnets/private'
+        RdsSecurityGroupId='/test/pdbrd/ec2/securitygroup/rds'
+        WebProxySecurityGroupId='/test/pdbrd/ec2/securitygroup/squid'
+        VpcId='/test/pdbrd/vpc/id'
+        VpcSubnets='/test/pdbrd/vpc/subnets/private'
 
 uat:
   deploy:
     parameters:
-      stack_name: 'uat-epp-app-stack'
+      stack_name: 'uat-pdbrd-app-stack'
       s3_prefix: uat
       capabilities: 'CAPABILITY_NAMED_IAM'
       parameter_overrides:
-        ProjectName='epp'
+        ProjectName='pdbrd'
         Environment='uat'
-        RdsSecurityGroupId='/uat/epp/ec2/securitygroup/rds'
-        WebProxySecurityGroupId='/uat/epp/ec2/securitygroup/squid'
-        VpcId='/uat/epp/vpc/id'
-        VpcSubnets='/uat/epp/vpc/subnets/private'
+        RdsSecurityGroupId='/uat/pdbrd/ec2/securitygroup/rds'
+        WebProxySecurityGroupId='/uat/pdbrd/ec2/securitygroup/squid'
+        VpcId='/uat/pdbrd/vpc/id'
+        VpcSubnets='/uat/pdbrd/vpc/subnets/private'
 
 prod:
   sync:
@@ -82,13 +82,13 @@ prod:
       watch: false
   deploy:
     parameters:
-      stack_name: 'prod-epp-app-stack'
+      stack_name: 'prod-pdbrd-app-stack'
       s3_prefix: prod
       capabilities: 'CAPABILITY_NAMED_IAM'
       parameter_overrides:
-        ProjectName='epp'
+        ProjectName='pdbrd'
         Environment='prod'
-        RdsSecurityGroupId='/prod/epp/ec2/securitygroup/rds'
-        WebProxySecurityGroupId='/prod/epp/ec2/securitygroup/squid'
-        VpcId='/prod/epp/vpc/id'
-        VpcSubnets='/prod/epp/vpc/subnets/private'
+        RdsSecurityGroupId='/prod/pdbrd/ec2/securitygroup/rds'
+        WebProxySecurityGroupId='/prod/pdbrd/ec2/securitygroup/squid'
+        VpcId='/prod/pdbrd/vpc/id'
+        VpcSubnets='/prod/pdbrd/vpc/subnets/private'

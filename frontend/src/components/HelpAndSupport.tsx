@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import {TITLE} from '../utils/contants';
+import {TITLE} from '../utils/Constants';
 
 const HelpAndSupport: React.FC = () =>{
 

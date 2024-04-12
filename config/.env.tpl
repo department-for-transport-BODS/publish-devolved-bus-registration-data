@@ -1,7 +1,7 @@
 # General
 # ------------------------------------------------------------------------------
 PROJECT_ENV=local
-PROJECT_NAME=epp
+PROJECT_NAME=pdbrd
 HTTP_PROXY=
 HTTPS_PROXY=
 
@@ -22,7 +22,7 @@ POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
-POSTGRES_DB=epp
+POSTGRES_DB=pdbrd_db
 
 # # CSV Handler Lambda Function
 # # ------------------------------------------------------------------------------

@@ -17,8 +17,8 @@ class OTCLicence(declarative_base):
         return f"OTCLicence(id={self.id}, licence_number={self.licence_number}, licence_status={self.licence_status}, otc_licence_id={self.otc_licence_id})"
 
 
-class EPRegistration(Base):
-    __tablename__ = "ep_registration"
+class PDBRDRegistration(Base):
+    __tablename__ = "pdbrd_registration"
 
     id = Column(Integer, primary_key=True)
     otc_licence_id = Column(Integer)
@@ -43,10 +43,10 @@ class EPRegistration(Base):
     application_type = Column(String(255))
     publication_text = Column(String(255))
     other_details = Column(String(255))
-    operator = relationship("OTCOperator", back_populates="ep_registration")
+    operator = relationship("OTCOperator", back_populates="pdbrd_registration")
 
     def __repr__(self):
-        return f"EPRegistration(id={self.id}, route_number={self.route_number}, route_description={self.route_description}, variation_number={self.variation_number}, start_point={self.start_point}, finish_point={self.finish_point}, via={self.via}, subsidised={self.subsidised}, subsidy_detail={self.subsidy_detail}, is_short_notice={self.is_short_notice}, received_date={self.received_date}, granted_date={self.granted_date}, effective_date={self.effective_date}, end_date={self.end_date}, otc_operator_id={self.otc_operator_id}, bus_service_type_id={self.bus_service_type_id}, bus_service_type_description={self.bus_service_type_description}, registration_number={self.registration_number}, traffic_area_id={self.traffic_area_id}, application_type={self.application_type}, publication_text={self.publication_text}, other_details={self.other_details})"
+        return f"PDBRDRegistration(id={self.id}, route_number={self.route_number}, route_description={self.route_description}, variation_number={self.variation_number}, start_point={self.start_point}, finish_point={self.finish_point}, via={self.via}, subsidised={self.subsidised}, subsidy_detail={self.subsidy_detail}, is_short_notice={self.is_short_notice}, received_date={self.received_date}, granted_date={self.granted_date}, effective_date={self.effective_date}, end_date={self.end_date}, otc_operator_id={self.otc_operator_id}, bus_service_type_id={self.bus_service_type_id}, bus_service_type_description={self.bus_service_type_description}, registration_number={self.registration_number}, traffic_area_id={self.traffic_area_id}, application_type={self.application_type}, publication_text={self.publication_text}, other_details={self.other_details})"
 
 
 class OTCOperator(Base):
