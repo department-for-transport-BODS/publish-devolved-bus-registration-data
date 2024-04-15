@@ -25,6 +25,7 @@ from utils.pydant_model import (
 from uuid import uuid4
 from utils.logger import log
 
+from utils.logger import console
 
 @api_v1_router.post(
     "/upload-file",
@@ -101,6 +102,7 @@ async def get_staged_process(
     Returns:
         _type_: _description_
     """
+    console.log(authenticated_entity)
     processes = DBManager.get_staged_process(authenticated_entity)
     return {"processes": processes, "status": "Completed"}
 
@@ -187,7 +189,7 @@ def get_staged_records_action(
         )
 
 
-@api_v1_router.post("/search", status_code=status.HTTP_200_OK)
+@api_v1_router.get("/search", status_code=status.HTTP_200_OK)
 async def search_records(
     authenticated_entity: AuthenticatedEntity = Depends(get_entity),
     licenseNumber: str = Query(
@@ -242,6 +244,8 @@ async def search_records(
             strictMode=strictMode,
             page=page,
         )
+        console.log(request)
+        console.log(authenticated_entity)
         records = DBManager.get_records(
             authenticated_entity, **search_query.model_dump()
         )
@@ -297,6 +301,8 @@ async def search_records_options():
 async def view_registrations(authenticated_entity: str = Depends(get_entity)):
     """This is the endpoint to view all the records in the database"""
     try:
+        from utils.logger import console
+        console.log(authenticated_entity)
         records = DBManager.get_record_required_attention_percentage(
             authenticated_entity
         )

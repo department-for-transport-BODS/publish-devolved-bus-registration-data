@@ -11,7 +11,7 @@ from fastapi import (
 from fastapi.security import HTTPBearer
 from typing import Tuple
 from utils.exceptions import RegionIsNotSet, UserPoolIdIsNotSet, AppClientIdIsNotSet
-from utils.logger import log
+from utils.logger import log, console
 from utils.pydant_model import AuthenticatedEntity
 
 
@@ -20,6 +20,9 @@ class CustomHTTPBearer(HTTPBearer):
         super().__init__(auto_error=auto_error)
 
     async def __call__(self, request: Request):
+        console.log(request)
+        console.log(request.headers)
+
         try:
             return await super().__call__(request)
         except HTTPException as auth_exc:
@@ -92,6 +95,7 @@ def token_verifier(token: str = Security(CustomHTTPBearer())):
         HTTPException: If the token is invalid, raise an HTTPException with status code 401.
     """
     # Verify if its in local and token is local
+    console.log(token)
     verification = TokenVerifier(token.credentials)
     verify = verification.verify_token()
     if verify:
@@ -117,7 +121,9 @@ def is_a_local_authority(claims: dict) -> Tuple[bool, str]:
 
 
 def get_local_authority(claims: dict = Depends(token_verifier)):
+    console.log(claims)
     return get_entity(claims, only_local_authority=True)
+    # return AuthenticatedEntity(type="local_auth", name="dev_3")
 
 
 def get_entity(
@@ -132,7 +138,8 @@ def get_entity(
     Returns:
         AuthenticatedEntity: The current user/app, or raise an HTTPException with status code 401.
     """
-    
+    # return AuthenticatedEntity(type="local_auth",name="dev_3") 
+    console.log(claims)
     is_local_authority, username = is_a_local_authority(claims)
     if is_local_authority and len(username) > 0:
         return AuthenticatedEntity(type="local_auth", name=username)

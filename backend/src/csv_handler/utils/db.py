@@ -363,6 +363,7 @@ class DBManager:
                 EPRegistration.registration_number.label("registrationNumber"),
                 OTCOperator.operator_name.label("operatorName"),
                 OTCLicence.licence_number.label("licenceNumber"),
+                OTCLicence.licence_status.label("licenceStatus"),
                 EPRegistration.route_number.label("routeNumber"),
                 EPRegistration.start_point.label("startPoint"),
                 EPRegistration.finish_point.label("finishPoint"),
@@ -655,7 +656,7 @@ class DBManager:
         EPReport = models.EPReport
         EPGroup = models.EPGroup
         if authenticated_entity.type == "local_auth":
-            EPGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
+            EPGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=False)
         if not EPGroup:
             return None
         report = (
@@ -757,7 +758,7 @@ class DBManager:
         EPStage = models.EPStage
         EPGroup = models.EPGroup
         if authenticated_entity.type == "local_auth":
-            EPGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
+            EPGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=False)
         if not EPGroup:
             return None
         staged_process = (
