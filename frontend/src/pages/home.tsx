@@ -42,7 +42,6 @@ const Home: React.FC = () => {
           <p>Use this service to:</p>
           <ul className="govuk-list govuk-list--bullet govuk-!-margin-left-2">
             <li>{TITLE} bus</li>
-            <li>View enhanced partnerships registered services</li>
           </ul>
         </div>
         <div>
