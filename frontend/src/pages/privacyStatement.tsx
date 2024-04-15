@@ -39,23 +39,23 @@ const PrivacyStatement: React.FC = () => {
           </p>
           <ul className="govuk-list govuk-list--bullet">
             <li>
-              your questions, queries or feedback and email address if you
+              Your questions, queries or feedback and email address if you
               contact Bus Open Data Service, supporting mailboxes or team
               members
             </li>
             <li>
-              for authorised contributors, your sign- up information when
+              For authorised contributors, your sign- up information when
               registering with the service
             </li>
             <li>
-              how you use our emails - for example whether you open them, and
+              How you use our emails - for example whether you open them, and
               which links you click on
             </li>
             <li>
-              your Internet Protocol (IP) address, and web browser version
+              Your Internet Protocol (IP) address, and web browser version
             </li>
             <li>
-              information on how you use the site, using cookies and page
+              Information on how you use the site, using cookies and page
               tagging
             </li>
           </ul>
@@ -69,20 +69,18 @@ const PrivacyStatement: React.FC = () => {
           <p className="govuk-heading-m">We also collect data in order to:</p>
           <ul className="govuk-list govuk-list--bullet">
             <li>
-              reply to any feedback you send us, if you&apos;ve asked us to
-              allow you to access government services and make transactions
+              Reply to any feedback you send us, if you&apos;ve asked us to
+              allow you to access government services and make transactions.
             </li>
             <li>
-              provide you with information about local services monitor use of
-              the site to identify security threats communicate service messages
-              aimed at keeping users
-            </li>
-            <li>
+              Provide you with information about local services monitor use of
+              the site to identify security threats </li>
+            <li>Communicate service messages aimed at keeping users
               informed of the service provided, which includes service updates
               and support that is provided as part of the overall service.
             </li>
             <li>
-              spot check the level of service usage for both authorised
+              Spot check the level of service usage for both authorised
               contributors and consumers
             </li>
           </ul>
@@ -156,14 +154,14 @@ const PrivacyStatement: React.FC = () => {
           <p>You can also:</p>
           <ul>
             <li>
-              raise an objection about how your personal data is processed
+              Raise an objection about how your personal data is processed
             </li>
             <li>
-              request that your personal data is erased if there is no longer a
+              Request that your personal data is erased if there is no longer a
               justification for it
             </li>
             <li>
-              ask that the processing of your personal data is restricted in
+              Ask that the processing of your personal data is restricted in
               certain circumstances
             </li>
           </ul>
