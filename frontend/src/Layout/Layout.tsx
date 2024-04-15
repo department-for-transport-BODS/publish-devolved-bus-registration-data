@@ -22,7 +22,7 @@ export const BaseLayout = ({
         <>
             <HeadProvider>
                 <div className="Home">
-                    <Title>{title? title: "EP Project"}</Title>
+                    <Title>{title? title: "PDBRD Project"}</Title>
                     <Meta name="description" content={'Upload CSV'} />
                     <Meta name="viewport" content="width=device-width, initial-scale=1" />
                     <Meta charSet="utf-8" />

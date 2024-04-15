@@ -278,7 +278,7 @@ async def search_records(
 
 def read_root():
     return {
-        "message": "Welcome to the EP Licences registration API",
+        "message": "Welcome to the PDBRD registration API",
     }
 
 

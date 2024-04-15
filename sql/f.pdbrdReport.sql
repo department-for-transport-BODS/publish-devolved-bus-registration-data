@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS ep_report (
+CREATE TABLE IF NOT EXISTS pdbrd_report (
     id SERIAL PRIMARY KEY,
     report_id VARCHAR(255) NOT NULL,
     group_id INTEGER NOT NULL,
@@ -7,6 +7,6 @@ CREATE TABLE IF NOT EXISTS ep_report (
 );
 
 SELECT create_constraint_if_not_exists(
-  'ep_group',
-  'fk_ep_group',
-  'ALTER TABLE ep_report ADD CONSTRAINT fk_ep_group FOREIGN KEY (group_id) REFERENCES ep_group(id);');
+  'pdbrd_report',
+  'fk_pdbrd_group',
+  'ALTER TABLE pdbrd_report ADD CONSTRAINT fk_pdbrd_group FOREIGN KEY (group_id) REFERENCES pdbrd_group(id);');

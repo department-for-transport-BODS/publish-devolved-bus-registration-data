@@ -89,45 +89,45 @@ class AutoMappingModels:
         self.engine = CreateEngine.get_engine()
         self.Base = automap_base()
         self.Base.prepare(autoload_with=self.engine)
-        self.EPRegistration = self.Base.classes.ep_registration
+        self.PDBRDRegistration = self.Base.classes.pdbrd_registration
         self.OTCOperator = self.Base.classes.otc_operator
         self.OTCLicence = self.Base.classes.otc_licence
         self.BODSDataCatalogue = self.Base.classes.bods_data_catalogue
-        self.EPGroup = self.Base.classes.ep_group
-        self.EPReport = self.Base.classes.ep_report
-        self.EPStage = self.Base.classes.ep_stage
+        self.PDBRDGroup = self.Base.classes.pdbrd_group
+        self.PDBRDReport = self.Base.classes.pdbrd_report
+        self.PDBRDStage = self.Base.classes.pdbrd_stage
         self.OTCLicence.__repr__ = (
             lambda self: f"<OTCLicence(licence_number='{self.licence_number}', licence_status='{self.licence_status}, otc_licence_id={self.otc_licence_id}')>"
         )
         self.OTCOperator.__repr__ = (
             lambda self: f"<OTCOperator(operator_name='{self.operator_name}', operator_id='{self.otc_operator_id}')>"
         )
-        self.EPRegistration.__repr__ = (
-            lambda self: f"<EPRegistration(route_number='{self.route_number}', route_description='{self.route_description}', variation_number='{self.variation_number}', start_point='{self.start_point}', finish_point='{self.finish_point}', via='{self.via}', subsidised='{self.subsidised}', subsidy_detail='{self.subsidy_detail}', is_short_notice='{self.is_short_notice}', received_date='{self.received_date}', granted_date='{self.granted_date}', effective_date='{self.effective_date}', end_date='{self.end_date}', otc_operator_id='{self.otc_operator_id}', bus_service_type_id='{self.bus_service_type_id}', bus_service_type_description='{self.bus_service_type_description}', registration_number='{self.registration_number}', traffic_area_id='{self.traffic_area_id}', application_type='{self.application_type}', publication_text='{self.publication_text}', other_details='{self.other_details}')>"
+        self.PDBRDRegistration.__repr__ = (
+            lambda self: f"<PDBRDRegistration(route_number='{self.route_number}', route_description='{self.route_description}', variation_number='{self.variation_number}', start_point='{self.start_point}', finish_point='{self.finish_point}', via='{self.via}', subsidised='{self.subsidised}', subsidy_detail='{self.subsidy_detail}', is_short_notice='{self.is_short_notice}', received_date='{self.received_date}', granted_date='{self.granted_date}', effective_date='{self.effective_date}', end_date='{self.end_date}', otc_operator_id='{self.otc_operator_id}', bus_service_type_id='{self.bus_service_type_id}', bus_service_type_description='{self.bus_service_type_description}', registration_number='{self.registration_number}', traffic_area_id='{self.traffic_area_id}', application_type='{self.application_type}', publication_text='{self.publication_text}', other_details='{self.other_details}')>"
         )
         self.BODSDataCatalogue.__repr__ = (
             lambda self: f"<BODSDataCatalogue(id='{self.id}', xml_service_code='{self.xml_service_code}', variation_number='{self.variation_number}', service_type_description='{self.service_type_description}', published_status='{self.published_status}', requires_attention='{self.requires_attention}', timeliness_status='{self.timeliness_status}')>"
         )
-        self.EPGroup.__repr__ = (
-            lambda self: f"<EPGroup(local_auth='{self.local_auth}')>"
+        self.PDBRDGroup.__repr__ = (
+            lambda self: f"<PDBRDGroup(local_auth='{self.local_auth}')>"
         )
-        self.EPReport.__repr__ = (
-            lambda self: f"<EPReport(id='{self.id}', report_id='{self.report_id}', group_id='{self.group_id}', report='{self.report}')>"
+        self.PDBRDReport.__repr__ = (
+            lambda self: f"<PDBRDReport(id='{self.id}', report_id='{self.report_id}', group_id='{self.group_id}', report='{self.report}')>"
         )
-        self.EPStage.__repr__ = (
-            lambda self: f"<EPStage(id='{self.id}', stage_id='{self.stage_id}', stage_user='{self.stage_user}', created_at='{self.created_at}')>"
+        self.PDBRDStage.__repr__ = (
+            lambda self: f"<PDBRDStage(id='{self.id}', stage_id='{self.stage_id}', stage_user='{self.stage_user}', created_at='{self.created_at}')>"
         )
         
 
     def get_tables(self):
         return {
-            "EPRegistration": self.EPRegistration,
+            "PDBRDRegistration": self.PDBRDRegistration,
             "OTCOperator": self.OTCOperator,
             "OTCLicence": self.OTCLicence,
-            "EPUsers": self.EPGroup,
-            "EPReport": self.EPReport,
+            "PDBRDGroup": self.PDBRDGroup,
+            "PDBRDReport": self.PDBRDReport,
             "BODSDataCatalogue": self.BODSDataCatalogue,
-            "EPStage": self.EPStage,
+            "PDBRDStage": self.PDBRDStage,
         }
 
 
@@ -161,14 +161,14 @@ class DBGroup:
         """
         models = self.models
         session = self.session
-        EPGroup = models.EPGroup
+        PDBRDGroup = models.PDBRDGroup
         try:
             # check if user in db first:
             group = self.get_group(group_name)
             if group:
                 return group
             # Add the user
-            group = EPGroup(local_auth=group_name)
+            group = PDBRDGroup(local_auth=group_name)
             session.add(group)
             session.commit()
             session.close()
@@ -179,10 +179,10 @@ class DBGroup:
 
     def get_group(self, group_name: str, raise_exception: bool = False):
         session = self.session
-        EPGroup = self.models.EPGroup
+        PDBRDGroup = self.models.PDBRDGroup
         group = (
-            session.query(EPGroup)
-            .filter(EPGroup.local_auth == group_name)
+            session.query(PDBRDGroup)
+            .filter(PDBRDGroup.local_auth == group_name)
             .one_or_none()
         )
         if group:
@@ -211,37 +211,37 @@ class DBManager:
         return licence_record_id
 
     @classmethod
-    def upsert_record_to_ep_registration_table(
+    def upsert_record_to_pdbrd_registration_table(
         cls,
         record: Registration,
         operator_record_id: int,
         licence_record_id: int,
         session: Session,
-        EPRegistration: Table,
-        EPGroup: Table,
-        EPStage_id: int
+        PDBRDRegistration: Table,
+        PDBRDGroup: Table,
+        PDBRDStage_id: int
     ):
-        """Add or update the record to the EPRegistration table
+        """Add or update the record to the PDBRDRegistration table
 
         Args:
             record (Registration):
             operator_record_id (int):
             licence_record_id (int):
             session (Session):
-            EPRegistration (Table): Target table
+            PDBRDRegistration (Table): Target table
 
         Raises:
             RecordIsAlreadyExist: If the record already exists in the database
         """
-        # Add or update the record to the EPRegistration table
+        # Add or update the record to the PDBRDRegistration table
         # case 1: Record already exists in the database
         existing_record = (
-            session.query(EPRegistration)
+            session.query(PDBRDRegistration)
             .filter(
-                EPRegistration.registration_number == record.registration_number,
-                EPRegistration.otc_operator_id == operator_record_id,
-                EPRegistration.variation_number == record.variation_number,
-                EPRegistration.group_id == EPGroup.id,
+                PDBRDRegistration.registration_number == record.registration_number,
+                PDBRDRegistration.otc_operator_id == operator_record_id,
+                PDBRDRegistration.variation_number == record.variation_number,
+                PDBRDRegistration.group_id == PDBRDGroup.id,
             )
             .one_or_none()
         )
@@ -250,7 +250,7 @@ class DBManager:
             record_dict = record.model_dump()
             existing_record_dict = existing_record.__dict__
             # Add the user id to the record
-            record_dict.update({"group_id": EPGroup.id})
+            record_dict.update({"group_id": PDBRDGroup.id})
             if common_keys_comparsion(record_dict, existing_record_dict):
                 # case 1.1: Check if all the fields are the same
                 # All fields are the same, reject with an error
@@ -283,11 +283,11 @@ class DBManager:
             # existing_record.other_details = record.other_details
             # existing_record.otc_licence_id = licence_record_id
             # session.commit()
-            # log.debug(f"Updated EP registration record: {existing_record.id}")
+            # log.debug(f"Updated PDBRD registration record: {existing_record.id}")
 
         else:
             # case 2: Record does not exist, create a new record
-            ep_registration_record = EPRegistration(
+            pdbrd_registration_record = PDBRDRegistration(
                 route_number=record.route_number,
                 route_description=record.route_description,
                 variation_number=record.variation_number,
@@ -310,12 +310,12 @@ class DBManager:
                 other_details=record.other_details,
                 otc_operator_id=operator_record_id,
                 otc_licence_id=licence_record_id,
-                group_id=EPGroup.id,
-                ep_stage_id=EPStage_id
+                group_id=PDBRDGroup.id,
+                pdbrd_stage_id=PDBRDStage_id
             )
-            session.add(ep_registration_record)
+            session.add(pdbrd_registration_record)
             session.commit()
-            log.debug(f"New EP registration record: {ep_registration_record.id}")
+            log.debug(f"New PDBRD registration record: {pdbrd_registration_record.id}")
 
     @classmethod
     def get_records(
@@ -350,62 +350,62 @@ class DBManager:
             [dict]: List of records each as a dictionary
         """
         models, session = initiate_db_variables()
-        EPRegistration = models.EPRegistration
+        PDBRDRegistration = models.PDBRDRegistration
         OTCOperator = models.OTCOperator
         OTCLicence = models.OTCLicence
         if authenticated_entity.type == "local_auth":
-            EPGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
+            PDBRDGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
         else:
-            EPGroup = None
+            PDBRDGroup = None
         records = (
             session.query(
-                EPRegistration.variation_number.label("variationNumber"),
-                EPRegistration.registration_number.label("registrationNumber"),
+                PDBRDRegistration.variation_number.label("variationNumber"),
+                PDBRDRegistration.registration_number.label("registrationNumber"),
                 OTCOperator.operator_name.label("operatorName"),
                 OTCLicence.licence_number.label("licenceNumber"),
                 OTCLicence.licence_status.label("licenceStatus"),
-                EPRegistration.route_number.label("routeNumber"),
-                EPRegistration.start_point.label("startPoint"),
-                EPRegistration.finish_point.label("finishPoint"),
-                EPRegistration.via.label("via"),
-                EPRegistration.subsidised.label("subsidised"),
-                EPRegistration.subsidy_detail.label("subsidyDetail"),
-                EPRegistration.is_short_notice.label("isShortNotice"),
-                EPRegistration.received_date.label("receivedDate"),
-                EPRegistration.granted_date.label("grantedDate"),
-                EPRegistration.effective_date.label("effectiveDate"),
-                EPRegistration.end_date.label("endDate"),
-                EPRegistration.bus_service_type_id.label("busServiceTypeId"),
-                EPRegistration.bus_service_type_description.label(
+                PDBRDRegistration.route_number.label("routeNumber"),
+                PDBRDRegistration.start_point.label("startPoint"),
+                PDBRDRegistration.finish_point.label("finishPoint"),
+                PDBRDRegistration.via.label("via"),
+                PDBRDRegistration.subsidised.label("subsidised"),
+                PDBRDRegistration.subsidy_detail.label("subsidyDetail"),
+                PDBRDRegistration.is_short_notice.label("isShortNotice"),
+                PDBRDRegistration.received_date.label("receivedDate"),
+                PDBRDRegistration.granted_date.label("grantedDate"),
+                PDBRDRegistration.effective_date.label("effectiveDate"),
+                PDBRDRegistration.end_date.label("endDate"),
+                PDBRDRegistration.bus_service_type_id.label("busServiceTypeId"),
+                PDBRDRegistration.bus_service_type_description.label(
                     "busServiceTypeDescription"
                 ),
-                EPRegistration.traffic_area_id.label("trafficAreaId"),
-                EPRegistration.application_type.label("applicationType"),
-                EPRegistration.publication_text.label("publicationText"),
+                PDBRDRegistration.traffic_area_id.label("trafficAreaId"),
+                PDBRDRegistration.application_type.label("applicationType"),
+                PDBRDRegistration.publication_text.label("publicationText"),
             )
-            .join(OTCOperator, EPRegistration.otc_operator_id == OTCOperator.id)
-            .join(OTCLicence, EPRegistration.otc_licence_id == OTCLicence.id)
+            .join(OTCOperator, PDBRDRegistration.otc_operator_id == OTCOperator.id)
+            .join(OTCLicence, PDBRDRegistration.otc_licence_id == OTCLicence.id)
         )
         # If EGroup is not None, filter the records by the group
         # Otherwise, get all the records
-        if EPGroup:
-            records = records.filter(EPRegistration.group_id == EPGroup.id)
+        if PDBRDGroup:
+            records = records.filter(PDBRDRegistration.group_id == PDBRDGroup.id)
 
         if exclude_variations:
             latest_ids = (
-                select(func.max(EPRegistration.id))
+                select(func.max(PDBRDRegistration.id))
                 .group_by(
-                    EPRegistration.registration_number,
-                    EPRegistration.otc_operator_id,
-                    EPRegistration.group_id,
+                    PDBRDRegistration.registration_number,
+                    PDBRDRegistration.otc_operator_id,
+                    PDBRDRegistration.group_id,
                 )
             )
-            if EPGroup:
-                latest_ids = latest_ids.filter(EPRegistration.group_id == EPGroup.id).subquery()
+            if PDBRDGroup:
+                latest_ids = latest_ids.filter(PDBRDRegistration.group_id == PDBRDGroup.id).subquery()
             else:
                 latest_ids = latest_ids.subquery()
             records = records.filter(
-                EPRegistration.id.in_(select(latest_ids))
+                PDBRDRegistration.id.in_(select(latest_ids))
             )
 
         if license_number:
@@ -416,7 +416,7 @@ class DBManager:
         if registration_number:
             records = add_filter_to_query(
                 records,
-                EPRegistration.registration_number,
+                PDBRDRegistration.registration_number,
                 registration_number,
                 strict_mode,
             )
@@ -428,7 +428,7 @@ class DBManager:
 
         if route_number:
             records = add_filter_to_query(
-                records, EPRegistration.route_number, route_number, strict_mode
+                records, PDBRDRegistration.route_number, route_number, strict_mode
             )
 
         if page:
@@ -476,29 +476,29 @@ class DBManager:
     @classmethod
     def get_all_records(cls, authenticated_entity: AuthenticatedEntity,latest_only=False):
         models, session = initiate_db_variables()
-        EPRegistration = models.EPRegistration
+        PDBRDRegistration = models.PDBRDRegistration
         OTCOperator = models.OTCOperator
         OTCLicence = models.OTCLicence
         BODSDataCatalogue = models.BODSDataCatalogue
         if authenticated_entity.type == "local_auth":
-            EPGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
+            PDBRDGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
         else:
-            EPGroup = None
+            PDBRDGroup = None
         if latest_only:
             subquery_q1 = (
                 session.query(
-                    EPRegistration.registration_number,
-                    func.max(EPRegistration.variation_number).label("max_variation_number")
-                ).filter(EPRegistration.ep_stage_id.is_(None))
-                .group_by(EPRegistration.registration_number)
+                    PDBRDRegistration.registration_number,
+                    func.max(PDBRDRegistration.variation_number).label("max_variation_number")
+                ).filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
+                .group_by(PDBRDRegistration.registration_number)
                 .subquery()
             )
 
             subquery_q2 = (
-                session.query(EPRegistration.id)
+                session.query(PDBRDRegistration.id)
                 .join(subquery_q1, and_(
-                    EPRegistration.registration_number == subquery_q1.c.registration_number,
-                    EPRegistration.variation_number == subquery_q1.c.max_variation_number
+                    PDBRDRegistration.registration_number == subquery_q1.c.registration_number,
+                    PDBRDRegistration.variation_number == subquery_q1.c.max_variation_number
                 ))
             ).subquery()
 
@@ -506,95 +506,95 @@ class DBManager:
 
         records = (
             session.query(
-                EPRegistration.registration_number.label("registrationNumber"),
-                EPRegistration.route_number.label("routeNumber"),
-                EPRegistration.route_description.label("routeDescription"),
-                EPRegistration.variation_number.label("variationNumber"),
-                EPRegistration.start_point.label("startPoint"),
-                EPRegistration.finish_point.label("finishPoint"),
-                EPRegistration.via.label("via"),
-                EPRegistration.subsidised.label("subsidised"),
-                EPRegistration.subsidy_detail.label("subsidyDetail"),
-                EPRegistration.is_short_notice.label("isShortNotice"),
-                EPRegistration.received_date.label("receivedDate"),
-                EPRegistration.granted_date.label("grantedDate"),
-                EPRegistration.effective_date.label("effectiveDate"),
-                EPRegistration.end_date.label("endDate"),
-                EPRegistration.bus_service_type_id.label("busServiceTypeId"),
-                EPRegistration.bus_service_type_description.label(
+                PDBRDRegistration.registration_number.label("registrationNumber"),
+                PDBRDRegistration.route_number.label("routeNumber"),
+                PDBRDRegistration.route_description.label("routeDescription"),
+                PDBRDRegistration.variation_number.label("variationNumber"),
+                PDBRDRegistration.start_point.label("startPoint"),
+                PDBRDRegistration.finish_point.label("finishPoint"),
+                PDBRDRegistration.via.label("via"),
+                PDBRDRegistration.subsidised.label("subsidised"),
+                PDBRDRegistration.subsidy_detail.label("subsidyDetail"),
+                PDBRDRegistration.is_short_notice.label("isShortNotice"),
+                PDBRDRegistration.received_date.label("receivedDate"),
+                PDBRDRegistration.granted_date.label("grantedDate"),
+                PDBRDRegistration.effective_date.label("effectiveDate"),
+                PDBRDRegistration.end_date.label("endDate"),
+                PDBRDRegistration.bus_service_type_id.label("busServiceTypeId"),
+                PDBRDRegistration.bus_service_type_description.label(
                     "busServiceTypeDescription"
                 ),
-                EPRegistration.traffic_area_id.label("trafficAreaId"),
-                EPRegistration.application_type.label("applicationType"),
-                EPRegistration.publication_text.label("publicationText"),
+                PDBRDRegistration.traffic_area_id.label("trafficAreaId"),
+                PDBRDRegistration.application_type.label("applicationType"),
+                PDBRDRegistration.publication_text.label("publicationText"),
                 OTCOperator.operator_name.label("operatorName"),
                 OTCLicence.licence_number.label("licenceNumber"),
                 OTCLicence.licence_status.label("licenceStatus"),
                 BODSDataCatalogue.requires_attention,
                 BODSDataCatalogue.timeliness_status,
             )
-            .outerjoin(BODSDataCatalogue, BODSDataCatalogue.xml_service_code == EPRegistration.registration_number)
-            .filter(EPRegistration.otc_operator_id == OTCOperator.id)
-            .filter(EPRegistration.ep_stage_id.is_(None))
-            .filter(EPRegistration.otc_licence_id == OTCLicence.id)
+            .outerjoin(BODSDataCatalogue, BODSDataCatalogue.xml_service_code == PDBRDRegistration.registration_number)
+            .filter(PDBRDRegistration.otc_operator_id == OTCOperator.id)
+            .filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
+            .filter(PDBRDRegistration.otc_licence_id == OTCLicence.id)
             # .filter(
-            #     EPRegistration.registration_number == BODSDataCatalogue.xml_service_code
+            #     PDBRDRegistration.registration_number == BODSDataCatalogue.xml_service_code
             # )
         )
         if latest_only:
-            records = records.filter(EPRegistration.id.in_(subquery_q2))
+            records = records.filter(PDBRDRegistration.id.in_(subquery_q2))
 
-        if EPGroup:
-            records = records.filter(EPRegistration.group_id == EPGroup.id)
+        if PDBRDGroup:
+            records = records.filter(PDBRDRegistration.group_id == PDBRDGroup.id)
         return [rec._asdict() for rec in records.all()]
 
     @classmethod
     def get_record_required_attention_percentage(cls, authenticated_entity: AuthenticatedEntity = None):
         models, session = initiate_db_variables()
-        EPRegistration = models.EPRegistration
+        PDBRDRegistration = models.PDBRDRegistration
         OTCOperator = models.OTCOperator
         OTCLicence = models.OTCLicence
         BODSDataCatalogue = models.BODSDataCatalogue
         if authenticated_entity.type == "local_auth":
-            EPGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
+            PDBRDGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
         else:
-            EPGroup = None
+            PDBRDGroup = None
 
         subquery_q1 = (
             session.query(
-                EPRegistration.registration_number,
-                func.max(EPRegistration.variation_number).label("max_variation_number")
+                PDBRDRegistration.registration_number,
+                func.max(PDBRDRegistration.variation_number).label("max_variation_number")
             )
-            .filter(EPRegistration.ep_stage_id.is_(None))
-            .group_by(EPRegistration.registration_number)
+            .filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
+            .group_by(PDBRDRegistration.registration_number)
             .subquery()
         )
         subquery_q2 = (
-            session.query(EPRegistration.id)
+            session.query(PDBRDRegistration.id)
             .join(subquery_q1, and_(
-                EPRegistration.registration_number == subquery_q1.c.registration_number,
-                EPRegistration.variation_number == subquery_q1.c.max_variation_number
+                PDBRDRegistration.registration_number == subquery_q1.c.registration_number,
+                PDBRDRegistration.variation_number == subquery_q1.c.max_variation_number
             ))
         ).subquery()
 
 
         subquery_q3 = (
             session.query(
-                func.count(EPRegistration.registration_number).label("count"),
+                func.count(PDBRDRegistration.registration_number).label("count"),
                 OTCLicence.licence_number,
                 BODSDataCatalogue.requires_attention,
                 OTCOperator.operator_name,
                 OTCLicence.licence_status,
             )
-            .join(OTCLicence, OTCLicence.id == EPRegistration.otc_licence_id)
+            .join(OTCLicence, OTCLicence.id == PDBRDRegistration.otc_licence_id)
             .outerjoin(
                 BODSDataCatalogue,
-                EPRegistration.registration_number
+                PDBRDRegistration.registration_number
                 == BODSDataCatalogue.xml_service_code,
             )
-            .join(OTCOperator, OTCOperator.id == EPRegistration.otc_operator_id)
-            .filter(EPRegistration.group_id == EPGroup.id)
-            .filter(EPRegistration.id.in_(subquery_q2))
+            .join(OTCOperator, OTCOperator.id == PDBRDRegistration.otc_operator_id)
+            .filter(PDBRDRegistration.group_id == PDBRDGroup.id)
+            .filter(PDBRDRegistration.id.in_(subquery_q2))
             .group_by(
                 OTCLicence.licence_number,
                 OTCOperator.operator_name,
@@ -602,8 +602,8 @@ class DBManager:
                 OTCLicence.licence_status,
             )          
         )
-        if EPGroup:
-            subquery_q3 = subquery_q3.filter(EPRegistration.group_id == EPGroup.id).subquery()
+        if PDBRDGroup:
+            subquery_q3 = subquery_q3.filter(PDBRDRegistration.group_id == PDBRDGroup.id).subquery()
         else:
             subquery_q3 = subquery_q3.subquery()
 
@@ -653,16 +653,16 @@ class DBManager:
     @classmethod
     def get_report_then_delete_it_from_db(cls, authenticated_entity: AuthenticatedEntity, report_id: str):
         models, session = initiate_db_variables()
-        EPReport = models.EPReport
-        EPGroup = models.EPGroup
+        PDBRDReport = models.PDBRDReport
+        PDBRDGroup = models.PDBRDGroup
         if authenticated_entity.type == "local_auth":
-            EPGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=False)
-        if not EPGroup:
+            PDBRDGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=False)
+        if not PDBRDGroup:
             return None
         report = (
-            session.query(EPReport)
-            .filter(EPReport.report_id == report_id)
-            .filter(EPReport.group_id == EPGroup.id)
+            session.query(PDBRDReport)
+            .filter(PDBRDReport.report_id == report_id)
+            .filter(PDBRDReport.group_id == PDBRDGroup.id)
             .one_or_none()
         )
         if report:
@@ -675,24 +675,24 @@ class DBManager:
     @classmethod
     def get_staged_records(cls, authenticated_entity: AuthenticatedEntity, stage_id: str=None):
         models, session = initiate_db_variables()
-        EPStage = models.EPStage
-        EPGroup = models.EPGroup
-        EPLicence = models.OTCLicence
-        EPOperator = models.OTCOperator
-        EPRegistration = models.EPRegistration
+        PDBRDStage = models.PDBRDStage
+        PDBRDGroup = models.PDBRDGroup
+        PDBRDLicence = models.OTCLicence
+        PDBRDOperator = models.OTCOperator
+        PDBRDRegistration = models.PDBRDRegistration
         if authenticated_entity.type == "local_auth":
-            EPGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
-        if not EPGroup:
+            PDBRDGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
+        if not PDBRDGroup:
             return None
         staged_process = (
-            session.query(EPStage.id).filter(EPStage.stage_id == stage_id).subquery()
+            session.query(PDBRDStage.id).filter(PDBRDStage.stage_id == stage_id).subquery()
         )
 
         staged_records = (
-            session.query(EPRegistration.registration_number, EPLicence.licence_number, EPOperator.operator_name)
-            .filter(EPRegistration.ep_stage_id == select(staged_process.c.id))
-            .filter(EPRegistration.otc_licence_id == EPLicence.id)
-            .filter(EPRegistration.otc_operator_id == EPOperator.id)
+            session.query(PDBRDRegistration.registration_number, PDBRDLicence.licence_number, PDBRDOperator.operator_name)
+            .filter(PDBRDRegistration.pdbrd_stage_id == select(staged_process.c.id))
+            .filter(PDBRDRegistration.otc_licence_id == PDBRDLicence.id)
+            .filter(PDBRDRegistration.otc_operator_id == PDBRDOperator.id)
             
         )
         console.log(staged_records)
@@ -702,34 +702,34 @@ class DBManager:
     @classmethod
     def commit_staged_records(cls, authenticated_entity: AuthenticatedEntity, stage_id: str, commit: bool = True):
         models, session = initiate_db_variables()
-        EPStage = models.EPStage
-        EPGroup = models.EPGroup
-        EPRegistration = models.EPRegistration
+        PDBRDStage = models.PDBRDStage
+        PDBRDGroup = models.PDBRDGroup
+        PDBRDRegistration = models.PDBRDRegistration
         if authenticated_entity.type == "local_auth":
-            EPGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
-        if not EPGroup:
+            PDBRDGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
+        if not PDBRDGroup:
             return None
 
         try:
             if not  commit:
                 # Get the staged process id
                 staged_process_id = (
-                    session.query(EPStage.id)
-                    .filter(EPStage.stage_id == stage_id)
-                    .filter(EPStage.stage_user == EPGroup.id)
+                    session.query(PDBRDStage.id)
+                    .filter(PDBRDStage.stage_id == stage_id)
+                    .filter(PDBRDStage.stage_user == PDBRDGroup.id)
                 )
                 staged_process_subquery = staged_process_id.subquery()
                 staged_records = (
-                    session.query(EPRegistration)
-                    .filter(EPRegistration.ep_stage_id == select(staged_process_subquery).scalar_subquery())
+                    session.query(PDBRDRegistration)
+                    .filter(PDBRDRegistration.pdbrd_stage_id == select(staged_process_subquery).scalar_subquery())
                 )
                 staged_records.delete(synchronize_session=False)
 
             # Get the staged process
             staged_process = (
-                    session.query(EPStage)
-                    .filter(EPStage.stage_id == stage_id)
-                    .filter(EPStage.stage_user == EPGroup.id)
+                    session.query(PDBRDStage)
+                    .filter(PDBRDStage.stage_id == stage_id)
+                    .filter(PDBRDStage.stage_user == PDBRDGroup.id)
                 )
             # Delete the staged process
             deleted_count = staged_process.delete(synchronize_session=False)
@@ -755,15 +755,15 @@ class DBManager:
     @classmethod
     def get_staged_process(cls, authenticated_entity: AuthenticatedEntity):
         models, session = initiate_db_variables()
-        EPStage = models.EPStage
-        EPGroup = models.EPGroup
+        PDBRDStage = models.PDBRDStage
+        PDBRDGroup = models.PDBRDGroup
         if authenticated_entity.type == "local_auth":
-            EPGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=False)
-        if not EPGroup:
+            PDBRDGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=False)
+        if not PDBRDGroup:
             return None
         staged_process = (
-            session.query(EPStage.stage_id, EPStage.created_at)
-            .filter(EPStage.stage_user == EPGroup.id)
+            session.query(PDBRDStage.stage_id, PDBRDStage.created_at)
+            .filter(PDBRDStage.stage_user == PDBRDGroup.id)
         )
         console.log(staged_process.all())
         return [rec._asdict() for rec in staged_process.all()]
@@ -776,8 +776,8 @@ def send_to_db(records: List[Registration], group_name = None, report_id = None)
     tables = models.get_tables()
     OTCOperator = tables["OTCOperator"]
     OTCLicence = tables["OTCLicence"]
-    EPRegistration = tables["EPRegistration"]
-    EPStage = tables["EPStage"]
+    PDBRDRegistration = tables["PDBRDRegistration"]
+    PDBRDStage = tables["PDBRDStage"]
     # Check if the licence number exists in the OTC database
     # validated_records = validate_licence_number_existence(validated_records)
     db_invalid_insertion = []
@@ -787,18 +787,18 @@ def send_to_db(records: List[Registration], group_name = None, report_id = None)
 
 
     # Add or create the user
-    EPGroup = DBGroup(models, Session(engine)).get_or_create_user(group_name)
-    console.log(EPGroup)
-    console.log(EPGroup.id)
+    PDBRDGroup = DBGroup(models, Session(engine)).get_or_create_user(group_name)
+    console.log(PDBRDGroup)
+    console.log(PDBRDGroup.id)
     # Initiate a new stage for the records
-    # stage = EPStage(stage_user=EPGroup.id,stage_id=report_id)
+    # stage = PDBRDStage(stage_user=PDBRDGroup.id,stage_id=report_id)
     # add record to the stage table
     session = Session(engine)
-    EPStage_record = EPStage(stage_user=EPGroup.id, stage_id=report_id)
-    session.add(EPStage_record)
+    PDBRDStage_record = PDBRDStage(stage_user=PDBRDGroup.id, stage_id=report_id)
+    session.add(PDBRDStage_record)
     session.commit()
-    EPStage_id = EPStage_record.id
-    console.log(EPStage_id)
+    PDBRDStage_id = PDBRDStage_record.id
+    console.log(PDBRDStage_id)
     session.close()
 
     for idx, record_and_licence in records["valid_records"].items():
@@ -840,15 +840,15 @@ def send_to_db(records: List[Registration], group_name = None, report_id = None)
 
 
 
-            # Add the record to the EPRegistration table
-            DBManager.upsert_record_to_ep_registration_table(
+            # Add the record to the PDBRDRegistration table
+            DBManager.upsert_record_to_pdbrd_registration_table(
                 record,
                 operator_record_id,
                 licence_record_id,
                 session,
-                EPRegistration,
-                EPGroup,
-                EPStage_id
+                PDBRDRegistration,
+                PDBRDGroup,
+                PDBRDStage_id
             )
         except RecordIsAlreadyExist:
             already_exists_records.update(
@@ -886,9 +886,9 @@ def send_to_db(records: List[Registration], group_name = None, report_id = None)
     #     ## Delete the staged process
     #     session = Session(engine)
     #     staged_process = (
-    #         session.query(EPStage)
-    #         .filter(EPStage.stage_id == EPStage_id)
-    #         .filter(EPStage.stage_user == EPGroup.id)
+    #         session.query(PDBRDStage)
+    #         .filter(PDBRDStage.stage_id == PDBRDStage_id)
+    #         .filter(PDBRDStage.stage_user == PDBRDGroup.id)
     #     )
     #     staged_process.delete()
     #     session.commit()
@@ -898,10 +898,10 @@ def send_to_db(records: List[Registration], group_name = None, report_id = None)
 def send_report_to_db(report: dict, group_name: str, report_id: str):
     models, session = initiate_db_variables()
 
-    EPGroup = DBGroup(models, session).get_or_create_user(group_name)
-    EPReport = models.EPReport
-    report_record = EPReport(
-        report_id=report_id, group_id=EPGroup.id, report=report
+    PDBRDGroup = DBGroup(models, session).get_or_create_user(group_name)
+    PDBRDReport = models.PDBRDReport
+    report_record = PDBRDReport(
+        report_id=report_id, group_id=PDBRDGroup.id, report=report
     )
     session.add(report_record)
     session.commit()

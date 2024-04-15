@@ -85,6 +85,6 @@ $func$
 LANGUAGE plpgsql;
 
 CREATE OR REPLACE TRIGGER check_duplicate_records
-AFTER UPDATE ON ep_registration
+AFTER UPDATE ON pdbrd_registration
 FOR EACH ROW
 EXECUTE FUNCTION handle_duplicate_records();

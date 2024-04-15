@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { TwoThirdsLayout } from "../Layout/Layout";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
 import Footer from "../Layout/Footer";
-import { TITLE } from "../utils/contants";
+import { TITLE } from "../utils/Constants";
 
 const PrivacyStatement: React.FC = () => {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -109,7 +109,7 @@ const PrivacyStatement: React.FC = () => {
           </p>
           <p className="govuk-heading-m">How long we keep your data for</p>
           <p>
-            We will retain your data for as long as you have an EPP account.
+            We will retain your data for as long as you have a EP account.
             However, if you use an institutional email account and depending on
             what you choose for your account name, this may not include any
             personally identifiable information
