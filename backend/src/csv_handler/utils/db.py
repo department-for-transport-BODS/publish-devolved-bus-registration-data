@@ -171,7 +171,6 @@ class DBGroup:
             group = PDBRDGroup(local_auth=group_name)
             session.add(group)
             session.commit()
-            session.close()
             return group  # Return the ID of the inserted record
         except Exception as e:
             log.error(f"Error: {e}")
@@ -786,9 +785,11 @@ def send_to_db(records: List[Registration], group_name = None, report_id = None)
 
 
     # Add or create the user
-    PDBRDGroup = DBGroup(models, Session(engine)).get_or_create_user(group_name)
+    session = Session(engine)
+    PDBRDGroup = DBGroup(models, session).get_or_create_user(group_name)
     console.log(PDBRDGroup)
     console.log(PDBRDGroup.id)
+    session.close()
     # Initiate a new stage for the records
     # stage = PDBRDStage(stage_user=PDBRDGroup.id,stage_id=report_id)
     # add record to the stage table
