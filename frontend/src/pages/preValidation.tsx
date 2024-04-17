@@ -95,8 +95,7 @@ const PreValidations: React.FC = () => {
         isLoggedIn={isLoggedIn}
       >
         <h1 className="govuk-heading-xl">
-          Please verify the all new expected registrations are correct before
-          uploading
+        Please verify all new expected registrations are correct before uploading
         </h1>
         {showError && (
           <div
