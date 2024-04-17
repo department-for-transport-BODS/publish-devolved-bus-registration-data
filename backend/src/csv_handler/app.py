@@ -102,7 +102,6 @@ async def get_staged_process(
     Returns:
         _type_: _description_
     """
-    console.log(authenticated_entity)
     processes = DBManager.get_staged_process(authenticated_entity)
     return {"processes": processes, "status": "Completed"}
 
@@ -244,8 +243,6 @@ async def search_records(
             strictMode=strictMode,
             page=page,
         )
-        console.log(request)
-        console.log(authenticated_entity)
         records = DBManager.get_records(
             authenticated_entity, **search_query.model_dump()
         )
@@ -302,7 +299,6 @@ async def view_registrations(authenticated_entity: str = Depends(get_entity)):
     """This is the endpoint to view all the records in the database"""
     try:
         from utils.logger import console
-        console.log(authenticated_entity)
         records = DBManager.get_record_required_attention_percentage(
             authenticated_entity
         )
