@@ -9,7 +9,7 @@ import useRegistrationStatus from "../utils/GetRegistrationStatus";
 import { v4 as uuidv4 } from "uuid";
 import GetAllRecords from "../utils/GetAllRecords";
 import { fetchAuthSession } from "aws-amplify/auth";
-import DataProccessingWaiting from "../components/DataProccessingWaiting";
+import DataProcessingWaiting from "../components/DataProcessingWaiting";
 const ViewRegistrations: React.FC = () => {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { data, loading, error } = useRegistrationStatus();
@@ -106,7 +106,7 @@ const ViewRegistrations: React.FC = () => {
             </div>
           </div>
         )}
-        {!error && !data &&    <DataProccessingWaiting 
+        {!error && !data && <DataProcessingWaiting 
         title="Retrieving active registrations"
         description="Once registrations are ready they will be shown here" />}
         {!loading && !error && data && (

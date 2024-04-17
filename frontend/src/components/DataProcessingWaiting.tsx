@@ -1,11 +1,11 @@
 import React from "react";
 import BarLoader from "react-spinners/BarLoader";
- type DataProccessingWaitingProps ={
+ type DataProcessingWaitingProps ={
   title?: string,
   description?: string,
 };
 
-const DataProccessingWaiting: React.FC<DataProccessingWaitingProps> = ({title,description}) => {
+const DataProccessingWaiting: React.FC<DataProcessingWaitingProps> = ({title,description}) => {
 
   return (
     <>

@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import Footer from "../Layout/Footer";
 import FullColumnLayout from "../Layout/Layout";
 import UploadCsv from "../components/UploadCsv";
-import DataProccessingWaiting  from "../components/DataProccessingWaiting";
+import DataProccessingWaiting  from "../components/DataProcessingWaiting";
 import {fetchAuthSession } from "aws-amplify/auth";
 import { CheckStageProcesses, getStaged } from "../utils/SendCsv";
 import { Link, useNavigate } from "react-router-dom";

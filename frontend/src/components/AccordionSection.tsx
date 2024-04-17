@@ -35,7 +35,7 @@ const AccordionSection: React.FC<AccordionSectionProps> = ({
                 </span>
               ) : (
                 <span className="govuk-tag govuk-tag--red govuk-!-margin-left-4">
-                  Invalid in OTC
+                  {status}
                 </span>
               )}
             </div>
