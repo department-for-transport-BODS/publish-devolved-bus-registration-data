@@ -5,11 +5,15 @@ on:
     branches:
       - main
     inputs:
-      release_version:
-        type: string
-        description: version to be deployed
-        required: true
-        default: 'latest'
+      component:
+        type: choice
+        description: component to deploy. Defaults to 'all'
+        default: 'all'
+        options: 
+        - 'all'
+        - 'database'
+        - 'backend'
+        - 'frontend'
       environment:
         type: choice
         description: deployment environment
@@ -18,6 +22,11 @@ on:
         - 'test'
         - 'uat'
         - 'prod'
+      release_version:
+        type: string
+        description: version to be deployed
+        required: true
+        default: 'latest'
   repository_dispatch:
     branch: main
     types: [automated-deploy-dev]
@@ -25,10 +34,12 @@ on:
 env:
   AWS_REGION: ${{ vars.AWS_REGION }}
   RC_SRC_PREFIX: ${{ vars.DEPLOYMENT_ARTEFACTS_S3_BUCKET_PREFIX }}
-  RC_VER: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release_version ||
-    github.event_name == 'repository_dispatch' && github.event.client_payload.release_version }}
+  RC_CPT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.component ||
+    github.event_name == 'repository_dispatch' && github.event.client_payload.component }}
   RC_ENV: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment ||
     github.event_name == 'repository_dispatch' && github.event.client_payload.environment }}
+  RC_VER: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release_version ||
+    github.event_name == 'repository_dispatch' && github.event.client_payload.release_version }}
 
 permissions:
   id-token: write
@@ -43,7 +54,7 @@ jobs:
 
     steps:
       - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v4  
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/${{ vars.AWS_ASSUME_ROLE_NAME }}
@@ -77,15 +88,17 @@ jobs:
             latest_version=$(get_latest_version $RC_SRC 'releases')
             echo """ \
               Executing deploy job using parameters:
-                (Release Version)    - $latest_version (latest)
-                (Target Environment) - $RC_ENV
+                (Application Component) - $RC_CPT
+                (Release Version)       - $latest_version (latest)
+                (Target Environment)    - $RC_ENV
             """
             echo "version=${latest_version}" >> "$GITHUB_OUTPUT"
           else
             echo """ \
               Executing deploy job using parameters:
-                (Release Version)    - $RC_VER
-                (Target Environment) - $RC_ENV
+                (Application Component) - $RC_CPT
+                (Release Version)       - $RC_VER
+                (Target Environment)    - $RC_ENV
             """
             echo "version=${RC_VER}" >> "$GITHUB_OUTPUT"
           fi
@@ -102,25 +115,39 @@ jobs:
           rc_frontend_path="$rc_path/frontend/$RC_ENV"
           rc_database_path="$rc_path/sql"
 
-          if [[ `aws s3 ls s3://$rc_backend_path|head` ]]; then
+          # Database validation
+          if [[ $RC_CPT == 'database' || $RC_CPT == 'all' ]]; then
+            if [[ `aws s3 ls s3://$rc_database_path|head` ]]; then
+              echo "[INFO] Release candidate version [${VERSION}] for component (DATABASE) successfully validated"
+            else
+              echo "[ERROR] Release candidate version [${VERSION}] does not exist for component (DATABASE). Exiting"
+              exit 1
+            fi
+          fi
+
+          # Backend validation
+          if [[ $RC_CPT == 'backend' || $RC_CPT == 'all' ]]; then
+            if [[ `aws s3 ls s3://$rc_backend_path|head` ]]; then
+              echo "[INFO] Release candidate version [${VERSION}] for component (BACKEND) successfully validated"
+            else
+              echo "[ERROR] Release candidate version [${VERSION}] does not exist for component (BACKEND). Exiting"
+              exit 1
+            fi
+          fi
+
+          # Frontend validation
+          if [[ $RC_CPT == 'frontend' || $RC_CPT == 'all' ]]; then
             if [[ `aws s3 ls s3://$rc_frontend_path|head` ]]; then
-              if [[ `aws s3 ls s3://$rc_database_path|head` ]]; then
-                echo "[INFO] Release candidate version [${VERSION}] successfully validated"
-              else
-                echo "[ERROR] Release candidate version [${VERSION}] does not exist for component (DATABASE). Exiting"
-                exit 1
-              fi
+              echo "[INFO] Release candidate version [${VERSION}] for component (FRONTEND) successfully validated"
             else
               echo "[ERROR] Release candidate version [${VERSION}] does not exist for component (FRONTEND). Exiting"
               exit 1
             fi
-          else
-            echo "[ERROR] Release candidate version [${VERSION}] does not exist for component (BACKEND). Exiting"
-            exit 1
           fi
 
   database:
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.component == 'all' || github.event.inputs.component == 'database' }}
     environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment ||
       github.event_name == 'repository_dispatch' && github.event.client_payload.environment }}
     needs: validation
@@ -169,6 +196,7 @@ jobs:
 
   backend:
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.component == 'all' || github.event.inputs.component == 'backend' }}
     environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment ||
       github.event_name == 'repository_dispatch' && github.event.client_payload.environment }}
     needs: validation
@@ -227,6 +255,7 @@ jobs:
 
   frontend:
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.component == 'all' || github.event.inputs.component == 'frontend' }}
     environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment ||
       github.event_name == 'repository_dispatch' && github.event.client_payload.environment }}
     needs: 

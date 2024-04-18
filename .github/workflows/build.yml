@@ -299,4 +299,4 @@ jobs:
         with:
           repository: ${{ github.repository }}
           event-type: automated-deploy-dev
-          client-payload: '{ "environment": "dev", "release_version": "${{ needs.validation.outputs.version }}" }'
+          client-payload: '{ "component": "all", "environment": "dev", "release_version": "${{ needs.validation.outputs.version }}" }'
