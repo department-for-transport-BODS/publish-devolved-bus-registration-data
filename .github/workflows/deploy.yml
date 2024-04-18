@@ -12,8 +12,7 @@ on:
         options: 
         - 'all'
         - 'database'
-        - 'backend'
-        - 'frontend'
+        - 'application'
       environment:
         type: choice
         description: deployment environment
@@ -125,18 +124,17 @@ jobs:
             fi
           fi
 
-          # Backend validation
-          if [[ $RC_CPT == 'backend' || $RC_CPT == 'all' ]]; then
+          # Application validation
+          if [[ $RC_CPT == 'application' || $RC_CPT == 'all' ]]; then
+            # Backend
             if [[ `aws s3 ls s3://$rc_backend_path|head` ]]; then
               echo "[INFO] Release candidate version [${VERSION}] for component (BACKEND) successfully validated"
             else
               echo "[ERROR] Release candidate version [${VERSION}] does not exist for component (BACKEND). Exiting"
               exit 1
             fi
-          fi
 
-          # Frontend validation
-          if [[ $RC_CPT == 'frontend' || $RC_CPT == 'all' ]]; then
+            # Frontend
             if [[ `aws s3 ls s3://$rc_frontend_path|head` ]]; then
               echo "[INFO] Release candidate version [${VERSION}] for component (FRONTEND) successfully validated"
             else
@@ -196,7 +194,7 @@ jobs:
 
   backend:
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.component == 'all' || github.event.inputs.component == 'backend' }}
+    if: ${{ github.event.inputs.component == 'all' || github.event.inputs.component == 'application' }}
     environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment ||
       github.event_name == 'repository_dispatch' && github.event.client_payload.environment }}
     needs: validation
@@ -255,7 +253,7 @@ jobs:
 
   frontend:
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.component == 'all' || github.event.inputs.component == 'frontend' }}
+    if: ${{ github.event.inputs.component == 'all' || github.event.inputs.component == 'application' }}
     environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment ||
       github.event_name == 'repository_dispatch' && github.event.client_payload.environment }}
     needs: 
