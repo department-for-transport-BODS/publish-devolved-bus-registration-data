@@ -89,6 +89,7 @@ jobs:
             response_payload=$(cat response.txt)
             echo "Response Payload: $response_payload"
             echo "[INFO] Destruction of database successfully run against ${DEPLOY_ENV^^}"
+          fi
 
       - name: run database initialisation against ${{ env.DEPLOY_ENV }}
         if: ${{ env.DEPLOY_ACT == 'destroy' || env.DEPLOY_ACT == 'refresh' }}
