@@ -1,0 +1,45 @@
+name: modify database
+
+on:
+  workflow_dispatch:
+    branches:
+    - main
+    inputs:
+      action:
+        type: choice
+        description: database modification action
+        options: 
+        - 'destroy'
+        - 'initialise'
+        - 'run-migrations'
+      environment:
+        type: choice
+        description: deployment environment
+        options: 
+        - 'dev'
+        - 'test'
+        - 'uat'
+        - 'prod'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.inputs.environment }}
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  DEPLOY_ACT: ${{ github.event.inputs.action }}
+  DEPLOY_ENV: ${{ github.event.inputs.environment }}
+  DEPLOY_SRC_PREFIX: ${{ vars.DEPLOYMENT_ARTEFACTS_S3_BUCKET_PREFIX }}
+
+jobs:
+  validation:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: validate job parameters
+        run: |
+          echo """ \
+            Modifying backend database using parameters:
+              (Database Action)        - $DEPLOY_ACT
+              (Deployment Environment) - $DEPLOY_ENV
+          """
