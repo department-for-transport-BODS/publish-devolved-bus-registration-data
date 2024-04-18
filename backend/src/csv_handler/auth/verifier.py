@@ -11,7 +11,7 @@ from fastapi import (
 from fastapi.security import HTTPBearer
 from typing import Tuple
 from utils.exceptions import RegionIsNotSet, UserPoolIdIsNotSet, AppClientIdIsNotSet
-from utils.logger import log, console
+from utils.logger import log
 from utils.pydant_model import AuthenticatedEntity
 
 

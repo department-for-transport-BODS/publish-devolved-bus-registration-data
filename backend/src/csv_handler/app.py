@@ -25,7 +25,6 @@ from utils.pydant_model import (
 from uuid import uuid4
 from utils.logger import log
 
-from utils.logger import console
 
 @api_v1_router.post(
     "/upload-file",
@@ -298,7 +297,6 @@ async def search_records_options():
 async def view_registrations(authenticated_entity: str = Depends(get_entity)):
     """This is the endpoint to view all the records in the database"""
     try:
-        from utils.logger import console
         records = DBManager.get_record_required_attention_percentage(
             authenticated_entity
         )
