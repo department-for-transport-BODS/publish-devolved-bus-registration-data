@@ -46,7 +46,7 @@ jobs:
 
   database:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environments }}
+    environment: ${{ github.event.inputs.environment }}
     needs: validation
 
     permissions:
