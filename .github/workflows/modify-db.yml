@@ -9,6 +9,7 @@ on:
         type: choice
         description: database modification action
         options: 
+        - 'refresh'
         - 'destroy'
         - 'initialise'
         - 'run-migrations'
@@ -63,8 +64,34 @@ jobs:
           role-duration-seconds: 3600
           role-skip-session-tagging: true
 
+      - name: run database destroy against ${{ env.DEPLOY_ENV }}
+        if: ${{ env.DEPLOY_ACT == 'destroy' || env.DEPLOY_ACT == 'refresh' }}
+        run: |
+          lambda_function_name="${DEPLOY_ENV}-${{ vars.PROJECT_NAME }}-pg-mutate-lambda"
+          cat <<EOF > $GITHUB_WORKSPACE/payload.json
+          {
+            "type": "destroy",
+            "userCredentialsArn": "${DEPLOY_ENV}/${{ vars.PROJECT_NAME }}/rds/user/root",
+            "targetDatabase": "${{ vars.PROJECT_NAME }}_db",
+            "roles": [{
+              "name": "${{ vars.PROJECT_NAME }}_app_rw"
+            }]
+          }
+          EOF
+
+          openssl base64 -out $GITHUB_WORKSPACE/encoded_payload.json -in $GITHUB_WORKSPACE/payload.json 
+          response=$(aws lambda invoke --function-name $lambda_function_name --region $AWS_REGION --payload file://$GITHUB_WORKSPACE/encoded_payload.json response.txt 2>&1)
+          if [[ "$response" == *"FunctionError"* ]]; then
+            echo "[ERROR] Destruction of database failed against ${DEPLOY_ENV^^} with error:"
+            echo "${response}"
+            exit 1
+          else
+            response_payload=$(cat response.txt)
+            echo "Response Payload: $response_payload"
+            echo "[INFO] Destruction of database successfully run against ${DEPLOY_ENV^^}"
+
       - name: run database initialisation against ${{ env.DEPLOY_ENV }}
-        if: ${{ env.DEPLOY_ACT == 'initialise' }}
+        if: ${{ env.DEPLOY_ACT == 'destroy' || env.DEPLOY_ACT == 'refresh' }}
         run: |
           lambda_function_name="${DEPLOY_ENV}-${{ vars.PROJECT_NAME }}-pg-mutate-lambda"
           cat <<EOF > $GITHUB_WORKSPACE/payload.json
@@ -97,36 +124,10 @@ jobs:
             echo "Response Payload: $response_payload"
             echo "[INFO] Initialisation of database successfully run against ${DEPLOY_ENV^^}"
           fi
-
-      - name: run database destroy against ${{ env.DEPLOY_ENV }}
-        if: ${{ env.DEPLOY_ACT == 'destroy' }}
-        run: |
-          lambda_function_name="${DEPLOY_ENV}-${{ vars.PROJECT_NAME }}-pg-mutate-lambda"
-          cat <<EOF > $GITHUB_WORKSPACE/payload.json
-          {
-            "type": "destroy",
-            "userCredentialsArn": "${DEPLOY_ENV}/${{ vars.PROJECT_NAME }}/rds/user/root",
-            "targetDatabase": "${{ vars.PROJECT_NAME }}_db",
-            "roles": [{
-              "name": "${{ vars.PROJECT_NAME }}_app_rw"
-            }]
-          }
-          EOF
-
-          openssl base64 -out $GITHUB_WORKSPACE/encoded_payload.json -in $GITHUB_WORKSPACE/payload.json 
-          response=$(aws lambda invoke --function-name $lambda_function_name --region $AWS_REGION --payload file://$GITHUB_WORKSPACE/encoded_payload.json response.txt 2>&1)
-          if [[ "$response" == *"FunctionError"* ]]; then
-            echo "[ERROR] Destruction of database failed against ${DEPLOY_ENV^^} with error:"
-            echo "${response}"
-            exit 1
-          else
-            response_payload=$(cat response.txt)
-            echo "Response Payload: $response_payload"
-            echo "[INFO] Destruction of database successfully run against ${DEPLOY_ENV^^}"
           fi
 
       - name: run database migrations against ${{ env.DEPLOY_ENV }}
-        if: ${{ env.DEPLOY_ACT == 'run-migrations' }}
+        if: ${{ env.DEPLOY_ACT == 'destroy' || env.DEPLOY_ACT == 'refresh' }}
         env:
           DEPLOY_SRC: ${{ env.DEPLOY_SRC_PREFIX }}-${{ vars.AWS_ACCOUNT_ID }}
         run: |
