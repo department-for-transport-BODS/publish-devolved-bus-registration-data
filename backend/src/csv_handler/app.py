@@ -187,7 +187,7 @@ def get_staged_records_action(
         )
 
 
-@api_v1_router.post("/search", status_code=status.HTTP_200_OK)
+@api_v1_router.get("/search", status_code=status.HTTP_200_OK)
 async def search_records(
     authenticated_entity: AuthenticatedEntity = Depends(get_entity),
     licenseNumber: str = Query(

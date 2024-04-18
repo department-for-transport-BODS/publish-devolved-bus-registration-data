@@ -362,6 +362,7 @@ class DBManager:
                 PDBRDRegistration.registration_number.label("registrationNumber"),
                 OTCOperator.operator_name.label("operatorName"),
                 OTCLicence.licence_number.label("licenceNumber"),
+                OTCLicence.licence_status.label("licenceStatus"),
                 PDBRDRegistration.route_number.label("routeNumber"),
                 PDBRDRegistration.start_point.label("startPoint"),
                 PDBRDRegistration.finish_point.label("finishPoint"),
@@ -693,7 +694,6 @@ class DBManager:
             .filter(PDBRDRegistration.otc_operator_id == PDBRDOperator.id)
             
         )
-        console.log(staged_records)
 
         return [rec._asdict() for rec in staged_records.all()]
 
@@ -737,7 +737,6 @@ class DBManager:
                 return True
             return False
         except Exception as e:
-            console.log(e)
             session.rollback()
             session.close()
 
@@ -763,7 +762,6 @@ class DBManager:
             session.query(PDBRDStage.stage_id, PDBRDStage.created_at)
             .filter(PDBRDStage.stage_user == PDBRDGroup.id)
         )
-        console.log(staged_process.all())
         return [rec._asdict() for rec in staged_process.all()]
 
 
@@ -798,7 +796,6 @@ def send_to_db(records: List[Registration], group_name = None, report_id = None)
     session.add(PDBRDStage_record)
     session.commit()
     PDBRDStage_id = PDBRDStage_record.id
-    console.log(PDBRDStage_id)
     session.close()
 
     for idx, record_and_licence in records["valid_records"].items():
@@ -881,7 +878,6 @@ def send_to_db(records: List[Registration], group_name = None, report_id = None)
         records["invalid_records"].append(
             {"records": belongs_to_another_user, "description": "Record belongs to another user"}
         )
-    # console.log(records)
     # if len(records["valid_records"]) == 0:
     #     ## Delete the staged process
     #     session = Session(engine)

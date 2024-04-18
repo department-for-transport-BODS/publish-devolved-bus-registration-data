@@ -159,7 +159,7 @@ class SearchQuery(BaseModel):
         Field(default=None, alias="licenseNumber", pattern=r"^[a-zA-Z0-9]+$"),
     )
     registration_number: Optional[str] = Field(
-        default=None, alias="registrationNumber", pattern=r"^[a-zA-Z0-9]+/[a-zA-Z0-9]+$"
+        default=None, alias="registrationNumber", pattern=r"^[a-zA-Z0-9//]+$"
     )
 
     operator_name: Optional[str] = Field(

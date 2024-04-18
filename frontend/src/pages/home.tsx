@@ -28,7 +28,7 @@ const Home: React.FC = () => {
           {TITLE}
         </h1>
         <p className="govuk-body">
-          This service is for uploading {TITLE?.toLowerCase()}{" "} 
+          This service is for publishing devolved bus registrations data  
           for public transport <br /> services, excluding rail, in England.
         </p>
         <div>

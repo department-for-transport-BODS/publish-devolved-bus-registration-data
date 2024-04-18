@@ -118,6 +118,7 @@ def is_a_local_authority(claims: dict) -> Tuple[bool, str]:
 
 def get_local_authority(claims: dict = Depends(token_verifier)):
     return get_entity(claims, only_local_authority=True)
+    # return AuthenticatedEntity(type="local_auth", name="dev_3")
 
 
 def get_entity(
@@ -132,7 +133,7 @@ def get_entity(
     Returns:
         AuthenticatedEntity: The current user/app, or raise an HTTPException with status code 401.
     """
-    
+    # return AuthenticatedEntity(type="local_auth",name="dev_3") 
     is_local_authority, username = is_a_local_authority(claims)
     if is_local_authority and len(username) > 0:
         return AuthenticatedEntity(type="local_auth", name=username)

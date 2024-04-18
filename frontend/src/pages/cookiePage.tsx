@@ -16,7 +16,7 @@ const CookiePage: React.FC = () => {
         isLoggedIn={isLoggedIn}
       >
         <h1 className="govuk-heading-xl">
-          Cookies on the {TITLE}
+          Cookies on the {TITLE} Service
         </h1>
         <div className="govuk-!-font-size-19">
           <p>
