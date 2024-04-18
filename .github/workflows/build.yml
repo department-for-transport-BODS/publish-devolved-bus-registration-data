@@ -88,6 +88,9 @@ jobs:
             environment: prod
 
     steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
