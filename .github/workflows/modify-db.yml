@@ -125,7 +125,6 @@ jobs:
             echo "Response Payload: $response_payload"
             echo "[INFO] Initialisation of database successfully run against ${DEPLOY_ENV^^}"
           fi
-          fi
 
       - name: run database migrations against ${{ env.DEPLOY_ENV }}
         if: ${{ env.DEPLOY_ACT == 'destroy' || env.DEPLOY_ACT == 'refresh' }}
