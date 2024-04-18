@@ -149,7 +149,8 @@ jobs:
 
   database:
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.component == 'all' || github.event.inputs.component == 'database' }}
+    if: ${{ github.event.inputs.component == 'all' || github.event.inputs.component == 'database' ||
+      (github.event_name == 'repository_dispatch' && github.event.client_payload.component == 'all') }}
     environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment ||
       github.event_name == 'repository_dispatch' && github.event.client_payload.environment }}
     needs: validation
@@ -198,7 +199,8 @@ jobs:
 
   backend:
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.component == 'all' || github.event.inputs.component == 'application' }}
+    if: ${{ github.event.inputs.component == 'all' || github.event.inputs.component == 'application' ||
+      (github.event_name == 'repository_dispatch' && github.event.client_payload.component == 'all') }}
     environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment ||
       github.event_name == 'repository_dispatch' && github.event.client_payload.environment }}
     needs: validation
@@ -257,7 +259,8 @@ jobs:
 
   frontend:
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.component == 'all' || github.event.inputs.component == 'application' }}
+    if: ${{ github.event.inputs.component == 'all' || github.event.inputs.component == 'application' ||
+      (github.event_name == 'repository_dispatch' && github.event.client_payload.component == 'all') }}
     environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment ||
       github.event_name == 'repository_dispatch' && github.event.client_payload.environment }}
     needs: 
