@@ -89,13 +89,13 @@ jobs:
           openssl base64 -out $GITHUB_WORKSPACE/encoded_payload.json -in $GITHUB_WORKSPACE/payload.json 
           response=$(aws lambda invoke --function-name $lambda_function_name --region $AWS_REGION --payload file://$GITHUB_WORKSPACE/encoded_payload.json response.txt 2>&1)
           if [[ "$response" == *"FunctionError"* ]]; then
-            echo "[ERROR] Initialisation of database failed for ${DEPLOY_ENV^^} with error:"
+            echo "[ERROR] Initialisation of database failed against ${DEPLOY_ENV^^} with error:"
             echo "${response}"
             exit 1
           else
             response_payload=$(cat response.txt)
             echo "Response Payload: $response_payload"
-            echo "[INFO] Initialisation of database successfully run for ${DEPLOY_ENV^^}"
+            echo "[INFO] Initialisation of database successfully run against ${DEPLOY_ENV^^}"
           fi
 
       - name: run database destroy against ${{ env.DEPLOY_ENV }}
@@ -116,13 +116,13 @@ jobs:
           openssl base64 -out $GITHUB_WORKSPACE/encoded_payload.json -in $GITHUB_WORKSPACE/payload.json 
           response=$(aws lambda invoke --function-name $lambda_function_name --region $AWS_REGION --payload file://$GITHUB_WORKSPACE/encoded_payload.json response.txt 2>&1)
           if [[ "$response" == *"FunctionError"* ]]; then
-            echo "[ERROR] Destruction of database failed for ${DEPLOY_ENV^^} with error:"
+            echo "[ERROR] Destruction of database failed against ${DEPLOY_ENV^^} with error:"
             echo "${response}"
             exit 1
           else
             response_payload=$(cat response.txt)
             echo "Response Payload: $response_payload"
-            echo "[INFO] Destruction of database successfully run for ${DEPLOY_ENV^^}"
+            echo "[INFO] Destruction of database successfully run against ${DEPLOY_ENV^^}"
           fi
 
       - name: run database migrations against ${{ env.DEPLOY_ENV }}
@@ -147,11 +147,11 @@ jobs:
           openssl base64 -out $GITHUB_WORKSPACE/encoded_payload.json -in $GITHUB_WORKSPACE/payload.json 
           response=$(aws lambda invoke --function-name $lambda_function_name --region $AWS_REGION --payload file://$GITHUB_WORKSPACE/encoded_payload.json response.txt 2>&1)
           if [[ "$response" == *"FunctionError"* ]]; then
-            echo "[ERROR] Execution of latest database migrations failed for ${DEPLOY_ENV^^} with error:"
+            echo "[ERROR] Execution of latest database migrations failed against ${DEPLOY_ENV^^} with error:"
             echo "${response}"
             exit 1
           else
             response_payload=$(cat response.txt)
             echo "Response Payload: $response_payload"
-            echo "[INFO] Execution of latest database migrations successfully run for ${DEPLOY_ENV^^}"
+            echo "[INFO] Execution of latest database migrations successfully run against ${DEPLOY_ENV^^}"
           fi
