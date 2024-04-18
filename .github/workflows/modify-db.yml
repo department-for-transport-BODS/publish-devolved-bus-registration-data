@@ -43,3 +43,110 @@ jobs:
               (Database Action)        - $DEPLOY_ACT
               (Deployment Environment) - $DEPLOY_ENV
           """
+
+  database:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environments }}
+
+    steps:
+      - name: configure aws credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/${{ vars.AWS_ASSUME_ROLE_NAME }}
+          role-session-name: ${{ env.DEPLOY_ENV }}-database-modification
+          role-duration-seconds: 3600
+          role-skip-session-tagging: true
+
+      - name: run database initialisation against ${{ env.DEPLOY_ENV }}
+        if: ${{ env.DEPLOY_ACT == 'initialise' }}
+        run: |
+          lambda_function_name="${DEPLOY_ENV}-${{ var.PROJECT_NAME }}-pg-mutate-lambda"
+          cat <<EOF > $GITHUB_WORKSPACE/payload.json
+          {
+              "type": "initialise",
+              "userCredentialsArn": "${DEPLOY_ENV}/${{ var.PROJECT_NAME }}/rds/user/root",
+              "databases": [{
+                  "name": "${{ var.PROJECT_NAME }}_db",
+                  "schemas": [
+                    "public"
+                  ],
+                  "extensions": []
+              }],
+              "roles": [{
+                  "name": "${{ var.PROJECT_NAME }}_app_rw",
+                  "kind": "rw",
+                  "credentialsArn": "${DEPLOY_ENV}/${{ var.PROJECT_NAME }}/rds/user/${{ var.PROJECT_NAME }}_app_rw"
+              }]
+          }
+          EOF
+
+          openssl base64 -out $GITHUB_WORKSPACE/encoded_payload.json -in $GITHUB_WORKSPACE/payload.json 
+          response=$(aws lambda invoke --function-name $lambda_function_name --region $AWS_REGION --payload file://$GITHUB_WORKSPACE/encoded_payload.json response.txt 2>&1)
+          if [[ "$response" == *"FunctionError"* ]]; then
+            echo "[ERROR] Initialisation of database failed for ${DEPLOY_ENV^^} with error:"
+            echo "${response}"
+            exit 1
+          else
+            response_payload=$(cat response.txt)
+            echo "Response Payload: $response_payload"
+            echo "[INFO] Initialisation of database successfully run for ${DEPLOY_ENV^^}"
+          fi
+
+      - name: run database destroy against ${{ env.DEPLOY_ENV }}
+        if: ${{ env.DEPLOY_ACT == 'destroy' }}
+        run: |
+          lambda_function_name="${DEPLOY_ENV}-${{ var.PROJECT_NAME }}-pg-mutate-lambda"
+          cat <<EOF > $GITHUB_WORKSPACE/payload.json
+          {
+            "type": "destroy",
+            "userCredentialsArn": "${DEPLOY_ENV}/${{ var.PROJECT_NAME }}/rds/user/root",
+            "targetDatabase": "${{ var.PROJECT_NAME }}_db",
+            "roles": [{
+              "name": "${{ var.PROJECT_NAME }}_app_rw"
+            }]
+          }
+          EOF
+
+          openssl base64 -out $GITHUB_WORKSPACE/encoded_payload.json -in $GITHUB_WORKSPACE/payload.json 
+          response=$(aws lambda invoke --function-name $lambda_function_name --region $AWS_REGION --payload file://$GITHUB_WORKSPACE/encoded_payload.json response.txt 2>&1)
+          if [[ "$response" == *"FunctionError"* ]]; then
+            echo "[ERROR] Destruction of database failed for ${DEPLOY_ENV^^} with error:"
+            echo "${response}"
+            exit 1
+          else
+            response_payload=$(cat response.txt)
+            echo "Response Payload: $response_payload"
+            echo "[INFO] Destruction of database successfully run for ${DEPLOY_ENV^^}"
+          fi
+
+      - name: run database migrations against ${{ env.DEPLOY_ENV }}
+        if: ${{ env.DEPLOY_ACT == 'run-migrations' }}
+        env:
+          DEPLOY_SRC: ${{ env.DEPLOY_SRC_PREFIX }}-${{ vars.AWS_ACCOUNT_ID }}
+        run: |
+          lambda_function_name="${DEPLOY_ENV}-${{ var.PROJECT_NAME }}-pg-mutate-lambda"
+          cat <<EOF > $GITHUB_WORKSPACE/payload.json
+          {
+            "type": "run_migrations",
+            "userCredentialsArn": "${DEPLOY_ENV}/${{ var.PROJECT_NAME }}/rds/user/${{ var.PROJECT_NAME }}_app_rw",
+            "targetDatabase": "${{ var.PROJECT_NAME }}_db",
+            "databaseMigrations": {
+              "bucketName": "${DEPLOY_SRC}",
+              "bucketPrefix": "releases",
+              "releaseVersion": "latest"
+            }
+          }
+          EOF
+
+          openssl base64 -out $GITHUB_WORKSPACE/encoded_payload.json -in $GITHUB_WORKSPACE/payload.json 
+          response=$(aws lambda invoke --function-name $lambda_function_name --region $AWS_REGION --payload file://$GITHUB_WORKSPACE/encoded_payload.json response.txt 2>&1)
+          if [[ "$response" == *"FunctionError"* ]]; then
+            echo "[ERROR] Execution of latest database migrations failed for ${DEPLOY_ENV^^} with error:"
+            echo "${response}"
+            exit 1
+          else
+            response_payload=$(cat response.txt)
+            echo "Response Payload: $response_payload"
+            echo "[INFO] Execution of latest database migrations successfully run for ${DEPLOY_ENV^^}"
+          fi
