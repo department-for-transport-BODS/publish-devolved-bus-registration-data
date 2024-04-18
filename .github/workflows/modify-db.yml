@@ -47,6 +47,11 @@ jobs:
   database:
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environments }}
+    needs: validation
+
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - name: configure aws credentials
