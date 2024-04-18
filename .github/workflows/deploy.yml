@@ -141,12 +141,12 @@ jobs:
           VERSION: ${{ needs.validation.outputs.version }}
         run: |
           [[ $VERSION =~ ^[0-9]+(\.[0-9]+){2}$ ]] && rc_path="releases" || rc_path="releases-dev"
-          lambda_function_name="${RC_ENV}-${{ var.PROJECT_NAME }}-pg-mutate-lambda"
+          lambda_function_name="${RC_ENV}-${{ vars.PROJECT_NAME }}-pg-mutate-lambda"
           cat <<EOF > $GITHUB_WORKSPACE/payload.json
           {
             "type": "run_migrations",
-            "userCredentialsArn": "${RC_ENV}/${{ var.PROJECT_NAME }}/rds/user/${{ var.PROJECT_NAME }}_app_rw",
-            "targetDatabase": "${{ var.PROJECT_NAME }}_db",
+            "userCredentialsArn": "${RC_ENV}/${{ vars.PROJECT_NAME }}/rds/user/${{ vars.PROJECT_NAME }}_app_rw",
+            "targetDatabase": "${{ vars.PROJECT_NAME }}_db",
             "databaseMigrations": {
               "bucketName": "${RC_SRC}",
               "bucketPrefix": "${rc_path}",

@@ -61,22 +61,22 @@ jobs:
       - name: run database initialisation against ${{ env.DEPLOY_ENV }}
         if: ${{ env.DEPLOY_ACT == 'initialise' }}
         run: |
-          lambda_function_name="${DEPLOY_ENV}-${{ var.PROJECT_NAME }}-pg-mutate-lambda"
+          lambda_function_name="${DEPLOY_ENV}-${{ vars.PROJECT_NAME }}-pg-mutate-lambda"
           cat <<EOF > $GITHUB_WORKSPACE/payload.json
           {
               "type": "initialise",
-              "userCredentialsArn": "${DEPLOY_ENV}/${{ var.PROJECT_NAME }}/rds/user/root",
+              "userCredentialsArn": "${DEPLOY_ENV}/${{ vars.PROJECT_NAME }}/rds/user/root",
               "databases": [{
-                  "name": "${{ var.PROJECT_NAME }}_db",
+                  "name": "${{ vars.PROJECT_NAME }}_db",
                   "schemas": [
                     "public"
                   ],
                   "extensions": []
               }],
               "roles": [{
-                  "name": "${{ var.PROJECT_NAME }}_app_rw",
+                  "name": "${{ vars.PROJECT_NAME }}_app_rw",
                   "kind": "rw",
-                  "credentialsArn": "${DEPLOY_ENV}/${{ var.PROJECT_NAME }}/rds/user/${{ var.PROJECT_NAME }}_app_rw"
+                  "credentialsArn": "${DEPLOY_ENV}/${{ vars.PROJECT_NAME }}/rds/user/${{ vars.PROJECT_NAME }}_app_rw"
               }]
           }
           EOF
@@ -96,14 +96,14 @@ jobs:
       - name: run database destroy against ${{ env.DEPLOY_ENV }}
         if: ${{ env.DEPLOY_ACT == 'destroy' }}
         run: |
-          lambda_function_name="${DEPLOY_ENV}-${{ var.PROJECT_NAME }}-pg-mutate-lambda"
+          lambda_function_name="${DEPLOY_ENV}-${{ vars.PROJECT_NAME }}-pg-mutate-lambda"
           cat <<EOF > $GITHUB_WORKSPACE/payload.json
           {
             "type": "destroy",
-            "userCredentialsArn": "${DEPLOY_ENV}/${{ var.PROJECT_NAME }}/rds/user/root",
-            "targetDatabase": "${{ var.PROJECT_NAME }}_db",
+            "userCredentialsArn": "${DEPLOY_ENV}/${{ vars.PROJECT_NAME }}/rds/user/root",
+            "targetDatabase": "${{ vars.PROJECT_NAME }}_db",
             "roles": [{
-              "name": "${{ var.PROJECT_NAME }}_app_rw"
+              "name": "${{ vars.PROJECT_NAME }}_app_rw"
             }]
           }
           EOF
@@ -125,12 +125,12 @@ jobs:
         env:
           DEPLOY_SRC: ${{ env.DEPLOY_SRC_PREFIX }}-${{ vars.AWS_ACCOUNT_ID }}
         run: |
-          lambda_function_name="${DEPLOY_ENV}-${{ var.PROJECT_NAME }}-pg-mutate-lambda"
+          lambda_function_name="${DEPLOY_ENV}-${{ vars.PROJECT_NAME }}-pg-mutate-lambda"
           cat <<EOF > $GITHUB_WORKSPACE/payload.json
           {
             "type": "run_migrations",
-            "userCredentialsArn": "${DEPLOY_ENV}/${{ var.PROJECT_NAME }}/rds/user/${{ var.PROJECT_NAME }}_app_rw",
-            "targetDatabase": "${{ var.PROJECT_NAME }}_db",
+            "userCredentialsArn": "${DEPLOY_ENV}/${{ vars.PROJECT_NAME }}/rds/user/${{ vars.PROJECT_NAME }}_app_rw",
+            "targetDatabase": "${{ vars.PROJECT_NAME }}_db",
             "databaseMigrations": {
               "bucketName": "${DEPLOY_SRC}",
               "bucketPrefix": "releases",
