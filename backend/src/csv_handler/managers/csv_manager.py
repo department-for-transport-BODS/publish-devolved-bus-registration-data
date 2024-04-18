@@ -53,6 +53,7 @@ class CSVManager:
                     and record.licence_number == records2.licence_number
                     and record.variation_number == records2.variation_number
                     and record.registration_number == records2.registration_number
+                    and record.route_number == records2.route_number
                 ):
                     duplicated_records.append(idx2)
             if duplicated_records:

@@ -241,6 +241,7 @@ class DBManager:
                 PDBRDRegistration.otc_operator_id == operator_record_id,
                 PDBRDRegistration.variation_number == record.variation_number,
                 PDBRDRegistration.group_id == PDBRDGroup.id,
+                PDBRDRegistration.route_number == record.route_number
             )
             .one_or_none()
         )

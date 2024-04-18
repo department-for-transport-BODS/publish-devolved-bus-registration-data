@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS pdbrd_registration (
     other_details VARCHAR(255),
     group_id INTEGER NOT NULL,
     pdbrd_stage_id INTEGER,
-    UNIQUE (otc_licence_id, registration_number, variation_number, group_id)
+    UNIQUE (otc_licence_id, registration_number, variation_number, group_id, route_number)
 );
 
 
