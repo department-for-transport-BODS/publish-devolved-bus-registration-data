@@ -37,5 +37,5 @@ CREATE TABLE IF NOT EXISTS pdbrd_stage(
 
 SELECT create_constraint_if_not_exists(
     'pdbrd_stage',
-    'fk_pdbrd_group_id',
-    'ALTER TABLE pdbrd_stage ADD CONSTRAINT fk_pdbrd_group_id FOREIGN KEY (stage_user) REFERENCES pdbrd_group(id);');
+    'fk_pdbrd_user_id',
+    'ALTER TABLE pdbrd_stage ADD CONSTRAINT fk_pdbrd_user_id FOREIGN KEY (stage_user) REFERENCES pdbrd_user(id);');

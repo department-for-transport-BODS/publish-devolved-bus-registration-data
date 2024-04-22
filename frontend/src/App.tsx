@@ -30,17 +30,17 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route
           path="/upload-csv"
-          element={<RequireAuth component={UploadCsvPage} />}
+          element={<RequireAuth component={UploadCsvPage} requiredAccess="operator"/>}
         />
         <Route path="/basic" element={<Basic />} />
         <Route path="/default" element={<DefaultPage />} />
         <Route
           path="/partly-uploaded"
-          element={<RequireAuth component={PartlyUploading} />}
+          element={<RequireAuth component={PartlyUploading} requiredAccess="operator"/>}
         />
         <Route
           path="/successfully-uploaded"
-          element={<RequireAuth component={SuccessfullyUploaded} />}
+          element={<RequireAuth component={SuccessfullyUploaded} requiredAccess="operator"/>}
         />
         <Route path="/registrations"
           element={<RequireAuth component={Registration} />}

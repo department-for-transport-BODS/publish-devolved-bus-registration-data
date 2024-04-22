@@ -17,6 +17,7 @@ import {
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
 import ConfirmNewPasswordForm from "../components/ConfirmNewPasswordForm";
 import { TITLE } from "../utils/Constants";
+import SetAccessType from "../utils/login/AccessType";
 type Props = {
   error?: string;
   nextPage?: string;
@@ -63,6 +64,7 @@ const LoginPage: React.FC<Props> = ({ error, nextPage }) => {
         if (nextPage) {
           navigate(`/${nextPage}`);
         } else {
+          SetAccessType();
           navigate("/");
         }
       }

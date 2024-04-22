@@ -4,11 +4,13 @@ from utils.csv_validator import csv_data_structure_check
 from utils.db import send_to_db, send_report_to_db
 from utils.validate import validate_licence_number_existence
 from copy import deepcopy
+from utils.pydant_model import AuthenticatedEntity
 
 class CSVManager:
-    def __init__(self, csv_data: str, authenticated_entity_name: str = None, report_id: str = None):
+    def __init__(self, csv_data: str, authenticated_entity: AuthenticatedEntity = None, report_id: str = None):
         self.csv_data = csv_data
-        self.group_name = authenticated_entity_name
+        self.group_name = authenticated_entity.group
+        self.user_name = authenticated_entity.name
         self.report_id = report_id
 
     def validation_and_insertion_steps(self) -> dict:
@@ -25,7 +27,7 @@ class CSVManager:
         validated_records = self._validate_csv_data()
         self._check_duplicate_records(validated_records)
         self._check_licence_number_existence(validated_records)
-        self._send_to_db(validated_records, self.group_name)
+        self._send_to_db(validated_records, self.group_name, self.user_name)
         self._remove_licence_details(validated_records)
         # Add the count of valid records to the validated_records dictionary
         validated_records["valid_records_count"] = len(
@@ -36,7 +38,7 @@ class CSVManager:
         if validated_records["invalid_records"] == {}:
             del validated_records["invalid_records"]
         # Send the report to the database
-        self._send_report_to_db(validated_records, self.group_name, self.report_id)
+        self._send_report_to_db(validated_records, self.user_name,self.group_name, self.report_id)
 
 
     def _validate_csv_data(self):
@@ -91,8 +93,8 @@ class CSVManager:
     def _check_licence_number_existence(self, records):
         validate_licence_number_existence(records)
 
-    def _send_to_db(self, records, group_name):
-        send_to_db(records, group_name,self.report_id)
+    def _send_to_db(self, records, group_name, user_name):
+        send_to_db(records, group_name,user_name, self.report_id)
 
     def _remove_licence_details(self, records):
         """Removing the licence details from validated records."""
@@ -111,8 +113,8 @@ class CSVManager:
             print(f"Error: {e}")
         return records
 
-    def _send_report_to_db(self, records_report, authenticated_entity_name, report_id):
-        send_report_to_db(records_report, authenticated_entity_name, report_id)
+    def _send_report_to_db(self, records_report, user_name,group_name , report_id):
+        send_report_to_db(records_report, user_name, group_name, report_id)
 
 
 
@@ -130,7 +132,7 @@ def process_csv_file(content, authenticated_entity, report_id):
 
     # Convert the CSV data into a dictionary
     csv_data = list(csv.DictReader(StringIO(csv_str)))
-    csv_handler = CSVManager(csv_data, authenticated_entity.name, report_id)
+    csv_handler = CSVManager(csv_data, authenticated_entity, report_id)
     csv_handler.validation_and_insertion_steps()
     # Validate the CSV input data
     

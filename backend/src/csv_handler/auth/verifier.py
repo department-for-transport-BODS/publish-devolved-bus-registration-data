@@ -1,13 +1,7 @@
 import cognitojwt
 
 from central_config import AWS_REGION, USERPOOL_ID, APP_CLIENT_ID
-from fastapi import (
-  Depends, 
-  HTTPException, 
-  Request,
-  Security, 
-  status
-)
+from fastapi import Depends, HTTPException, Request, Security, status
 from fastapi.security import HTTPBearer
 from typing import Tuple
 from utils.exceptions import RegionIsNotSet, UserPoolIdIsNotSet, AppClientIdIsNotSet
@@ -31,6 +25,7 @@ class CustomHTTPBearer(HTTPBearer):
                     headers={"WWW-Authenticate": "Bearer"},
                 ) from auth_exc
             raise
+
 
 class TokenVerifier:
     """
@@ -109,6 +104,7 @@ def is_an_app(claims: dict) -> Tuple[bool, str]:
             return True, app_name
     return False, None
 
+
 def is_a_local_authority(claims: dict) -> Tuple[bool, str]:
     username = claims.get("custom:local_authority")
     if username:
@@ -116,15 +112,49 @@ def is_a_local_authority(claims: dict) -> Tuple[bool, str]:
     return False, None
 
 
+def operator(claims: dict = Depends(token_verifier)):
+    return get_entity(claims, operator=True)
+
+
+def read_only(claims: dict = Depends(token_verifier)):
+    return get_entity(claims, read_only=True)
+
+
 def get_local_authority(claims: dict = Depends(token_verifier)):
     return get_entity(claims, only_local_authority=True)
-    # return AuthenticatedEntity(type="local_auth", name="dev_3")
+
+
+def get_group(claims: dict = Depends(token_verifier)):
+    groups = claims.get("cognito:groups")
+    if groups is None:
+        raise HTTPException(
+            status_code=422, detail="User is not part of any local authority group."
+        )
+
+    # Check if user is part of more than one group
+    user_group_sum = sum("users-group" in group for group in groups)
+    if user_group_sum > 1:
+        raise HTTPException(
+            status_code=422,
+            detail="User is part of more than one local authority group.",
+        )
+
+    for group in groups:
+        group_name = group.split("-")[-3]
+        if "users-group" in group:
+            return True, "user", group_name, claims.get("username")
+        if "read-only" in group:
+            return True, "read_only", group_name, claims.get("username")
+
+    return False, None, None, None
 
 
 def get_entity(
-  claims: dict = Depends(token_verifier),
-  only_local_authority=Depends((lambda: False))
-) -> AuthenticatedEntity|HTTPException:
+    claims: dict = Depends(token_verifier),
+    only_local_authority=False,
+    operator=False,
+    read_only=False,
+) -> AuthenticatedEntity | HTTPException:
     """Check the identity weather its a local authority or an app.
 
     Args:
@@ -133,14 +163,21 @@ def get_entity(
     Returns:
         AuthenticatedEntity: The current user/app, or raise an HTTPException with status code 401.
     """
-    # return AuthenticatedEntity(type="local_auth",name="dev_3") 
-    is_local_authority, username = is_a_local_authority(claims)
-    if is_local_authority and len(username) > 0:
-        return AuthenticatedEntity(type="local_auth", name=username)
-    
-    if not only_local_authority:
-        is_app, app_name = is_an_app(claims)
-        if  is_app and len(app_name) > 0:
-            return AuthenticatedEntity(type="app", name=app_name)
+    # return AuthenticatedEntity(type="local_auth",name="dev_3")
+    if operator:
+        has_group, type, group_name, user_name = get_group(claims)
+        if not has_group:
+            raise HTTPException(status_code=401, detail="Not authenticated")
+        return AuthenticatedEntity(type=type, name=user_name, group=group_name)
+    if read_only:
+        has_group, type, group_name, user_name = get_group(claims)
+        if type != "read_only":
+            raise HTTPException(status_code=401, detail="Not authenticated")
+        return AuthenticatedEntity(type=type, name=user_name, group=group_name)
+
+    # if not only_local_authority:
+    is_app, app_name = is_an_app(claims)
+    if is_app and len(app_name) > 0:
+        return AuthenticatedEntity(type="app", name=app_name)
 
     raise HTTPException(status_code=401, detail="Not authenticated")

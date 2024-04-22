@@ -24,6 +24,7 @@ const CustomProvider: React.FC<{ children: React.ReactNode }> = ({
   const cookies = new Cookies();
   const signOutHandler = () => {
     cookies.remove("stage_id")
+    cookies.remove("access-type");
     signOut();
     setIsLoggedIn(false);
     window.location.reload();
@@ -38,6 +39,7 @@ const CustomProvider: React.FC<{ children: React.ReactNode }> = ({
     signOutHandler: signOutHandler,
     signIn: signIn,
   };
+
   useEffect(() => {
     getCurrentUser()
       .then(() => {

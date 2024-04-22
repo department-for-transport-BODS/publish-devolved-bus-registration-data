@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from "uuid";
 import GetAllRecords from "../utils/GetAllRecords";
 import { fetchAuthSession } from "aws-amplify/auth";
 import DataProccessingWaiting from "../components/DataProccessingWaiting";
+import { AxiosError } from "axios";
 const ViewRegistrations: React.FC = () => {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { data, loading, error } = useRegistrationStatus();
@@ -20,21 +21,32 @@ const ViewRegistrations: React.FC = () => {
   const ClickHandler = () => {
     fetchAuthSession()
       .then(() => {
-        GetAllRecords().then(() => {
-            setErrorMessage(ErrorMessage.
-              filter((message) => message !== "The CSV has failed to download. Please retry the download process."));
-        })
+        GetAllRecords()
+          .then(() => {
+            setErrorMessage(
+              ErrorMessage.filter(
+                (message) =>
+                  message !==
+                  "The CSV has failed to download. Please retry the download process."
+              )
+            );
+          })
           .catch((error) => {
             setShowError(true);
-            const errorMsg = "The CSV has failed to download. Please retry the download process.";
+
+            const errorMsg =
+              error.message === "User is not part of any local authority group."
+                ? "You must be assigned to a local authority group to download this CSV. You are currently not assigned to any local authority group. Please contact support admin."
+                : "The CSV has failed to download. Please retry the download process.";
             if (!ErrorMessage.includes(errorMsg)) {
               setErrorMessage([...ErrorMessage, errorMsg]);
             }
           });
       })
       .catch((error) => {
-        if (!ErrorMessage.includes("Network error, please try again later")) {
-          setErrorMessage([...ErrorMessage, "Network error, please try again later"]);
+        const errorMsg = "Network error, please try again later";
+        if (!ErrorMessage.includes(errorMsg)) {
+          setErrorMessage([...ErrorMessage, errorMsg]);
         }
       });
   };
@@ -42,28 +54,26 @@ const ViewRegistrations: React.FC = () => {
   useEffect(() => {
     if (ErrorMessage.length > 0) {
       setShowError(true);
-    }else {
+    } else {
       setShowError(false);
     }
   }, [ErrorMessage]);
   useEffect(() => {
     initAll();
   }, [data]);
-  useEffect(() => {
-    console.log("loading",loading)
-    
-  },[loading]);
+  // useEffect(() => {
+  //   console.log("loading", loading);
+  // }, [loading]);
   useEffect(() => {
     if (error) {
-      const errorMsg = "Network error, please try again later";
+      const errorObject = error as AxiosError<unknown, any>;
+      const errorMsg =
+        (errorObject.response?.data as any)?.detail ?? "Network error, please try again later";
       if (!ErrorMessage.includes(errorMsg)) {
         setErrorMessage([...ErrorMessage, errorMsg]);
       }
-
     }
-  },[error]);
-  // useEffect(() => {
-  // }, []);
+  }, [error]);
 
   return (
     <>
@@ -93,22 +103,23 @@ const ViewRegistrations: React.FC = () => {
             </h2>
             <div className="govuk-error-message">
               <ul className="govuk-list govuk-error-summary__list">
-                {
-                  ErrorMessage.map((message: string, index: number) => {
-                    return (
-                      <li key={index}>
-                        <a href="#">{message}</a>
-                      </li>
-                    );
-                  })
-                }
+                {ErrorMessage.map((message: string, index: number) => {
+                  return (
+                    <li key={index}>
+                      <a href="#">{message}</a>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </div>
         )}
-        {!error && !data &&    <DataProccessingWaiting 
-        title="Retrieving active registrations"
-        description="Once registrations are ready they will be shown here" />}
+        {!error && !data && (
+          <DataProccessingWaiting
+            title="Retrieving active registrations"
+            description="Once registrations are ready they will be shown here"
+          />
+        )}
         {!loading && !error && data && (
           <div
             className="govuk-accordion"

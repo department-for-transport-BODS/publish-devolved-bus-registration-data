@@ -6,29 +6,27 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 function RequireAuth({
   component: Component,
+  requiredAccess,
   ...rest
 }: {
   component: React.ComponentType<any>;
+  requiredAccess?: string;
 }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [state, setState] = useState("loading");
   const navigate = useNavigate();
   const location = useLocation();
   useEffect(() => {
-    // Fetch user data from an API or perform any necessary logic here
-    // For example:
+    console.log("Checking if user is logged in")
     const fetchUserData = async () => {
       try {
         const user = await getCurrentUser();
         if (user) {
-          setIsLoggedIn(true);
-          setState("authenticated");
+            setIsLoggedIn(true);
+            setState("authenticated");
         }
       } catch (error) {
-        // get current page
-        // remove("/" from the location.pathname)
         const currentPath = location.pathname.substring(1);
-        // window.location.replace("/login");
         navigate(`/login?to=${currentPath}`, {
           state: { error: "You are not logged in" },
         });
@@ -39,8 +37,6 @@ function RequireAuth({
     fetchUserData();
   }, []);
 
-  /* If in loading state, return loading message while waiting for 
-        isValidToken to complete */
   if (state === "loading") {
     return null;
   }

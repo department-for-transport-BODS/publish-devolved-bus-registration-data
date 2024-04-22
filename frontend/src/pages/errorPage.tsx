@@ -57,7 +57,7 @@ const ErrorPage: React.FC = () => {
             </a>
           </div>
               <p className="govuk-notification-banner__heading">
-                Something went wrong, please try again later.
+                {!Error ? "Something went wrong, please try again later" : Error.error}
               </p>
             </div>
           </div>

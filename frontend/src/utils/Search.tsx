@@ -25,7 +25,11 @@ export async function SearchRegistrationNumber(
       results = { data: response.data.Results ?? [] };
     })
     .catch((error) => {
+      if (error.message === "Request failed with status code 401") {
+        results = { error: { message: "Unauthorised" } };
+      }else{
       results = { error: error };
+      }
     });
   return results;
 }
