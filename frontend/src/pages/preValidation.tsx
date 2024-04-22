@@ -78,7 +78,6 @@ const PreValidations: React.FC = () => {
   }, [data]);
   useEffect(() => {
     if (error) {
-      console.log(error);
       const errorMsg = error;
       if (!ErrorMessage.includes(errorMsg)) {
         setErrorMessage([...ErrorMessage, errorMsg]);

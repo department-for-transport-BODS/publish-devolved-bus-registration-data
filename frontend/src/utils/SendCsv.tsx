@@ -109,7 +109,6 @@ export const DiscardRegistrations = async (stage_id:string) => {
 
 
 const ShowResponse = async (report:any, navigate:any) =>{
-    console.log(report)
     const invalid_records_length = report.invalid_records[0]?.records ? Object.keys(report.invalid_records[0]?.records).length : 0;
     if (report.invalid_records.length === 1 && invalid_records_length === 0) {
         navigate("/successfully-uploaded", { state: report, replace: true });
@@ -137,13 +136,10 @@ export const SendCsv = async (formData: FormData, navigate:any) => {
             }
         );
         const report_id = response?.data?.report_id;
-        // send report it to cookie:
-        console.log(report_id);
 
         if (report_id !== null && report_id !== undefined){
             const cookies = new Cookies();
             cookies.set('stage_id', report_id, { path: '/' });
-            console.log(cookies.get('stage_id')); 
             }
     } catch (error: any) {
         navigate("/error", { state: {error: error?.message}, replace: true});
@@ -155,7 +151,6 @@ export const handleStagedResults = async (stagedRecords:any, navigate:any) => {
     try {
         if (stagedRecords !== null && stagedRecords !== undefined) {
             const records = stagedRecords.records?? [];
-            console.log(records)
             if (records.length === 0) {
                 await CommitRegistrations(staged_id);
                 await GetReport(staged_id, navigate);

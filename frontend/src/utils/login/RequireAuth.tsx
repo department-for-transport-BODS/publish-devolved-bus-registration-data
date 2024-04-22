@@ -17,7 +17,6 @@ function RequireAuth({
   const navigate = useNavigate();
   const location = useLocation();
   useEffect(() => {
-    console.log("Checking if user is logged in")
     const fetchUserData = async () => {
       try {
         const user = await getCurrentUser();
