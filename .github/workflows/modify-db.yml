@@ -92,7 +92,7 @@ jobs:
           fi
 
       - name: run database initialisation against ${{ env.DEPLOY_ENV }}
-        if: ${{ env.DEPLOY_ACT == 'destroy' || env.DEPLOY_ACT == 'refresh' }}
+        if: ${{ env.DEPLOY_ACT == 'initialise' || env.DEPLOY_ACT == 'refresh' }}
         run: |
           lambda_function_name="${DEPLOY_ENV}-${{ vars.PROJECT_NAME }}-pg-mutate-lambda"
           cat <<EOF > $GITHUB_WORKSPACE/payload.json
@@ -127,7 +127,7 @@ jobs:
           fi
 
       - name: run database migrations against ${{ env.DEPLOY_ENV }}
-        if: ${{ env.DEPLOY_ACT == 'destroy' || env.DEPLOY_ACT == 'refresh' }}
+        if: ${{ env.DEPLOY_ACT == 'run-migrations' || env.DEPLOY_ACT == 'refresh' }}
         env:
           DEPLOY_SRC: ${{ env.DEPLOY_SRC_PREFIX }}-${{ vars.AWS_ACCOUNT_ID }}
         run: |
