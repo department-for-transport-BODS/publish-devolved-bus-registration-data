@@ -38,7 +38,7 @@ class CSVManager:
         if validated_records["invalid_records"] == {}:
             del validated_records["invalid_records"]
         # Send the report to the database
-        self._send_report_to_db(validated_records, self.user_name,self.group_name, self.report_id)
+        self._send_report_to_db(validated_records, self.user_name, self.group_name, self.report_id)
 
 
     def _validate_csv_data(self):
