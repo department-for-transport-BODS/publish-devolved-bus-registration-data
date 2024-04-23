@@ -113,7 +113,7 @@ class CSVManager:
             print(f"Error: {e}")
         return records
 
-    def _send_report_to_db(self, records_report, user_name,group_name , report_id):
+    def _send_report_to_db(self, records_report, user_name, group_name , report_id):
         send_report_to_db(records_report, user_name, group_name, report_id)
 
 
