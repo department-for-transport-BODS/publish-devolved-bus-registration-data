@@ -544,6 +544,12 @@ Resources:
       DistributionConfig:
         Enabled: true
         Comment: !Sub '${Environment}-${ProjectName}-cdn'
+        # Aliases:
+        #   - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}'
+        # ViewerCertificate:
+        #   AcmCertificateArn: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/acm/certificate/arn}}'
+        #   MinimumProtocolVersion: TLSv1.2_2021
+        #   SslSupportMethod: sni-only
         Origins:
           - Id: frontendBucket
             DomainName: !GetAtt FrontendBucket.RegionalDomainName
@@ -631,6 +637,22 @@ Resources:
         SigningBehavior: always
         SigningProtocol: sigv4
 
+  # CloudFrontRoute53RecordSetGroup:
+  #   Type: AWS::Route53::RecordSetGroup
+  #   Properties:
+  #     HostedZoneId: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/id}}'
+  #     RecordSets: 
+  #       - Name: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}'
+  #         Type: A
+  #         AliasTarget:
+  #           DNSName: !GetAtt CloudFrontDistribution.DomainName
+  #           HostedZoneId: Z2FDTNDATAQYW2
+  #       - Name: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}'
+  #         Type: AAAA
+  #         AliasTarget:
+  #           DNSName: !GetAtt CloudFrontDistribution.DomainName
+  #           HostedZoneId: Z2FDTNDATAQYW2
+
 Outputs:
   ApiGatewayUrl:
     Description: 'API Gateway endpoint URL for FastAPI'
@@ -643,6 +665,7 @@ Outputs:
     Value: !Sub
       - 'https://${CloudFrontDomainName}'
       - CloudFrontDomainName: !GetAtt CloudFrontDistribution.DomainName
+      # - CloudFrontDomainName: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}'
   FrontendBucketName:
     Description: 'Name of Frontend S3 Bucket'
     Value: !Sub 's3://${FrontendBucket}'
