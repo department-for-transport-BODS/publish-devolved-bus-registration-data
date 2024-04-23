@@ -226,8 +226,9 @@ def extract_error_fields(error_obj: List[dict], model_dump=True) -> ErrorRespons
 
 
 class AuthenticatedEntity(BaseModel):
-    type: Literal["app", "local_auth"]
+    type: Literal["app", "local_auth", "read_only", "user"]
     name: str
+    group: str = None
 
 
 class StagedRecord(BaseModel):

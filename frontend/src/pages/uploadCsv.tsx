@@ -3,7 +3,6 @@ import Footer from "../Layout/Footer";
 import FullColumnLayout from "../Layout/Layout";
 import UploadCsv from "../components/UploadCsv";
 import DataProccessingWaiting  from "../components/DataProccessingWaiting";
-import {fetchAuthSession } from "aws-amplify/auth";
 import { CheckStageProcesses, getStaged } from "../utils/SendCsv";
 import { Link, useNavigate } from "react-router-dom";
 import Cookies from "universal-cookie";
@@ -16,12 +15,10 @@ const [previousStage, setPreviousStage] = React.useState<boolean>(false);
 const [stages, setStages] = React.useState<any>([]);
 const [showError, setShowError] = React.useState<boolean>(false);
 const [error, setError] = React.useState<string[]>([]);
-console.log("upload csv page")
 
   const navigate = useNavigate();
 
 useEffect(() => {
-  fetchAuthSession()
   CheckStageProcesses().then((response) => {
     const processes = response.processes?? [];
     if (processes.length > 0) {
@@ -36,14 +33,12 @@ useEffect(() => {
 
   const handleClick = (e:any, stage_id:string) => {
     e.preventDefault();
-    console.log(stage_id)
     const cookies = new Cookies();
     cookies.set('stage_id', stage_id, { path: '/' });
     setIsLoading(true);
     setShowError(false);
     setPreviousStage(false);
     getStaged().then((stagedRecords) => {
-      console.log(stagedRecords)
       navigate("/pre-validation", { state: {data: stagedRecords.records}, replace: true });
     }).catch((error) => {
       console.error(error);
@@ -61,7 +56,6 @@ useEffect(() => {
 
 
   if (isloading===undefined || isloading===null) {
-    console.log("isloading is null")
     return null
   }
 

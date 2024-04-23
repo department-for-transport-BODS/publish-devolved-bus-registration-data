@@ -7,7 +7,7 @@ from sys import exit
 from typing import List
 from .aws import get_secret
 from .csv_validator import Registration
-from .logger import console, log
+from .logger import log
 from .pydant_model import AuthenticatedEntity, DBCreds, SearchQuery
 from .exceptions import (
     RecordIsAlreadyExist,
@@ -96,6 +96,7 @@ class AutoMappingModels:
         self.PDBRDGroup = self.Base.classes.pdbrd_group
         self.PDBRDReport = self.Base.classes.pdbrd_report
         self.PDBRDStage = self.Base.classes.pdbrd_stage
+        self.PDBRDUser = self.Base.classes.pdbrd_user
         self.OTCLicence.__repr__ = (
             lambda self: f"<OTCLicence(licence_number='{self.licence_number}', licence_status='{self.licence_status}, otc_licence_id={self.otc_licence_id}')>"
         )
@@ -112,10 +113,13 @@ class AutoMappingModels:
             lambda self: f"<PDBRDGroup(local_auth='{self.local_auth}')>"
         )
         self.PDBRDReport.__repr__ = (
-            lambda self: f"<PDBRDReport(id='{self.id}', report_id='{self.report_id}', group_id='{self.group_id}', report='{self.report}')>"
+            lambda self: f"<PDBRDReport(id='{self.id}', report_id='{self.report_id}', group_id='{self.user_id}', report='{self.report}')>"
         )
         self.PDBRDStage.__repr__ = (
             lambda self: f"<PDBRDStage(id='{self.id}', stage_id='{self.stage_id}', stage_user='{self.stage_user}', created_at='{self.created_at}')>"
+        )
+        self.PDBRDUser.__repr__ = (
+            lambda self: f"<PDBRDUser(id='{self.id}', user_id='{self.user_name}', group_id='{self.group_id}')>"
         )
         
 
@@ -128,6 +132,7 @@ class AutoMappingModels:
             "PDBRDReport": self.PDBRDReport,
             "BODSDataCatalogue": self.BODSDataCatalogue,
             "PDBRDStage": self.PDBRDStage,
+            "PDBRDUser": self.PDBRDUser,
         }
 
 
@@ -150,7 +155,7 @@ class DBGroup:
         self.models = models
         self.session = session
 
-    def get_or_create_user(self, group_name:str):
+    def get_or_create_group(self, group_name:str):
         """Check if the user exists in the database, if not, add the user
 
         Args:
@@ -175,6 +180,33 @@ class DBGroup:
         except Exception as e:
             log.error(f"Error: {e}")
             session.rollback()
+    
+    def get_or_create_user(self, user_name: str, group_name: str):
+        """Check if the user exists in the database, if not, add the user
+
+        Args:
+            user (str, optional): _description_. Defaults to None.
+
+        Returns:
+            _type_: _description_
+        """
+        models = self.models
+        session = self.session
+        PDBRDUser = models.PDBRDUser
+        try:
+            # check if user in db first:
+            user = self.get_user(user_name,group_name)
+            if user:
+                return user
+            # Add the user
+            group = self.get_or_create_group(group_name)
+            user = PDBRDUser(user_name=user_name, group_id=group.id)
+            session.add(user)
+            session.commit()
+            return user  # Return the ID of the inserted record
+        except Exception as e:
+            log.error(f"Error: {e}")
+            session.rollback()
 
     def get_group(self, group_name: str, raise_exception: bool = False):
         session = self.session
@@ -189,6 +221,19 @@ class DBGroup:
         if raise_exception:
             raise GroupIsNotFound(f"Group: {group_name} not found")
 
+
+    def get_user(self, user_name: str, group_name:str):
+        session = self.session
+        PDBRDUser = self.models.PDBRDUser
+        PDBGroup = self.models.PDBRDGroup
+        user = (
+            session.query(PDBRDUser)
+            .join(PDBGroup, PDBGroup.id == PDBRDUser.group_id)
+            .filter(PDBGroup.local_auth == group_name)
+            .filter(PDBRDUser.user_name == user_name)
+            .one_or_none()
+        )
+        return user
 
 class DBManager:
     @classmethod
@@ -217,7 +262,7 @@ class DBManager:
         licence_record_id: int,
         session: Session,
         PDBRDRegistration: Table,
-        PDBRDGroup: Table,
+        group_id: int,
         PDBRDStage_id: int
     ):
         """Add or update the record to the PDBRDRegistration table
@@ -240,8 +285,8 @@ class DBManager:
                 PDBRDRegistration.registration_number == record.registration_number,
                 PDBRDRegistration.otc_operator_id == operator_record_id,
                 PDBRDRegistration.variation_number == record.variation_number,
-                PDBRDRegistration.group_id == PDBRDGroup.id,
-                PDBRDRegistration.route_number == record.route_number
+                PDBRDRegistration.group_id == group_id,
+                PDBRDRegistration.route_number == record.route_number,
             )
             .one_or_none()
         )
@@ -250,40 +295,9 @@ class DBManager:
             record_dict = record.model_dump()
             existing_record_dict = existing_record.__dict__
             # Add the user id to the record
-            record_dict.update({"group_id": PDBRDGroup.id})
+            record_dict.update({"group_id": group_id})
             if common_keys_comparsion(record_dict, existing_record_dict):
-                # case 1.1: Check if all the fields are the same
-                # All fields are the same, reject with an error
-                # log.debug(
-                #     f"Record already exists with the same fields: {existing_record.id}"
-                # )
                 raise RecordIsAlreadyExist("Record already exists with the same fields")
-
-            # # case 1.2: Not all fields are the same, update the record
-            # existing_record.route_number = record.route_number
-            # existing_record.route_description = record.route_description
-            # existing_record.variation_number = record.variation_number
-            # existing_record.start_point = record.start_point
-            # existing_record.finish_point = record.finish_point
-            # existing_record.via = record.via
-            # existing_record.subsidised = record.subsidised
-            # existing_record.subsidy_detail = record.subsidy_detail
-            # existing_record.is_short_notice = record.is_short_notice
-            # existing_record.received_date = record.received_date
-            # existing_record.granted_date = record.granted_date
-            # existing_record.effective_date = record.effective_date
-            # existing_record.end_date = record.end_date
-            # existing_record.bus_service_type_id = record.bus_service_type_id
-            # existing_record.bus_service_type_description = (
-            #     record.bus_service_type_description
-            # )
-            # existing_record.traffic_area_id = record.traffic_area_id
-            # existing_record.application_type = record.application_type
-            # existing_record.publication_text = record.publication_text
-            # existing_record.other_details = record.other_details
-            # existing_record.otc_licence_id = licence_record_id
-            # session.commit()
-            # log.debug(f"Updated PDBRD registration record: {existing_record.id}")
 
         else:
             # case 2: Record does not exist, create a new record
@@ -310,7 +324,7 @@ class DBManager:
                 other_details=record.other_details,
                 otc_operator_id=operator_record_id,
                 otc_licence_id=licence_record_id,
-                group_id=PDBRDGroup.id,
+                group_id=group_id,
                 pdbrd_stage_id=PDBRDStage_id
             )
             session.add(pdbrd_registration_record)
@@ -353,7 +367,7 @@ class DBManager:
         PDBRDRegistration = models.PDBRDRegistration
         OTCOperator = models.OTCOperator
         OTCLicence = models.OTCLicence
-        if authenticated_entity.type == "local_auth":
+        if authenticated_entity.type == "operators":
             PDBRDGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
         else:
             PDBRDGroup = None
@@ -555,8 +569,8 @@ class DBManager:
         OTCOperator = models.OTCOperator
         OTCLicence = models.OTCLicence
         BODSDataCatalogue = models.BODSDataCatalogue
-        if authenticated_entity.type == "local_auth":
-            PDBRDGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
+        if authenticated_entity.type == "user":
+            PDBRDGroup = DBGroup(models, session).get_group(authenticated_entity.group, raise_exception=True)
         else:
             PDBRDGroup = None
 
@@ -594,7 +608,7 @@ class DBManager:
             )
             .join(OTCOperator, OTCOperator.id == PDBRDRegistration.otc_operator_id)
             .filter(PDBRDRegistration.group_id == PDBRDGroup.id)
-            .filter(PDBRDRegistration.id.in_(subquery_q2))
+            .filter(PDBRDRegistration.id.in_(select(subquery_q2)))
             .group_by(
                 OTCLicence.licence_number,
                 OTCOperator.operator_name,
@@ -654,15 +668,14 @@ class DBManager:
     def get_report_then_delete_it_from_db(cls, authenticated_entity: AuthenticatedEntity, report_id: str):
         models, session = initiate_db_variables()
         PDBRDReport = models.PDBRDReport
-        PDBRDGroup = models.PDBRDGroup
-        if authenticated_entity.type == "local_auth":
-            PDBRDGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=False)
-        if not PDBRDGroup:
+        if authenticated_entity.type == "user":
+            User = DBGroup(models, session).get_user(authenticated_entity.name, authenticated_entity.group)
+        if not User:
             return None
         report = (
             session.query(PDBRDReport)
             .filter(PDBRDReport.report_id == report_id)
-            .filter(PDBRDReport.group_id == PDBRDGroup.id)
+            .filter(PDBRDReport.user_id == User.id)
             .one_or_none()
         )
         if report:
@@ -676,13 +689,12 @@ class DBManager:
     def get_staged_records(cls, authenticated_entity: AuthenticatedEntity, stage_id: str=None):
         models, session = initiate_db_variables()
         PDBRDStage = models.PDBRDStage
-        PDBRDGroup = models.PDBRDGroup
         PDBRDLicence = models.OTCLicence
         PDBRDOperator = models.OTCOperator
         PDBRDRegistration = models.PDBRDRegistration
-        if authenticated_entity.type == "local_auth":
-            PDBRDGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
-        if not PDBRDGroup:
+        if authenticated_entity.type == "user":
+            PDBRDUser = DBGroup(models, session).get_user(authenticated_entity.name, authenticated_entity.group)
+        if not PDBRDUser:
             return None
         staged_process = (
             session.query(PDBRDStage.id).filter(PDBRDStage.stage_id == stage_id).subquery()
@@ -702,11 +714,10 @@ class DBManager:
     def commit_staged_records(cls, authenticated_entity: AuthenticatedEntity, stage_id: str, commit: bool = True):
         models, session = initiate_db_variables()
         PDBRDStage = models.PDBRDStage
-        PDBRDGroup = models.PDBRDGroup
         PDBRDRegistration = models.PDBRDRegistration
-        if authenticated_entity.type == "local_auth":
-            PDBRDGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
-        if not PDBRDGroup:
+        if authenticated_entity.type == "user":
+            PDBRDUser = DBGroup(models, session).get_user(authenticated_entity.name, authenticated_entity.group)
+        if not PDBRDUser:
             return None
 
         try:
@@ -715,7 +726,7 @@ class DBManager:
                 staged_process_id = (
                     session.query(PDBRDStage.id)
                     .filter(PDBRDStage.stage_id == stage_id)
-                    .filter(PDBRDStage.stage_user == PDBRDGroup.id)
+                    .filter(PDBRDStage.stage_user == PDBRDUser.id)
                 )
                 staged_process_subquery = staged_process_id.subquery()
                 staged_records = (
@@ -728,7 +739,7 @@ class DBManager:
             staged_process = (
                     session.query(PDBRDStage)
                     .filter(PDBRDStage.stage_id == stage_id)
-                    .filter(PDBRDStage.stage_user == PDBRDGroup.id)
+                    .filter(PDBRDStage.stage_user == PDBRDUser.id)
                 )
             # Delete the staged process
             deleted_count = staged_process.delete(synchronize_session=False)
@@ -754,19 +765,18 @@ class DBManager:
     def get_staged_process(cls, authenticated_entity: AuthenticatedEntity):
         models, session = initiate_db_variables()
         PDBRDStage = models.PDBRDStage
-        PDBRDGroup = models.PDBRDGroup
-        if authenticated_entity.type == "local_auth":
-            PDBRDGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=False)
-        if not PDBRDGroup:
+        if authenticated_entity.type == "user":
+            PDBRDUser = DBGroup(models, session).get_user(authenticated_entity.name, authenticated_entity.group)
+        if not PDBRDUser:
             return None
         staged_process = (
             session.query(PDBRDStage.stage_id, PDBRDStage.created_at)
-            .filter(PDBRDStage.stage_user == PDBRDGroup.id)
+            .filter(PDBRDStage.stage_user == PDBRDUser.id)
         )
         return [rec._asdict() for rec in staged_process.all()]
 
 
-def send_to_db(records: List[Registration], group_name = None, report_id = None):
+def send_to_db(records: List[Registration], group_name = None, user_name=None, report_id = None):
     # validated_records: List[Registration] = MockData.mock_user_csv_record()
     models = AutoMappingModels()
     engine = models.engine
@@ -775,6 +785,7 @@ def send_to_db(records: List[Registration], group_name = None, report_id = None)
     OTCLicence = tables["OTCLicence"]
     PDBRDRegistration = tables["PDBRDRegistration"]
     PDBRDStage = tables["PDBRDStage"]
+    PDBRDUser = tables["PDBRDUser"]
     # Check if the licence number exists in the OTC database
     # validated_records = validate_licence_number_existence(validated_records)
     db_invalid_insertion = []
@@ -783,17 +794,12 @@ def send_to_db(records: List[Registration], group_name = None, report_id = None)
 
 
 
-    # Add or create the user
+    # Add or create the group
     session = Session(engine)
-    PDBRDGroup = DBGroup(models, session).get_or_create_user(group_name)
-    console.log(PDBRDGroup)
-    console.log(PDBRDGroup.id)
-    session.close()
-    # Initiate a new stage for the records
-    # stage = PDBRDStage(stage_user=PDBRDGroup.id,stage_id=report_id)
+    PDBRDUser = DBGroup(models, session).get_or_create_user(user_name, group_name)
+    group_id = PDBRDUser.group_id
     # add record to the stage table
-    session = Session(engine)
-    PDBRDStage_record = PDBRDStage(stage_user=PDBRDGroup.id, stage_id=report_id)
+    PDBRDStage_record = PDBRDStage(stage_user=PDBRDUser.id, stage_id=report_id)
     session.add(PDBRDStage_record)
     session.commit()
     PDBRDStage_id = PDBRDStage_record.id
@@ -845,7 +851,7 @@ def send_to_db(records: List[Registration], group_name = None, report_id = None)
                 licence_record_id,
                 session,
                 PDBRDRegistration,
-                PDBRDGroup,
+                group_id,
                 PDBRDStage_id
             )
         except RecordIsAlreadyExist:
@@ -863,8 +869,8 @@ def send_to_db(records: List[Registration], group_name = None, report_id = None)
             )
             db_invalid_insertion.append(idx)
             session.commit()
-        except Exception:
-            console.print_exception(show_locals=False)
+        except Exception as e:
+            log.error(f"Error: {e}")
             session.rollback()
         finally:
             session.close()
@@ -892,13 +898,13 @@ def send_to_db(records: List[Registration], group_name = None, report_id = None)
     #     session.close()
 
 
-def send_report_to_db(report: dict, group_name: str, report_id: str):
+def send_report_to_db(report: dict, user_name: str,group_name:str, report_id: str):
     models, session = initiate_db_variables()
 
-    PDBRDGroup = DBGroup(models, session).get_or_create_user(group_name)
+    PDBRDUser = DBGroup(models, session).get_or_create_user(user_name,group_name)
     PDBRDReport = models.PDBRDReport
     report_record = PDBRDReport(
-        report_id=report_id, group_id=PDBRDGroup.id, report=report
+        report_id=report_id, user_id=PDBRDUser.id, report=report
     )
     session.add(report_record)
     session.commit()

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, {AxiosError } from "axios";
 
 const GetAllRecords = async () => {
             try {
@@ -39,11 +39,13 @@ const GetAllRecords = async () => {
                 a.download = "all-records.csv"; 
                 a.click();
                 window.URL.revokeObjectURL(url);
-                } catch (error) {
-                     throw new Error("Failed to download CSV");
-                    
-        }
-
-};
+                } catch (error: AxiosError | any) {
+                    if (error.response) {
+                        const errorMsg = error.response.data.detail?? "Failed to download CSV";
+                        throw new Error(errorMsg);
+                    }else {
+                    throw new Error("Failed to download CSV");
+                    }
+                }}
 
 export default GetAllRecords;

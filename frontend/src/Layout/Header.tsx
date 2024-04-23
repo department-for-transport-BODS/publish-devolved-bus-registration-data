@@ -14,7 +14,7 @@ const Header = (): ReactElement<Props> => {
   }
 }
 // useEffect(() => {
-//   console.log("isLoggedIn from header: ", isLoggedIn);
+//   console.log(isLoggedIn);
 
 
 //   }, [isLoggedIn]);
