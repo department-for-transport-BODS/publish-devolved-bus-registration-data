@@ -23,10 +23,10 @@ const AccessibilityStatement: React.FC = () => {
             be clear and simple to understand. You should be able to:
           </p>
           <ul>
-            <li>Zoom in up to 300% without problems.</li>
+            <li>Zoom in up to 300% without problems</li>
             <li>
               Navigate all of the website using just a keyboard (except for maps
-              which are not essential to the functionality).
+              which are not essential to the functionality)
             </li>
             <li>
               Navigate all of the website using speech recognition software.
