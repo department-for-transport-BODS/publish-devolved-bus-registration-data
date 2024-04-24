@@ -229,11 +229,11 @@ jobs:
           export REACT_APP_API_URL="${{ vars.REACT_APP_URL }}/api/v1"
           export REACT_APP_REDIRECT_SIGN_IN="${{ vars.REACT_APP_URL }}/${{ vars.REACT_APP_REDIRECT_SIGN_IN_SUFFIX }}"
           export REACT_APP_REDIRECT_SIGN_OUT="${{ vars.REACT_APP_URL }}/${{ vars.REACT_APP_REDIRECT_SIGN_OUT_SUFFIX }}"
-          export REACT_APP_USER_POOL_ID=`aws ssm get-parameter --name "/${ENV}/pdbrd/cognito/userpool/id" \
+          export REACT_APP_USER_POOL_ID=`aws ssm get-parameter --name "/${ENV}/${{ vars.PROJECT_NAME }}/cognito/userpool/id" \
             | jq -r '.Parameter.Value'`
-          export REACT_APP_USER_POOL_CLIENT_ID=`aws ssm get-parameter --name "/${ENV}/pdbrd/cognito/userpool/client/id" \
+          export REACT_APP_USER_POOL_CLIENT_ID=`aws ssm get-parameter --name "/${ENV}/${{ vars.PROJECT_NAME }}/cognito/userpool/client/id" \
             | jq -r '.Parameter.Value'`
-          export REACT_APP_DOMAIN=`aws ssm get-parameter --name "/${ENV}/pdbrd/cognito/endpoint" \
+          export REACT_APP_DOMAIN=`aws ssm get-parameter --name "/${ENV}/${{ vars.PROJECT_NAME }}/cognito/endpoint" \
             | jq -r '.Parameter.Value'`
           export REACT_APP_RESPONSE_TYPE="${{ vars.REACT_APP_RESPONSE_TYPE }}"
           export REACT_APP_SCOPES="${{ vars.REACT_APP_SCOPES }}"
@@ -302,4 +302,4 @@ jobs:
         with:
           repository: ${{ github.repository }}
           event-type: automated-deploy-dev
-          client-payload: '{ "environment": "dev", "release_version": "${{ needs.validation.outputs.version }}" }'
+          client-payload: '{ "component": "all", "environment": "dev", "release_version": "${{ needs.validation.outputs.version }}" }'

@@ -12,7 +12,7 @@ from pydantic import ValidationError
 from managers import process_csv_file
 from mangum import Mangum
 from utils.exceptions import LimitIsNotSet, LimitExceeded, GroupIsNotFound
-from auth.verifier import get_entity, get_local_authority
+from auth.verifier import  operator, read_only
 from central_config import app, api_v1_router
 from utils.db import DBManager
 from utils.pydant_model import (
@@ -33,7 +33,7 @@ from utils.logger import log
 async def create_upload_file(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
-    authenticated_entity: AuthenticatedEntity = Depends(get_local_authority),
+    authenticated_entity: AuthenticatedEntity = Depends(operator),
 ):
     """This is the endpoint to upload a CSV file and process it.
 
@@ -67,7 +67,7 @@ async def create_upload_file(
 
 @api_v1_router.get("/get-report", status_code=status.HTTP_200_OK)
 async def get_report(
-    authenticated_entity: AuthenticatedEntity = Depends(get_entity),
+    authenticated_entity: AuthenticatedEntity = Depends(operator),
     report_id: str = Query(..., description="The request ID for the report"),
 ):
     """This is the endpoint to get the report for the CSV file uploaded.
@@ -91,7 +91,7 @@ async def get_report(
 
 @api_v1_router.get("/get-staged-process", status_code=status.HTTP_200_OK)
 async def get_staged_process(
-    authenticated_entity: AuthenticatedEntity = Depends(get_entity),
+    authenticated_entity: AuthenticatedEntity = Depends(operator),
 ):
     """This is the endpoint to get the staged records in the database.
 
@@ -103,11 +103,12 @@ async def get_staged_process(
     """
     processes = DBManager.get_staged_process(authenticated_entity)
     return {"processes": processes, "status": "Completed"}
+    
 
 
 @api_v1_router.get("/get-staged", status_code=status.HTTP_200_OK)
 async def get_staged_records(
-    authenticated_entity: AuthenticatedEntity = Depends(get_entity),
+    authenticated_entity: AuthenticatedEntity = Depends(operator),
     stage_id: str = Query(..., description="The staged records ID"),
 ):
     """This is the endpoint to get the staged records in the database.
@@ -141,7 +142,7 @@ async def get_staged_records(
 @api_v1_router.post("/staged-records/{action}", status_code=status.HTTP_200_OK)
 def get_staged_records_action(
     action: str,
-    authenticated_entity: AuthenticatedEntity = Depends(get_entity),
+    authenticated_entity: AuthenticatedEntity = Depends(operator),
     stage_id: str = Query(
         ..., description="The staged records ID", pattern="^[a-zA-Z0-9\-]*$"
     ),
@@ -189,7 +190,7 @@ def get_staged_records_action(
 
 @api_v1_router.get("/search", status_code=status.HTTP_200_OK)
 async def search_records(
-    authenticated_entity: AuthenticatedEntity = Depends(get_entity),
+    authenticated_entity: AuthenticatedEntity = Depends(read_only),
     licenseNumber: str = Query(
         None,
         description="The license name to filter the records",
@@ -294,7 +295,7 @@ async def search_records_options():
 
 
 @api_v1_router.get("/view-registrations/status", status_code=status.HTTP_200_OK)
-async def view_registrations(authenticated_entity: str = Depends(get_entity)):
+async def view_registrations(authenticated_entity: str = Depends(operator)):
     """This is the endpoint to view all the records in the database"""
     try:
         records = DBManager.get_record_required_attention_percentage(
@@ -311,7 +312,7 @@ async def view_registrations(authenticated_entity: str = Depends(get_entity)):
 
 @api_v1_router.get("/all-records", status_code=status.HTTP_200_OK)
 def get_all_records(
-    authenticated_entity: str = Depends(get_entity),
+    authenticated_entity: str = Depends(operator),
     latestOnly: str = Query(
         "No", description="Whether to retrieve only the latest records"
     ),
