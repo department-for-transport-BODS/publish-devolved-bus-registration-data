@@ -428,12 +428,16 @@ class DBManager:
             )
 
         if registration_number:
-            records = add_filter_to_query(
-                records,
-                PDBRDRegistration.registration_number,
-                registration_number,
-                strict_mode,
-            )
+            if len(registration_number.split("/")) >2:
+                registration_list = [f"{registration_number.split('/')[0]}/{item}" for item in registration_number.split("/")[1:] if item != ""]
+                records = records.filter(PDBRDRegistration.registration_number.in_(registration_list))
+            else:
+                records = add_filter_to_query(
+                    records,
+                    PDBRDRegistration.registration_number,
+                    registration_number,
+                    strict_mode,
+                )
 
         if operator_name:
             records = add_filter_to_query(
