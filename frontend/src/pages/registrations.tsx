@@ -24,10 +24,10 @@ const Registration: React.FC = () => {
     url: "/view-registrations",
     text: "View active registrations",
   },
-  // {
-  //   url: "/fine-registered-services",
-  //   text: "Fine registered services",
-  // },
+  {
+    url: "/find-registered-services",
+    text: "Find registered services",
+  },
 ]
   
   return (

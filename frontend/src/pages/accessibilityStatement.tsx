@@ -3,7 +3,7 @@ import { TwoThirdsLayout } from "../Layout/Layout";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
 import Footer from "../Layout/Footer";
 
-const AccessibilityStatment: React.FC = () => {
+const AccessibilityStatement: React.FC = () => {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const APP_URL = process.env.REACT_APP_URL;
 
@@ -89,4 +89,4 @@ const AccessibilityStatment: React.FC = () => {
   );
 };
 
-export default AccessibilityStatment;
+export default AccessibilityStatement;

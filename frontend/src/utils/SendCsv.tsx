@@ -2,7 +2,7 @@ import axios from "axios";
 import { fetchAuthSession } from "aws-amplify/auth";
 import Cookies from 'universal-cookie';
 
-const GetJWT = async () => {
+export const GetJWT = async () => {
         let jwt = "";
         await fetchAuthSession().then(() => {
             Object.entries(localStorage).forEach(([key, value]) => {
