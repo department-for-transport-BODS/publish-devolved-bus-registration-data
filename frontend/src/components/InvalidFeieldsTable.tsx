@@ -11,7 +11,10 @@ export interface InvalidFeieldsTableProps {
   validationTitle: string;
 }
 
-const InvalidFeieldsTable: React.FC<InvalidFeieldsTableProps> = ({ data, validationTitle}) => {
+const InvalidFeieldsTable: React.FC<InvalidFeieldsTableProps> = ({
+  data,
+  validationTitle,
+}) => {
   const style = {
     minHeight: "350px",
   };
@@ -19,7 +22,7 @@ const InvalidFeieldsTable: React.FC<InvalidFeieldsTableProps> = ({ data, validat
     width: "160px",
   };
   return (
-      <div key={uuidv4()}>
+    <div key={uuidv4()}>
       <div className="border" style={style}>
         <table className="govuk-table">
           <caption className="govuk-table__caption govuk-table__caption--m">
@@ -37,38 +40,56 @@ const InvalidFeieldsTable: React.FC<InvalidFeieldsTableProps> = ({ data, validat
               >
                 Field
               </th>
-              <th
-                scope="col"
-                className="govuk-table__header"
-              >
+              <th scope="col" className="govuk-table__header">
                 Failure
               </th>
             </tr>
           </thead>
           <tbody className="govuk-table__body">
             {Object.entries(data).map(([RowNumber, fieldsReport]) => (
-              <tr key={uuidv4()} className="govuk-table__row">
-                <th scope="row" className="govuk-table__header"
-                style={columnStyle}>
-                  {RowNumber}
-                </th>
-                {[fieldsReport[0]].map((fieldReport: { [key: string]: string }) => (
-                  <React.Fragment key={uuidv4()}>
-                    <td className="govuk-table__cell"
-                    style={columnStyle}>
-                      {Object.keys(fieldReport)}
-                    </td>
-                    <td className="govuk-table__cell">
-                      {Object.values(fieldReport)[0]}
-                    </td>
-                  </React.Fragment>
-                ))}
-              </tr>
+              <React.Fragment key={uuidv4()}>
+                <tr className="govuk-table__row">
+                  <th
+                    rowSpan={fieldsReport.length}
+                    className="govuk-table__cell"
+                    style={columnStyle}
+                  >
+                    {RowNumber}
+                  </th>
+                  <td className="govuk-table__cell">
+                    {Object.keys(fieldsReport[0])}
+                  </td>
+                  <td className="govuk-table__cell">
+                    {Object.values(fieldsReport[0])}
+                  </td>
+                </tr>
+                {fieldsReport.length > 1 &&
+                  fieldsReport
+                    .slice(1, fieldsReport.length)
+                    .map((item: { [key: string]: string }) => (
+                      <tr key={uuidv4()} className="govuk-table__row">
+                        {Object.keys(item).map((key) => (
+                          <td
+                            key={uuidv4()}
+                            className="govuk-table__cell"
+                            style={columnStyle}
+                          >
+                            {key}
+                          </td>
+                        ))}
+                        {Object.values(item).map((value) => (
+                          <td key={uuidv4()} className="govuk-table__cell">
+                            {value}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+              </React.Fragment>
             ))}
           </tbody>
         </table>
-        </div>
       </div>
+    </div>
   );
 };
 
