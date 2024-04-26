@@ -7,7 +7,7 @@ from sys import exit
 from typing import List
 from .aws import get_secret
 from .csv_validator import Registration
-from .logger import log
+from .logger import log, console
 from .pydant_model import AuthenticatedEntity, DBCreds, SearchQuery
 from .exceptions import (
     RecordIsAlreadyExist,
@@ -492,23 +492,24 @@ class DBManager:
         return f"{host}{path}?{params_str}"
 
     @classmethod
-    def get_all_records(cls, authenticated_entity: AuthenticatedEntity,latest_only=False):
+    def get_all_records(cls, authenticated_entity: AuthenticatedEntity,latest_only=False, active_only=True):
         models, session = initiate_db_variables()
         PDBRDRegistration = models.PDBRDRegistration
         OTCOperator = models.OTCOperator
         OTCLicence = models.OTCLicence
         BODSDataCatalogue = models.BODSDataCatalogue
-        if authenticated_entity.type == "local_auth":
-            PDBRDGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
+        console.log(authenticated_entity)
+        if authenticated_entity.type == "user":
+            PDBRDGroup = DBGroup(models, session).get_group(authenticated_entity.group, raise_exception=True)
         else:
             PDBRDGroup = None
         if latest_only:
             subquery_q1 = (
                 session.query(
-                    PDBRDRegistration.registration_number,
+                    PDBRDRegistration.registration_number, PDBRDRegistration.route_number,
                     func.max(PDBRDRegistration.variation_number).label("max_variation_number")
                 ).filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
-                .group_by(PDBRDRegistration.registration_number)
+                .group_by(PDBRDRegistration.registration_number, PDBRDRegistration.route_number)
                 .subquery()
             )
 
@@ -516,9 +517,11 @@ class DBManager:
                 session.query(PDBRDRegistration.id)
                 .join(subquery_q1, and_(
                     PDBRDRegistration.registration_number == subquery_q1.c.registration_number,
-                    PDBRDRegistration.variation_number == subquery_q1.c.max_variation_number
+                    PDBRDRegistration.variation_number == subquery_q1.c.max_variation_number,
+                    PDBRDRegistration.route_number == subquery_q1.c.route_number
                 ))
             ).subquery()
+
 
 
 
@@ -564,10 +567,45 @@ class DBManager:
 
         if PDBRDGroup:
             records = records.filter(PDBRDRegistration.group_id == PDBRDGroup.id)
+
+        if active_only:
+            # console.log("Active only")
+            subquery_q3 = (
+                session.query(
+                    PDBRDRegistration.registration_number, 
+                    PDBRDRegistration.route_number,
+                    func.max(PDBRDRegistration.variation_number).label("max_variation_number")
+                ).filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
+                .group_by(PDBRDRegistration.registration_number, PDBRDRegistration.route_number)
+                # .having(and_(PDBRDRegistration.application_type.in_(["New", "Change"]), PDBRDRegistration.effective_date <= func.current_date(), PDBRDRegistration.end_date > func.current_date()))
+                .subquery()
+
+            )
+            subquery_q4 = (
+                session.query(PDBRDRegistration.registration_number, PDBRDRegistration.route_number)
+                .join(subquery_q3, and_(
+                    PDBRDRegistration.registration_number == subquery_q3.c.registration_number,
+                    PDBRDRegistration.route_number == subquery_q3.c.route_number,
+                    PDBRDRegistration.variation_number == subquery_q3.c.max_variation_number
+                ))
+                .filter(and_(PDBRDRegistration.application_type.in_(["New", "Change"]), PDBRDRegistration.effective_date <= func.current_date(), PDBRDRegistration.end_date > func.current_date()))
+                .subquery()
+            )
+            subquery_q5 = (
+                session.query(PDBRDRegistration.id)
+                .join(subquery_q4, and_(
+                    PDBRDRegistration.registration_number == subquery_q4.c.registration_number,
+                    PDBRDRegistration.route_number == subquery_q4.c.route_number
+                ))
+            ).subquery()
+            # console.log(subquery_q5.all())
+
+            records = records.filter(PDBRDRegistration.id.in_(select(subquery_q5)))
+        console.log(records.all())
         return [rec._asdict() for rec in records.all()]
 
     @classmethod
-    def get_record_required_attention_percentage(cls, authenticated_entity: AuthenticatedEntity = None):
+    def get_record_required_attention_percentage(cls, authenticated_entity: AuthenticatedEntity = None, active_only=True):
         models, session = initiate_db_variables()
         PDBRDRegistration = models.PDBRDRegistration
         OTCOperator = models.OTCOperator
@@ -577,21 +615,44 @@ class DBManager:
             PDBRDGroup = DBGroup(models, session).get_group(authenticated_entity.group, raise_exception=True)
         else:
             PDBRDGroup = None
+        # if active_only:
+        #     subquery_q3 = (
+        #         session.query(
+        #             PDBRDRegistration.registration_number, PDBRDRegistration.route_number,
+        #             func.max(PDBRDRegistration.variation_number).label("max_variation_number")
+        #         ).filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
+        #         .group_by(PDBRDRegistration.registration_number, PDBRDRegistration.route_number)
+        #         .subquery()
+        #     )
 
+        #     subquery_q4 = (
+        #         session.query(PDBRDRegistration.id)
+        #         .join(subquery_q3, and_(
+        #             PDBRDRegistration.registration_number == subquery_q3.c.registration_number,
+        #             PDBRDRegistration.variation_number == subquery_q3.c.max_variation_number,
+        #             PDBRDRegistration.route_number == subquery_q3.c.route_number
+        #         ))
+        #     ).subquery()
+
+        #     records = records.filter(PDBRDRegistration.id.in_(subquery_q4)).filter(
+        #             PDBRDRegistration.application_type.in_(["New", "Change"])).filter(
+        #                 PDBRDRegistration.effective_date <= func.current_date()).filter(
+        #                 PDBRDRegistration.end_date > func.current_date())
         subquery_q1 = (
             session.query(
-                PDBRDRegistration.registration_number,
+                PDBRDRegistration.registration_number,PDBRDRegistration.route_number,
                 func.max(PDBRDRegistration.variation_number).label("max_variation_number")
             )
             .filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
-            .group_by(PDBRDRegistration.registration_number)
+            .group_by(PDBRDRegistration.registration_number, PDBRDRegistration.route_number)
             .subquery()
         )
         subquery_q2 = (
             session.query(PDBRDRegistration.id)
             .join(subquery_q1, and_(
                 PDBRDRegistration.registration_number == subquery_q1.c.registration_number,
-                PDBRDRegistration.variation_number == subquery_q1.c.max_variation_number
+                PDBRDRegistration.variation_number == subquery_q1.c.max_variation_number,
+                PDBRDRegistration.route_number == subquery_q1.c.route_number
             ))
         ).subquery()
 
@@ -612,7 +673,10 @@ class DBManager:
             )
             .join(OTCOperator, OTCOperator.id == PDBRDRegistration.otc_operator_id)
             .filter(PDBRDRegistration.group_id == PDBRDGroup.id)
-            .filter(PDBRDRegistration.id.in_(select(subquery_q2)))
+            .filter(PDBRDRegistration.id.in_(select(subquery_q2))).filter(
+                    PDBRDRegistration.application_type.in_(["New", "Change"])).filter(
+                        PDBRDRegistration.effective_date <= func.current_date()).filter(
+                        PDBRDRegistration.end_date > func.current_date())
             .group_by(
                 OTCLicence.licence_number,
                 OTCOperator.operator_name,
@@ -666,6 +730,7 @@ class DBManager:
             )
             .order_by(desc("total_services"))
         )
+        console.log(query.all())
         return [rec._asdict() for rec in query.all()]
 
     @classmethod
