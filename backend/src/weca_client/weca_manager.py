@@ -37,16 +37,16 @@ class WecaManager:
     def __init__(self):
         api_client = WecaClient()
         self.api_response = api_client.fetch_weca_services()
-        console.log(self.api_response.data[0])
+        # console.log(self.api_response.data[0])
         # self.received_data = self.api_response.data
         # self.received_data = [received_data]
 
 
 
 
-authenticated_entity = AuthenticatedEntity(type="user", name="weca_api", group="weca")
+# authenticated_entity = AuthenticatedEntity(type="user", name="weca_api", group="weca")
 WecaManager()
-RecordsManager([received_data], authenticated_entity).validation_and_insertion_steps()
+# RecordsManager([received_data], authenticated_entity).validation_and_insertion_steps()
 
     
 
