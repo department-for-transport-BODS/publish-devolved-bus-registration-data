@@ -73,8 +73,10 @@ const PrivacyStatement: React.FC = () => {
               allow you to access government services and make transactions
             </li>
             <li>
-              Provide you with information about local services monitor use of
-              the site to identify security threats </li>
+              Provide you with information about local services
+              </li>
+              <li>
+              Monitor use of the site to identify security threats </li>
             <li>Communicate service messages aimed at keeping users
               informed of the service provided, which includes service updates
               and support that is provided as part of the overall service

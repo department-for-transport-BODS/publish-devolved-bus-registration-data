@@ -29,7 +29,7 @@ const AccessibilityStatement: React.FC = () => {
               which are not essential to the functionality)
             </li>
             <li>
-              Navigate all of the website using speech recognition software.
+              Navigate all of the website using speech recognition software
             </li>
             <li>
               Use all of the website using a screen reader (including the most
