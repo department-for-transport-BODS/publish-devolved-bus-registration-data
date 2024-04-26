@@ -236,7 +236,7 @@ class StagedRecord(BaseModel):
     licence_number: str
     operator_name: str
 
-class GroupedStegedRecords(BaseModel):
+class GroupedStagedRecords(BaseModel):
     licence_number: str
     operator_name: str
     registration_numbers: List[str]

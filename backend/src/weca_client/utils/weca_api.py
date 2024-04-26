@@ -4,12 +4,17 @@ from http import HTTPStatus
 from datetime import datetime, date
 from typing import Optional, List
 from requests import HTTPError, RequestException, Timeout
-
 from pydantic import ValidationError
-
 from pydantic import Field, field_validator
 from pydantic import BaseModel
-from .settings import API_TYPE_WECA, WECA_AUTH_TOKEN, WECA_PARAM_C, WECA_PARAM_T, WECA_PARAM_R, WECA_API_URL
+from .settings import (
+    API_TYPE_WECA,
+    WECA_AUTH_TOKEN,
+    WECA_PARAM_C,
+    WECA_PARAM_T,
+    WECA_PARAM_R,
+    WECA_API_URL,
+)
 from .logger import console
 
 logger = logging.getLogger(__name__)
@@ -73,7 +78,7 @@ class DataModel(BaseModel):
         else:
             return value
 
-    @field_validator("atco_code",mode="before")
+    @field_validator("atco_code", mode="before")
     def extract_atco_code(cls, value):
         # Extract the first three digits after the first slash of registration_number
         reg_number_parts = value.split("/")
@@ -137,7 +142,8 @@ class WecaClient:
             return self.default_response()
         try:
             console.log(response.json()["data"][0])
-            return APIResponse(**response.json())
+            # return APIResponse(**response.json())
+            return response.json()
         except ValidationError as exc:
             logger.error("Validation error in WECA API response")
             logger.error(f"Response JSON: {response.text}")
@@ -153,6 +159,7 @@ class WecaClient:
         Create default return response for placeholder purpose
         """
         response = {"fields": [], "data": []}
+        # print(response)
         return APIResponse(**response)
 
     def fetch_weca_services(self) -> APIResponse:
@@ -164,8 +171,7 @@ class WecaClient:
         return response
 
 
-
-if __name__=="__main__":
+if __name__ == "__main__":
     client = WecaClient()
     res = client.fetch_weca_services()
     console.log(res.data[0])
