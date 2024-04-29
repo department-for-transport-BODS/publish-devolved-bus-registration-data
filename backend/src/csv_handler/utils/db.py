@@ -7,7 +7,7 @@ from sys import exit
 from typing import List
 from .aws import get_secret
 from .csv_validator import Registration
-from .logger import log, console
+from .logger import log
 from .pydant_model import AuthenticatedEntity, DBCreds, SearchQuery
 from .exceptions import (
     RecordIsAlreadyExist,
@@ -298,6 +298,42 @@ class DBManager:
             record_dict.update({"group_id": group_id})
             if common_keys_comparsion(record_dict, existing_record_dict):
                 raise RecordIsAlreadyExist("Record already exists with the same fields")
+            # Update the record
+            # case 1.2: Record exists but with different fields, update the record
+            pdbrd_registration_record= PDBRDRegistration(
+                id=existing_record.id,
+                route_number=record.route_number,
+                route_description=record.route_description,
+                variation_number=record.variation_number,
+                start_point=record.start_point,
+                finish_point=record.finish_point,
+                via=record.via,
+                subsidised=record.subsidised,
+                subsidy_detail=record.subsidy_detail,
+                is_short_notice=record.is_short_notice,
+                received_date=record.received_date,
+                granted_date=record.granted_date,
+                effective_date=record.effective_date,
+                end_date=record.end_date,
+                bus_service_type_id=record.bus_service_type_id,
+                bus_service_type_description=record.bus_service_type_description,
+                registration_number=record.registration_number,
+                traffic_area_id=record.traffic_area_id,
+                application_type=record.application_type,
+                publication_text=record.publication_text,
+                other_details=record.other_details,
+                otc_operator_id=operator_record_id,
+                otc_licence_id=licence_record_id,
+                group_id=group_id,
+                pdbrd_stage_id=PDBRDStage_id
+            )
+            session.merge(pdbrd_registration_record)
+            session.commit()
+            log.debug(f"Updated PDBRD registration record: {pdbrd_registration_record.id}")
+
+
+
+
 
         else:
             # case 2: Record does not exist, create a new record
@@ -498,7 +534,6 @@ class DBManager:
         OTCOperator = models.OTCOperator
         OTCLicence = models.OTCLicence
         BODSDataCatalogue = models.BODSDataCatalogue
-        console.log(authenticated_entity)
         if authenticated_entity.type == "user":
             PDBRDGroup = DBGroup(models, session).get_group(authenticated_entity.group, raise_exception=True)
         else:
@@ -569,7 +604,6 @@ class DBManager:
             records = records.filter(PDBRDRegistration.group_id == PDBRDGroup.id)
 
         if active_only:
-            # console.log("Active only")
             subquery_q3 = (
                 session.query(
                     PDBRDRegistration.registration_number, 
@@ -598,10 +632,8 @@ class DBManager:
                     PDBRDRegistration.route_number == subquery_q4.c.route_number
                 ))
             ).subquery()
-            # console.log(subquery_q5.all())
 
             records = records.filter(PDBRDRegistration.id.in_(select(subquery_q5)))
-        console.log(records.all())
         return [rec._asdict() for rec in records.all()]
 
     @classmethod
@@ -730,7 +762,6 @@ class DBManager:
             )
             .order_by(desc("total_services"))
         )
-        console.log(query.all())
         return [rec._asdict() for rec in query.all()]
 
     @classmethod
@@ -818,6 +849,7 @@ class DBManager:
                 return True
             return False
         except Exception as e:
+            log.error(f"Error: {e}")
             session.rollback()
             session.close()
 

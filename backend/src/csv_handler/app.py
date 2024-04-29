@@ -19,11 +19,11 @@ from utils.pydant_model import (
     AuthenticatedEntity,
     SearchQuery,
     StagedRecord,
-    GroupedStegedRecords,
+    GroupedStagedRecords,
     Action,
 )
 from uuid import uuid4
-from utils.logger import log, console
+from utils.logger import log
 
 
 @api_v1_router.post(
@@ -127,7 +127,7 @@ async def get_staged_records(
 
     for record in staged_records:
         if record.licence_number not in grouped_records:
-            grouped_records[record.licence_number] = GroupedStegedRecords(
+            grouped_records[record.licence_number] = GroupedStagedRecords(
                 licence_number=record.licence_number,
                 operator_name=record.operator_name,
                 registration_numbers=[],

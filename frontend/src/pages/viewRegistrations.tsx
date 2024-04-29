@@ -23,6 +23,7 @@ const ViewRegistrations: React.FC = () => {
       .then(() => {
         GetAllRecords()
           .then(() => {
+            if (ErrorMessage.indexOf("The CSV has failed to download. Please retry the download process.") > -1) {
             setErrorMessage(
               ErrorMessage.filter(
                 (message) =>
@@ -30,14 +31,22 @@ const ViewRegistrations: React.FC = () => {
                   "The CSV has failed to download. Please retry the download process."
               )
             );
-          })
+          }}
+        )
           .catch((error) => {
             setShowError(true);
+            let errorMsg = "";
 
-            const errorMsg =
-              error.message === "User is not part of any local authority group."
-                ? "You must be assigned to a local authority group to download this CSV. You are currently not assigned to any local authority group. Please contact support admin."
-                : "The CSV has failed to download. Please retry the download process.";
+             if(error.message === "User is not part of any local authority group."){
+                errorMsg = "You must be assigned to a local authority group to download this CSV. You are currently not assigned to any local authority group. Please contact support admin."
+             }
+              if (error.message === "No records found") {
+                errorMsg = "No records found";
+              }
+              if (error.message === "Failed to download CSV") {
+                errorMsg = "The CSV has failed to download. Please retry the download process.";
+              }
+              errorMsg === "" ?? "The CSV has failed to download. Please retry the download process.";
             if (!ErrorMessage.includes(errorMsg)) {
               setErrorMessage([...ErrorMessage, errorMsg]);
             }
@@ -59,10 +68,11 @@ const ViewRegistrations: React.FC = () => {
     }
   }, [ErrorMessage]);
   useEffect(() => {
-    initAll();
+    if (data && data?.length > 0){
+      initAll();
+    }
   }, [data]);
   // useEffect(() => {
-  //   console.log("loading", loading);
   // }, [loading]);
   useEffect(() => {
     if (error) {
@@ -120,6 +130,9 @@ const ViewRegistrations: React.FC = () => {
             description="Once registrations are ready they will be shown here"
           />
         )}
+          { data && data.length === 0 && (
+          <p className="govuk-body">There are no active registrations</p>
+        )}
         {!loading && !error && data && (
           <div
             className="govuk-accordion"
@@ -139,6 +152,7 @@ const ViewRegistrations: React.FC = () => {
             })}
           </div>
         )}
+
         <Link className="govuk-button--secondary govuk-button" to="/">
           Return home
         </Link>
