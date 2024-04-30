@@ -86,7 +86,6 @@ class RecordsManager:
         Returns:
              Record reports: A dictionary containing the valid and invalid records and the count of valid records.
         """
-        console.log(self.csv_data)
         validated_records = self._validate_csv_data()
         self._check_duplicate_records(validated_records)
         self._check_licence_number_existence(validated_records)

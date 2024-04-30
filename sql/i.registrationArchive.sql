@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS registration_archive (
     id SERIAL PRIMARY KEY,
     otc_licence_id INTEGER,
     route_number VARCHAR(255),
-    route_description VARCHAR(255),
+    route_description TEXT,
     variation_number INTEGER,
     start_point VARCHAR(255),
     finish_point VARCHAR(255),
