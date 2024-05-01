@@ -81,7 +81,7 @@ jobs:
 
           openssl base64 -out $GITHUB_WORKSPACE/encoded_payload.json -in $GITHUB_WORKSPACE/payload.json 
           response=$(aws lambda invoke --function-name $lambda_function_name --region $AWS_REGION --payload file://$GITHUB_WORKSPACE/encoded_payload.json response.txt 2>&1)
-          if [[ "$response" == *"FunctionError"* || "$response" == *"[ERROR]"* ]]; then
+          if [[ "$response" == *"FunctionError"* || "$response" == *"[FAILURE]"* ]]; then
             echo "[ERROR] Destruction of database failed against ${DEPLOY_ENV^^} with error:"
             echo "${response}"
             exit 1
@@ -116,7 +116,7 @@ jobs:
 
           openssl base64 -out $GITHUB_WORKSPACE/encoded_payload.json -in $GITHUB_WORKSPACE/payload.json 
           response=$(aws lambda invoke --function-name $lambda_function_name --region $AWS_REGION --payload file://$GITHUB_WORKSPACE/encoded_payload.json response.txt 2>&1)
-          if [[ "$response" == *"FunctionError"* || "$response" == *"[ERROR]"* ]]; then
+          if [[ "$response" == *"FunctionError"* || "$response" == *"[FAILURE]"* ]]; then
             echo "[ERROR] Initialisation of database failed against ${DEPLOY_ENV^^} with error:"
             echo "${response}"
             exit 1
@@ -147,7 +147,7 @@ jobs:
 
           openssl base64 -out $GITHUB_WORKSPACE/encoded_payload.json -in $GITHUB_WORKSPACE/payload.json 
           response=$(aws lambda invoke --function-name $lambda_function_name --region $AWS_REGION --payload file://$GITHUB_WORKSPACE/encoded_payload.json response.txt 2>&1)
-          if [[ "$response" == *"FunctionError"* || "$response" == *"[ERROR]"* ]]; then
+          if [[ "$response" == *"FunctionError"* || "$response" == *"[FAILURE]"* ]]; then
             echo "[ERROR] Execution of latest database migrations failed against ${DEPLOY_ENV^^} with error:"
             echo "${response}"
             exit 1
