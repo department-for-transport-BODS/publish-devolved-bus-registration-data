@@ -55,7 +55,7 @@ const UploadCsv: React.FC<UploadCsvProps> = ({
         }).catch((error) => {
           console.error(error);
 
-          navigate("/error", { state: { error: "Getting records failed try agian later!" }, replace: true });
+          navigate("/error", { state: { error: "Getting records failed try again later!" }, replace: true });
         });   
 
       } else {
