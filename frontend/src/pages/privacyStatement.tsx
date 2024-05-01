@@ -70,14 +70,16 @@ const PrivacyStatement: React.FC = () => {
           <ul className="govuk-list govuk-list--bullet">
             <li>
               Reply to any feedback you send us, if you&apos;ve asked us to
-              allow you to access government services and make transactions.
+              allow you to access government services and make transactions
             </li>
             <li>
-              Provide you with information about local services monitor use of
-              the site to identify security threats </li>
+              Provide you with information about local services
+              </li>
+              <li>
+              Monitor use of the site to identify security threats </li>
             <li>Communicate service messages aimed at keeping users
               informed of the service provided, which includes service updates
-              and support that is provided as part of the overall service.
+              and support that is provided as part of the overall service
             </li>
             <li>
               Spot check the level of service usage for both authorised
@@ -91,8 +93,8 @@ const PrivacyStatement: React.FC = () => {
             service. We will not:
           </p>
           <ul>
-            <li>Sell or rent your data to third parties.</li>
-            <li>share your data with third parties for marketing purposes.</li>
+            <li>Sell or rent your data to third parties</li>
+            <li>Share your data with third parties for marketing purposes</li>
           </ul>
           <p>
             We will share your data if we are required to do so by law - for
@@ -102,8 +104,9 @@ const PrivacyStatement: React.FC = () => {
             We use your data to calculate performance metrics to support
             continuous improvement of the service. When you sign up, you can
             also opt in to be contacted to participate in user research. If you
-            change your mind later about this, please let us know by emailing
-            BusOpenData@dft.gov.uk.
+            change your mind later about this, please let us know by emailing {" "} 
+            <a href="mailto:BusOpenData@dft.gov.uk">
+            BusOpenData@dft.gov.uk</a>.
           </p>
           <p className="govuk-heading-m">How long we keep your data for</p>
           <p>
@@ -144,10 +147,10 @@ const PrivacyStatement: React.FC = () => {
           <p className="govuk-heading-m">What are your rights</p>
           <p>You have the right to request:</p>
           <ul>
-            <li>information about how your personal data is processed</li>
-            <li>a copy of that personal data</li>
+            <li>Information about how your personal data is processed</li>
+            <li>A copy of that personal data</li>
             <li>
-              that anything inaccurate in your personal data is corrected
+              That anything inaccurate in your personal data is corrected
               immediately
             </li>
           </ul>
@@ -181,7 +184,7 @@ const PrivacyStatement: React.FC = () => {
           <p className="govuk-heading-m">Contact us or make a complaint</p>
           <p>Contact the DfT Data Protection Officer if you either:</p>
           <ul>
-            <li>have any questions about anything in this document</li>
+            <li>Have any questions about anything in this document</li>
             <li>Think your personal data has been misused or mishandled</li>
           </ul>
           <p>
@@ -202,8 +205,8 @@ const PrivacyStatement: React.FC = () => {
           <p>
             Our Personal Information Charter, can be found
             <br /> here:
-            <a href="https://www.gov.uk/government/organisations/department-for-transport/about/personal-information-charter">
               {" "}
+            <a href="https://www.gov.uk/government/organisations/department-for-transport/about/personal-information-charter">
               Personal information charter
             </a>
           </p>

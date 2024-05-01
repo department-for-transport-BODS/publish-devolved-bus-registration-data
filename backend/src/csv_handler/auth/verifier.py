@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException, Request, Security, status
 from fastapi.security import HTTPBearer
 from typing import Tuple
 from utils.exceptions import RegionIsNotSet, UserPoolIdIsNotSet, AppClientIdIsNotSet
-from utils.logger import log
+from utils.logger import log, console
 from utils.pydant_model import AuthenticatedEntity
 
 
@@ -96,7 +96,7 @@ def token_verifier(token: str = Security(CustomHTTPBearer())):
         raise HTTPException(status_code=401, detail="Not authenticated")
 
 
-def is_an_app(claims: dict) -> Tuple[bool, str]:
+def check_is_an_app(claims: dict) -> Tuple[bool, str]:
     scope = claims.get("scope")
     if scope:
         app_name = scope.split("/")[-1]
@@ -113,6 +113,7 @@ def is_a_local_authority(claims: dict) -> Tuple[bool, str]:
 
 
 def operator(claims: dict = Depends(token_verifier)):
+    console.log(get_entity(claims, operator=True))
     return get_entity(claims, operator=True)
 
 
@@ -128,7 +129,7 @@ def get_group(claims: dict = Depends(token_verifier)):
     groups = claims.get("cognito:groups")
     if groups is None:
         raise HTTPException(
-            status_code=422, detail="User is not part of any local authority group."
+            status_code=401, detail="User is not part of any local authority group."
         )
 
     # Check if user is part of more than one group
@@ -148,12 +149,22 @@ def get_group(claims: dict = Depends(token_verifier)):
 
     return False, None, None, None
 
+def programmatic_access(claims: dict = Depends(token_verifier)):
+    return get_entity(claims, is_an_app=True)
+    
+def operator_or_programmatic_access(claims: dict = Depends(token_verifier)):
+    return get_entity(claims, operator=True, is_an_app=True)
+
+def read_only_or_programmatic_access(claims: dict = Depends(token_verifier)):
+    return get_entity(claims, read_only=True, is_an_app=True)
+
 
 def get_entity(
     claims: dict = Depends(token_verifier),
     only_local_authority=False,
     operator=False,
     read_only=False,
+    is_an_app=False,
 ) -> AuthenticatedEntity | HTTPException:
     """Check the identity weather its a local authority or an app.
 
@@ -163,9 +174,14 @@ def get_entity(
     Returns:
         AuthenticatedEntity: The current user/app, or raise an HTTPException with status code 401.
     """
-    # return AuthenticatedEntity(type="local_auth",name="dev_3")
+    if is_an_app:
+        is_app, app_name = check_is_an_app(claims)
+        if is_app and len(app_name) > 0:
+            return AuthenticatedEntity(type="app", name=app_name)
+
     if operator:
         has_group, type, group_name, user_name = get_group(claims)
+        console.log(has_group, type, group_name, user_name)
         if not has_group:
             raise HTTPException(status_code=401, detail="Not authenticated")
         return AuthenticatedEntity(type=type, name=user_name, group=group_name)
@@ -175,9 +191,5 @@ def get_entity(
             raise HTTPException(status_code=401, detail="Not authenticated")
         return AuthenticatedEntity(type=type, name=user_name, group=group_name)
 
-    # if not only_local_authority:
-    is_app, app_name = is_an_app(claims)
-    if is_app and len(app_name) > 0:
-        return AuthenticatedEntity(type="app", name=app_name)
 
     raise HTTPException(status_code=401, detail="Not authenticated")

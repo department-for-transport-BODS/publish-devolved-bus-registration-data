@@ -12,7 +12,7 @@ from pydantic import ValidationError
 from managers import process_csv_file
 from mangum import Mangum
 from utils.exceptions import LimitIsNotSet, LimitExceeded, GroupIsNotFound
-from auth.verifier import  operator, read_only
+from auth.verifier import  operator, read_only_or_programmatic_access, operator_or_programmatic_access
 from central_config import app, api_v1_router
 from utils.db import DBManager
 from utils.pydant_model import (
@@ -190,7 +190,7 @@ def get_staged_records_action(
 
 @api_v1_router.get("/search", status_code=status.HTTP_200_OK)
 async def search_records(
-    authenticated_entity: AuthenticatedEntity = Depends(read_only),
+    authenticated_entity: AuthenticatedEntity = Depends(read_only_or_programmatic_access),
     licenseNumber: str = Query(
         None,
         description="The license name to filter the records",
@@ -312,17 +312,20 @@ async def view_registrations(authenticated_entity: str = Depends(operator)):
 
 @api_v1_router.get("/all-records", status_code=status.HTTP_200_OK)
 def get_all_records(
-    authenticated_entity: str = Depends(operator),
+    authenticated_entity: str = Depends(operator_or_programmatic_access),
     latestOnly: str = Query(
         "No", description="Whether to retrieve only the latest records"
     ),
+    activeOnly: str = Query(
+        "No", description="Whether to retrieve only the active records"
+    ),
 ):
     """This is the endpoint to view all the records in the database"""
-
+    
     if latestOnly.lower() in ["yes", "true"]:
-        records = DBManager.get_all_records(authenticated_entity, latest_only=True)
+        user_choice_latest_only = True
     elif latestOnly.lower() in ["no", "false"]:
-        records = DBManager.get_all_records(authenticated_entity, latest_only=False)
+        user_choice_latest_only = False
     else:
         raise HTTPException(
             status_code=422,
@@ -330,7 +333,26 @@ def get_all_records(
                 "message": "Invalid value for latestOnly, it should be either 'Yes','No', 'True' or 'False'"
             },
         )
-    return records
+    if activeOnly.lower() in ["yes", "true"]:
+        user_choice_active_only = True
+    
+    elif activeOnly.lower() in ["no", "false"]:
+        user_choice_active_only = False
+    else:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "message": "Invalid value for activeOnly, it should be either 'Yes','No', 'True' or 'False'"
+            },
+        )
+    try:
+        records = DBManager.get_all_records(
+            authenticated_entity, latest_only=user_choice_latest_only, active_only=user_choice_active_only
+        )
+        return records
+    except Exception as e:
+        log.error(f"Error: {e}")
+        raise HTTPException(status_code=422, detail={"message": "Error occurred while fetching records"})
 
 
 app.include_router(api_v1_router)

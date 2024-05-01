@@ -22,6 +22,9 @@ const GetAllRecords = async () => {
                 );
 
                 // download it as csv
+                if (response.data.length === 0) {
+                    throw new Error("No records found");
+                }
                 const headers = Object.keys(response.data[0]).join(","); // Get the headers from the first row
                 // add " to each value that has a comma in it
                 response.data.forEach((row: any) => {
@@ -40,6 +43,9 @@ const GetAllRecords = async () => {
                 a.click();
                 window.URL.revokeObjectURL(url);
                 } catch (error: AxiosError | any) {
+                    if (error.message === "No records found") {
+                        throw new Error("No records found");
+                    }
                     if (error.response) {
                         const errorMsg = error.response.data.detail?? "Failed to download CSV";
                         throw new Error(errorMsg);

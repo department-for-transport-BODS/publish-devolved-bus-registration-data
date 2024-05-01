@@ -41,7 +41,7 @@ const Home: React.FC = () => {
         <div>
           <p>Use this service to:</p>
           <ul className="govuk-list govuk-list--bullet govuk-!-margin-left-2">
-            <li>{TITLE} bus</li>
+            <li>{TITLE}</li>
           </ul>
         </div>
         <div>
