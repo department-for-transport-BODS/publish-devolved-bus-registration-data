@@ -39,7 +39,14 @@ class CreateEngine:
         creds = CreateEngine.get_db_creds()
         try:
             engine = create_engine(
-                f"postgresql://{creds.PG_USER}:{creds.PG_PASSWORD}@{creds.PG_HOST}:{creds.PG_PORT}/{creds.PG_DB}"
+                f"postgresql://{creds.PG_USER}:{creds.PG_PASSWORD}@{creds.PG_HOST}:{creds.PG_PORT}/{creds.PG_DB}",
+                pool_pre_ping=True,
+                connect_args={
+                    "keepalives": 1,
+                    "keepalives_idle": 30,
+                    "keepalives_interval": 10,
+                    "keepalives_count": 5
+                }
             )
             connection = engine.connect()
             print("Connection to PostgreSQL DB successful")
