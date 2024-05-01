@@ -254,7 +254,8 @@ jobs:
             --config-env $RC_ENV \
             --region $AWS_REGION \
             --no-confirm-changeset \
-            --no-fail-on-empty-changeset
+            --no-fail-on-empty-changeset \
+            --role-arn "arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/${{ vars.CF_DEPLOY_ROLE_NAME }}"
           echo "[INFO] Application component (BACKEND) with version ${VERSION} successfully deployed into ${RC_ENV^^}"
 
   frontend:
