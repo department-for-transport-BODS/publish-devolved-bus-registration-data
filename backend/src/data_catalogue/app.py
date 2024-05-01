@@ -114,7 +114,15 @@ class CatalogueEntry(BaseModel):
 
 class TimetableData:
     def __init__(self):
-        self.engine = create_engine(db_url)
+        self.engine = create_engine(
+          db_url,
+          pool_pre_ping=True,
+          connect_args={
+              "keepalives": 1,
+              "keepalives_idle": 30,
+              "keepalives_interval": 10,
+              "keepalives_count": 5
+          })
 
     def refresh(self):
         url: str = DATA_CATALOGUE_URL

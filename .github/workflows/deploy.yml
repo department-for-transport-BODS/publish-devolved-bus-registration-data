@@ -186,8 +186,8 @@ jobs:
           EOF
 
           openssl base64 -out $GITHUB_WORKSPACE/encoded_payload.json -in $GITHUB_WORKSPACE/payload.json 
-          response=$(aws lambda invoke --function-name $lambda_function_name --region $AWS_REGION --payload file://$GITHUB_WORKSPACE/encoded_payload.json response.txt)
-          if [[ "$response" == *"FunctionError"* ]]; then
+          response=$(aws lambda invoke --function-name $lambda_function_name --region $AWS_REGION --payload file://$GITHUB_WORKSPACE/encoded_payload.json response.txt 2>&1)
+          if [[ "$response" == *"FunctionError"* || "$response" == *"[ERROR]"* ]]; then
             echo "[ERROR] Deployment of application component (DATABASE) with version ${VERSION} failed with error:"
             echo "${response}"
             exit 1
