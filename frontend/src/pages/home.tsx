@@ -11,16 +11,6 @@ import { TITLE } from "../utils/Constants";
 const Home: React.FC = () => {
   const {isLoggedIn } = useContext(IsLoggedInContext);
 
-  // const isLoggedIn = IsLoggedInContext;
-  // useEffect(() => {
-  //     console.log("Is logged in", isLoggedIn);
-  //     if (isLoggedIn) {
-  //       setdestination("/upload-csv");
-  //     }
-  //     // }
-  //     }
-  // , []);
-  
   return (
     <>
       <FullColumnLayout title={TITLE? TITLE: ""} description="Home" hideCookieBanner={true} isLoggedIn={isLoggedIn}>

@@ -3,31 +3,32 @@ import Footer from "../Layout/Footer";
 import FullColumnLayout from "../Layout/Layout";
 import UploadCsv from "../components/UploadCsv";
 import DataProccessingWaiting  from "../components/DataProccessingWaiting";
-import { CheckStageProcesses, getStaged } from "../utils/SendCsv";
+import { CheckStageProcesses, getStaged, handleStagedResults } from "../utils/SendCsv";
 import { Link, useNavigate } from "react-router-dom";
 import Cookies from "universal-cookie";
 type Props = {
   isLoggedIn?: boolean;
 };
 const UploadCsvPage: React.FC<Props> = ({isLoggedIn=false}) => {
-const [isloading, setIsLoading] = React.useState<boolean>(false);
+const [isloading, setIsLoading] = React.useState<boolean|null>(null);
 const [previousStage, setPreviousStage] = React.useState<boolean>(false);
 const [stages, setStages] = React.useState<any>([]);
-const [showError, setShowError] = React.useState<boolean>(false);
+const [showError, setShowError] = React.useState<boolean|null>(null);
 const [error, setError] = React.useState<string[]>([]);
-
-  const navigate = useNavigate();
+const navigate = useNavigate();
 
 useEffect(() => {
   CheckStageProcesses().then((response) => {
-    const processes = response.processes?? [];
+    const processes = response?.processes?? [];
     if (processes.length > 0) {
       setStages(processes);
       setPreviousStage(true);
     }
-  }).catch((error) => {
-    console.error(error);
-  });
+    else {
+      setPreviousStage(false);
+      setShowError(false);
+    }
+  })
 }
 , []);    
 
@@ -39,9 +40,8 @@ useEffect(() => {
     setShowError(false);
     setPreviousStage(false);
     getStaged().then((stagedRecords) => {
-      navigate("/pre-validation", { state: {data: stagedRecords.records}, replace: true });
-    }).catch((error) => {
-      console.error(error);
+      handleStagedResults(stagedRecords, navigate);
+    }).catch(() => {
       navigate("/error", { state: { error: "Getting records failed try again later!" }, replace: true });
     });
   }
@@ -54,11 +54,9 @@ useEffect(() => {
     setShowError(true);
   }},[previousStage])
 
-
-  if (isloading===undefined || isloading===null) {
+  if (showError===undefined || showError===null) {
     return null
   }
-
   return (
     <>
       <FullColumnLayout
@@ -67,7 +65,6 @@ useEffect(() => {
         hideCookieBanner={true}
         isLoggedIn={isLoggedIn}
       >
-
           {showError && (
           <div
             className="govuk-error-summary"
@@ -86,14 +83,13 @@ useEffect(() => {
           return (
             <div key={stage.created_at}>
               <Link to={`/pre-validation/${stage.stage_id}`} onClick={(e) => handleClick(e,stage.stage_id)}> Stage processes {`${stage.created_at}`}</Link>
-              
             </div>
           );
         })}
             </div>
           )}
          {isloading && <DataProccessingWaiting />}
-        {!showError && !isloading && <UploadCsv setIsLoading={setIsLoading} />}
+        {showError !==null && !showError && !isloading && <UploadCsv setIsLoading={setIsLoading} />}
       </FullColumnLayout>
       <Footer />
     </>

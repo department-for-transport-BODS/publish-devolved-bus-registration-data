@@ -1,7 +1,6 @@
 import axios from "axios";
 import { fetchAuthSession } from "aws-amplify/auth";
 import Cookies from 'universal-cookie';
-
 export const GetJWT = async () => {
         let jwt = "";
         await fetchAuthSession().then(() => {
@@ -10,11 +9,11 @@ export const GetJWT = async () => {
                     jwt = value.toString();
                 }
             });
-        });
+        })
         return jwt;
     };
 const apiBaseUrl = process.env.REACT_APP_API_URL? process.env.REACT_APP_API_URL : '';
-export const GetReport = async (report_id:string,navigate:any) => {
+export const GetReport = async (report_id:string,navigate:unknown) => {
     const JWT = await GetJWT();
         await axios.get(
             `${apiBaseUrl}/get-report?report_id=${report_id}`,
@@ -28,39 +27,51 @@ export const GetReport = async (report_id:string,navigate:any) => {
         ).then((response) => {
         const report = response?.data?.Report;
         ShowResponse(report, navigate);
-
-        
-        
     })
 }
 export const getStaged = async () => {
-    const JWT = await GetJWT();
     let count = 0;
     let stageStatus = "";
     let stagedRecrods = null;
+    const cookies = new Cookies();
+    let break_loop = false;
     while (count < 4) {
+        if (break_loop) {
+            break;
+        }
         await new Promise((resolve) => setTimeout(resolve, 30000));
-        const cookies = new Cookies();
+        const JWT = await GetJWT();
         const staged_id = cookies.get('stage_id');
         if (staged_id !== null || staged_id !== undefined) {
-        
-        await axios.get(
-            `${apiBaseUrl}/get-staged?stage_id=${staged_id}`,
+        axios.get(
+            `${apiBaseUrl}/stage`,
             {
                 headers: {
                     "Access-Control-Allow-Origin": "*",
                     "Content-Type": "application/json",
                     "Authorization": "Bearer " + JWT,
                 },
-            }
+                params: {
+                    entity: "record",
+                    stage_id: staged_id,
+                },
+            },
         ).then((response) => {
         stageStatus = response?.data?.status;
         stagedRecrods = response?.data?.records;
-
-        
-        
-    })
+    }).catch((error) => {
+        const res = error.response?? null;
+        // if error is 425 then continue
+        if (res && error.response.status === 425) {
+            count--;
+            return;
+        }else{
+            break_loop = true;
+            // throw new Error("Staging failed");
+        }
+    });
     }
+
     if (stageStatus === "Completed") {
         return {"stageStatus": stageStatus, "records": stagedRecrods}
     }
@@ -68,7 +79,6 @@ export const getStaged = async () => {
 }
 throw new Error("Staging failed");
 }
-
 export const CommitRegistrations = async (stage_id:string) => {
     const JWT = await GetJWT();
     try {
@@ -109,13 +119,18 @@ export const DiscardRegistrations = async (stage_id:string) => {
 
 
 const ShowResponse = async (report:any, navigate:any) =>{
+    // check if report has attribute invalid_records
+    if (report.invalid_file === null || report.invalid_file === undefined) {
     const invalid_records_length = report.invalid_records[0]?.records ? Object.keys(report.invalid_records[0]?.records).length : 0;
     if (report.invalid_records.length === 1 && invalid_records_length === 0) {
         navigate("/successfully-uploaded", { state: report, replace: true });
     } else {
         navigate("/partly-uploaded", { state: {detail: report}, replace: true });
     }
-
+}
+else{
+    navigate("/error", { state: {error: "This file failed the antivirus check. Please upload a new file."}, replace: true});
+}
 }
 const ShowPreValidation = (records:any, navigate:any) =>{
         navigate("/pre-validation", { state: {data: records}, replace: true });
@@ -173,21 +188,29 @@ export const handleStagedResults = async (stagedRecords:any, navigate:any) => {
 
 export const CheckStageProcesses = async () => {
     const JWT = await GetJWT();
+    let res = {}
     try {
-      const response = await axios.get(
-        `${apiBaseUrl}/get-staged-process`,
+      await axios.get(
+        `${apiBaseUrl}/stage`,
         {
           headers: {
             "Access-Control-Allow-Origin": "*",
             "Content-Type": "application/json",
             "Authorization": "Bearer " + JWT,
           },
+            params: {
+                entity: "process",
+            },
         }
-      );
-      return response.data;
+      ).then((response) => {
+      res = response.data;
+      }).catch((error) => {
+        res = error; 
+      });
     }
     catch (error: any) {
       return error;
     }
+    return res;
     };
   

@@ -68,29 +68,39 @@ class ClamAVClient:
         self.s3_folder = PROJECT_ENV if PROJECT_ENV != 'local' else 'dev'
         self.file_name = file_name
         self.data = data
-        self.scan_file(self.bucket_name, self.s3_folder, self.file_name, self.data)
 
-
-    async def scan_file(self, bucket_name,s3_folder, file_name, data):
-        self.upload_bstring_to_S3_as_file(bucket_name,s3_folder, file_name, data)
-        print(f"File {file_name} is uploaded to S3 bucket {bucket_name}.")
-        for i in range(1,11):
-            sleep(10)
-            res = self.read_file_tags(bucket_name,s3_folder, file_name)
-            if res is not None:
-                log.info(f"Getting tags is done, after {i} attempts.")
-                self.delete_file_from_s3(bucket_name,s3_folder, file_name)
-                log.info(f"File {file_name} is deleted from S3 bucket.")
-                break
-            print(f"Attempt {i} to get tags is not successful.")
-        av_status = [item['Value'] for item in res if item['Key'] == 'av-status']
-
-        if len(av_status) > 0:
-            if av_status[0] == 'clean':
-                return 
-                
+    def scan(self):
+        res = self.scan_file(self.bucket_name, self.s3_folder, self.file_name, self.data)
+        return res
+    
+    def scan_file(self, bucket_name,s3_folder, file_name, data):
+        result = False
+        try:
+            self.upload_bstring_to_S3_as_file(bucket_name,s3_folder, file_name, data)
+            print(f"File {file_name} is uploaded to S3 bucket {bucket_name}.")
+            for i in range(1,11):
+                sleep(10)
+                res = self.read_file_tags(bucket_name,s3_folder, file_name)
+                if res is not None:
+                    log.info(f"Getting tags is done, after {i} attempts.")
+                    self.delete_file_from_s3(bucket_name,s3_folder, file_name)
+                    log.info(f"File {file_name} is deleted from S3 bucket.")
+                    break
+                print(f"Attempt {i} to get tags is not successful.")
+            av_status = [item['Value'] for item in res if item['Key'] == 'av-status']
+            if len(av_status) > 0:
+                if av_status[0] != 'clean':
+                    result = True
+                    
+        except Exception as e:
+            log.error(f'Errors: {e}')
         
-        raise Exception("File did not pass antivirus check.")
+        finally:
+            return result
+            
+        
+
+
 
 
     def get_boto_client(self):
