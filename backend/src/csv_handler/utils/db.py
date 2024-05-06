@@ -25,6 +25,11 @@ from central_config.env import PROJECT_ENV
 class CreateEngine:
     @staticmethod
     def get_db_creds():
+        """Get the database credentials
+
+        Returns:
+            DBCreds: Pydantic model for the database credentials
+        """
         creds = None
 
         try:
@@ -45,6 +50,11 @@ class CreateEngine:
 
     @staticmethod
     def get_engine():
+        """Get the database engine
+
+        Returns:
+            engine: Database engine
+        """
         engine = None
         creds = CreateEngine.get_db_creds()
         try:
@@ -70,6 +80,9 @@ class CreateEngine:
 def add_or_get_record(column_name: str, value: str, session: Session, Model, record):
     """
     Add a new record to the table if it doesn't exist, or get the id of the existing record.
+
+    Returns:
+        int: ID of the record
     """
     try:
         stmt = select(Model).where(getattr(Model, column_name) == value)
@@ -94,6 +107,8 @@ def add_or_get_record(column_name: str, value: str, session: Session, Model, rec
 
 
 class AutoMappingModels:
+    """Automap the database tables to the sqlalchemy models
+    """
     def __init__(self):
         self.engine = CreateEngine.get_engine()
         self.Base = automap_base()
@@ -167,10 +182,10 @@ class DBGroup:
         """Check if the user exists in the database, if not, add the user
 
         Args:
-            user (str, optional): _description_. Defaults to None.
+            user (str, optional): Defaults to None.
 
         Returns:
-            _type_: _description_
+            Record : Record of the group
         """
         models = self.models
         session = self.session
@@ -196,7 +211,7 @@ class DBGroup:
             user (str, optional): _description_. Defaults to None.
 
         Returns:
-            _type_: _description_
+            Record : Record of the user
         """
         models = self.models
         session = self.session
@@ -217,6 +232,18 @@ class DBGroup:
             session.rollback()
 
     def get_group(self, group_name: str, raise_exception: bool = False):
+        """Get the group from the database
+
+        Args:
+            group_name (str)
+            raise_exception (bool, optional):  Defaults to False.
+
+        Raises:
+            GroupIsNotFound: _description_
+
+        Returns:
+            Record: Record of the group
+        """
         session = self.session
         PDBRDGroup = self.models.PDBRDGroup
         group = (
@@ -230,6 +257,10 @@ class DBGroup:
             raise GroupIsNotFound(f"Group: {group_name} not found")
 
     def get_user(self, user_name: str, group_name: str):
+        """Get the user from the database
+        Returns:
+            Record: Record of the user
+        """
         session = self.session
         PDBRDUser = self.models.PDBRDUser
         PDBGroup = self.models.PDBRDGroup
