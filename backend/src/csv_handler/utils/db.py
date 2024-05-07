@@ -653,29 +653,6 @@ class DBManager:
             PDBRDGroup = DBGroup(models, session).get_group(authenticated_entity.group, raise_exception=True)
         else:
             PDBRDGroup = None
-        # if active_only:
-        #     subquery_q3 = (
-        #         session.query(
-        #             PDBRDRegistration.registration_number, PDBRDRegistration.route_number,
-        #             func.max(PDBRDRegistration.variation_number).label("max_variation_number")
-        #         ).filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
-        #         .group_by(PDBRDRegistration.registration_number, PDBRDRegistration.route_number)
-        #         .subquery()
-        #     )
-
-        #     subquery_q4 = (
-        #         session.query(PDBRDRegistration.id)
-        #         .join(subquery_q3, and_(
-        #             PDBRDRegistration.registration_number == subquery_q3.c.registration_number,
-        #             PDBRDRegistration.variation_number == subquery_q3.c.max_variation_number,
-        #             PDBRDRegistration.route_number == subquery_q3.c.route_number
-        #         ))
-        #     ).subquery()
-
-        #     records = records.filter(PDBRDRegistration.id.in_(subquery_q4)).filter(
-        #             PDBRDRegistration.application_type.in_(["New", "Change"])).filter(
-        #                 PDBRDRegistration.effective_date <= func.current_date()).filter(
-        #                 PDBRDRegistration.end_date > func.current_date())
         subquery_q1 = (
             session.query(
                 PDBRDRegistration.registration_number,PDBRDRegistration.route_number,
