@@ -10,7 +10,6 @@ from pydantic import ValidationError
 from pydantic import Field, field_validator
 from pydantic import BaseModel
 from constants import API_TYPE_WECA, WECA_AUTH_TOKEN, WECA_PARAM_C, WECA_PARAM_T, WECA_PARAM_R, WECA_API_URL
-from logger import console
 
 logger = logging.getLogger(__name__)
 
@@ -136,7 +135,6 @@ class WecaClient:
             )
             return self.default_response()
         try:
-            console.log(response.json()["data"][0])
             return APIResponse(**response.json())
         except ValidationError as exc:
             logger.error("Validation error in WECA API response")
@@ -168,4 +166,3 @@ class WecaClient:
 if __name__=="__main__":
     client = WecaClient()
     res = client.fetch_weca_services()
-    console.log(res.data[0])

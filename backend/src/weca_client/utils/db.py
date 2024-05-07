@@ -8,7 +8,7 @@ from .pydant_model import DBCreds
 from .aws import get_secret
 from .settings import PROJECT_ENV
 from .exceptions import GroupIsNotFound, RecordIsAlreadyExist, RecordBelongsToAnotherUser
-from .logger import log, console
+from .logger import log
 from .pydant_model import Registration
 from .data import common_keys_comparsion
 
@@ -321,7 +321,6 @@ def send_to_db(records: List[Registration], group_name = None, user_name=None, r
     OTCOperator = tables["OTCOperator"]
     OTCLicence = tables["OTCLicence"]
     PDBRDRegistration = tables["PDBRDRegistration"]
-    PDBRDStage = tables["PDBRDStage"]
     PDBRDUser = tables["PDBRDUser"]
     # Check if the licence number exists in the OTC database
     # validated_records = validate_licence_number_existence(validated_records)

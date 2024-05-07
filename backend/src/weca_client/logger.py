@@ -1,11 +1,9 @@
 import logging
-from rich.console import Console
 from rich.logging import RichHandler
 from logging import StreamHandler
 LOGGER_LEVEL = "DEBUG"
 LOGGER_MOD = "local"
 
-console = Console()
 
 
 if LOGGER_MOD == "local":

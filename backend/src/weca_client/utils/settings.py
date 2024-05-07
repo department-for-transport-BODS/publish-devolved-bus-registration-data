@@ -1,7 +1,4 @@
 from os import getenv
-from dotenv import load_dotenv
-from os import getenv
-load_dotenv()
 
 
 AWS_REGION = getenv("AWS_REGION", "Running locally")
@@ -15,3 +12,15 @@ WECA_API_URL = getenv("WECA_API_URL")
 
 # OTC API
 OTC_CLIENT_API_URL = getenv("OTC_CLIENT_API_URL", "OTC_API_URL is not set")
+
+
+# User data
+USER_TYPE = getenv("user_type")
+USER_NAME = getenv("user_name")
+USER_GROUP = getenv("user_group")
+
+
+
+
+
+# AuthenticatedEntity(type="user", name="weca_api", group="weca")
