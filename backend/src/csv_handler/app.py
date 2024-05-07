@@ -141,10 +141,8 @@ async def get_staged_records(
         _type_: _description_
     """
     try:
-        print(entity)
         requested_entity = StageEntity(type=entity.lower())
     except ValidationError as e:
-        print(e)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={"message": "Invalid entity, entity should be either 'process' or 'record'"},
@@ -199,7 +197,6 @@ async def get_staged_records(
                     status_code=status.HTTP_425_TOO_EARLY,
                     detail={"message": "Staging process is not done yet"},
                 )
-            print(processes)
             return {"processes": processes, "status": "Completed"}
         except Exception as e:
             if str(e) == "Staging process is not done yet":

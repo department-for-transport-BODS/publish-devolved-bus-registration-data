@@ -93,7 +93,7 @@ export const CommitRegistrations = async (stage_id:string) => {
                 },
             }
         );
-    } catch (error: any) {
+    } catch (error: unknown) {
         return error;
     }
 };
@@ -112,7 +112,7 @@ export const DiscardRegistrations = async (stage_id:string) => {
                 },
             }
         );
-    } catch (error: any) {
+    } catch (error: unknown) {
         return error;
     }
 };
