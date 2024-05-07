@@ -146,7 +146,6 @@ const ViewRegistrations: React.FC = () => {
                   title={value.licence_number + " - " + value.operator_name}
                   serviceCount={value.total_services}
                   serviceRequiringAttentionCount={value.requires_attention}
-                  status={value.licence_status}
                 />
               );
             })}

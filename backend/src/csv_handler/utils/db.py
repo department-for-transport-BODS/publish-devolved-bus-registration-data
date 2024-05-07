@@ -105,7 +105,7 @@ class AutoMappingModels:
         self.PDBRDStage = self.Base.classes.pdbrd_stage
         self.PDBRDUser = self.Base.classes.pdbrd_user
         self.OTCLicence.__repr__ = (
-            lambda self: f"<OTCLicence(licence_number='{self.licence_number}', licence_status='{self.licence_status}, otc_licence_id={self.otc_licence_id}')>"
+            lambda self: f"<OTCLicence(licence_number='{self.licence_number}', licence_status='{self.licence_status}"
         )
         self.OTCOperator.__repr__ = (
             lambda self: f"<OTCOperator(operator_name='{self.operator_name}', operator_id='{self.otc_operator_id}')>"
@@ -420,7 +420,6 @@ class DBManager:
                 PDBRDRegistration.registration_number.label("registrationNumber"),
                 OTCOperator.operator_name.label("operatorName"),
                 OTCLicence.licence_number.label("licenceNumber"),
-                OTCLicence.licence_status.label("licenceStatus"),
                 PDBRDRegistration.route_number.label("routeNumber"),
                 PDBRDRegistration.start_point.label("startPoint"),
                 PDBRDRegistration.finish_point.label("finishPoint"),
@@ -592,7 +591,7 @@ class DBManager:
                 PDBRDRegistration.publication_text.label("publicationText"),
                 OTCOperator.operator_name.label("operatorName"),
                 OTCLicence.licence_number.label("licenceNumber"),
-                OTCLicence.licence_status.label("licenceStatus"),
+                # OTCLicence.licence_status.label("licenceStatus"),
                 BODSDataCatalogue.requires_attention,
                 BODSDataCatalogue.timeliness_status,
             )
@@ -702,7 +701,6 @@ class DBManager:
                 OTCLicence.licence_number,
                 BODSDataCatalogue.requires_attention,
                 OTCOperator.operator_name,
-                OTCLicence.licence_status,
             )
             .join(OTCLicence, OTCLicence.id == PDBRDRegistration.otc_licence_id)
             .outerjoin(
@@ -720,7 +718,6 @@ class DBManager:
                 OTCLicence.licence_number,
                 OTCOperator.operator_name,
                 BODSDataCatalogue.requires_attention,
-                OTCLicence.licence_status,
             )          
         )
         if PDBRDGroup:
@@ -732,7 +729,6 @@ class DBManager:
             session.query(
             subquery_q3.c.licence_number,
             subquery_q3.c.operator_name,
-            subquery_q3.c.licence_status,
             func.round(
                 (
                 100.0
@@ -765,7 +761,6 @@ class DBManager:
             .group_by(
             subquery_q3.c.licence_number,
             subquery_q3.c.operator_name,
-            subquery_q3.c.licence_status,
             )
             .order_by(desc("total_services"))
         )
@@ -913,21 +908,19 @@ def send_to_db(records: List[Registration], group_name = None, user_name=None, r
     PDBRDStage_id = PDBRDStage_record.id
     session.close()
 
-    for idx, record_and_licence in records["valid_records"].items():
+    for idx, record in records["valid_records"].items():
         try:
             # Create a new session
             session = Session(engine)
             # Prepare operator object and added to the database
-            record, licence = record_and_licence
             OTCOperator_record = OTCOperator(
-                operator_name=licence.operator_details.operator_name,
-                otc_operator_id=licence.operator_details.otc_operator_id,
+                operator_name=record.operator_name,
             )
 
 
             # Add or fetch the operator id from the database
             operator_record_id = DBManager.fetch_operator_record(
-                licence.operator_details.operator_name,
+                record.operator_name,
                 session,
                 OTCOperator,
                 OTCOperator_record,
@@ -935,14 +928,12 @@ def send_to_db(records: List[Registration], group_name = None, user_name=None, r
 
             # Prepare licence object and added to the database
             OTCLicence_record = OTCLicence(
-                licence_number=licence.licence_details.licence_number,
-                licence_status=licence.licence_details.licence_status,
-                otc_licence_id=licence.licence_details.otc_licence_id,
+                licence_number= record.licence_number,
             )
 
             # Add or fetch the licence id from the database
             licence_record_id = DBManager.fetch_licence_record(
-                licence.licence_details.licence_number,
+                record.licence_number,
                 session,
                 OTCLicence,
                 OTCLicence_record,
@@ -993,18 +984,6 @@ def send_to_db(records: List[Registration], group_name = None, user_name=None, r
         records["invalid_records"].append(
             {"records": belongs_to_another_user, "description": "Record belongs to another user"}
         )
-    # if len(records["valid_records"]) == 0:
-    #     ## Delete the staged process
-    #     session = Session(engine)
-    #     staged_process = (
-    #         session.query(PDBRDStage)
-    #         .filter(PDBRDStage.stage_id == PDBRDStage_id)
-    #         .filter(PDBRDStage.stage_user == PDBRDGroup.id)
-    #     )
-    #     staged_process.delete()
-    #     session.commit()
-    #     session.close()
-
 
 def send_report_to_db(report: dict, user_name: str,group_name:str, report_id: str):
     models, session = initiate_db_variables()
