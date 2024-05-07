@@ -18,7 +18,8 @@ const AccessibilityStatement: React.FC = () => {
         <h1 className="govuk-heading-xl">Accessibility Statement</h1>
         <div className="govuk-!-font-size-19">
           <p>
-            This statement applies to pages on <a href={`https://${APP_URL}`}>{APP_URL}</a>. <br /> <br />
+            This statement applies to pages on{" "}
+            <a href={`https://${APP_URL}`}>{APP_URL}</a>. <br /> <br />
             This website is run by the Department for Transport. The text should
             be clear and simple to understand. You should be able to:
           </p>
@@ -61,8 +62,10 @@ const AccessibilityStatement: React.FC = () => {
             enforcing the Public Sector Bodies (Websites and Mobile
             Applications) (No. 2) Accessibility Regulations 2018 (the
             &apos;accessibility regulations&apos;). If you&apos;re not happy
-            with how we respond to your complaint,contact the Equality Advisory
-            and Support Service (EASS).
+            with how we respond to your complaint,{" "}
+            <a href="https://www.equalityadvisoryservice.com/">
+              contact the Equality Advisory and Support Service (EASS).
+            </a>
           </p>
           <p>
             Technical information about this website&apos;s accessibility
@@ -72,8 +75,11 @@ const AccessibilityStatement: React.FC = () => {
           </p>
           <p className="govuk-heading-m">Compliance status</p>
           <p>
-            This website follows the Web Content Accessibility Guidelines
-            version 2.1 AA standard.
+            This website follows the{" "}
+            <a href="https://www.w3.org/TR/WCAG21/">
+              Web Content Accessibility Guidelines version 2.1
+            </a>{" "}
+            AA standard.
           </p>
           <p className="govuk-heading-m">
             Preparation of this accessibility statement
