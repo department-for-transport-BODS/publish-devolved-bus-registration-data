@@ -76,7 +76,7 @@ class ClamAVClient:
     def scan_file(self, bucket_name,s3_folder, file_name, data):
         result = False
         try:
-            self.upload_bstring_to_S3_as_file(bucket_name,s3_folder, file_name, data)
+            self.upload_bstring_to_s3_as_file(bucket_name,s3_folder, file_name, data)
             print(f"File {file_name} is uploaded to S3 bucket {bucket_name}.")
             for i in range(1,11):
                 sleep(10)
@@ -104,13 +104,12 @@ class ClamAVClient:
 
 
     def get_boto_client(self):
-        boto3.setup_default_session(profile_name='AWSPowerUserAccess-992382470170')
         return boto3.client(service_name='s3',region_name=AWS_REGION,)
 
         
 
 
-    def upload_bstring_to_S3_as_file(
+    def upload_bstring_to_s3_as_file(
             self,bucket_name, s3_folder,file_name, binary_data
             ) -> None:
         try:
@@ -158,10 +157,3 @@ class ClamAVClient:
             print(f'Errors: {e}')
             raise Exception('Errors: Could not delete file from S3.')
 
-
-# if __name__ == '__main__':
-    # print(os.getcwd())
-    # file_name = 'test5'
-    # bucket_name = 'shared-pdbrd-clamav-artefacts-992382470170'
-    # data = b'test data'
-    # ClamAVClient(file_name, data)
