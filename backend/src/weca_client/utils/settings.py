@@ -1,4 +1,6 @@
 from os import getenv
+from dotenv import load_dotenv
+load_dotenv()
 
 
 AWS_REGION = getenv("AWS_REGION", "Running locally")
@@ -15,9 +17,9 @@ OTC_CLIENT_API_URL = getenv("OTC_CLIENT_API_URL", "OTC_API_URL is not set")
 
 
 # User data
-USER_TYPE = getenv("user_type")
-USER_NAME = getenv("user_name")
-USER_GROUP = getenv("user_group")
+USER_TYPE = getenv("USER_TYPE")
+USER_NAME = getenv("USER_NAME")
+USER_GROUP = getenv("USER_GROUP")
 
 
 

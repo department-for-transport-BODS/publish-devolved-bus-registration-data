@@ -1,4 +1,3 @@
-import json
 from utils.weca_api import WecaClient
 from utils.pydant_model import AuthenticatedEntity
 from managers.records_manager import RecordsManager
@@ -17,7 +16,10 @@ def main():
     authenticated_entity = AuthenticatedEntity(type=USER_TYPE, name=USER_NAME, group=USER_GROUP)
     weca = WecaManager()
     received_data = weca.api_response.data
+    print("Received data: ", received_data[0])
     RecordsManager(received_data, authenticated_entity).validation_and_insertion_steps()
     print("Weca API has finished running")
 
     
+
+main()
