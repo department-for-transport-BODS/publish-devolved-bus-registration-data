@@ -17,12 +17,6 @@ OTC_CLIENT_API_URL = getenv("OTC_CLIENT_API_URL", "OTC_API_URL is not set")
 
 
 # User data
-USER_TYPE = getenv("USER_TYPE")
-USER_NAME = getenv("USER_NAME")
-USER_GROUP = getenv("USER_GROUP")
-
-
-
-
-
-# AuthenticatedEntity(type="user", name="weca_api", group="weca")
+USER_TYPE = getenv("USER_TYPE", "user")
+USER_NAME = getenv("USER_NAME", "weca_api")
+USER_GROUP = getenv("USER_GROUP", "weca")
