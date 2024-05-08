@@ -13,7 +13,7 @@ const ContactUs: React.FC = () => {
     <>
       <TwoThirdsLayout title="Contact Us" description="Home" hideCookieBanner={true} isLoggedIn={isLoggedIn}>
         <h1 className="govuk-heading-xl">
-        Contact the {TITLE}
+        Contact the devolved bus registration data service team
         </h1>
         <p className="govuk-heading-m">
         Feedback and support 
