@@ -1,7 +1,7 @@
 from utils.db import send_to_db
 from utils.validate import validate_licence_number_existence
 from copy import deepcopy
-from utils.logger import log, console
+from utils.logger import log
 from pydantic import ValidationError
 from utils.pydant_model import Registration, AuthenticatedEntity
 
@@ -99,9 +99,6 @@ class RecordsManager:
 
         if validated_records["invalid_records"] == {}:
             del validated_records["invalid_records"]
-        console.log(validated_records)
-        # Send the report to the database
-        # self._send_report_to_db(validated_records, self.user_name, self.group_name, self.report_id)
 
 
     def _validate_csv_data(self):

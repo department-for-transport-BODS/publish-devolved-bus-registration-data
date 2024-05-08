@@ -1,6 +1,5 @@
 from os import getenv
 from dotenv import load_dotenv
-from os import getenv
 load_dotenv()
 
 
@@ -15,3 +14,9 @@ WECA_API_URL = getenv("WECA_API_URL")
 
 # OTC API
 OTC_CLIENT_API_URL = getenv("OTC_CLIENT_API_URL", "OTC_API_URL is not set")
+
+
+# User data
+USER_TYPE = getenv("USER_TYPE", "user")
+USER_NAME = getenv("USER_NAME", "weca_api")
+USER_GROUP = getenv("USER_GROUP", "weca")

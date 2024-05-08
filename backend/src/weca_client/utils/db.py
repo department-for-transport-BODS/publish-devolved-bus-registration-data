@@ -8,7 +8,7 @@ from .pydant_model import DBCreds
 from .aws import get_secret
 from .settings import PROJECT_ENV
 from .exceptions import GroupIsNotFound, RecordIsAlreadyExist, RecordBelongsToAnotherUser
-from .logger import log, console
+from .logger import log
 from .pydant_model import Registration
 from .data import common_keys_comparsion
 
@@ -39,7 +39,14 @@ class CreateEngine:
         creds = CreateEngine.get_db_creds()
         try:
             engine = create_engine(
-                f"postgresql://{creds.PG_USER}:{creds.PG_PASSWORD}@{creds.PG_HOST}:{creds.PG_PORT}/{creds.PG_DB}"
+                f"postgresql://{creds.PG_USER}:{creds.PG_PASSWORD}@{creds.PG_HOST}:{creds.PG_PORT}/{creds.PG_DB}",
+                pool_pre_ping=True,
+                connect_args={
+                    "keepalives": 1,
+                    "keepalives_idle": 30,
+                    "keepalives_interval": 10,
+                    "keepalives_count": 5
+                }
             )
             connection = engine.connect()
             print("Connection to PostgreSQL DB successful")
@@ -314,7 +321,6 @@ def send_to_db(records: List[Registration], group_name = None, user_name=None, r
     OTCOperator = tables["OTCOperator"]
     OTCLicence = tables["OTCLicence"]
     PDBRDRegistration = tables["PDBRDRegistration"]
-    PDBRDStage = tables["PDBRDStage"]
     PDBRDUser = tables["PDBRDUser"]
     # Check if the licence number exists in the OTC database
     # validated_records = validate_licence_number_existence(validated_records)
@@ -343,7 +349,6 @@ def send_to_db(records: List[Registration], group_name = None, user_name=None, r
             record, licence = record_and_licence
             OTCOperator_record = OTCOperator(
                 operator_name=licence.operator_details.operator_name,
-                otc_operator_id=licence.operator_details.otc_operator_id,
             )
 
 
@@ -359,7 +364,6 @@ def send_to_db(records: List[Registration], group_name = None, user_name=None, r
             OTCLicence_record = OTCLicence(
                 licence_number=licence.licence_details.licence_number,
                 licence_status=licence.licence_details.licence_status,
-                otc_licence_id=licence.licence_details.otc_licence_id,
             )
 
             # Add or fetch the licence id from the database

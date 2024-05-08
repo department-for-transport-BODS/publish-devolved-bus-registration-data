@@ -21,7 +21,7 @@ const PrivacyStatement: React.FC = () => {
           <p className="govuk-heading-m">Who we are</p>
           <p>
             The {TITLE} is a service
-            for Local Authorities acting as {TITLE.toLowerCase()}, to publish data
+            for Local Authorities acting as Enhanced Partners, to publish data
             about local bus service registrations for integration with the Bus
             Open Data Service (BODS). The service is provided by the Department
             for Transport.
@@ -110,17 +110,17 @@ const PrivacyStatement: React.FC = () => {
           </p>
           <p className="govuk-heading-m">How long we keep your data for</p>
           <p>
-            We will retain your data for as long as you have a EP account.
+            We will retain your data for as long as you have an account.
             However, if you use an institutional email account and depending on
             what you choose for your account name, this may not include any
-            personally identifiable information
+            personally identifiable information.
           </p>
           <p className="govuk-heading-m">
             Where your data is processed and stored
           </p>
           <p>
             We design, build and run our systems to make sure that your data is
-            as safe as possible at any stage, both while it&apos;s s processed
+            as safe as possible at any stage, both while it&apos;s processed
             and when it&apos;s stored. Your personal data will not be
             transferred outside of the European Economic Area (EEA).
           </p>
@@ -148,7 +148,7 @@ const PrivacyStatement: React.FC = () => {
           <p>You have the right to request:</p>
           <ul>
             <li>Information about how your personal data is processed</li>
-            <li>A copy of that personal data</li>
+            <li>A copy of that personal data - this copy will be provided in a structured, commonly used and machine-readable format</li>
             <li>
               That anything inaccurate in your personal data is corrected
               immediately
@@ -192,7 +192,7 @@ const PrivacyStatement: React.FC = () => {
             Department for Transport <br />
             3rd Floor <br />
             One Priory Square <br />
-            Hasting <br />
+            Hastings <br />
             East Sussex <br />
             TN34 1EA <br />
           </p>

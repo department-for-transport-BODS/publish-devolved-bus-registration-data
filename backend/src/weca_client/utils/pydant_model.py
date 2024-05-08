@@ -20,7 +20,7 @@ class Registration(BaseModel):
     )
     route_number: str = Field(..., json_schema_extra="2", alias="servicenumbers_icespt7a")
     route_description: str = Field(
-        ...,
+        "",
         json_schema_extra="City Center - Suburb - Main Street",
         alias="routedescriptio_istervices",
     )
