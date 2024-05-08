@@ -349,7 +349,6 @@ def send_to_db(records: List[Registration], group_name = None, user_name=None, r
             record, licence = record_and_licence
             OTCOperator_record = OTCOperator(
                 operator_name=licence.operator_details.operator_name,
-                otc_operator_id=licence.operator_details.otc_operator_id,
             )
 
 
@@ -365,7 +364,6 @@ def send_to_db(records: List[Registration], group_name = None, user_name=None, r
             OTCLicence_record = OTCLicence(
                 licence_number=licence.licence_details.licence_number,
                 licence_status=licence.licence_details.licence_status,
-                otc_licence_id=licence.licence_details.otc_licence_id,
             )
 
             # Add or fetch the licence id from the database
