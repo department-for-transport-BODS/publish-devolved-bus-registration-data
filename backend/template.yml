@@ -551,6 +551,7 @@ Resources:
           POSTGRES_PORT: 5432
           POSTGRES_DB: !Sub '${ProjectName}_db'
           POSTGRES_CREDENTIALS: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/name}}'
+          OTC_CLIENT_API_URL: !Sub 'https://${OtcClientApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/api/v1/otc/licences'
       LoggingConfig:
         LogGroup: !Ref WecaClientLambdaLogGroup
 
