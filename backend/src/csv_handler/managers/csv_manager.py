@@ -2,7 +2,6 @@ import csv
 from io import StringIO
 from utils.csv_validator import csv_data_structure_check
 from utils.db import send_to_db, send_report_to_db
-from utils.validate import validate_licence_number_existence
 from copy import deepcopy
 from utils.pydant_model import AuthenticatedEntity
 
@@ -26,7 +25,6 @@ class CSVManager:
         """
         validated_records = self._validate_csv_data()
         self._check_duplicate_records(validated_records)
-        self._check_licence_number_existence(validated_records)
         self._send_to_db(validated_records, self.group_name, self.user_name)
         self._remove_licence_details(validated_records)
         # Add the count of valid records to the validated_records dictionary
@@ -90,8 +88,6 @@ class CSVManager:
                 records["invalid_records"][0] = data_structure_invalid
         
 
-    def _check_licence_number_existence(self, records):
-        validate_licence_number_existence(records)
 
     def _send_to_db(self, records, group_name, user_name):
         send_to_db(records, group_name,user_name, self.report_id)
