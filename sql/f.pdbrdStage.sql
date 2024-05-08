@@ -2,6 +2,7 @@ CREATE TABLE IF NOT EXISTS pdbrd_stage(
     id SERIAL PRIMARY KEY,
     stage_id VARCHAR(255),
     stage_user INTEGER,
+    stage_status VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

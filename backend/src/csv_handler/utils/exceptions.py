@@ -35,3 +35,12 @@ class RecordBelongsToAnotherUser(Exception):
 
 class NotAuthorised(Exception):
     pass
+
+class NoStagedProcessFound(Exception):
+    pass
+
+class StagingProcessInProgress(Exception):
+    pass
+
+class NoStagedProcess(Exception):
+    pass

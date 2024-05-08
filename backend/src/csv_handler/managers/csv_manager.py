@@ -1,17 +1,19 @@
 import csv
 from io import StringIO
 from utils.csv_validator import csv_data_structure_check
-from utils.db import send_to_db, send_report_to_db
+from utils.db import complete_stage_process, initiate_stage_process, send_to_db, send_report_to_db
 from utils.validate import validate_licence_number_existence
 from copy import deepcopy
 from utils.pydant_model import AuthenticatedEntity
+from utils.aws import ClamAVClient
 
 class CSVManager:
-    def __init__(self, csv_data: str, authenticated_entity: AuthenticatedEntity = None, report_id: str = None):
+    def __init__(self, csv_data: str, authenticated_entity: AuthenticatedEntity = None, report_id: str = None, stage_id: str = None):
         self.csv_data = csv_data
         self.group_name = authenticated_entity.group
         self.user_name = authenticated_entity.name
         self.report_id = report_id
+        self.stage_id = stage_id
 
     def validation_and_insertion_steps(self) -> dict:
         """This function performs the following steps:
@@ -27,7 +29,7 @@ class CSVManager:
         validated_records = self._validate_csv_data()
         self._check_duplicate_records(validated_records)
         self._check_licence_number_existence(validated_records)
-        self._send_to_db(validated_records, self.group_name, self.user_name)
+        self._send_to_db(validated_records, self.group_name, self.user_name, self.stage_id)
         self._remove_licence_details(validated_records)
         # Add the count of valid records to the validated_records dictionary
         validated_records["valid_records_count"] = len(
@@ -93,8 +95,8 @@ class CSVManager:
     def _check_licence_number_existence(self, records):
         validate_licence_number_existence(records)
 
-    def _send_to_db(self, records, group_name, user_name):
-        send_to_db(records, group_name,user_name, self.report_id)
+    def _send_to_db(self, records, group_name, user_name, staged_id):
+        send_to_db(records, group_name,user_name, staged_id)
 
     def _remove_licence_details(self, records):
         """Removing the licence details from validated records."""
@@ -116,9 +118,9 @@ class CSVManager:
     def _send_report_to_db(self, records_report, user_name, group_name , report_id):
         send_report_to_db(records_report, user_name, group_name, report_id)
 
-
-
 def process_csv_file(content, authenticated_entity, report_id):
+
+    stage_id = initiate_stage_process(authenticated_entity.name, authenticated_entity.group, report_id)
     # Decode the CSV data
     csv_str = None
     for encoding_types in ["utf-8-sig", "utf-8", "Latin-1", "ISO-8859-1"]:
@@ -130,11 +132,20 @@ def process_csv_file(content, authenticated_entity, report_id):
     if csv_str is None:
         raise Exception("File encoding not found")
 
-    # Convert the CSV data into a dictionary
-    csv_data = list(csv.DictReader(StringIO(csv_str)))
-    csv_handler = CSVManager(csv_data, authenticated_entity, report_id)
-    csv_handler.validation_and_insertion_steps()
-    # Validate the CSV input data
+
+    scan_result = ClamAVClient(report_id, content).scan()
+    if scan_result:
+        # Convert the CSV data into a dictionary
+        csv_data = list(csv.DictReader(StringIO(csv_str)))
+        csv_handler = CSVManager(csv_data, authenticated_entity, report_id, stage_id)
+        csv_handler.validation_and_insertion_steps()
+        # Validate the CSV input data
+    else:
+        send_report_to_db({"invalid_file": [{"description": "File is infected"}]}, authenticated_entity.name, authenticated_entity.group, report_id)
+        complete_stage_process(stage_id)
+
+
+
     
 
 

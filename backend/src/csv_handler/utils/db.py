@@ -15,6 +15,8 @@ from .exceptions import (
     LimitIsNotSet,
     GroupIsNotFound,
     RecordBelongsToAnotherUser,
+    StagingProcessInProgress,
+    NoStagedProcess,
 )
 from .data import common_keys_comparsion
 from central_config.env import PROJECT_ENV
@@ -23,6 +25,11 @@ from central_config.env import PROJECT_ENV
 class CreateEngine:
     @staticmethod
     def get_db_creds():
+        """Get the database credentials
+
+        Returns:
+            DBCreds: Pydantic model for the database credentials
+        """
         creds = None
 
         try:
@@ -43,6 +50,11 @@ class CreateEngine:
 
     @staticmethod
     def get_engine():
+        """Get the database engine
+
+        Returns:
+            engine: Database engine
+        """
         engine = None
         creds = CreateEngine.get_db_creds()
         try:
@@ -53,8 +65,8 @@ class CreateEngine:
                     "keepalives": 1,
                     "keepalives_idle": 30,
                     "keepalives_interval": 10,
-                    "keepalives_count": 5
-                }
+                    "keepalives_count": 5,
+                },
             )
             connection = engine.connect()
             print("Connection to PostgreSQL DB successful")
@@ -68,6 +80,9 @@ class CreateEngine:
 def add_or_get_record(column_name: str, value: str, session: Session, Model, record):
     """
     Add a new record to the table if it doesn't exist, or get the id of the existing record.
+
+    Returns:
+        int: ID of the record
     """
     try:
         stmt = select(Model).where(getattr(Model, column_name) == value)
@@ -92,6 +107,8 @@ def add_or_get_record(column_name: str, value: str, session: Session, Model, rec
 
 
 class AutoMappingModels:
+    """Automap the database tables to the sqlalchemy models
+    """
     def __init__(self):
         self.engine = CreateEngine.get_engine()
         self.Base = automap_base()
@@ -123,12 +140,11 @@ class AutoMappingModels:
             lambda self: f"<PDBRDReport(id='{self.id}', report_id='{self.report_id}', group_id='{self.user_id}', report='{self.report}')>"
         )
         self.PDBRDStage.__repr__ = (
-            lambda self: f"<PDBRDStage(id='{self.id}', stage_id='{self.stage_id}', stage_user='{self.stage_user}', created_at='{self.created_at}')>"
+            lambda self: f"<PDBRDStage(id='{self.id}', stage_id='{self.stage_id}', stage_user='{self.stage_user}', created_at='{self.created_at}')>, stage_status='{self.stage_status}')>"
         )
         self.PDBRDUser.__repr__ = (
             lambda self: f"<PDBRDUser(id='{self.id}', user_id='{self.user_name}', group_id='{self.group_id}')>"
         )
-        
 
     def get_tables(self):
         return {
@@ -162,14 +178,14 @@ class DBGroup:
         self.models = models
         self.session = session
 
-    def get_or_create_group(self, group_name:str):
+    def get_or_create_group(self, group_name: str):
         """Check if the user exists in the database, if not, add the user
 
         Args:
-            user (str, optional): _description_. Defaults to None.
+            user (str, optional): Defaults to None.
 
         Returns:
-            _type_: _description_
+            Record : Record of the group
         """
         models = self.models
         session = self.session
@@ -187,7 +203,7 @@ class DBGroup:
         except Exception as e:
             log.error(f"Error: {e}")
             session.rollback()
-    
+
     def get_or_create_user(self, user_name: str, group_name: str):
         """Check if the user exists in the database, if not, add the user
 
@@ -195,14 +211,14 @@ class DBGroup:
             user (str, optional): _description_. Defaults to None.
 
         Returns:
-            _type_: _description_
+            Record : Record of the user
         """
         models = self.models
         session = self.session
         PDBRDUser = models.PDBRDUser
         try:
             # check if user in db first:
-            user = self.get_user(user_name,group_name)
+            user = self.get_user(user_name, group_name)
             if user:
                 return user
             # Add the user
@@ -216,6 +232,18 @@ class DBGroup:
             session.rollback()
 
     def get_group(self, group_name: str, raise_exception: bool = False):
+        """Get the group from the database
+
+        Args:
+            group_name (str)
+            raise_exception (bool, optional):  Defaults to False.
+
+        Raises:
+            GroupIsNotFound: _description_
+
+        Returns:
+            Record: Record of the group
+        """
         session = self.session
         PDBRDGroup = self.models.PDBRDGroup
         group = (
@@ -228,8 +256,11 @@ class DBGroup:
         if raise_exception:
             raise GroupIsNotFound(f"Group: {group_name} not found")
 
-
-    def get_user(self, user_name: str, group_name:str):
+    def get_user(self, user_name: str, group_name: str):
+        """Get the user from the database
+        Returns:
+            Record: Record of the user
+        """
         session = self.session
         PDBRDUser = self.models.PDBRDUser
         PDBGroup = self.models.PDBRDGroup
@@ -241,6 +272,7 @@ class DBGroup:
             .one_or_none()
         )
         return user
+
 
 class DBManager:
     @classmethod
@@ -270,7 +302,7 @@ class DBManager:
         session: Session,
         PDBRDRegistration: Table,
         group_id: int,
-        PDBRDStage_id: int
+        PDBRDStage_id: int,
     ):
         """Add or update the record to the PDBRDRegistration table
 
@@ -307,7 +339,7 @@ class DBManager:
                 raise RecordIsAlreadyExist("Record already exists with the same fields")
             # Update the record
             # case 1.2: Record exists but with different fields, update the record
-            pdbrd_registration_record= PDBRDRegistration(
+            pdbrd_registration_record = PDBRDRegistration(
                 id=existing_record.id,
                 route_number=record.route_number,
                 route_description=record.route_description,
@@ -332,15 +364,13 @@ class DBManager:
                 otc_operator_id=operator_record_id,
                 otc_licence_id=licence_record_id,
                 group_id=group_id,
-                pdbrd_stage_id=PDBRDStage_id
+                pdbrd_stage_id=PDBRDStage_id,
             )
             session.merge(pdbrd_registration_record)
             session.commit()
-            log.debug(f"Updated PDBRD registration record: {pdbrd_registration_record.id}")
-
-
-
-
+            log.debug(
+                f"Updated PDBRD registration record: {pdbrd_registration_record.id}"
+            )
 
         else:
             # case 2: Record does not exist, create a new record
@@ -368,7 +398,7 @@ class DBManager:
                 otc_operator_id=operator_record_id,
                 otc_licence_id=licence_record_id,
                 group_id=group_id,
-                pdbrd_stage_id=PDBRDStage_id
+                pdbrd_stage_id=PDBRDStage_id,
             )
             session.add(pdbrd_registration_record)
             session.commit()
@@ -377,7 +407,7 @@ class DBManager:
     @classmethod
     def get_records(
         cls,
-        authenticated_entity: AuthenticatedEntity= None,
+        authenticated_entity: AuthenticatedEntity = None,
         exclude_variations: bool = False,
         registration_number: str = None,
         operator_name: str = None,
@@ -386,6 +416,7 @@ class DBManager:
         limit: int | None = None,
         page: int | None = None,
         strict_mode: bool = False,
+        active_only: bool = False
     ) -> List[dict]:
         """Get records from the database based on the search query
 
@@ -411,7 +442,9 @@ class DBManager:
         OTCOperator = models.OTCOperator
         OTCLicence = models.OTCLicence
         if authenticated_entity.type == "operators":
-            PDBRDGroup = DBGroup(models, session).get_group(authenticated_entity.name, raise_exception=True)
+            PDBRDGroup = DBGroup(models, session).get_group(
+                authenticated_entity.name, raise_exception=True
+            )
         else:
             PDBRDGroup = None
         records = (
@@ -449,21 +482,19 @@ class DBManager:
             records = records.filter(PDBRDRegistration.group_id == PDBRDGroup.id)
 
         if exclude_variations:
-            latest_ids = (
-                select(func.max(PDBRDRegistration.id))
-                .group_by(
-                    PDBRDRegistration.registration_number,
-                    PDBRDRegistration.otc_operator_id,
-                    PDBRDRegistration.group_id,
-                )
+            latest_ids = select(func.max(PDBRDRegistration.id)).group_by(
+                PDBRDRegistration.registration_number,
+                PDBRDRegistration.otc_operator_id,
+                PDBRDRegistration.group_id,
+                PDBRDRegistration.route_number,
             )
             if PDBRDGroup:
-                latest_ids = latest_ids.filter(PDBRDRegistration.group_id == PDBRDGroup.id).subquery()
+                latest_ids = latest_ids.filter(
+                    PDBRDRegistration.group_id == PDBRDGroup.id
+                ).subquery()
             else:
                 latest_ids = latest_ids.subquery()
-            records = records.filter(
-                PDBRDRegistration.id.in_(select(latest_ids))
-            )
+            records = records.filter(PDBRDRegistration.id.in_(select(latest_ids)))
 
         if license_number:
             records = add_filter_to_query(
@@ -471,9 +502,15 @@ class DBManager:
             )
 
         if registration_number:
-            if len(registration_number.split("/")) >2:
-                registration_list = [f"{registration_number.split('/')[0]}/{item}" for item in registration_number.split("/")[1:] if item != ""]
-                records = records.filter(PDBRDRegistration.registration_number.in_(registration_list))
+            if len(registration_number.split("/")) > 2:
+                registration_list = [
+                    f"{registration_number.split('/')[0]}/{item}"
+                    for item in registration_number.split("/")[1:]
+                    if item != ""
+                ]
+                records = records.filter(
+                    PDBRDRegistration.registration_number.in_(registration_list)
+                )
             else:
                 records = add_filter_to_query(
                     records,
@@ -491,6 +528,59 @@ class DBManager:
             records = add_filter_to_query(
                 records, PDBRDRegistration.route_number, route_number, strict_mode
             )
+        if active_only:
+            subquery_q3 = (
+                session.query(
+                    PDBRDRegistration.registration_number,
+                    PDBRDRegistration.route_number,
+                    func.max(PDBRDRegistration.variation_number).label(
+                        "max_variation_number"
+                    ),
+                )
+                .filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
+                .group_by(
+                    PDBRDRegistration.registration_number,
+                    PDBRDRegistration.route_number,
+                )
+                # .having(and_(PDBRDRegistration.application_type.in_(["New", "Change"]), PDBRDRegistration.effective_date <= func.current_date(), PDBRDRegistration.end_date > func.current_date()))
+                .subquery()
+            )
+            subquery_q4 = (
+                session.query(
+                    PDBRDRegistration.registration_number,
+                    PDBRDRegistration.route_number,
+                )
+                .join(
+                    subquery_q3,
+                    and_(
+                        PDBRDRegistration.registration_number
+                        == subquery_q3.c.registration_number,
+                        PDBRDRegistration.route_number == subquery_q3.c.route_number,
+                        PDBRDRegistration.variation_number
+                        == subquery_q3.c.max_variation_number,
+                    ),
+                )
+                .filter(
+                    and_(
+                        PDBRDRegistration.application_type.in_(["New", "Change"]),
+                        PDBRDRegistration.effective_date <= func.current_date(),
+                        PDBRDRegistration.end_date > func.current_date(),
+                    )
+                )
+                .subquery()
+            )
+            subquery_q5 = (
+                session.query(PDBRDRegistration.id).join(
+                    subquery_q4,
+                    and_(
+                        PDBRDRegistration.registration_number
+                        == subquery_q4.c.registration_number,
+                        PDBRDRegistration.route_number == subquery_q4.c.route_number,
+                    ),
+                )
+            ).subquery()
+
+            records = records.filter(PDBRDRegistration.id.in_(select(subquery_q5)))
 
         if page:
             cls.record_count = records.count()
@@ -504,6 +594,7 @@ class DBManager:
 
         if limit:
             records = records.limit(limit)
+
 
         return [rec._asdict() for rec in records.all()]
 
@@ -535,37 +626,52 @@ class DBManager:
         return f"{host}{path}?{params_str}"
 
     @classmethod
-    def get_all_records(cls, authenticated_entity: AuthenticatedEntity,latest_only=False, active_only=True):
+    def get_all_records(
+        cls,
+        authenticated_entity: AuthenticatedEntity,
+        latest_only=False,
+        active_only=True,
+    ):
         models, session = initiate_db_variables()
         PDBRDRegistration = models.PDBRDRegistration
         OTCOperator = models.OTCOperator
         OTCLicence = models.OTCLicence
         BODSDataCatalogue = models.BODSDataCatalogue
         if authenticated_entity.type == "user":
-            PDBRDGroup = DBGroup(models, session).get_group(authenticated_entity.group, raise_exception=True)
+            PDBRDGroup = DBGroup(models, session).get_group(
+                authenticated_entity.group, raise_exception=True
+            )
         else:
             PDBRDGroup = None
         if latest_only:
             subquery_q1 = (
                 session.query(
-                    PDBRDRegistration.registration_number, PDBRDRegistration.route_number,
-                    func.max(PDBRDRegistration.variation_number).label("max_variation_number")
-                ).filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
-                .group_by(PDBRDRegistration.registration_number, PDBRDRegistration.route_number)
+                    PDBRDRegistration.registration_number,
+                    PDBRDRegistration.route_number,
+                    func.max(PDBRDRegistration.variation_number).label(
+                        "max_variation_number"
+                    ),
+                )
+                .filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
+                .group_by(
+                    PDBRDRegistration.registration_number,
+                    PDBRDRegistration.route_number,
+                )
                 .subquery()
             )
 
             subquery_q2 = (
-                session.query(PDBRDRegistration.id)
-                .join(subquery_q1, and_(
-                    PDBRDRegistration.registration_number == subquery_q1.c.registration_number,
-                    PDBRDRegistration.variation_number == subquery_q1.c.max_variation_number,
-                    PDBRDRegistration.route_number == subquery_q1.c.route_number
-                ))
+                session.query(PDBRDRegistration.id).join(
+                    subquery_q1,
+                    and_(
+                        PDBRDRegistration.registration_number
+                        == subquery_q1.c.registration_number,
+                        PDBRDRegistration.variation_number
+                        == subquery_q1.c.max_variation_number,
+                        PDBRDRegistration.route_number == subquery_q1.c.route_number,
+                    ),
+                )
             ).subquery()
-
-
-
 
         records = (
             session.query(
@@ -596,7 +702,11 @@ class DBManager:
                 BODSDataCatalogue.requires_attention,
                 BODSDataCatalogue.timeliness_status,
             )
-            .outerjoin(BODSDataCatalogue, BODSDataCatalogue.xml_service_code == PDBRDRegistration.registration_number)
+            .outerjoin(
+                BODSDataCatalogue,
+                BODSDataCatalogue.xml_service_code
+                == PDBRDRegistration.registration_number,
+            )
             .filter(PDBRDRegistration.otc_operator_id == OTCOperator.id)
             .filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
             .filter(PDBRDRegistration.otc_licence_id == OTCLicence.id)
@@ -613,45 +723,71 @@ class DBManager:
         if active_only:
             subquery_q3 = (
                 session.query(
-                    PDBRDRegistration.registration_number, 
+                    PDBRDRegistration.registration_number,
                     PDBRDRegistration.route_number,
-                    func.max(PDBRDRegistration.variation_number).label("max_variation_number")
-                ).filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
-                .group_by(PDBRDRegistration.registration_number, PDBRDRegistration.route_number)
+                    func.max(PDBRDRegistration.variation_number).label(
+                        "max_variation_number"
+                    ),
+                )
+                .filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
+                .group_by(
+                    PDBRDRegistration.registration_number,
+                    PDBRDRegistration.route_number,
+                )
                 # .having(and_(PDBRDRegistration.application_type.in_(["New", "Change"]), PDBRDRegistration.effective_date <= func.current_date(), PDBRDRegistration.end_date > func.current_date()))
                 .subquery()
-
             )
             subquery_q4 = (
-                session.query(PDBRDRegistration.registration_number, PDBRDRegistration.route_number)
-                .join(subquery_q3, and_(
-                    PDBRDRegistration.registration_number == subquery_q3.c.registration_number,
-                    PDBRDRegistration.route_number == subquery_q3.c.route_number,
-                    PDBRDRegistration.variation_number == subquery_q3.c.max_variation_number
-                ))
-                .filter(and_(PDBRDRegistration.application_type.in_(["New", "Change"]), PDBRDRegistration.effective_date <= func.current_date(), PDBRDRegistration.end_date > func.current_date()))
+                session.query(
+                    PDBRDRegistration.registration_number,
+                    PDBRDRegistration.route_number,
+                )
+                .join(
+                    subquery_q3,
+                    and_(
+                        PDBRDRegistration.registration_number
+                        == subquery_q3.c.registration_number,
+                        PDBRDRegistration.route_number == subquery_q3.c.route_number,
+                        PDBRDRegistration.variation_number
+                        == subquery_q3.c.max_variation_number,
+                    ),
+                )
+                .filter(
+                    and_(
+                        PDBRDRegistration.application_type.in_(["New", "Change"]),
+                        PDBRDRegistration.effective_date <= func.current_date(),
+                        PDBRDRegistration.end_date > func.current_date(),
+                    )
+                )
                 .subquery()
             )
             subquery_q5 = (
-                session.query(PDBRDRegistration.id)
-                .join(subquery_q4, and_(
-                    PDBRDRegistration.registration_number == subquery_q4.c.registration_number,
-                    PDBRDRegistration.route_number == subquery_q4.c.route_number
-                ))
+                session.query(PDBRDRegistration.id).join(
+                    subquery_q4,
+                    and_(
+                        PDBRDRegistration.registration_number
+                        == subquery_q4.c.registration_number,
+                        PDBRDRegistration.route_number == subquery_q4.c.route_number,
+                    ),
+                )
             ).subquery()
 
             records = records.filter(PDBRDRegistration.id.in_(select(subquery_q5)))
         return [rec._asdict() for rec in records.all()]
 
     @classmethod
-    def get_record_required_attention_percentage(cls, authenticated_entity: AuthenticatedEntity = None, active_only=True):
+    def get_record_required_attention_percentage(
+        cls, authenticated_entity: AuthenticatedEntity = None, active_only=True
+    ):
         models, session = initiate_db_variables()
         PDBRDRegistration = models.PDBRDRegistration
         OTCOperator = models.OTCOperator
         OTCLicence = models.OTCLicence
         BODSDataCatalogue = models.BODSDataCatalogue
         if authenticated_entity.type == "user":
-            PDBRDGroup = DBGroup(models, session).get_group(authenticated_entity.group, raise_exception=True)
+            PDBRDGroup = DBGroup(models, session).get_group(
+                authenticated_entity.group, raise_exception=True
+            )
         else:
             PDBRDGroup = None
         # if active_only:
@@ -679,22 +815,30 @@ class DBManager:
         #                 PDBRDRegistration.end_date > func.current_date())
         subquery_q1 = (
             session.query(
-                PDBRDRegistration.registration_number,PDBRDRegistration.route_number,
-                func.max(PDBRDRegistration.variation_number).label("max_variation_number")
+                PDBRDRegistration.registration_number,
+                PDBRDRegistration.route_number,
+                func.max(PDBRDRegistration.variation_number).label(
+                    "max_variation_number"
+                ),
             )
             .filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
-            .group_by(PDBRDRegistration.registration_number, PDBRDRegistration.route_number)
+            .group_by(
+                PDBRDRegistration.registration_number, PDBRDRegistration.route_number
+            )
             .subquery()
         )
         subquery_q2 = (
-            session.query(PDBRDRegistration.id)
-            .join(subquery_q1, and_(
-                PDBRDRegistration.registration_number == subquery_q1.c.registration_number,
-                PDBRDRegistration.variation_number == subquery_q1.c.max_variation_number,
-                PDBRDRegistration.route_number == subquery_q1.c.route_number
-            ))
+            session.query(PDBRDRegistration.id).join(
+                subquery_q1,
+                and_(
+                    PDBRDRegistration.registration_number
+                    == subquery_q1.c.registration_number,
+                    PDBRDRegistration.variation_number
+                    == subquery_q1.c.max_variation_number,
+                    PDBRDRegistration.route_number == subquery_q1.c.route_number,
+                ),
+            )
         ).subquery()
-
 
         subquery_q3 = (
             session.query(
@@ -712,71 +856,82 @@ class DBManager:
             )
             .join(OTCOperator, OTCOperator.id == PDBRDRegistration.otc_operator_id)
             .filter(PDBRDRegistration.group_id == PDBRDGroup.id)
-            .filter(PDBRDRegistration.id.in_(select(subquery_q2))).filter(
-                    PDBRDRegistration.application_type.in_(["New", "Change"])).filter(
-                        PDBRDRegistration.effective_date <= func.current_date()).filter(
-                        PDBRDRegistration.end_date > func.current_date())
+            .filter(PDBRDRegistration.id.in_(select(subquery_q2)))
+            .filter(PDBRDRegistration.application_type.in_(["New", "Change"]))
+            .filter(PDBRDRegistration.effective_date <= func.current_date())
+            .filter(PDBRDRegistration.end_date > func.current_date())
             .group_by(
                 OTCLicence.licence_number,
                 OTCOperator.operator_name,
                 BODSDataCatalogue.requires_attention,
                 OTCLicence.licence_status,
-            )          
+            )
         )
         if PDBRDGroup:
-            subquery_q3 = subquery_q3.filter(PDBRDRegistration.group_id == PDBRDGroup.id).subquery()
+            subquery_q3 = subquery_q3.filter(
+                PDBRDRegistration.group_id == PDBRDGroup.id
+            ).subquery()
         else:
             subquery_q3 = subquery_q3.subquery()
 
         query = (
             session.query(
-            subquery_q3.c.licence_number,
-            subquery_q3.c.operator_name,
-            subquery_q3.c.licence_status,
-            func.round(
-                (
-                100.0
-                * func.sum(
-                    case(
+                subquery_q3.c.licence_number,
+                subquery_q3.c.operator_name,
+                subquery_q3.c.licence_status,
+                func.round(
                     (
-                        (
-                        or_(subquery_q3.c.requires_attention.is_(True), subquery_q3.c.requires_attention.is_(None)),
-                        subquery_q3.c.count,
+                        100.0
+                        * func.sum(
+                            case(
+                                (
+                                    (
+                                        or_(
+                                            subquery_q3.c.requires_attention.is_(True),
+                                            subquery_q3.c.requires_attention.is_(None),
+                                        ),
+                                        subquery_q3.c.count,
+                                    )
+                                ),
+                                else_=0,
+                            )
                         )
+                        / func.sum(subquery_q3.c.count)
                     ),
-                    else_=0,
+                    2,
+                ).label("requires_attention"),
+                func.sum(subquery_q3.c.count).label("total_services"),
+                func.sum(
+                    case(
+                        (
+                            (
+                                subquery_q3.c.requires_attention.is_(None),
+                                subquery_q3.c.count,
+                            )
+                        ),
+                        else_=0,
                     )
-                )
-                / func.sum(subquery_q3.c.count)
-                ),
-                2,
-            ).label("requires_attention"),
-            func.sum(subquery_q3.c.count).label("total_services"),
-            func.sum(case(
-                (
-                   (
-                       subquery_q3.c.requires_attention.is_(None),
-                       subquery_q3.c.count,
-                   )
-                ),
-                else_=0
-            )).label("Registrations_not_in_BODS")
+                ).label("Registrations_not_in_BODS"),
             )
             .group_by(
-            subquery_q3.c.licence_number,
-            subquery_q3.c.operator_name,
-            subquery_q3.c.licence_status,
+                subquery_q3.c.licence_number,
+                subquery_q3.c.operator_name,
+                subquery_q3.c.licence_status,
             )
             .order_by(desc("total_services"))
         )
         return [rec._asdict() for rec in query.all()]
 
     @classmethod
-    def get_report_then_delete_it_from_db(cls, authenticated_entity: AuthenticatedEntity, report_id: str):
+    def get_report_then_delete_it_from_db(
+        cls, authenticated_entity: AuthenticatedEntity, report_id: str
+    ):
         models, session = initiate_db_variables()
         PDBRDReport = models.PDBRDReport
         if authenticated_entity.type == "user":
-            User = DBGroup(models, session).get_user(authenticated_entity.name, authenticated_entity.group)
+            User = DBGroup(models, session).get_user(
+                authenticated_entity.name, authenticated_entity.group
+            )
         if not User:
             return None
         report = (
@@ -793,42 +948,66 @@ class DBManager:
         return None
 
     @classmethod
-    def get_staged_records(cls, authenticated_entity: AuthenticatedEntity, stage_id: str=None):
+    def get_staged_records(
+        cls, authenticated_entity: AuthenticatedEntity, stage_id: str = None
+    ):
         models, session = initiate_db_variables()
         PDBRDStage = models.PDBRDStage
         PDBRDLicence = models.OTCLicence
         PDBRDOperator = models.OTCOperator
         PDBRDRegistration = models.PDBRDRegistration
         if authenticated_entity.type == "user":
-            PDBRDUser = DBGroup(models, session).get_user(authenticated_entity.name, authenticated_entity.group)
+            PDBRDUser = DBGroup(models, session).get_user(
+                authenticated_entity.name, authenticated_entity.group
+            )
         if not PDBRDUser:
             return None
         staged_process = (
-            session.query(PDBRDStage.id).filter(PDBRDStage.stage_id == stage_id).subquery()
+            session.query(PDBRDStage)
+            .filter(PDBRDStage.stage_id == stage_id)
         )
+        try:
+            staged_record = staged_process.one()
+        except Exception as e:
+            log.error(f"Error: {e}")
+            raise NoStagedProcess("No staged process found.")
 
+        if staged_record.stage_status == "in_progress":
+            raise StagingProcessInProgress("Staging process is not done yet")
+        staged_process = staged_process.subquery()
         staged_records = (
-            session.query(PDBRDRegistration.registration_number, PDBRDLicence.licence_number, PDBRDOperator.operator_name)
+            session.query(
+                PDBRDRegistration.registration_number,
+                PDBRDLicence.licence_number,
+                PDBRDOperator.operator_name,
+            )
             .filter(PDBRDRegistration.pdbrd_stage_id == select(staged_process.c.id))
             .filter(PDBRDRegistration.otc_licence_id == PDBRDLicence.id)
             .filter(PDBRDRegistration.otc_operator_id == PDBRDOperator.id)
-            
         )
-
-        return [rec._asdict() for rec in staged_records.all()]
+        results = [rec._asdict() for rec in staged_records.all()]
+        return results
+        # return [rec._asdict() for rec in staged_records.all()]
 
     @classmethod
-    def commit_staged_records(cls, authenticated_entity: AuthenticatedEntity, stage_id: str, commit: bool = True):
+    def commit_staged_records(
+        cls,
+        authenticated_entity: AuthenticatedEntity,
+        stage_id: str,
+        commit: bool = True,
+    ):
         models, session = initiate_db_variables()
         PDBRDStage = models.PDBRDStage
         PDBRDRegistration = models.PDBRDRegistration
         if authenticated_entity.type == "user":
-            PDBRDUser = DBGroup(models, session).get_user(authenticated_entity.name, authenticated_entity.group)
+            PDBRDUser = DBGroup(models, session).get_user(
+                authenticated_entity.name, authenticated_entity.group
+            )
         if not PDBRDUser:
             return None
 
         try:
-            if not  commit:
+            if not commit:
                 # Get the staged process id
                 staged_process_id = (
                     session.query(PDBRDStage.id)
@@ -836,18 +1015,18 @@ class DBManager:
                     .filter(PDBRDStage.stage_user == PDBRDUser.id)
                 )
                 staged_process_subquery = staged_process_id.subquery()
-                staged_records = (
-                    session.query(PDBRDRegistration)
-                    .filter(PDBRDRegistration.pdbrd_stage_id == select(staged_process_subquery).scalar_subquery())
+                staged_records = session.query(PDBRDRegistration).filter(
+                    PDBRDRegistration.pdbrd_stage_id
+                    == select(staged_process_subquery).scalar_subquery()
                 )
                 staged_records.delete(synchronize_session=False)
 
             # Get the staged process
             staged_process = (
-                    session.query(PDBRDStage)
-                    .filter(PDBRDStage.stage_id == stage_id)
-                    .filter(PDBRDStage.stage_user == PDBRDUser.id)
-                )
+                session.query(PDBRDStage)
+                .filter(PDBRDStage.stage_id == stage_id)
+                .filter(PDBRDStage.stage_user == PDBRDUser.id)
+            )
             # Delete the staged process
             deleted_count = staged_process.delete(synchronize_session=False)
             session.commit()
@@ -859,7 +1038,6 @@ class DBManager:
             log.error(f"Error: {e}")
             session.rollback()
             session.close()
-
 
     @classmethod
     def commit_discard_changes(cls, session: Session, commit: bool = False):
@@ -874,17 +1052,62 @@ class DBManager:
         models, session = initiate_db_variables()
         PDBRDStage = models.PDBRDStage
         if authenticated_entity.type == "user":
-            PDBRDUser = DBGroup(models, session).get_user(authenticated_entity.name, authenticated_entity.group)
+            PDBRDUser = DBGroup(models, session).get_user(
+                authenticated_entity.name, authenticated_entity.group
+            )
         if not PDBRDUser:
             return None
         staged_process = (
             session.query(PDBRDStage.stage_id, PDBRDStage.created_at)
-            .filter(PDBRDStage.stage_user == PDBRDUser.id)
+        .filter(PDBRDStage.stage_user == PDBRDUser.id)
         )
-        return [rec._asdict() for rec in staged_process.all()]
+        result = [rec._asdict() for rec in staged_process.all()]
+        if len(result) > 0:
+            for record in result:
+                if record.get("stage_status") == "in_progress":
+                    raise StagingProcessInProgress("Staging process is in progress")
+        
+        if len(result) == 0:
+            raise NoStagedProcess("No staged process found.")
+        
+        return result
 
 
-def send_to_db(records: List[Registration], group_name = None, user_name=None, report_id = None):
+
+
+def initiate_stage_process(user_name: str, group_name: str, report_id: str):
+     # Add or create the group
+    models = AutoMappingModels()
+    engine = models.engine
+    tables = models.get_tables()
+    PDBRDStage = tables["PDBRDStage"]
+    session = Session(engine)
+    PDBRDUser = DBGroup(models, session).get_or_create_user(user_name, group_name)
+    # add record to the stage table
+    PDBRDStage_record = PDBRDStage(stage_user=PDBRDUser.id, stage_id=report_id, stage_status="in_progress")
+    session.add(PDBRDStage_record)
+    session.commit()
+    PDBRDStage_id = PDBRDStage_record.id
+    session.close()
+    return PDBRDStage_id
+
+def complete_stage_process(stage_id: str):
+    models = AutoMappingModels()
+    engine = models.engine
+    tables = models.get_tables()
+    PDBRDStage = tables["PDBRDStage"]
+    session = Session(engine)
+    staged_process = (
+        session.query(PDBRDStage)
+        .filter(PDBRDStage.id == stage_id)
+    )
+    staged_process.update({"stage_status": "completed"})
+    session.commit()
+    session.close()
+
+def send_to_db(
+    records: List[Registration], group_name=None, user_name=None, stage_id=None
+):
     # validated_records: List[Registration] = MockData.mock_user_csv_record()
     models = AutoMappingModels()
     engine = models.engine
@@ -900,18 +1123,16 @@ def send_to_db(records: List[Registration], group_name = None, user_name=None, r
     already_exists_records = {}
     belongs_to_another_user = {}
 
-
-
     # Add or create the group
     session = Session(engine)
     PDBRDUser = DBGroup(models, session).get_or_create_user(user_name, group_name)
     group_id = PDBRDUser.group_id
-    # add record to the stage table
-    PDBRDStage_record = PDBRDStage(stage_user=PDBRDUser.id, stage_id=report_id)
-    session.add(PDBRDStage_record)
-    session.commit()
-    PDBRDStage_id = PDBRDStage_record.id
-    session.close()
+    # # add record to the stage table
+    # PDBRDStage_record = PDBRDStage(stage_user=PDBRDUser.id, stage_id=report_id, stage_status="in_progress")
+    # session.add(PDBRDStage_record)
+    # session.commit()
+    # PDBRDStage_id = PDBRDStage_record.id
+    # session.close()
 
     for idx, record_and_licence in records["valid_records"].items():
         try:
@@ -923,7 +1144,6 @@ def send_to_db(records: List[Registration], group_name = None, user_name=None, r
                 operator_name=licence.operator_details.operator_name,
                 otc_operator_id=licence.operator_details.otc_operator_id,
             )
-
 
             # Add or fetch the operator id from the database
             operator_record_id = DBManager.fetch_operator_record(
@@ -948,10 +1168,6 @@ def send_to_db(records: List[Registration], group_name = None, user_name=None, r
                 OTCLicence_record,
             )
 
-
-
-
-
             # Add the record to the PDBRDRegistration table
             DBManager.upsert_record_to_pdbrd_registration_table(
                 record,
@@ -960,7 +1176,7 @@ def send_to_db(records: List[Registration], group_name = None, user_name=None, r
                 session,
                 PDBRDRegistration,
                 group_id,
-                PDBRDStage_id
+                stage_id,
             )
         except RecordIsAlreadyExist:
             already_exists_records.update(
@@ -991,25 +1207,37 @@ def send_to_db(records: List[Registration], group_name = None, user_name=None, r
         )
     if len(belongs_to_another_user) > 0:
         records["invalid_records"].append(
-            {"records": belongs_to_another_user, "description": "Record belongs to another user"}
+            {
+                "records": belongs_to_another_user,
+                "description": "Record belongs to another user",
+            }
         )
+    # Update the staged process status
+    session = Session(engine)
+    staged_process = (
+        session.query(PDBRDStage)
+        .filter(PDBRDStage.id == stage_id)
+    )
+    staged_process.update({"stage_status": "completed"})
+    session.commit()
+    session.close()
+
     # if len(records["valid_records"]) == 0:
     #     ## Delete the staged process
     #     session = Session(engine)
     #     staged_process = (
     #         session.query(PDBRDStage)
-    #         .filter(PDBRDStage.stage_id == PDBRDStage_id)
-    #         .filter(PDBRDStage.stage_user == PDBRDGroup.id)
+    #         .filter(PDBRDStage.id == PDBRDStage_id)
     #     )
     #     staged_process.delete()
     #     session.commit()
     #     session.close()
 
 
-def send_report_to_db(report: dict, user_name: str,group_name:str, report_id: str):
+def send_report_to_db(report: dict, user_name: str, group_name: str, report_id: str):
     models, session = initiate_db_variables()
 
-    PDBRDUser = DBGroup(models, session).get_or_create_user(user_name,group_name)
+    PDBRDUser = DBGroup(models, session).get_or_create_user(user_name, group_name)
     PDBRDReport = models.PDBRDReport
     report_record = PDBRDReport(
         report_id=report_id, user_id=PDBRDUser.id, report=report

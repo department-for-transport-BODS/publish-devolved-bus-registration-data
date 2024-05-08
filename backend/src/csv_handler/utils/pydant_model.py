@@ -172,8 +172,9 @@ class SearchQuery(BaseModel):
         default=False, alias="strictMode", json_schema_extra="false"
     )
     page: Optional[int] = Field(default=None)
+    active_only: Optional[bool] = Field(default=False, alias="activeOnly")
 
-    @field_validator("exclude_variations", "strict_mode", mode="before")
+    @field_validator("exclude_variations","active_only", "strict_mode", mode="before")
     def validate_latest_only(cls, v):
         if v is None:
             return True
@@ -243,3 +244,7 @@ class GroupedStagedRecords(BaseModel):
 
 class Action(BaseModel):
     action: Literal["commit", "discard"]
+
+class StageEntity(BaseModel):
+   
+    type: Literal["record", "process"]

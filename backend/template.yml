@@ -123,6 +123,7 @@ Resources:
           POSTGRES_PORT: 5432
           POSTGRES_DB: !Sub '${ProjectName}_db'
           POSTGRES_CREDENTIALS: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/name}}'
+          CLAMAV_S3_BUCKET_NAME: !Sub 'shared-${ProjectName}-clamav-artefacts-${AWS::AccountId}'
           COGNITO_USERPOOL_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/cognito/userpool/id}}'
           COGNITO_APP_CLIENT_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/cognito/userpool/client/id}}'
           OTC_CLIENT_API_URL: !Sub 'https://${OtcClientApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/api/v1/otc/licences'

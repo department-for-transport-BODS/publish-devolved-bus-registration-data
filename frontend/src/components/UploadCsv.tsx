@@ -4,7 +4,7 @@ import { SendCsv, getStaged , handleStagedResults} from "../utils/SendCsv";
 
 
 interface UploadCsvProps {
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean|null>>;
 }
 
 const UploadCsv: React.FC<UploadCsvProps> = ({
