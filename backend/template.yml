@@ -47,6 +47,9 @@ Conditions:
   IsNotProd: !Not [!Equals [!Ref Environment, 'prod']]
 
 Resources:
+  ################################################
+  #### CSV HANDLER LAMBDA (& ASSC. RESOURCES) ####
+  ################################################
   CsvHandlerApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -222,6 +225,9 @@ Resources:
             Resource:
               - !Sub '{{resolve:ssm:/shared/${ProjectName}/kms/secretsmanager}}'
 
+  ###############################################
+  #### OTC CLIENT LAMBDA (& ASSC. RESOURCES) ####
+  ###############################################
   OtcClientApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -369,6 +375,9 @@ Resources:
             Resource:
               - !Sub '{{resolve:ssm:/shared/${ProjectName}/kms/secretsmanager}}'
 
+  ###################################################
+  #### DATA CATALOGUE LAMBDA (& ASSC. RESOURCES) ####
+  ###################################################
   DataCatalogueLambda:
     Type: AWS::Serverless::Function
     Condition: IsNotLocal
@@ -504,6 +513,148 @@ Resources:
             Resource:
               - !Sub '{{resolve:ssm:/shared/${ProjectName}/kms/secretsmanager}}'
 
+  ################################################
+  #### WECA CLIENT LAMBDA (& ASSC. RESOURCES) ####
+  ################################################
+  WecaClientLambda:
+    Type: AWS::Serverless::Function
+    Condition: IsNotLocal
+    Properties:
+      FunctionName: !Sub '${Environment}-${ProjectName}-weca-client-lambda'
+      Role: !GetAtt WecaClientLambdaExecutionRole.Arn
+      CodeUri: src/data_catalogue
+      Handler: app.lambda_handler
+      Events:
+        HourlyGetWecaClient:
+          Type: Schedule
+          Properties:
+            Name:  !Sub '${Environment}-${ProjectName}-weca-client-lambda-schedule'
+            Schedule: rate(1 day)
+      VpcConfig:
+        SubnetIds: !Ref VpcSubnets
+        SecurityGroupIds:
+          - !GetAtt WecaClientLambdaSecurityGroup.GroupId
+      Environment:
+        Variables:
+          PROJECT_ENV: !Ref Environment
+          PROJECT_NAME: !Ref ProjectName
+          HTTP_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
+          HTTPS_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
+          LOG_LEVEL: !If
+            - IsNotProd
+            - 'DEBUG'
+            - 'INFO'
+          POSTGRES_HOST:  !If
+            - IsNotLocal
+            - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/endpoint}}'
+            - !Ref RdsDbHostAddr
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: !Sub '${ProjectName}_db'
+          POSTGRES_CREDENTIALS: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/name}}'
+          OTC_CLIENT_API_URL: !Sub 'https://${OtcClientApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/api/v1/otc/licences'
+      LoggingConfig:
+        LogGroup: !Ref WecaClientLambdaLogGroup
+
+  WecaClientLambdaSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Condition: IsNotLocal
+    Properties:
+      GroupDescription: !Sub 'Security group for ${Environment}-${ProjectName}-weca-client-lambda function'
+      GroupName: !Sub '${Environment}-${ProjectName}-weca-client-lambda'
+      SecurityGroupEgress: 
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          DestinationSecurityGroupId: !Ref RdsSecurityGroupId
+        - IpProtocol: tcp
+          FromPort: 3128
+          ToPort: 3128
+          DestinationSecurityGroupId: !Ref WebProxySecurityGroupId
+        - IpProtocol: udp
+          FromPort: 3128
+          ToPort: 3128
+          DestinationSecurityGroupId: !Ref WebProxySecurityGroupId
+      VpcId: !Ref VpcId
+      Tags:
+        - Key: Name
+          Value: !Sub '${Environment}-${ProjectName}-weca-client-lambda'
+
+  RdsProxyFromWecaClientLambdaSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: IsNotLocal
+    Properties:
+      GroupId: !Ref RdsSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 5432
+      ToPort: 5432
+      SourceSecurityGroupId: !GetAtt WecaClientLambdaSecurityGroup.GroupId
+
+  WecaClientLambdaLogGroup:
+    Type: 'AWS::Logs::LogGroup'
+    Condition: IsNotLocal
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${Environment}-${ProjectName}-weca-client-lambda'
+      KmsKeyId: !Sub '{{resolve:ssm:/shared/${ProjectName}/kms/cloudwatch}}'
+      RetentionInDays: 30
+
+  WecaClientLambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Condition: IsNotLocal
+    Properties:
+      RoleName: !Sub '${Environment}-${ProjectName}-weca-client-lambda-execution-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+
+  WecaClientLambdaLoggingPolicy:
+    Type: 'AWS::IAM::Policy'
+    Condition: IsNotLocal
+    Properties:
+      PolicyName: !Sub '${Environment}-${ProjectName}-weca-client-lambda-logging-policy'
+      Roles:
+        - !Ref WecaClientLambdaExecutionRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource: !GetAtt WecaClientLambdaLogGroup.Arn
+
+  WecaClientLambdaSecretsAccessPolicy:
+    Type: 'AWS::IAM::Policy'
+    Condition: IsNotLocal
+    Properties:
+      PolicyName: !Sub '${Environment}-${ProjectName}-weca-client-lambda-secrets-access-policy'
+      Roles:
+        - !Ref WecaClientLambdaExecutionRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - secretsmanager:GetResourcePolicy
+              - secretsmanager:GetSecretValue
+              - secretsmanager:DescribeSecret
+              - secretsmanager:ListSecretVersionIds
+            Resource: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/arn}}'
+          - Effect: Allow
+            Action:
+              - kms:Decrypt
+            Resource:
+              - !Sub '{{resolve:ssm:/shared/${ProjectName}/kms/secretsmanager}}'
+
+  #########################################
+  #### GENERAL CONFIGURATION RESOURCES ####
+  #########################################
   FrontendBucket:
     Type: AWS::S3::Bucket
     Condition: IsNotLocal
