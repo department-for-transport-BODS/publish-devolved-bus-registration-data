@@ -203,6 +203,32 @@ Resources:
               - logs:PutLogEvents
             Resource: !GetAtt CsvHandlerLambdaLogGroup.Arn
 
+  CsvHandlerLambdaS3AvPolicy:
+    Type: 'AWS::IAM::Policy'
+    Condition: IsNotLocal
+    Properties:
+      PolicyName: !Sub '${Environment}-${ProjectName}-csv-handler-lambda-s3-av-policy'
+      Roles:
+        - !Ref CsvHandlerLambdaExecutionRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:ListBucket
+            Resource: !Sub 'arn:aws:s3:::shared-${ProjectName}-clamav-artefacts-${AWS::AccountId}'
+          - Effect: Allow
+            Action:
+              - s3:DeleteObject
+              - s3:GetObjectTagging
+              - s3:PutObject
+            Resource: !Sub 'arn:aws:s3:::shared-${ProjectName}-clamav-artefacts-${AWS::AccountId}/*'
+          - Effect: Allow
+            Action:
+              - kms:GenerateDataKey
+            Resource:
+              - !Sub '{{resolve:ssm:/shared/${ProjectName}/kms/s3}}'
+
   CsvHandlerLambdaSecretsAccessPolicy:
     Type: 'AWS::IAM::Policy'
     Condition: IsNotLocal
