@@ -6,6 +6,7 @@ from utils.validate import validate_licence_number_existence
 from copy import deepcopy
 from utils.pydant_model import AuthenticatedEntity
 from utils.aws import ClamAVClient
+from utils.logger import log
 
 class CSVManager:
     def __init__(self, csv_data: str, authenticated_entity: AuthenticatedEntity = None, report_id: str = None, stage_id: str = None):
@@ -134,7 +135,8 @@ def process_csv_file(content, authenticated_entity, report_id):
 
     try:
         scan_result = ClamAVClient(report_id, content).scan()
-    except:
+    except Exception as e :
+        log.error(f"error: {e}")
         print("scan failed")
         send_report_to_db({"invalid_file": [{"description": "File is infected"}]}, authenticated_entity.name, authenticated_entity.group, report_id)
         complete_stage_process(stage_id)
