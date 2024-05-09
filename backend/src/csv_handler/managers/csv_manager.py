@@ -132,8 +132,13 @@ def process_csv_file(content, authenticated_entity, report_id):
     if csv_str is None:
         raise Exception("File encoding not found")
 
-
-    scan_result = ClamAVClient(report_id, content).scan()
+    try:
+        scan_result = ClamAVClient(report_id, content).scan()
+    except:
+        print("scan failed")
+        send_report_to_db({"invalid_file": [{"description": "File is infected"}]}, authenticated_entity.name, authenticated_entity.group, report_id)
+        complete_stage_process(stage_id)
+ 
     if scan_result:
         # Convert the CSV data into a dictionary
         csv_data = list(csv.DictReader(StringIO(csv_str)))
@@ -141,8 +146,10 @@ def process_csv_file(content, authenticated_entity, report_id):
         csv_handler.validation_and_insertion_steps()
         # Validate the CSV input data
     else:
+        print("scan failed")
         send_report_to_db({"invalid_file": [{"description": "File is infected"}]}, authenticated_entity.name, authenticated_entity.group, report_id)
         complete_stage_process(stage_id)
+    
 
 
 
