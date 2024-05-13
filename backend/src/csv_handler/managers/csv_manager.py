@@ -136,7 +136,6 @@ class CSVManager:
     def _send_report_to_db(self, records_report, user_name, group_name, report_id):
         send_report_to_db(records_report, user_name, group_name, report_id)
 
-<<<<<<< Updated upstream
 
 def process_csv_file(content, authenticated_entity, report_id):
     scan_result = False
@@ -147,13 +146,6 @@ def process_csv_file(content, authenticated_entity, report_id):
     # except Exception as e:
     #     log.info(f"exception: {e}")
     #     return
-=======
-def process_csv_file(content, authenticated_entity, report_id):
-    print("Sleeping")
-    sleep(120)
-    print("Finished sleeping")
-    stage_id = initiate_stage_process(authenticated_entity.name, authenticated_entity.group, report_id)
->>>>>>> Stashed changes
     # Decode the CSV data
     csv_str = None
     for encoding_types in ["utf-8-sig", "utf-8", "Latin-1", "ISO-8859-1"]:
