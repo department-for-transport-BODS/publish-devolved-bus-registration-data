@@ -59,7 +59,6 @@ def upload_file_to_S3(
             log.error(f'Errors: {e}')
 
 
-
 class ClamAVClient:
     def __init__(self, file_name, data):
         if not BUCKET_NAME:
@@ -69,17 +68,19 @@ class ClamAVClient:
         self.file_name = file_name
         self.data = data
 
+
     def scan(self):
         res = self.scan_file(self.bucket_name, self.s3_folder, self.file_name, self.data)
         return res
-    
-    def scan_file(self, bucket_name,s3_folder, file_name, data):
+
+
+    def scan_file(self, bucket_name, s3_folder, file_name, data):
         result = False
         try:
             self.upload_bstring_to_s3_as_file(bucket_name,s3_folder, file_name, data)
             print(f"File {file_name} is uploaded to S3 bucket {bucket_name}.")
             for i in range(1,11):
-                sleep(10)
+                sleep(15)
                 res = self.read_file_tags(bucket_name,s3_folder, file_name)
                 if res is not None:
                     log.info(f"Getting tags is done, after {i} attempts.")
@@ -89,7 +90,7 @@ class ClamAVClient:
                 print(f"Attempt {i} to get tags is not successful.")
             av_status = [item['Value'] for item in res if item['Key'] == 'av-status']
             if len(av_status) > 0:
-                if av_status[0] != 'clean':
+                if av_status[0] == 'clean':
                     result = True
                     
         except Exception as e:
@@ -97,20 +98,14 @@ class ClamAVClient:
         
         finally:
             return result
-            
-        
-
-
 
 
     def get_boto_client(self):
         return boto3.client(service_name='s3',region_name=AWS_REGION,)
 
-        
-
 
     def upload_bstring_to_s3_as_file(
-            self,bucket_name, s3_folder,file_name, binary_data
+            self,bucket_name, s3_folder, file_name, binary_data
             ) -> None:
         try:
             client = self.get_boto_client()
@@ -125,7 +120,7 @@ class ClamAVClient:
             raise Exception(f'Errors: Could not upload file to S3.')
 
 
-    def read_file_tags(self,bucket_name,s3_folder, file_name):
+    def read_file_tags(self, bucket_name, s3_folder, file_name):
         try:
             # Initialize the S3 client
             client = self.get_boto_client()
@@ -144,9 +139,9 @@ class ClamAVClient:
         except Exception as e:
             print(f'Errors: {e}')
             raise Exception('Errors: Could not read file tags from S3.')
-        
 
-    def delete_file_from_s3(self, bucket_name,s3_folder, file_name):
+
+    def delete_file_from_s3(self, bucket_name, s3_folder, file_name):
         try:
             # Initialize the S3 client
             client = self.get_boto_client()
@@ -156,4 +151,3 @@ class ClamAVClient:
         except Exception as e:
             print(f'Errors: {e}')
             raise Exception('Errors: Could not delete file from S3.')
-

@@ -77,6 +77,7 @@ Resources:
       CodeUri: src/csv_handler
       Handler: app.lambda_handler
       Timeout: 300
+      MemorySize: 512
       Events:
         ApiEvents:
           Type: Api
