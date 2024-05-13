@@ -17,8 +17,8 @@ from .exceptions import (
     RecordBelongsToAnotherUser,
     StagingProcessInProgress,
     NoStagedProcess,
+    PreviousProcessNotCompleted,
 )
-from .data import common_keys_comparsion
 from central_config.env import PROJECT_ENV
 
 
@@ -107,8 +107,8 @@ def add_or_get_record(column_name: str, value: str, session: Session, Model, rec
 
 
 class AutoMappingModels:
-    """Automap the database tables to the sqlalchemy models
-    """
+    """Automap the database tables to the sqlalchemy models"""
+
     def __init__(self):
         self.engine = CreateEngine.get_engine()
         self.Base = automap_base()
@@ -331,46 +331,7 @@ class DBManager:
         )
 
         if existing_record:
-            record_dict = record.model_dump()
-            existing_record_dict = existing_record.__dict__
-            # Add the user id to the record
-            record_dict.update({"group_id": group_id})
-            if common_keys_comparsion(record_dict, existing_record_dict):
-                raise RecordIsAlreadyExist("Record already exists with the same fields")
-            # Update the record
-            # case 1.2: Record exists but with different fields, update the record
-            pdbrd_registration_record = PDBRDRegistration(
-                id=existing_record.id,
-                route_number=record.route_number,
-                route_description=record.route_description,
-                variation_number=record.variation_number,
-                start_point=record.start_point,
-                finish_point=record.finish_point,
-                via=record.via,
-                subsidised=record.subsidised,
-                subsidy_detail=record.subsidy_detail,
-                is_short_notice=record.is_short_notice,
-                received_date=record.received_date,
-                granted_date=record.granted_date,
-                effective_date=record.effective_date,
-                end_date=record.end_date,
-                bus_service_type_id=record.bus_service_type_id,
-                bus_service_type_description=record.bus_service_type_description,
-                registration_number=record.registration_number,
-                traffic_area_id=record.traffic_area_id,
-                application_type=record.application_type,
-                publication_text=record.publication_text,
-                other_details=record.other_details,
-                otc_operator_id=operator_record_id,
-                otc_licence_id=licence_record_id,
-                group_id=group_id,
-                pdbrd_stage_id=PDBRDStage_id,
-            )
-            session.merge(pdbrd_registration_record)
-            session.commit()
-            log.debug(
-                f"Updated PDBRD registration record: {pdbrd_registration_record.id}"
-            )
+            raise RecordIsAlreadyExist("Record already exists with the same fields")
 
         else:
             # case 2: Record does not exist, create a new record
@@ -416,7 +377,7 @@ class DBManager:
         limit: int | None = None,
         page: int | None = None,
         strict_mode: bool = False,
-        active_only: bool = False
+        active_only: bool = False,
     ) -> List[dict]:
         """Get records from the database based on the search query
 
@@ -594,7 +555,6 @@ class DBManager:
 
         if limit:
             records = records.limit(limit)
-
 
         return [rec._asdict() for rec in records.all()]
 
@@ -790,29 +750,6 @@ class DBManager:
             )
         else:
             PDBRDGroup = None
-        # if active_only:
-        #     subquery_q3 = (
-        #         session.query(
-        #             PDBRDRegistration.registration_number, PDBRDRegistration.route_number,
-        #             func.max(PDBRDRegistration.variation_number).label("max_variation_number")
-        #         ).filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
-        #         .group_by(PDBRDRegistration.registration_number, PDBRDRegistration.route_number)
-        #         .subquery()
-        #     )
-
-        #     subquery_q4 = (
-        #         session.query(PDBRDRegistration.id)
-        #         .join(subquery_q3, and_(
-        #             PDBRDRegistration.registration_number == subquery_q3.c.registration_number,
-        #             PDBRDRegistration.variation_number == subquery_q3.c.max_variation_number,
-        #             PDBRDRegistration.route_number == subquery_q3.c.route_number
-        #         ))
-        #     ).subquery()
-
-        #     records = records.filter(PDBRDRegistration.id.in_(subquery_q4)).filter(
-        #             PDBRDRegistration.application_type.in_(["New", "Change"])).filter(
-        #                 PDBRDRegistration.effective_date <= func.current_date()).filter(
-        #                 PDBRDRegistration.end_date > func.current_date())
         subquery_q1 = (
             session.query(
                 PDBRDRegistration.registration_number,
@@ -962,9 +899,8 @@ class DBManager:
             )
         if not PDBRDUser:
             return None
-        staged_process = (
-            session.query(PDBRDStage)
-            .filter(PDBRDStage.stage_id == stage_id)
+        staged_process = session.query(PDBRDStage).filter(
+            PDBRDStage.stage_id == stage_id
         )
         try:
             staged_record = staged_process.one()
@@ -1057,39 +993,51 @@ class DBManager:
             )
         if not PDBRDUser:
             return None
-        staged_process = (
-            session.query(PDBRDStage.stage_id, PDBRDStage.created_at)
-        .filter(PDBRDStage.stage_user == PDBRDUser.id)
-        )
+        staged_process = session.query(
+            PDBRDStage.id,
+            PDBRDStage.stage_id,
+            PDBRDStage.created_at,
+            PDBRDStage.stage_status,
+        ).filter(PDBRDStage.stage_user == PDBRDUser.id)
         result = [rec._asdict() for rec in staged_process.all()]
         if len(result) > 0:
             for record in result:
                 if record.get("stage_status") == "in_progress":
-                    raise StagingProcessInProgress("Staging process is in progress")
-        
+                    raise StagingProcessInProgress("Staging process is not done yet")
+
         if len(result) == 0:
             raise NoStagedProcess("No staged process found.")
-        
+
         return result
 
 
-
-
 def initiate_stage_process(user_name: str, group_name: str, report_id: str):
-     # Add or create the group
+    # Add or create the group
     models = AutoMappingModels()
     engine = models.engine
     tables = models.get_tables()
     PDBRDStage = tables["PDBRDStage"]
     session = Session(engine)
     PDBRDUser = DBGroup(models, session).get_or_create_user(user_name, group_name)
+    # check if user has staged process
+    staged_process = session.query(PDBRDStage).filter(
+        PDBRDStage.stage_user == PDBRDUser.id
+    )
+    if staged_process.count() > 0:
+        raise PreviousProcessNotCompleted(
+            "There is a previous process not completed yet."
+        )
+
     # add record to the stage table
-    PDBRDStage_record = PDBRDStage(stage_user=PDBRDUser.id, stage_id=report_id, stage_status="in_progress")
+    PDBRDStage_record = PDBRDStage(
+        stage_user=PDBRDUser.id, stage_id=report_id, stage_status="in_progress"
+    )
     session.add(PDBRDStage_record)
     session.commit()
     PDBRDStage_id = PDBRDStage_record.id
     session.close()
     return PDBRDStage_id
+
 
 def complete_stage_process(stage_id: str):
     models = AutoMappingModels()
@@ -1097,13 +1045,11 @@ def complete_stage_process(stage_id: str):
     tables = models.get_tables()
     PDBRDStage = tables["PDBRDStage"]
     session = Session(engine)
-    staged_process = (
-        session.query(PDBRDStage)
-        .filter(PDBRDStage.id == stage_id)
-    )
+    staged_process = session.query(PDBRDStage).filter(PDBRDStage.id == stage_id)
     staged_process.update({"stage_status": "completed"})
     session.commit()
     session.close()
+
 
 def send_to_db(
     records: List[Registration], group_name=None, user_name=None, stage_id=None
@@ -1214,10 +1160,7 @@ def send_to_db(
         )
     # Update the staged process status
     session = Session(engine)
-    staged_process = (
-        session.query(PDBRDStage)
-        .filter(PDBRDStage.id == stage_id)
-    )
+    staged_process = session.query(PDBRDStage).filter(PDBRDStage.id == stage_id)
     staged_process.update({"stage_status": "completed"})
     session.commit()
     session.close()

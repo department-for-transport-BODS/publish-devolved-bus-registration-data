@@ -3,7 +3,8 @@ CREATE TABLE IF NOT EXISTS pdbrd_stage(
     stage_id VARCHAR(255),
     stage_user INTEGER,
     stage_status VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (stage_user)
 );
 
 SELECT create_constraint_if_not_exists(

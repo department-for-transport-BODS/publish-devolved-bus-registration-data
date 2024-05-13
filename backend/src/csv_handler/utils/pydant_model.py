@@ -85,7 +85,6 @@ class Registration(BaseModel):
     def parse_date(cls, v):
         return datetime.strptime(v, "%d/%m/%Y")
 
-
     @field_validator("registration_number")
     def validate_registration_number(cls, v):
         """Validate the registration number format"""
@@ -174,7 +173,7 @@ class SearchQuery(BaseModel):
     page: Optional[int] = Field(default=None)
     active_only: Optional[bool] = Field(default=False, alias="activeOnly")
 
-    @field_validator("exclude_variations","active_only", "strict_mode", mode="before")
+    @field_validator("exclude_variations", "active_only", "strict_mode", mode="before")
     def validate_latest_only(cls, v):
         if v is None:
             return True
@@ -225,7 +224,6 @@ def extract_error_fields(error_obj: List[dict], model_dump=True) -> ErrorRespons
     return errors
 
 
-
 class AuthenticatedEntity(BaseModel):
     type: Literal["app", "local_auth", "read_only", "user"]
     name: str
@@ -237,14 +235,16 @@ class StagedRecord(BaseModel):
     licence_number: str
     operator_name: str
 
+
 class GroupedStagedRecords(BaseModel):
     licence_number: str
     operator_name: str
     registration_numbers: List[str]
 
+
 class Action(BaseModel):
     action: Literal["commit", "discard"]
 
+
 class StageEntity(BaseModel):
-   
     type: Literal["record", "process"]

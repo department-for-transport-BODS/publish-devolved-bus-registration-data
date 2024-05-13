@@ -11,8 +11,17 @@ from fastapi import (
 from pydantic import ValidationError
 from managers import process_csv_file
 from mangum import Mangum
-from utils.exceptions import LimitIsNotSet, LimitExceeded, GroupIsNotFound
-from auth.verifier import  operator, read_only_or_programmatic_access, operator_or_programmatic_access
+from utils.exceptions import (
+    LimitIsNotSet,
+    LimitExceeded,
+    GroupIsNotFound,
+    PreviousProcessNotCompleted,
+)
+from auth.verifier import (
+    operator,
+    read_only_or_programmatic_access,
+    operator_or_programmatic_access,
+)
 from central_config import app, api_v1_router
 from utils.db import DBManager
 from utils.pydant_model import (
@@ -21,10 +30,10 @@ from utils.pydant_model import (
     StagedRecord,
     GroupedStagedRecords,
     Action,
-    StageEntity,
 )
 from uuid import uuid4
 from utils.logger import log
+
 
 @api_v1_router.post(
     "/upload-file",
@@ -52,10 +61,13 @@ async def create_upload_file(
     report_id = str(uuid4())
     try:
         content = await file.read()
-        
-        background_tasks.add_task(
-            process_csv_file, content, authenticated_entity, report_id
+        process_csv_file(content, authenticated_entity, report_id)
+    except PreviousProcessNotCompleted:
+        raise HTTPException(
+            status_code=422,
+            detail={"message": "Previous process is not completed yet"},
         )
+
     except Exception as e:
         log.error(f"Error: {e}")
         raise HTTPException(
@@ -63,7 +75,7 @@ async def create_upload_file(
             detail={"message": "Encountered an error while processing the file"},
         )
 
-    return {"message": "File is being proccessed", "report_id": report_id}
+    return {"message": "File is being processed", "report_id": report_id}
 
 
 @api_v1_router.get("/get-report", status_code=status.HTTP_200_OK)
@@ -90,47 +102,12 @@ async def get_report(
     return {"Report": records_report, "ReportStatus": "Completed"}
 
 
-# @api_v1_router.get("/get-staged/process", status_code=status.HTTP_200_OK)
-# async def get_staged_process(
-#     authenticated_entity: AuthenticatedEntity = Depends(operator),
-# ):
-#     """This is the endpoint to get the staged records in the database.
-
-#     Args:
-#         authenticated_entity (AuthenticatedEntity): The authenticated entity
-
-#     Returns:
-#         _type_: _description_
-#     """
-#     try:
-#         processes = DBManager.get_staged_process(authenticated_entity)
-#         if len(processes) == 0:
-#             raise HTTPException(
-#                 status_code=status.HTTP_425_TOO_EARLY,
-#                 detail={"message": "Staging process is not done yet"},
-#             )
-#         return {"processes": processes, "status": "Completed"}
-#     except Exception as e:
-#         if str(e) == "Staging process is not done yet":
-#             raise HTTPException(
-#                 status_code=status.HTTP_425_TOO_EARLY,
-#                 detail={"message": "Staging process is not done yet"},
-#             )
-#         if str(e) == "No staged process found.":
-#             raise HTTPException(
-#                 status_code=status.HTTP_404_NOT_FOUND,
-#                 detail={"message": "No staged process found"},
-#             )
-#         raise HTTPException(
-#             status_code=status.HTTP_400_BAD_REQUEST,
-#             detail={"message": "Encountered an error while processing the request"},
-#         )
-
 @api_v1_router.get("/stage", status_code=status.HTTP_200_OK)
-async def get_staged_records(
+async def geting_staged_records(
     authenticated_entity: AuthenticatedEntity = Depends(operator),
-    entity: str = Query(...,pattern="process|record", description="The entity to stage, can be either 'process' or 'record'"),
-    stage_id: str = Query("",description="The staged records ID"),
+    stagedProcessOnly: str = Query(
+        "No", description="Whether to retrieve only the staged process"
+    ),
 ):
     """This is the endpoint to get the staged records in the database.
 
@@ -141,131 +118,73 @@ async def get_staged_records(
         _type_: _description_
     """
     try:
-        requested_entity = StageEntity(type=entity.lower())
-    except ValidationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail={"message": "Invalid entity, entity should be either 'process' or 'record'"},
-        )
-    if requested_entity.type == "record":
-        try:
-            if not stage_id:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail={"message": "Stage ID is required"},
-                )
-            records = DBManager.get_staged_records(authenticated_entity, stage_id)
-            staged_records = []
-            for record in records:
-                staged_records.append(StagedRecord(**record))
-            grouped_records = {}
-
-            for record in staged_records:
-                if record.licence_number not in grouped_records:
-                    grouped_records[record.licence_number] = GroupedStagedRecords(
-                        licence_number=record.licence_number,
-                        operator_name=record.operator_name,
-                        registration_numbers=[],
-                    )
-                grouped_records[record.licence_number].registration_numbers.append(
-                    record.registration_number
-                )
-            values = list(grouped_records.values())
-            # if len(values) > 0:
-            return {"records": values, "status": "Completed"}
-            # else:
-            #     return {"message": "No staged records found"}
-        except Exception as e:
-            log.error(f"Error: {e}")
-            if str(e) == "Staging process is not done yet":
-                raise HTTPException(
-                    status_code=status.HTTP_425_TOO_EARLY,
-                    detail={"message": "Staging process is not done yet"},
-                )
-            if str(e) == "No staged process found.":
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail={"message": "No staged records found"},
-                )
-            raise HTTPException(detail={"message": "Encountered an error while processing the request"}, status_code=status.HTTP_400_BAD_REQUEST)
-    else:
-        try:
-            print("Getting staged process")
-            processes = DBManager.get_staged_process(authenticated_entity)
-            if len(processes) == 0:
-                raise HTTPException(
-                    status_code=status.HTTP_425_TOO_EARLY,
-                    detail={"message": "Staging process is not done yet"},
-                )
-            return {"processes": processes, "status": "Completed"}
-        except Exception as e:
-            if str(e) == "Staging process is not done yet":
-                raise HTTPException(
-                    status_code=status.HTTP_425_TOO_EARLY,
-                    detail={"message": "Staging process is not done yet"},
-                )
-            if str(e) == "No staged process found.":
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail={"message": "No staged process found"},
-                )
+        processes = DBManager.get_staged_process(authenticated_entity)
+        if len(processes) == 0:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail={"message": "Encountered an error while processing the request"},
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={"message": "No staged process found"},
+            )
+        stagedProcessOnlyOptions = ["yes", "true", "no", "false"]
+        if stagedProcessOnly.lower() not in stagedProcessOnlyOptions:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail={
+                    "message": "Invalid value for stagedProcessOnly, it should be either 'Yes','No', 'True' or 'False'"
+                },
             )
 
+        staged_process_only = (
+            True if stagedProcessOnly.lower() in ["yes", "true"] else False
+        )
+        if staged_process_only:
+            return {"processes": processes, "status": "Completed"}
+        print("Getting staged process")
+        print(processes)
+        process = processes[0]
+        print(process.get("stage_id"))
+        records = DBManager.get_staged_records(
+            authenticated_entity, process.get("stage_id")
+        )
+        staged_records = []
+        for record in records:
+            staged_records.append(StagedRecord(**record))
+        grouped_records = {}
 
-# @api_v1_router.get("/get-staged/record", status_code=status.HTTP_200_OK)
-# async def get_staged_records(
-#     authenticated_entity: AuthenticatedEntity = Depends(operator),
-#     stage_id: str = Query(..., description="The staged records ID"),
-# ):
-#     """This is the endpoint to get the staged records in the database.
+        for record in staged_records:
+            if record.licence_number not in grouped_records:
+                grouped_records[record.licence_number] = GroupedStagedRecords(
+                    licence_number=record.licence_number,
+                    operator_name=record.operator_name,
+                    registration_numbers=[],
+                )
+            grouped_records[record.licence_number].registration_numbers.append(
+                record.registration_number
+            )
+        values = list(grouped_records.values())
+        # if len(values) > 0:
+        return {
+            "records": values,
+            "status": "Completed",
+            "stage_id": process.get("stage_id"),
+            "next_step": "Commit or Discard",
+        }
 
-#     Args:
-#         authenticated_entity (AuthenticatedEntity): The authenticated entity
-
-#     Returns:
-#         _type_: _description_
-#     """
-#     try:
-#         records = DBManager.get_staged_records(authenticated_entity, stage_id)
-#         staged_records = []
-#         # if len(records) == 0:
-#         #     return {"message": "No staged records found"}
-#         for record in records:
-#             staged_records.append(StagedRecord(**record))
-#         grouped_records = {}
-
-#         for record in staged_records:
-#             if record.licence_number not in grouped_records:
-#                 grouped_records[record.licence_number] = GroupedStagedRecords(
-#                     licence_number=record.licence_number,
-#                     operator_name=record.operator_name,
-#                     registration_numbers=[],
-#                 )
-#             grouped_records[record.licence_number].registration_numbers.append(
-#                 record.registration_number
-#             )
-#         values = list(grouped_records.values())
-#         # if len(values) > 0:
-#         return {"records": values, "status": "Completed"}
-#         # else:
-#         #     return {"message": "No staged records found"}
-#     except Exception as e:
-#         log.error(f"Error: {e}")
-#         if str(e) == "Staging process is not done yet":
-#             raise HTTPException(
-#                 status_code=status.HTTP_425_TOO_EARLY,
-#                 detail={"message": "Staging process is not done yet"},
-#             )
-#         if str(e) == "No staged process found.":
-#             raise HTTPException(
-#                 status_code=status.HTTP_404_NOT_FOUND,
-#                 detail={"message": "No staged records found"},
-#             )
-#         raise HTTPException(detail={"message": "Encountered an error while processing the request"}, status_code=status.HTTP_400_BAD_REQUEST)
-
+    except Exception as e:
+        log.error(f"Error: {e}")
+        if str(e) == "Staging process is not done yet":
+            raise HTTPException(
+                status_code=status.HTTP_425_TOO_EARLY,
+                detail={"message": "Staging process is not done yet"},
+            )
+        if str(e) == "No staged process found.":
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={"message": "No staged records found"},
+            )
+        raise HTTPException(
+            detail={"message": "Encountered an error while processing the request"},
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 @api_v1_router.post("/staged-records/{action}", status_code=status.HTTP_200_OK)
@@ -319,7 +238,9 @@ def get_staged_records_action(
 
 @api_v1_router.get("/search", status_code=status.HTTP_200_OK)
 async def search_records(
-    authenticated_entity: AuthenticatedEntity = Depends(read_only_or_programmatic_access),
+    authenticated_entity: AuthenticatedEntity = Depends(
+        read_only_or_programmatic_access
+    ),
     licenseNumber: str = Query(
         None,
         description="The license name to filter the records",
@@ -345,7 +266,9 @@ async def search_records(
         ],
     ),
     page: str = Query(None, description="The page number to retrieve"),
-    activeOnly: str = Query("No", description="Whether to retrieve only the active records"),
+    activeOnly: str = Query(
+        "No", description="Whether to retrieve only the active records"
+    ),
     request: Request = None,
 ):
     """This is the endpoint to search for records in the database.
@@ -452,7 +375,7 @@ def get_all_records(
     ),
 ):
     """This is the endpoint to view all the records in the database"""
-    
+
     if latestOnly.lower() in ["yes", "true"]:
         user_choice_latest_only = True
     elif latestOnly.lower() in ["no", "false"]:
@@ -466,7 +389,7 @@ def get_all_records(
         )
     if activeOnly.lower() in ["yes", "true"]:
         user_choice_active_only = True
-    
+
     elif activeOnly.lower() in ["no", "false"]:
         user_choice_active_only = False
     else:
@@ -478,12 +401,16 @@ def get_all_records(
         )
     try:
         records = DBManager.get_all_records(
-            authenticated_entity, latest_only=user_choice_latest_only, active_only=user_choice_active_only
+            authenticated_entity,
+            latest_only=user_choice_latest_only,
+            active_only=user_choice_active_only,
         )
         return records
     except Exception as e:
         log.error(f"Error: {e}")
-        raise HTTPException(status_code=422, detail={"message": "Error occurred while fetching records"})
+        raise HTTPException(
+            status_code=422, detail={"message": "Error occurred while fetching records"}
+        )
 
 
 app.include_router(api_v1_router)

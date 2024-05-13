@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useMemo } from "react";
+import React, { useContext, useEffect, useState, useMemo, useRef } from "react";
 import { FullColumnLayout } from "../Layout/Layout";
 import { Link } from "react-router-dom";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
@@ -14,7 +14,10 @@ import {
 } from "../utils/SendCsv";
 import Cookies from "universal-cookie";
 
+type buttonRef = { current: null | HTMLButtonElement };
 const PreValidations: React.FC = () => {
+  const discardRef: buttonRef = useRef(null);
+  const commitRef: buttonRef = useRef(null);
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const [ErrorMessage, setErrorMessage] = useState<string[]>([]);
   const [showError, setShowError] = useState(false);
@@ -31,36 +34,42 @@ const PreValidations: React.FC = () => {
 
   const handleCommitRegistrations = async (e: any) => {
     e.preventDefault();
-    const localCookies = new Cookies();
-    const stage_id = localCookies.get("stage_id");
-    if (!stage_id) {
-      setErrorMessage(["No stage_id found"]);
-      return;
+    if (commitRef.current && !commitRef.current.disabled) {
+      commitRef.current.disabled = true;
+      const localCookies = new Cookies();
+      const stage_id = localCookies.get("stage_id");
+      if (!stage_id) {
+        setErrorMessage(["No stage_id found"]);
+        return;
+      }
+      CommitRegistrations(stage_id)
+        .then(() => {
+          localCookies.remove("stage_id");
+          setRecordsCommitted(true);
+          GetReport(stage_id, navigate);
+        })
+        .catch((error) => {
+          setErrorMessage(["Error committing registrations"]);
+        });
     }
-    CommitRegistrations(stage_id)
-      .then(() => {
-        localCookies.remove("stage_id");
-        setRecordsCommitted(true);
-        GetReport(stage_id, navigate);
-      })
-      .catch((error) => {
-        setErrorMessage(["Error committing registrations"]);
-      });
   };
 
   const handleDiscardRegistrations = async (e: any) => {
     e.preventDefault();
-    const localCookies = new Cookies();
-    const stage_id = localCookies.get("stage_id");
-    DiscardRegistrations(stage_id)
-      .then(() => {
-        localCookies.remove("stage_id");
-        setRecordsDiscarded(true);
-        navigate("/upload-csv", { replace: true });
-      })
-      .catch((error) => {
-        setErrorMessage(["Error discarding registrations"]);
-      });
+    if (discardRef.current && !discardRef.current.disabled) {
+      discardRef.current.disabled = true;
+      const localCookies = new Cookies();
+      const stage_id = localCookies.get("stage_id");
+      DiscardRegistrations(stage_id)
+        .then(() => {
+          localCookies.remove("stage_id");
+          setRecordsDiscarded(true);
+          navigate("/upload-csv", { replace: true });
+        })
+        .catch((error) => {
+          setErrorMessage(["Error discarding registrations"]);
+        });
+    }
   };
 
   useEffect(() => {
@@ -94,7 +103,8 @@ const PreValidations: React.FC = () => {
         isLoggedIn={isLoggedIn}
       >
         <h1 className="govuk-heading-xl">
-        Please verify all new expected registrations are correct before uploading
+          Please verify all new expected registrations are correct before
+          uploading
         </h1>
         {showError && (
           <div
@@ -135,20 +145,20 @@ const PreValidations: React.FC = () => {
                 />
               );
             })}
-            <Link
+            <button
               className=" govuk-button govuk-!-margin-right-3"
-              to="#"
               onClick={(e) => handleCommitRegistrations(e)}
+              ref={commitRef}
             >
               Commit registrations
-            </Link>
-            <Link
+            </button>
+            <button
               className="govuk-button"
-              to="#"
               onClick={handleDiscardRegistrations}
+              ref={discardRef}
             >
               Discard registrations
-            </Link>
+            </button>
           </div>
         )}
       </FullColumnLayout>

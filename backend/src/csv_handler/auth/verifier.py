@@ -113,7 +113,6 @@ def is_a_local_authority(claims: dict) -> Tuple[bool, str]:
 
 
 def operator(claims: dict = Depends(token_verifier)):
-    console.log(get_entity(claims, operator=True))
     return get_entity(claims, operator=True)
 
 
@@ -149,11 +148,14 @@ def get_group(claims: dict = Depends(token_verifier)):
 
     return False, None, None, None
 
+
 def programmatic_access(claims: dict = Depends(token_verifier)):
     return get_entity(claims, is_an_app=True)
-    
+
+
 def operator_or_programmatic_access(claims: dict = Depends(token_verifier)):
     return get_entity(claims, operator=True, is_an_app=True)
+
 
 def read_only_or_programmatic_access(claims: dict = Depends(token_verifier)):
     return get_entity(claims, read_only=True, is_an_app=True)
@@ -181,7 +183,6 @@ def get_entity(
 
     if operator:
         has_group, type, group_name, user_name = get_group(claims)
-        console.log(has_group, type, group_name, user_name)
         if not has_group:
             raise HTTPException(status_code=401, detail="Not authenticated")
         return AuthenticatedEntity(type=type, name=user_name, group=group_name)
@@ -190,6 +191,5 @@ def get_entity(
         if type != "read_only":
             raise HTTPException(status_code=401, detail="Not authenticated")
         return AuthenticatedEntity(type=type, name=user_name, group=group_name)
-
 
     raise HTTPException(status_code=401, detail="Not authenticated")
