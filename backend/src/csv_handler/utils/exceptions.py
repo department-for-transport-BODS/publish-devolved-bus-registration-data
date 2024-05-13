@@ -33,14 +33,22 @@ class GroupIsNotFound(Exception):
 class RecordBelongsToAnotherUser(Exception):
     pass
 
+
 class NotAuthorised(Exception):
     pass
+
 
 class NoStagedProcessFound(Exception):
     pass
 
+
 class StagingProcessInProgress(Exception):
     pass
 
+
 class NoStagedProcess(Exception):
+    pass
+
+
+class PreviousProcessNotCompleted(Exception):
     pass

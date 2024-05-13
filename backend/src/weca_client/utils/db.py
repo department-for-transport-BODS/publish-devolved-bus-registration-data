@@ -7,10 +7,15 @@ import json
 from .pydant_model import DBCreds
 from .aws import get_secret
 from .settings import PROJECT_ENV
-from .exceptions import GroupIsNotFound, RecordIsAlreadyExist, RecordBelongsToAnotherUser
+from .exceptions import (
+    GroupIsNotFound,
+    RecordIsAlreadyExist,
+    RecordBelongsToAnotherUser,
+)
 from .logger import log
 from .pydant_model import Registration
 from .data import common_keys_comparsion
+
 
 class CreateEngine:
     @staticmethod
@@ -45,16 +50,17 @@ class CreateEngine:
                     "keepalives": 1,
                     "keepalives_idle": 30,
                     "keepalives_interval": 10,
-                    "keepalives_count": 5
-                }
+                    "keepalives_count": 5,
+                },
             )
             connection = engine.connect()
-            print("Connection to PostgreSQL DB successful")
+            log.info("Connection to PostgreSQL DB successful")
             connection.close()
         except Exception as e:
-            print(f"The error '{e}' occurred")
+            log.error(f"The error '{e}' occurred")
             exit(1)
         return engine
+
 
 class AutoMappingModels:
     def __init__(self):
@@ -93,7 +99,6 @@ class AutoMappingModels:
         self.PDBRDUser.__repr__ = (
             lambda self: f"<PDBRDUser(id='{self.id}', user_id='{self.user_name}', group_id='{self.group_id}')>"
         )
-        
 
     def get_tables(self):
         return {
@@ -107,12 +112,13 @@ class AutoMappingModels:
             "PDBRDUser": self.PDBRDUser,
         }
 
+
 class DBGroup:
     def __init__(self, models, session):
         self.models = models
         self.session = session
 
-    def get_or_create_group(self, group_name:str):
+    def get_or_create_group(self, group_name: str):
         """Check if the user exists in the database, if not, add the user
 
         Args:
@@ -137,7 +143,7 @@ class DBGroup:
         except Exception as e:
             log.error(f"Error: {e}")
             session.rollback()
-    
+
     def get_or_create_user(self, user_name: str, group_name: str):
         """Check if the user exists in the database, if not, add the user
 
@@ -152,7 +158,7 @@ class DBGroup:
         PDBRDUser = models.PDBRDUser
         try:
             # check if user in db first:
-            user = self.get_user(user_name,group_name)
+            user = self.get_user(user_name, group_name)
             if user:
                 return user
             # Add the user
@@ -178,8 +184,7 @@ class DBGroup:
         if raise_exception:
             raise GroupIsNotFound(f"Group: {group_name} not found")
 
-
-    def get_user(self, user_name: str, group_name:str):
+    def get_user(self, user_name: str, group_name: str):
         session = self.session
         PDBRDUser = self.models.PDBRDUser
         PDBGroup = self.models.PDBRDGroup
@@ -191,6 +196,7 @@ class DBGroup:
             .one_or_none()
         )
         return user
+
 
 def add_or_get_record(column_name: str, value: str, session: Session, Model, record):
     """
@@ -216,7 +222,7 @@ def add_or_get_record(column_name: str, value: str, session: Session, Model, rec
         log.error(f"Error: {e}")
         session.rollback()
         return None
-    
+
 
 class DBManager:
     @classmethod
@@ -307,13 +313,16 @@ class DBManager:
                 otc_operator_id=operator_record_id,
                 otc_licence_id=licence_record_id,
                 group_id=group_id,
-                pdbrd_stage_id=None
+                pdbrd_stage_id=None,
             )
             session.add(pdbrd_registration_record)
             session.commit()
             log.debug(f"New PDBRD registration record: {pdbrd_registration_record.id}")
 
-def send_to_db(records: List[Registration], group_name = None, user_name=None, report_id = None):
+
+def send_to_db(
+    records: List[Registration], group_name=None, user_name=None, report_id=None
+):
     # validated_records: List[Registration] = MockData.mock_user_csv_record()
     models = AutoMappingModels()
     engine = models.engine
@@ -327,8 +336,6 @@ def send_to_db(records: List[Registration], group_name = None, user_name=None, r
     db_invalid_insertion = []
     already_exists_records = {}
     belongs_to_another_user = {}
-
-
 
     # Add or create the group
     session = Session(engine)
@@ -351,7 +358,6 @@ def send_to_db(records: List[Registration], group_name = None, user_name=None, r
                 operator_name=licence.operator_details.operator_name,
             )
 
-
             # Add or fetch the operator id from the database
             operator_record_id = DBManager.fetch_operator_record(
                 licence.operator_details.operator_name,
@@ -373,10 +379,6 @@ def send_to_db(records: List[Registration], group_name = None, user_name=None, r
                 OTCLicence,
                 OTCLicence_record,
             )
-
-
-
-
 
             # Add the record to the PDBRDRegistration table
             DBManager.upsert_record_to_pdbrd_registration_table(
@@ -416,5 +418,8 @@ def send_to_db(records: List[Registration], group_name = None, user_name=None, r
         )
     if len(belongs_to_another_user) > 0:
         records["invalid_records"].append(
-            {"records": belongs_to_another_user, "description": "Record belongs to another user"}
+            {
+                "records": belongs_to_another_user,
+                "description": "Record belongs to another user",
+            }
         )

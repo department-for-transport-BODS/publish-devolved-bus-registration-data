@@ -1,25 +1,26 @@
-import React, {  useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
 import { FullColumnLayout } from "../Layout/Layout";
 import HelpAndSupport from "../components/HelpAndSupport";
 import { Link } from "react-router-dom";
-import {IsLoggedInContext} from "../utils/login/LoginProvider";
+import { IsLoggedInContext } from "../utils/login/LoginProvider";
 import Footer from "../Layout/Footer";
 import { TITLE } from "../utils/Constants";
 
-
-
 const Home: React.FC = () => {
-  const {isLoggedIn } = useContext(IsLoggedInContext);
+  const { isLoggedIn } = useContext(IsLoggedInContext);
 
   return (
     <>
-      <FullColumnLayout title={TITLE? TITLE: ""} description="Home" hideCookieBanner={true} isLoggedIn={isLoggedIn}>
-        <h1 className="govuk-heading-xl">
-          {TITLE}
-        </h1>
+      <FullColumnLayout
+        title={TITLE ? TITLE : ""}
+        description="Home"
+        hideCookieBanner={true}
+        isLoggedIn={isLoggedIn}
+      >
+        <h1 className="govuk-heading-xl">{TITLE}</h1>
         <p className="govuk-body">
-          This service is for publishing devolved bus registrations data  
-          for public transport <br /> services, excluding rail, in England.
+          This service is for publishing devolved bus registrations data for
+          public transport <br /> services, excluding rail, in England.
         </p>
         <div>
           <p>The service can be used by:</p>
@@ -36,7 +37,7 @@ const Home: React.FC = () => {
         </div>
         <div>
           <Link
-            to= {isLoggedIn ? "/registrations" : "/login"}
+            to={isLoggedIn ? "/registrations" : "/login"}
             className="govuk-button govuk-button--start"
             data-module="govuk-button"
           >
