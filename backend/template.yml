@@ -549,7 +549,7 @@ Resources:
     Properties:
       FunctionName: !Sub '${Environment}-${ProjectName}-weca-client-lambda'
       Role: !GetAtt WecaClientLambdaExecutionRole.Arn
-      CodeUri: src/data_catalogue
+      CodeUri: src/weca_client
       Handler: app.lambda_handler
       Events:
         HourlyGetWecaClient:
