@@ -1,7 +1,7 @@
-from typing import List
-import requests
-from .logger import log
 import json
+import requests
+from typing import List
+from .logger import log
 from .settings import OTC_CLIENT_API_URL
 
 

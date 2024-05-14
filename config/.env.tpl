@@ -26,8 +26,10 @@ POSTGRES_DB=pdbrd_db
 
 # # CSV Handler Lambda Function
 # # ------------------------------------------------------------------------------
+CLAMAV_S3_BUCKET_NAME=
 COGNITO_USERPOOL_ID=
 COGNITO_APP_CLIENT_ID=
+OTC_CLIENT_API_URL=
 
 # # OTC Client Lambda Function
 # # ------------------------------------------------------------------------------
@@ -39,7 +41,10 @@ MS_SCOPE=
 OTC_CLIENT_SECRET=
 OTC_API_KEY=
 
-# # ClamAV
+# # WECA Client Lambda Function
 # # -----------------------------------------------------------------------------
-# CLAMAV_HOST=clamav
-# CLAMAV_PORT=3310
+WECA_PARAM_C=
+WECA_PARAM_T=
+WECA_PARAM_R=
+WECA_AUTH_TOKEN=
+WECA_API_URL=

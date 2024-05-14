@@ -1,9 +1,7 @@
 import logging
 from rich.logging import RichHandler
 from logging import StreamHandler
-LOGGER_LEVEL = "DEBUG"
-LOGGER_MOD = "local"
-
+from .settings import LOGGER_LEVEL, LOGGER_MOD
 
 
 if LOGGER_MOD == "local":
@@ -22,4 +20,10 @@ else:
         handlers=[StreamHandler()],
     )
 
-log = logging.getLogger("csv_handler")
+log = logging.getLogger("weca_client")
+# Usage:
+# log.debug({"key": "value", "key2": "value2"})
+# log.info("this is info message")
+# log.warning("this is warning message")
+# log.error("this is error message")
+# log.critical("this is critical message")

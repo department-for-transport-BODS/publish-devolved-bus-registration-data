@@ -1,10 +1,7 @@
 import logging
-from rich.console import Console
 from rich.logging import RichHandler
 from logging import StreamHandler
 from central_config import LOGGER_LEVEL, LOGGER_MOD
-
-console = Console()
 
 
 if LOGGER_MOD == "local":
