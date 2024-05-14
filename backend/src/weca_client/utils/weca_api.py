@@ -1,27 +1,30 @@
 import logging
 import requests
 from http import HTTPStatus
-from requests import HTTPError, RequestException, Timeout
+from os import getenv
 from pydantic import ValidationError
+from requests import HTTPError, RequestException, Timeout
+from .aws import get_secret
+from .logger import log
 from .pydant_model import  APIResponse
 from .settings import (
-    WECA_AUTH_TOKEN,
+    ENVIRONMENT,
     WECA_PARAM_C,
     WECA_PARAM_T,
     WECA_PARAM_R,
     WECA_API_URL,
 )
 
-logger = logging.getLogger(__name__)
+WECA_AUTH_TOKEN = getenv("WECA_AUTH_TOKEN", None)
 
+if ENVIRONMENT != "local":
+    secret = get_secret(WECA_AUTH_TOKEN)
+    WECA_AUTH_TOKEN = secret["text_secret_data"]
 
 class EmptyResponseException(Exception):
     pass
 
-
 retry_exceptions = (RequestException, EmptyResponseException)
-
-
 
 class WecaClient:
     def _make_request(self, timeout: int = 30, **kwargs) -> APIResponse:
@@ -53,16 +56,16 @@ class WecaClient:
             response.raise_for_status()
         except Timeout as e:
             msg = f"Timeout Error: {e}"
-            logger.exception(msg)
+            log.exception(msg)
             raise
 
         except HTTPError as e:
             msg = f"HTTPError: {e}"
-            logger.exception(msg)
+            log.exception(msg)
             raise
 
         if response.status_code == HTTPStatus.NO_CONTENT:
-            logger.warning(
+            log.warning(
                 f"Empty Response, API return {HTTPStatus.NO_CONTENT}, "
                 f"for params {params}"
             )
@@ -70,13 +73,13 @@ class WecaClient:
         try:
             return APIResponse(**response.json())
         except ValidationError as exc:
-            logger.error("Validation error in WECA API response")
-            logger.error(f"Response JSON: {response.text}")
-            logger.error(f"Validation Error: {exc}")
+            log.error("Validation error in WECA API response")
+            log.error(f"Response JSON: {response.text}")
+            log.error(f"Validation Error: {exc}")
         except ValueError as exc:
-            logger.error("Validation error in WECA API response")
-            logger.error(f"Response JSON: {response.text}")
-            logger.error(f"Validation Error: {exc}")
+            log.error("Validation error in WECA API response")
+            log.error(f"Response JSON: {response.text}")
+            log.error(f"Validation Error: {exc}")
         return self.default_response()
 
     def default_response(self):
@@ -94,8 +97,3 @@ class WecaClient:
         """
         response = self._make_request()
         return response
-
-
-# if __name__ == "__main__":
-#     client = WecaClient()
-#     res = client.fetch_weca_services()

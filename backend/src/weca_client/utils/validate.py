@@ -1,11 +1,10 @@
 from .exceptions import LicenceDetailsError
-from .pydant_model import LicenceRecord
-
 from .logger import log
 from .otc_api import verify_otc_api
+from .pydant_model import LicenceRecord
 
 
-# get licenceRecord that has licence_number x001
+# Get licenceRecord that has licence_number x001
 def licence_detail(licence_number, licence_details):
     return next(
         (

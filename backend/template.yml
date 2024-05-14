@@ -76,7 +76,7 @@ Resources:
       Role: !GetAtt CsvHandlerLambdaExecutionRole.Arn
       CodeUri: src/csv_handler
       Handler: app.lambda_handler
-      Timeout: 300
+      Timeout: 600
       MemorySize: 512
       Events:
         ApiEvents:
@@ -552,6 +552,8 @@ Resources:
       Role: !GetAtt WecaClientLambdaExecutionRole.Arn
       CodeUri: src/weca_client
       Handler: app.lambda_handler
+      Timeout: 180
+      MemorySize: 512
       Events:
         HourlyGetWecaClient:
           Type: Schedule
@@ -580,6 +582,11 @@ Resources:
           POSTGRES_DB: !Sub '${ProjectName}_db'
           POSTGRES_CREDENTIALS: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/name}}'
           OTC_CLIENT_API_URL: !Sub 'https://${OtcClientApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/api/v1/otc/licences'
+          WECA_AUTH_TOKEN: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/weca/authtoken/name}}'
+          WECA_API_URL: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/weca/api/endpoint}}'
+          WECA_PARAM_C: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/weca/param/c}}'
+          WECA_PARAM_R: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/weca/param/r}}'
+          WECA_PARAM_T: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/weca/param/t}}'
       LoggingConfig:
         LogGroup: !Ref WecaClientLambdaLogGroup
 
@@ -673,7 +680,9 @@ Resources:
               - secretsmanager:GetSecretValue
               - secretsmanager:DescribeSecret
               - secretsmanager:ListSecretVersionIds
-            Resource: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/arn}}'
+            Resource: 
+              - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/arn}}'
+              - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/weca/authtoken/arn}}'
           - Effect: Allow
             Action:
               - kms:Decrypt

@@ -1,9 +1,9 @@
-from utils.db import send_to_db
-from utils.validate import validate_licence_number_existence
 from copy import deepcopy
-from utils.logger import log
 from pydantic import ValidationError
+from utils.db import send_to_db
+from utils.logger import log
 from utils.pydant_model import Registration, AuthenticatedEntity
+from utils.validate import validate_licence_number_existence
 
 
 def extract_field_mgs_type_from_errors(errors: [dict]) -> dict:
@@ -67,7 +67,6 @@ def csv_data_structure_check(csv_data: [dict]) -> dict:
     return {"invalid_records": [{"records" : validation_errors, "description": validation_description}], "valid_records": valid_records}
 
 
-
 class RecordsManager:
     def __init__(self, csv_data: str, authenticated_entity: AuthenticatedEntity = None, report_id: str = None):
         self.csv_data = csv_data
@@ -86,15 +85,20 @@ class RecordsManager:
         Returns:
              Record reports: A dictionary containing the valid and invalid records and the count of valid records.
         """
+        log.info("Running validation checks")
         validated_records = self._validate_csv_data()
+        log.info("Testing for duplicate records")
         self._check_duplicate_records(validated_records)
+        log.info("Querying OTC for licence validity")
         self._check_licence_number_existence(validated_records)
+        log.info("Committing data to backend database")
         self._send_to_db(validated_records, self.group_name, self.user_name)
         self._remove_licence_details(validated_records)
         # Add the count of valid records to the validated_records dictionary
         validated_records["valid_records_count"] = len(
             validated_records["valid_records"]
         )
+        log.info(validated_records["valid_records_count"])
         del validated_records["valid_records"]
 
         if validated_records["invalid_records"] == {}:
@@ -154,7 +158,7 @@ class RecordsManager:
         validate_licence_number_existence(records)
 
     def _send_to_db(self, records, group_name, user_name):
-        send_to_db(records, group_name=group_name,user_name=user_name)
+        send_to_db(records, group_name=group_name, user_name=user_name)
 
     def _remove_licence_details(self, records):
         """Removing the licence details from validated records."""
@@ -166,12 +170,9 @@ class RecordsManager:
                             exclude=["serviceCode"]
                         )
                     else:
-                        print(f"Error: Invalid record at index {idx}")
+                        log.info(f"Error: Invalid record at index {idx}")
             else:
-                print("Error: 'valid_records' key not found in records")
+                log.info("Error: 'valid_records' key not found in records")
         except Exception as e:
-            print(f"Error: {e}")
+            log.info(f"Error: {e}")
         return records
-
-    # def _send_report_to_db(self, records_report, user_name, group_name , report_id):
-    #     send_report_to_db(records_report, user_name, group_name, report_id)
