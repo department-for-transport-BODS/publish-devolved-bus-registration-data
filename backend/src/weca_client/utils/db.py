@@ -1,20 +1,19 @@
+import json
+from os import getenv
 from typing import List
 from sqlalchemy import create_engine, select, Table
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
-from os import getenv
-import json
-from .pydant_model import DBCreds
 from .aws import get_secret
-from .settings import PROJECT_ENV
+from .data import common_keys_comparsion
 from .exceptions import (
     GroupIsNotFound,
     RecordIsAlreadyExist,
     RecordBelongsToAnotherUser,
 )
 from .logger import log
-from .pydant_model import Registration
-from .data import common_keys_comparsion
+from .pydant_model import DBCreds, Registration
+from .settings import ENVIRONMENT
 
 
 class CreateEngine:
@@ -23,7 +22,7 @@ class CreateEngine:
         creds = None
 
         try:
-            if PROJECT_ENV != "local":
+            if ENVIRONMENT != "local":
                 secret = get_secret(getenv("POSTGRES_CREDENTIALS"))
                 creds = DBCreds(**json.loads(secret["text_secret_data"]))
             else:
@@ -324,7 +323,7 @@ def send_to_db(
     records: List[Registration], group_name=None, user_name=None, report_id=None
 ):
     # validated_records: List[Registration] = MockData.mock_user_csv_record()
-    models = AutoMappingModels()
+    models = AutoMappingModels() 
     engine = models.engine
     tables = models.get_tables()
     OTCOperator = tables["OTCOperator"]

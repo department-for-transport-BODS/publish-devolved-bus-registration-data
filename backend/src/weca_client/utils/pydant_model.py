@@ -1,8 +1,10 @@
-from datetime import date, datetime
 import re
-from typing import List, Literal, Optional
-from pydantic import BaseModel, Field, field_validator
+from datetime import date, datetime
 from os import getenv
+from pydantic import BaseModel, Field, field_validator
+from typing import List, Literal, Optional
+
+
 class DBCreds(BaseModel):
     PG_HOST: str = Field(default_factory=lambda: getenv("POSTGRES_HOST", "localhost"))
     PG_PORT: str = Field(default_factory=lambda: getenv("POSTGRES_PORT", "5432"))
