@@ -187,7 +187,10 @@ jobs:
 
           openssl base64 -out $GITHUB_WORKSPACE/encoded_payload.json -in $GITHUB_WORKSPACE/payload.json 
           response=$(aws lambda invoke --function-name $lambda_function_name --region $AWS_REGION --payload file://$GITHUB_WORKSPACE/encoded_payload.json response.txt 2>&1)
-          if [[ "$response" == *"FunctionError"* || "$response" == *"[FAILURE]"* ]]; then
+          status_code=$(cat response.txt | jq -r '.statusCode')
+          status_code=${status_code:-"unset"}
+          echo "Status Code is: $status_code"
+          if [[ "$status_code" == "500" ]]; then
             echo "[ERROR] Deployment of application component (DATABASE) with version ${VERSION} failed with error:"
             echo "${response}"
             exit 1
