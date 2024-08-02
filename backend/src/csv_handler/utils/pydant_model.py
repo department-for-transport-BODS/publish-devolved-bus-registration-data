@@ -96,12 +96,10 @@ class Registration(BaseModel):
 class LicenceDetails(BaseModel):
     licence_number: str
     licence_status: str
-    otc_licence_id: int
 
 
 class OperatorDetails(BaseModel):
     operator_name: str
-    otc_operator_id: int
 
 
 class LicenceRecord(BaseModel):

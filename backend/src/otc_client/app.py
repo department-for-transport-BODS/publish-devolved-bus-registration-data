@@ -33,6 +33,7 @@ OTC_API_URL = getenv("OTC_API_URL", None)
 OTC_API_KEY = getenv("OTC_API_KEY", None)
 
 if ENVIRONMENT != "local":
+    MS_CLIENT_ID = get_secret(MS_CLIENT_ID)
     MS_CLIENT_SECRET = get_secret(MS_CLIENT_SECRET)
     OTC_API_KEY = get_secret(OTC_API_KEY)
 
@@ -51,19 +52,11 @@ class OTCLicence(BaseModel):
         default=None,
         validation_alias=AliasChoices("licenceStatus", "licence_status"),
     )
-    otc_licence_id: int = Field(
-        ...,
-        validation_alias=AliasChoices("licenceId", "otc_licence_id"),
-    )
 
 
 class Operator(BaseModel):
     operator_name: str = Field(
         ..., validation_alias=AliasChoices("operatorName", "operator_name")
-    )
-    otc_operator_id: int = Field(
-        ...,
-        validation_alias=AliasChoices("operatorId", "otc_operator_id"),
     )
 
 
@@ -174,7 +167,7 @@ class OTCAPIClient:
         logger.debug(f"Attempting to get licence {licence_number} from OTC")
         try:
             return licence_number, self._request(
-                licenceNo=licence_number, limit=1, page=1, latestVariation="true"
+                identifier=licence_number, limit=1, page=1, latestVariation="true"
             )
         except OTCLicenceNotFound:
             return licence_number, None
@@ -185,22 +178,22 @@ class OTCAPIClient:
 
     def _parse_licence(self, licence_number, returned_licence):
         logger.debug(f"Attempting to parse licence {licence_number} received from OTC")
-        bus_search_component = returned_licence.get("busSearch", None)
+        licence_details_component = returned_licence.get("report", None).get("licenceDetails", None)
         try:
-            if bus_search_component is None:
+            if licence_details_component is None:
                 raise MalformedOTCAPIResponse(
-                    f"OTC API Response for licence {licence_number} was malformed: no busSearch component"
+                    f"OTC API Response for licence {licence_number} was malformed: no licenceDetails component"
                 )
-            if len(bus_search_component) == 0:
+            if len(licence_details_component) == 0:
                 raise MalformedOTCAPIResponse(
-                    f"OTC API Response for licence {licence_number} was malformed: busSearch component contains no records"
+                    f"OTC API Response for licence {licence_number} was malformed: licenceDetails component contains no records"
                 )
         except Exception as e:
             msg = f"Could not get license {licence_number}: {e}"
             logger.error(msg)
             return None, None
         try:
-            parsed_licence = OTCLicence(**bus_search_component[0])
+            parsed_licence = OTCLicence(**licence_details_component[0])
             parsed_licence_dump = parsed_licence.model_dump()
 
         except Exception as e:
@@ -208,7 +201,7 @@ class OTCAPIClient:
             logger.error(msg)
             parsed_licence_dump = None
         try:
-            parsed_operator = Operator(**bus_search_component[0])
+            parsed_operator = Operator(**licence_details_component[0])
             parsed_operator_dump = parsed_operator.model_dump()
         except Exception as e:
             msg = f"Could not get operator detail for licence {licence_number}: {e}"

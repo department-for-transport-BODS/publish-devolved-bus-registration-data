@@ -122,10 +122,10 @@ class AutoMappingModels:
         self.PDBRDStage = self.Base.classes.pdbrd_stage
         self.PDBRDUser = self.Base.classes.pdbrd_user
         self.OTCLicence.__repr__ = (
-            lambda self: f"<OTCLicence(licence_number='{self.licence_number}', licence_status='{self.licence_status}, otc_licence_id={self.otc_licence_id}')>"
+            lambda self: f"<OTCLicence(licence_number='{self.licence_number}', licence_status='{self.licence_status}')>"
         )
         self.OTCOperator.__repr__ = (
-            lambda self: f"<OTCOperator(operator_name='{self.operator_name}', operator_id='{self.otc_operator_id}')>"
+            lambda self: f"<OTCOperator(operator_name='{self.operator_name}')>"
         )
         self.PDBRDRegistration.__repr__ = (
             lambda self: f"<PDBRDRegistration(route_number='{self.route_number}', route_description='{self.route_description}', variation_number='{self.variation_number}', start_point='{self.start_point}', finish_point='{self.finish_point}', via='{self.via}', subsidised='{self.subsidised}', subsidy_detail='{self.subsidy_detail}', is_short_notice='{self.is_short_notice}', received_date='{self.received_date}', granted_date='{self.granted_date}', effective_date='{self.effective_date}', end_date='{self.end_date}', otc_operator_id='{self.otc_operator_id}', bus_service_type_id='{self.bus_service_type_id}', bus_service_type_description='{self.bus_service_type_description}', registration_number='{self.registration_number}', traffic_area_id='{self.traffic_area_id}', application_type='{self.application_type}', publication_text='{self.publication_text}', other_details='{self.other_details}')>"
@@ -1087,8 +1087,7 @@ def send_to_db(
             # Prepare operator object and added to the database
             record, licence = record_and_licence
             OTCOperator_record = OTCOperator(
-                operator_name=licence.operator_details.operator_name,
-                otc_operator_id=licence.operator_details.otc_operator_id,
+                operator_name=licence.operator_details.operator_name
             )
 
             # Add or fetch the operator id from the database
@@ -1102,8 +1101,7 @@ def send_to_db(
             # Prepare licence object and added to the database
             OTCLicence_record = OTCLicence(
                 licence_number=licence.licence_details.licence_number,
-                licence_status=licence.licence_details.licence_status,
-                otc_licence_id=licence.licence_details.otc_licence_id,
+                licence_status=licence.licence_details.licence_status
             )
 
             # Add or fetch the licence id from the database
