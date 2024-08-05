@@ -11,14 +11,6 @@ Description: >
   The Lambda functions are triggered by API Gateway, and the SPA makes API calls to API Gateway to interact 
   with the backend. The SPA and its static assets are served to the end users through the CloudFront distribution.
 
-Globals:
-  Function:
-    Architectures:
-      - x86_64
-    MemorySize: 256
-    Runtime: python3.11
-    Timeout: 60
-
 Parameters:
   Environment:
     Description: The environment into which the stack is being deployed
@@ -45,6 +37,24 @@ Parameters:
 Conditions:
   IsNotLocal: !Not [!Equals [!Ref Environment, 'local']]
   IsNotProd: !Not [!Equals [!Ref Environment, 'prod']]
+
+Globals:
+  Function:
+    Architectures:
+      - x86_64
+    MemorySize: 256
+    Runtime: python3.11
+    Timeout: 60
+    Environment:
+      Variables:
+        PROJECT_ENV: !Ref Environment
+        PROJECT_NAME: !Ref ProjectName
+        HTTP_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
+        HTTPS_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
+        LOG_LEVEL: !If
+          - IsNotProd
+          - 'DEBUG'
+          - 'INFO'
 
 Resources:
   ################################################
@@ -109,14 +119,6 @@ Resources:
           - !GetAtt CsvHandlerLambdaSecurityGroup.GroupId
       Environment:
         Variables:
-          PROJECT_ENV: !Ref Environment
-          PROJECT_NAME: !Ref ProjectName
-          HTTP_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-          HTTPS_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-          LOG_LEVEL: !If
-            - IsNotProd
-            - 'DEBUG'
-            - 'INFO'
           POSTGRES_HOST:  !If
             - IsNotLocal
             - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/endpoint}}'
@@ -300,14 +302,6 @@ Resources:
           - !GetAtt OtcClientLambdaSecurityGroup.GroupId
       Environment:
         Variables:
-          PROJECT_ENV: !Ref Environment
-          PROJECT_NAME: !Ref ProjectName
-          HTTP_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-          HTTPS_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-          LOG_LEVEL: !If
-            - IsNotProd
-            - 'DEBUG'
-            - 'INFO'
           MS_SCOPE: !Sub '{{resolve:ssm:/shared/${ProjectName}/otc/ms/scope}}'
           MS_TENANT_ID: !Sub '{{resolve:ssm:/shared/${ProjectName}/otc/ms/tenant/id}}'
           MS_CLIENT_ID: !Sub '{{resolve:ssm:/shared/${ProjectName}/otc/ms/client/id}}'
@@ -425,14 +419,6 @@ Resources:
           - !GetAtt DataCatalogueLambdaSecurityGroup.GroupId
       Environment:
         Variables:
-          PROJECT_ENV: !Ref Environment
-          PROJECT_NAME: !Ref ProjectName
-          HTTP_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-          HTTPS_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-          LOG_LEVEL: !If
-            - IsNotProd
-            - 'DEBUG'
-            - 'INFO'
           POSTGRES_HOST:  !If
             - IsNotLocal
             - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/endpoint}}'
@@ -565,14 +551,6 @@ Resources:
           - !GetAtt WecaClientLambdaSecurityGroup.GroupId
       Environment:
         Variables:
-          PROJECT_ENV: !Ref Environment
-          PROJECT_NAME: !Ref ProjectName
-          HTTP_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-          HTTPS_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-          LOG_LEVEL: !If
-            - IsNotProd
-            - 'DEBUG'
-            - 'INFO'
           POSTGRES_HOST:  !If
             - IsNotLocal
             - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/endpoint}}'
