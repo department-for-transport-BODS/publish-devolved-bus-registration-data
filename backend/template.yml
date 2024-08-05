@@ -308,13 +308,12 @@ Resources:
             - IsNotProd
             - 'DEBUG'
             - 'INFO'
-          MS_LOGIN_URL: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/ms/login/endpoint}}'
-          MS_SCOPE: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/ms/scope}}'
-          MS_TENANT_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/ms/tenant/id}}'
-          MS_CLIENT_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/ms/client/id}}'
-          MS_CLIENT_SECRET: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/otc/ms/client/secret/name}}'
-          OTC_API_URL: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/api/endpoint}}'
-          OTC_API_KEY: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/otc/apikey/name}}'
+          MS_SCOPE: !Sub '{{resolve:ssm:/shared/${ProjectName}/otc/ms/scope}}'
+          MS_TENANT_ID: !Sub '{{resolve:ssm:/shared/${ProjectName}/otc/ms/tenant/id}}'
+          MS_CLIENT_ID: !Sub '{{resolve:ssm:/shared/${ProjectName}/otc/ms/client/id}}'
+          MS_CLIENT_SECRET: !Sub '{{resolve:ssm:/shared/${ProjectName}/secretsmanager/otc/ms/client/secret/name}}'
+          OTC_API_URL: !Sub '{{resolve:ssm:/shared/${ProjectName}/otc/api/endpoint}}'
+          OTC_API_KEY: !Sub '{{resolve:ssm:/shared/${ProjectName}/secretsmanager/otc/apikey/name}}'
       LoggingConfig:
         LogGroup: !Ref OtcClientLambdaLogGroup
 
@@ -395,8 +394,8 @@ Resources:
               - secretsmanager:DescribeSecret
               - secretsmanager:ListSecretVersionIds
             Resource: 
-              - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/otc/ms/client/secret/arn}}'
-              - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/otc/apikey/arn}}'
+              - !Sub '{{resolve:ssm:/shared/${ProjectName}/secretsmanager/otc/ms/client/secret/arn}}'
+              - !Sub '{{resolve:ssm:/shared/${ProjectName}/secretsmanager/otc/apikey/arn}}'
           - Effect: Allow
             Action:
               - kms:Decrypt
@@ -582,11 +581,11 @@ Resources:
           POSTGRES_DB: !Sub '${ProjectName}_db'
           POSTGRES_CREDENTIALS: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/name}}'
           OTC_CLIENT_API_URL: !Sub 'https://${OtcClientApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/api/v1/otc/licences'
-          WECA_AUTH_TOKEN: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/weca/authtoken/name}}'
-          WECA_API_URL: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/weca/api/endpoint}}'
-          WECA_PARAM_C: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/weca/param/c}}'
-          WECA_PARAM_R: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/weca/param/r}}'
-          WECA_PARAM_T: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/weca/param/t}}'
+          WECA_AUTH_TOKEN: !Sub '{{resolve:ssm:/shared/${ProjectName}/secretsmanager/weca/authtoken/name}}'
+          WECA_API_URL: !Sub '{{resolve:ssm:/shared/${ProjectName}/weca/api/endpoint}}'
+          WECA_PARAM_C: !Sub '{{resolve:ssm:/shared/${ProjectName}/weca/param/c}}'
+          WECA_PARAM_R: !Sub '{{resolve:ssm:/shared/${ProjectName}/weca/param/r}}'
+          WECA_PARAM_T: !Sub '{{resolve:ssm:/shared/${ProjectName}/weca/param/t}}'
       LoggingConfig:
         LogGroup: !Ref WecaClientLambdaLogGroup
 
@@ -682,7 +681,7 @@ Resources:
               - secretsmanager:ListSecretVersionIds
             Resource: 
               - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/arn}}'
-              - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/weca/authtoken/arn}}'
+              - !Sub '{{resolve:ssm:/shared/${ProjectName}/secretsmanager/weca/authtoken/arn}}'
           - Effect: Allow
             Action:
               - kms:Decrypt
