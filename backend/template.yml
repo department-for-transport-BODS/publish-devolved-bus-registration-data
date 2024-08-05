@@ -737,6 +737,7 @@ Resources:
           AcmCertificateArn: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/acm/certificate/arn}}'
           MinimumProtocolVersion: TLSv1.2_2021
           SslSupportMethod: sni-only
+        WebACLId: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/waf/webacl/cloudfront/arn}}'
         Origins:
           - Id: frontendBucket
             DomainName: !GetAtt FrontendBucket.RegionalDomainName
