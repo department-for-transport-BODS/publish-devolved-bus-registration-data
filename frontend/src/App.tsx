@@ -20,8 +20,8 @@ import PrivacyStatement from "./pages/privacyStatement";
 import AccessibilityStatement from "./pages/accessibilityStatement";
 import CookiePage from "./pages/cookiePage";
 import PreValidations from "./pages/preValidation";
-import FindRegisteredServices from "./pages/FindRegisteredServices";
-import RegistrationDetails from "./pages/RegistrationDetails";
+import FindRegisteredServices from "./pages/findRegisteredServices";
+import RegistrationDetails from "./pages/registrationDetails";
 function App() {
   Amplify.configure(AmplifyConfiguration);
   return (
