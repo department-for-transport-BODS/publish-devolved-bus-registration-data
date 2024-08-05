@@ -13,14 +13,16 @@ const ContactUs: React.FC = () => {
     <>
       <TwoThirdsLayout title="Contact Us" description="Home" hideCookieBanner={true} isLoggedIn={isLoggedIn}>
         <h1 className="govuk-heading-xl">
-        Contact the devolved bus registration data service team
+        Contact the {TITLE.split(" ")
+                          .slice(1)
+                          .join(" ")} service team
         </h1>
         <p className="govuk-heading-m">
         Feedback and support 
         </p>
         <div className="govuk-!-font-size-19 govuk-!-margin-bottom-9">
         <p className="">
-        If you are experiencing technical issues, or if you have any suggestions, comments or criticisms, please contact the {TITLE} Service team through one of the channels below.
+        If you are experiencing technical issues, or if you have any suggestions, comments or criticisms, please contact the {TITLE.split(" ").slice(1).join(" ")} service team through one of the channels below.
         </p>
         <p>
         The Help Desk is available Monday to Friday, 9am to 5pm <br />(excluding Bank Holidays in England and Wales, and the 24th of December).
