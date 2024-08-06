@@ -2,15 +2,23 @@ import re
 from datetime import date, datetime
 from os import getenv
 from pydantic import BaseModel, Field, field_validator
-from typing import List, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional
 
 
 class DBCreds(BaseModel):
-    PG_HOST: str = Field(default_factory=lambda: getenv("POSTGRES_HOST", "localhost"))
-    PG_PORT: str = Field(default_factory=lambda: getenv("POSTGRES_PORT", "5432"))
-    PG_DB: str = Field(default_factory=lambda: getenv("POSTGRES_DB", "postgres"))
-    PG_USER: str = Field(alias="username")
-    PG_PASSWORD: str = Field(alias="password")
+    host: str = Field(default_factory=lambda: getenv("POSTGRES_HOST", "localhost"))
+    port: str = Field(default_factory=lambda: getenv("POSTGRES_PORT", "5432"))
+    dbname: str = Field(default_factory=lambda: getenv("POSTGRES_DB", "postgres"))
+    user: str = Field(default_factory=lambda: getenv("POSTGRES_USER", "postgres"))
+    password: str = Field(alias="password")
+    optargs: Dict[str, Any] = Field(default_factory=dict)
+
+    class Config:
+        extra = "allow"
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        self.optargs = {key: value for key, value in data.items() if key not in self.__fields__}
 
 
 class Registration(BaseModel):

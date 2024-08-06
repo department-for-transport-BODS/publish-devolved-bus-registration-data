@@ -24,6 +24,9 @@ Parameters:
   VpcSubnets:
     Type: AWS::SSM::Parameter::Value<List<AWS::EC2::Subnet::Id>>
     Default: ''
+  RdsAuthUsers:
+    Type: AWS::SSM::Parameter::Value<List<String>>
+    Default: ''
   RdsDbHostAddr:
     Type: String
     Default: ''
@@ -123,9 +126,8 @@ Resources:
             - IsNotLocal
             - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/endpoint}}'
             - !Ref RdsDbHostAddr
-          POSTGRES_PORT: 5432
           POSTGRES_DB: !Sub '${ProjectName}_db'
-          POSTGRES_CREDENTIALS: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/name}}'
+          POSTGRES_USER: !Sub '${ProjectName}_app_rw'
           CLAMAV_S3_BUCKET_NAME: !Sub 'shared-${ProjectName}-clamav-artefacts-${AWS::AccountId}'
           COGNITO_USERPOOL_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/cognito/userpool/id}}'
           COGNITO_APP_CLIENT_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/cognito/userpool/client/id}}'
@@ -232,11 +234,11 @@ Resources:
             Resource:
               - !Sub '{{resolve:ssm:/shared/${ProjectName}/kms/s3}}'
 
-  CsvHandlerLambdaSecretsAccessPolicy:
+  CsvHandlerLambdaRdsDbConnectPolicy:
     Type: 'AWS::IAM::Policy'
     Condition: IsNotLocal
     Properties:
-      PolicyName: !Sub '${Environment}-${ProjectName}-csv-handler-lambda-secrets-access-policy'
+      PolicyName: !Sub '${Environment}-${ProjectName}-csv-handler-lambda-rds-db-connect-policy'
       Roles:
         - !Ref CsvHandlerLambdaExecutionRole
       PolicyDocument:
@@ -244,16 +246,16 @@ Resources:
         Statement:
           - Effect: Allow
             Action:
-              - secretsmanager:GetResourcePolicy
-              - secretsmanager:GetSecretValue
-              - secretsmanager:DescribeSecret
-              - secretsmanager:ListSecretVersionIds
-            Resource: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/arn}}'
-          - Effect: Allow
-            Action:
-              - kms:Decrypt
+              - rds-db:connect
             Resource:
-              - !Sub '{{resolve:ssm:/shared/${ProjectName}/kms/secretsmanager}}'
+              - !Sub
+                - 'arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${RdsId}/${RdsAuthUser}'
+                - RdsId: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/id}}'
+                  RdsAuthUser: !Select [0, !Ref RdsAuthUsers]
+              - !Sub
+                - 'arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${RdsId}/${RdsAuthUser}'
+                - RdsId: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/id}}'
+                  RdsAuthUser: !Select [1, !Ref RdsAuthUsers]
 
   ###############################################
   #### OTC CLIENT LAMBDA (& ASSC. RESOURCES) ####
@@ -423,9 +425,8 @@ Resources:
             - IsNotLocal
             - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/endpoint}}'
             - !Ref RdsDbHostAddr
-          POSTGRES_PORT: 5432
           POSTGRES_DB: !Sub '${ProjectName}_db'
-          POSTGRES_CREDENTIALS: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/name}}'
+          POSTGRES_USER: !Sub '${ProjectName}_app_rw'
       LoggingConfig:
         LogGroup: !Ref DataCatalogueLambdaLogGroup
 
@@ -503,11 +504,11 @@ Resources:
               - logs:PutLogEvents
             Resource: !GetAtt DataCatalogueLambdaLogGroup.Arn
 
-  DataCatalogueLambdaSecretsAccessPolicy:
+  DataCatalogueLambdaRdsDbConnectPolicy:
     Type: 'AWS::IAM::Policy'
     Condition: IsNotLocal
     Properties:
-      PolicyName: !Sub '${Environment}-${ProjectName}-data-catalogue-lambda-secrets-access-policy'
+      PolicyName: !Sub '${Environment}-${ProjectName}-data-catalogue-lambda-rds-db-connect-policy'
       Roles:
         - !Ref DataCatalogueLambdaExecutionRole
       PolicyDocument:
@@ -515,16 +516,16 @@ Resources:
         Statement:
           - Effect: Allow
             Action:
-              - secretsmanager:GetResourcePolicy
-              - secretsmanager:GetSecretValue
-              - secretsmanager:DescribeSecret
-              - secretsmanager:ListSecretVersionIds
-            Resource: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/arn}}'
-          - Effect: Allow
-            Action:
-              - kms:Decrypt
+              - rds-db:connect
             Resource:
-              - !Sub '{{resolve:ssm:/shared/${ProjectName}/kms/secretsmanager}}'
+              - !Sub
+                - 'arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${RdsId}/${RdsAuthUser}'
+                - RdsId: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/id}}'
+                  RdsAuthUser: !Select [0, !Ref RdsAuthUsers]
+              - !Sub
+                - 'arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${RdsId}/${RdsAuthUser}'
+                - RdsId: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/id}}'
+                  RdsAuthUser: !Select [1, !Ref RdsAuthUsers]
 
   ################################################
   #### WECA CLIENT LAMBDA (& ASSC. RESOURCES) ####
@@ -555,9 +556,8 @@ Resources:
             - IsNotLocal
             - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/endpoint}}'
             - !Ref RdsDbHostAddr
-          POSTGRES_PORT: 5432
           POSTGRES_DB: !Sub '${ProjectName}_db'
-          POSTGRES_CREDENTIALS: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/name}}'
+          POSTGRES_USER: !Sub '${ProjectName}_app_rw'
           OTC_CLIENT_API_URL: !Sub 'https://${OtcClientApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/api/v1/otc/licences'
           WECA_AUTH_TOKEN: !Sub '{{resolve:ssm:/shared/${ProjectName}/secretsmanager/weca/authtoken/name}}'
           WECA_API_URL: !Sub '{{resolve:ssm:/shared/${ProjectName}/weca/api/endpoint}}'
@@ -641,6 +641,30 @@ Resources:
               - logs:PutLogEvents
             Resource: !GetAtt WecaClientLambdaLogGroup.Arn
 
+  WecaClientLambdaRdsDbConnectPolicy:
+    Type: 'AWS::IAM::Policy'
+    Condition: IsNotLocal
+    Properties:
+      PolicyName: !Sub '${Environment}-${ProjectName}-weca-client-lambda-rds-db-connect-policy'
+      Roles:
+        - !Ref WecaClientLambdaExecutionRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - rds-db:connect
+            Resource:
+              - !Sub
+                - 'arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${RdsId}/${RdsAuthUser}'
+                - RdsId: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/id}}'
+                  RdsAuthUser: !Select [0, !Ref RdsAuthUsers]
+              - !Sub
+                - 'arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${RdsId}/${RdsAuthUser}'
+                - RdsId: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/id}}'
+                  RdsAuthUser: !Select [1, !Ref RdsAuthUsers]
+
+
   WecaClientLambdaSecretsAccessPolicy:
     Type: 'AWS::IAM::Policy'
     Condition: IsNotLocal
@@ -658,7 +682,6 @@ Resources:
               - secretsmanager:DescribeSecret
               - secretsmanager:ListSecretVersionIds
             Resource: 
-              - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/arn}}'
               - !Sub '{{resolve:ssm:/shared/${ProjectName}/secretsmanager/weca/authtoken/arn}}'
           - Effect: Allow
             Action:
