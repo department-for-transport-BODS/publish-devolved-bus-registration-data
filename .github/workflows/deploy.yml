@@ -178,8 +178,8 @@ jobs:
             "authUser": "${{ vars.PROJECT_NAME }}_app_rw",
             "targetDatabase": "${{ vars.PROJECT_NAME }}_db",
             "databaseMigrations": {
-              "bucketName": "${DEPLOY_SRC}",
-              "bucketPrefix": "$rc_path",
+              "bucketName": "${RC_SRC}",
+              "bucketPrefix": "${rc_path}",
               "releaseVersion": "${VERSION}"
             }
           }
