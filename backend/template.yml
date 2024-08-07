@@ -831,12 +831,18 @@ Resources:
     Properties:
       HostedZoneId: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/id}}'
       RecordSets: 
-        - Name: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}'
+        - Name: !If 
+            - IsNotProd
+            - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}'
+            - !Join ['.', ['www', !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}']]
           Type: A
           AliasTarget:
             DNSName: !GetAtt CloudFrontDistribution.DomainName
             HostedZoneId: Z2FDTNDATAQYW2
-        - Name: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}'
+        - Name: !If
+            - IsNotProd
+            - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}'
+            - !Join ['.', ['www', !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}']]
           Type: AAAA
           AliasTarget:
             DNSName: !GetAtt CloudFrontDistribution.DomainName
