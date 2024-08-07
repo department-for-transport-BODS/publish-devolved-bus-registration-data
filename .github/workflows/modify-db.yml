@@ -69,7 +69,7 @@ jobs:
           cat <<EOF > $GITHUB_WORKSPACE/payload.json
           {
             "type": "destroy",
-            "authUser": "root",
+            "authUser": "postgres",
             "targetDatabase": "${{ vars.PROJECT_NAME }}_db",
             "roles": [
               "${{ vars.PROJECT_NAME }}_rw"
@@ -100,7 +100,7 @@ jobs:
           cat <<EOF > $GITHUB_WORKSPACE/payload.json
           {
               "type": "initialise",
-              "authUser": "root",
+              "authUser": "postgres",
               "databases": [{
                   "name": "${{ vars.PROJECT_NAME }}_db",
                   "schemas": [
