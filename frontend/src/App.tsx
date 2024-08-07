@@ -3,8 +3,6 @@ import "./App.css";
 import "./Sass/App.scss";
 import Home from "./pages/home";
 import UploadCsvPage from "./pages/uploadCsv";
-import Basic from "./pages/basic";
-import DefaultPage from "./pages/default";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import PartlyUploading from "./pages/uploadConfirmation";
 import SuccessfullyUploaded from "./pages/uploadConfirmationSuccessfully";
@@ -32,8 +30,6 @@ function App() {
           path="/upload-csv"
           element={<RequireAuth component={UploadCsvPage} requiredAccess="operator"/>}
         />
-        <Route path="/basic" element={<Basic />} />
-        <Route path="/default" element={<DefaultPage />} />
         <Route
           path="/partly-uploaded"
           element={<RequireAuth component={PartlyUploading} requiredAccess="operator"/>}

@@ -227,6 +227,7 @@ class AutoMappingModels:
 
 
 def add_filter_to_query(query: Query, column, value, strict_mode: bool = False):
+    """Add a filter to the query"""
     if strict_mode:
         return query.filter(column == value)
 
@@ -346,6 +347,17 @@ class DBManager:
     def fetch_operator_record(
         cls, operator_name: str, session: Session, OTCOperator, operator_record
     ):
+        """Fetch the operator record from the database
+        
+        Args:
+            operator_name (str): Operator name
+            session (Session): Database session
+            OTCOperator (Table): Operator table
+            operator_record (Record): Operator record
+
+        Returns:
+            int: ID of the operator record
+        """
         operator_record_id = add_or_get_record(
             "operator_name", operator_name, session, OTCOperator, operator_record
         )
@@ -355,6 +367,18 @@ class DBManager:
     def fetch_licence_record(
         cls, licence_number: str, session: Session, OTCLicence, licence_record
     ):
+        """Fetch the licence record from the database
+
+        Args:
+            licence_number (str): Licence number
+            session (Session): Database session
+            OTCLicence (Table): Licence table
+            licence_record (Record): Licence record
+
+        Returns:
+            int: ID of the licence record
+        """
+
         licence_record_id = add_or_get_record(
             "licence_number", licence_number, session, OTCLicence, licence_record
         )
@@ -659,6 +683,16 @@ class DBManager:
         latest_only=False,
         active_only=True,
     ):
+        """Get all the records from the database
+
+        Args:
+            authenticated_entity (AuthenticatedEntity)
+            latest_only (bool, optional):  Defaults to False.
+            active_only (bool, optional):  Defaults to True.
+
+        Returns:
+            _type_: _description_
+        """
         models, session = initiate_db_variables()
         PDBRDRegistration = models.PDBRDRegistration
         OTCOperator = models.OTCOperator
@@ -929,7 +963,16 @@ class DBManager:
     @classmethod
     def get_report_then_delete_it_from_db(
         cls, authenticated_entity: AuthenticatedEntity, report_id: str
-    ):
+    ) -> dict: 
+        """Get the report from the database and delete it
+
+        Args:
+            authenticated_entity (AuthenticatedEntity): Authenticated entity
+            report_id (str): Report ID
+
+        Returns:
+            json: Report
+        """
         models, session = initiate_db_variables()
         PDBRDReport = models.PDBRDReport
         if authenticated_entity.type == "user":
@@ -955,6 +998,19 @@ class DBManager:
     def get_staged_records(
         cls, authenticated_entity: AuthenticatedEntity, stage_id: str = None
     ):
+        """Get the staged records from the database
+
+        Args:
+            authenticated_entity (AuthenticatedEntity): Authenticated entity
+            stage_id (str, optional): Stage ID. Defaults to None.
+
+        Raises:
+            NoStagedProcess
+            StagingProcessInProgress
+
+        Returns:
+            List[dict]: List of records
+        """
         models, session = initiate_db_variables()
         PDBRDStage = models.PDBRDStage
         PDBRDLicence = models.OTCLicence
@@ -990,7 +1046,6 @@ class DBManager:
         )
         results = [rec._asdict() for rec in staged_records.all()]
         return results
-        # return [rec._asdict() for rec in staged_records.all()]
 
     @classmethod
     def commit_staged_records(

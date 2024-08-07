@@ -191,15 +191,6 @@ class SearchQuery(BaseModel):
             "Invalid value for LatestOnly. Must be one of 'True', 'False', 'Yes', 'No'"
         )
 
-    # @model_validator(mode="after")
-    # def validate_search_query(cls, values):
-    #     if (
-    #         values.license_number is None
-    #         and values.registration_number is None
-    #         and values.operator_name is None
-    #         and values.route_number is None
-    #     ):
-    #         raise ValueError("At least one of the search parameters must be provided")
 
 
 class Error(BaseModel):

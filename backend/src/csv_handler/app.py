@@ -52,7 +52,7 @@ async def create_upload_file(
     Raises:
         HTTPException:
             status_code: 422 if the CSV file contains invalid records
-            status_code: 201 if all records in the CSV file is successfully processed and inserted into the database
+            status_code: 200 if all records in the CSV file is successfully processed and inserted into the database
 
     Returns:
         _type_: _description_
@@ -109,13 +109,23 @@ async def geting_staged_records(
         "No", description="Whether to retrieve only the staged process"
     ),
 ):
-    """This is the endpoint to get the staged records in the database.
+    """
+    This endpoint has the following functionalities:
+     - Retrieve the staged process only if the stagedProcessOnly is set to 'Yes' or 'True'
+     - Retrieve the staged records if the stagedProcessOnly is set to 'No' or 'False'
 
     Args:
         authenticated_entity (AuthenticatedEntity): The authenticated entity
+        stagedProcessOnly (str): Whether to retrieve only the staged process
+    
+    Raises:
+        HTTPException: status_code: 404 if no staged process found
+        HTTPException: status_code: 425 if the staging process is not done yet
+        HTTPException: status_code: 422 if the value for stagedProcessOnly is invalid
 
     Returns:
-        _type_: _description_
+        Process (json): The staged process
+        Records (json): The staged records
     """
     try:
         processes = DBManager.get_staged_process(authenticated_entity)
@@ -161,7 +171,6 @@ async def geting_staged_records(
                 record.registration_number
             )
         values = list(grouped_records.values())
-        # if len(values) > 0:
         return {
             "records": values,
             "status": "Completed",
@@ -195,13 +204,23 @@ def get_staged_records_action(
         ..., description="The staged records ID", pattern="^[a-zA-Z0-9\-]*$"
     ),
 ):
-    """This is the endpoint to get the staged records in the database.
+    """
+    This endpoint has the following functionalities:
+     - Commit the staged records if the action is set to 'commit'
+     - Discard the staged records if the action is set to 'discard'
 
     Args:
         authenticated_entity (AuthenticatedEntity): The authenticated entity
+        action (str): The action to be performed
+        stage_id (str): The staged records ID
+    
+    Raises:
+        HTTPException: status_code: 400 if the staged records are not found
+        HTTPException: status_code: 400 if an error occurred while processing the request
+
 
     Returns:
-        _type_: _description_
+        message (json): The message indicating the status of the action
     """
     try:
         action = Action(action=action)
@@ -281,9 +300,17 @@ async def search_records(
         latestOnly (str): Whether to retrieve only the latest records
         limit (str): The maximum number of records per page
         strictMode (str): Strict mode for search
+        page (str): The page number to retrieve
+        activeOnly (str): Whether to retrieve only the active records
 
+    Raises:
+        HTTPException: status_code: 422 if the search query is invalid
+        HTTPException: status_code: 401 if the group is not found
+        HTTPException: status_code: 422 if the limit is not set, or the limit is exceeded
+
+    
     Returns:
-        _type_: _description_
+        res (json): The search results
     """
     try:
         search_query = SearchQuery(
@@ -332,25 +359,16 @@ def read_root():
         "message": "Welcome to the PDBRD registration API",
     }
 
-
-@api_v1_router.options("/search")
-async def search_records_options():
-    """This is the endpoint to return the options for the search endpoint"""
-    description = {
-        "licenseNumber": "The license name to filter the records",
-        "registrationNumber": "The registration number to filter the records",
-        "operatorName": "The operator to filter the records",
-        "routeNumber": "The route number to filter the records",
-        "latestOnly": "Whether to retrieve only the latest records",
-        "limit": "The maximum number of records per page",
-        "strictMode": "Strict mode for search",
-        "page": "The page number to retrieve",
-    }
-
-
 @api_v1_router.get("/view-registrations/status", status_code=status.HTTP_200_OK)
 async def view_registrations(authenticated_entity: str = Depends(operator)):
-    """This is the endpoint to view all the records in the database"""
+    """This is the endpoint to view active records and their status
+    
+    Raises:
+        HTTPException: status_code: 400 if an error occurred while fetching the records
+    
+    Returns:
+        records (json): The records grouped by licence number and operator and their status
+    """
     try:
         records = DBManager.get_record_required_attention_percentage(
             authenticated_entity
@@ -374,7 +392,19 @@ def get_all_records(
         "No", description="Whether to retrieve only the active records"
     ),
 ):
-    """This is the endpoint to view all the records in the database"""
+    """This is the endpoint to get all records in the database.
+
+    Args:
+        authenticated_entity (str): The authenticated entity
+        latestOnly (str): Whether to retrieve only the latest records
+        activeOnly (str): Whether to retrieve only the active records
+
+    Raises:
+        HTTPException: status_code: 422 if an error occurred while fetching the records
+
+    Returns:
+        records (json): The records
+    """
 
     if latestOnly.lower() in ["yes", "true"]:
         user_choice_latest_only = True
