@@ -79,7 +79,7 @@ jobs:
           EOF
 
           openssl base64 -out $GITHUB_WORKSPACE/encoded_payload.json -in $GITHUB_WORKSPACE/payload.json 
-          response=$(aws lambda invoke --function-name $lambda_function_name --region $AWS_REGION --payload file://$GITHUB_WORKSPACE/encoded_payload.json response.txt 2>&1)
+          response=$(aws lambda invoke --function-name $lambda_function_name --region $AWS_REGION --payload file://$GITHUB_WORKSPACE/encoded_payload.json response.txt)
           status_code=$(cat response.txt | jq -r '.statusCode')
           status_code=${status_code:-"unset"}
           echo "Status Code is: $status_code"
