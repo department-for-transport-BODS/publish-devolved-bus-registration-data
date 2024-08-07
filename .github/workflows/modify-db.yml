@@ -148,8 +148,8 @@ jobs:
             "targetDatabase": "${{ vars.PROJECT_NAME }}_db",
             "databaseMigrations": {
               "bucketName": "${DEPLOY_SRC}",
-              "bucketPrefix": "$rc_path",
-              "releaseVersion": "${VERSION}"
+              "bucketPrefix": "releases",
+              "releaseVersion": "latest"
             }
           }
           EOF
