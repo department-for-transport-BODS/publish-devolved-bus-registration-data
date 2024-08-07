@@ -160,11 +160,11 @@ jobs:
           status_code=${status_code:-"unset"}
           echo "Status Code is: $status_code"
           if [[ "$status_code" == "500" ]]; then
-            echo "[ERROR] Execution of database migrations failed for version ${VERSION} against ${DEPLOY_ENV^^} with error:"
+            echo "[ERROR] Execution of latest database migrations failed against ${DEPLOY_ENV^^} with error:"
             echo "${response}"
             exit 1
           else
             response_payload=$(cat response.txt)
             echo "Response Payload: $response_payload"
-            echo "[INFO] Execution of database migrations successfully run against ${DEPLOY_ENV^^} for version ${VERSION}"
+            echo "[INFO] Execution of latest database migrations successfully run against ${DEPLOY_ENV^^}"
           fi
