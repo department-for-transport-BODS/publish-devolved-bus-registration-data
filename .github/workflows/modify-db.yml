@@ -106,7 +106,7 @@ jobs:
                   "schemas": [
                       "public"
                   ],
-                  "extensions": [],
+                  "extensions": []
               }],
               "roles": [{
                   "name": "${{ vars.PROJECT_NAME }}_rw",
