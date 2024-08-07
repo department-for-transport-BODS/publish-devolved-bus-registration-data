@@ -49,7 +49,7 @@ permissions:
 
 jobs:
   validation:
-    runs-on: pcoe-runner-linux-small-prod
+    runs-on: ubuntu-latest
     environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment ||
       github.event_name == 'repository_dispatch' && github.event.client_payload.environment }}
     outputs:
@@ -148,7 +148,7 @@ jobs:
           fi
 
   database:
-    runs-on: pcoe-runner-linux-small-prod
+    runs-on: ubuntu-latest
     if: ${{ github.event.inputs.component == 'all' || github.event.inputs.component == 'database' ||
       (github.event_name == 'repository_dispatch' && github.event.client_payload.component == 'all') }}
     environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment ||
@@ -202,7 +202,7 @@ jobs:
           fi
 
   backend:
-    runs-on: pcoe-runner-linux-small-prod
+    runs-on: ubuntu-latest
     if: ${{ github.event.inputs.component == 'all' || github.event.inputs.component == 'application' ||
       (github.event_name == 'repository_dispatch' && github.event.client_payload.component == 'all') }}
     environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment ||
@@ -263,7 +263,7 @@ jobs:
           echo "[INFO] Application component (BACKEND) with version ${VERSION} successfully deployed into ${RC_ENV^^}"
 
   frontend:
-    runs-on: pcoe-runner-linux-small-prod
+    runs-on: ubuntu-latest
     if: ${{ github.event.inputs.component == 'all' || github.event.inputs.component == 'application' ||
       (github.event_name == 'repository_dispatch' && github.event.client_payload.component == 'all') }}
     environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment ||

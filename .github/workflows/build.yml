@@ -29,7 +29,7 @@ env:
 
 jobs:
   validation:
-    runs-on: pcoe-runner-linux-small-prod
+    runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.increment.outputs.version }}
 
@@ -70,7 +70,7 @@ jobs:
           fi
 
   database:
-    runs-on: pcoe-runner-linux-small-prod
+    runs-on: ubuntu-latest
     environment: ${{ matrix.environment }}
     needs: validation
 
@@ -110,7 +110,7 @@ jobs:
           aws s3 cp sql s3://$RC_DST/$rc_path/ --recursive --exclude 'local/*'
 
   backend:
-    runs-on: pcoe-runner-linux-small-prod
+    runs-on: ubuntu-latest
     environment: ${{ matrix.environment }}
     needs: validation
     defaults:
@@ -172,7 +172,7 @@ jobs:
           echo "[INFO] Application component (BACKEND) with version ${VERSION} successfully uploaded"
 
   frontend:
-    runs-on: pcoe-runner-linux-small-prod
+    runs-on: ubuntu-latest
     environment: ${{ matrix.environment }}
     needs: validation
     defaults:
@@ -247,7 +247,7 @@ jobs:
 
   commit-and-tag:
     if: ${{ always() && !cancelled() && !contains(needs.*.result, 'failure') && contains(github.ref, 'main') }}
-    runs-on: pcoe-runner-linux-small-prod
+    runs-on: ubuntu-latest
     needs:
       - validation
       - database
@@ -285,7 +285,7 @@ jobs:
 
   trigger-deploy-dev:
     if: ${{ always() && !cancelled() && !contains(needs.*.result, 'failure') && contains(github.ref, 'main') }}
-    runs-on: pcoe-runner-linux-small-prod
+    runs-on: ubuntu-latest
     needs: 
       - validation
       - database

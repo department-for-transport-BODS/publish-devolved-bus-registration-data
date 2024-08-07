@@ -32,7 +32,7 @@ env:
 
 jobs:
   validation:
-    runs-on: pcoe-runner-linux-small-prod
+    runs-on: ubuntu-latest
 
     steps:
       - name: validate job parameters
@@ -44,7 +44,7 @@ jobs:
           """
 
   database:
-    runs-on: pcoe-runner-linux-small-prod
+    runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment }}
     needs: validation
 
