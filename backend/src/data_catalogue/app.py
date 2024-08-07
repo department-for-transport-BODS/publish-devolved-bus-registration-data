@@ -4,43 +4,21 @@ from os import getenv
 from pydantic import BaseModel, Field, field_validator, AliasChoices
 from requests import get, Response
 from sqlalchemy import create_engine, Column, String, Boolean, Integer, text
-from sqlalchemy.engine import URL
 from sqlalchemy.orm import declarative_base, Session
-from utils.aws import get_secret
 from zipfile import ZipFile
-
+import boto3
 import logging
 
 logging.basicConfig(format="%(levelname)s,%(message)s")
 logger = logging.getLogger(__name__)
 logger.setLevel(getattr(logging, getenv("LOG_LEVEL", "INFO")))
 
+ENVIRONMENT = getenv("PROJECT_ENV", "local")
 DATA_CATALOGUE_URL = getenv(
     "DATA_CATALOGUE_URL", "https://data.bus-data.dft.gov.uk/catalogue/"
 )
-ENVIRONMENT = getenv("PROJECT_ENV", "local")
-POSTGRES_HOST = getenv("POSTGRES_HOST", "postgres")
-POSTGRES_PORT = getenv("POSTGRES_PORT", "5432")
-POSTGRES_DB = getenv("POSTGRES_DB", "postgres")
-
-if ENVIRONMENT != "local":
-    secret = get_secret(getenv("POSTGRES_CREDENTIALS"))
-    POSTGRES_USER = secret["username"]
-    POSTGRES_PASSWORD = secret["password"]
-else:
-    POSTGRES_USER = getenv("POSTGRES_USER", "postgres")
-    POSTGRES_PASSWORD = getenv("POSTGRES_PASSWORD", "postgres")
 
 Base = declarative_base()
-
-db_url = URL.create(
-    drivername="postgresql",
-    username=POSTGRES_USER,
-    password=POSTGRES_PASSWORD,
-    host=POSTGRES_HOST,
-    database=POSTGRES_DB,
-    port=POSTGRES_PORT,
-)
 
 
 class DBCatalogueEntry(Base):
@@ -114,8 +92,11 @@ class CatalogueEntry(BaseModel):
 
 class TimetableData:
     def __init__(self):
+        self.engine = None
+        creds = self._get_connection_details()
+
         self.engine = create_engine(
-            db_url,
+            self._generate_connection_string(**creds),
             pool_pre_ping=True,
             connect_args={
                 "keepalives": 1,
@@ -124,6 +105,103 @@ class TimetableData:
                 "keepalives_count": 5
             }
         )
+
+    def _get_connection_details(self):
+        """
+        Method to get the connection details for the database from the environment variables
+        """
+        connection_details = {}
+        connection_details["host"] = getenv("POSTGRES_HOST", "postgres")
+        connection_details["port"] = getenv("POSTGRES_PORT", "5432")
+        connection_details["dbname"] = getenv("POSTGRES_DB", "postgres")
+        connection_details["user"] = getenv("POSTGRES_USER", "postgres")
+        
+        try:
+            if ENVIRONMENT != 'local':
+                logger.debug("Getting DB token")
+                connection_details["password"] = self._generate_rds_iam_auth_token(
+                    connection_details["host"],
+                    connection_details["port"],
+                    connection_details["user"]
+                )
+                logger.debug("Updated object with DB token as password")
+                connection_details["sslmode"] = "require"
+            else:
+                logger.debug("Running locally, extracting DB password from environment variables")
+                connection_details["password"] = getenv("POSTGRES_PASSWORD", "postgres")
+                logger.debug("Updated object with envvar as password")
+                connection_details["sslmode"] = "disable"
+
+            for key, value in connection_details.items():
+                if value is None:
+                    logger.error(f"Missing connection details value: {key}")
+                    raise ValueError
+            return connection_details
+        except Exception as e:
+            logger.error("Failed to get connection details for database")
+            raise e
+
+    def _generate_connection_string(self, **kwargs) -> str:
+        """
+        Generates an AWS RDS IAM authentication token for a given RDS instance.
+
+        Parameters:
+        - **kwargs (any): A dictionary of key/value pairs that correspond to the expected values below
+
+        Returns:
+        - str: The generated connection string from parsed key/value pairs
+        """
+        user_password = ""
+        if kwargs.get("user"):
+            user_password += kwargs.get("user")
+            if kwargs.get("password"):
+                user_password += ":" + kwargs.get("password")
+            user_password += "@"
+
+        # Construct other parts
+        other_parts = ""
+        for key, value in kwargs.items():
+            if key not in ["host", "port", "user", "password", "dbname"] and value:
+                other_parts += f"{key}={value}&"
+
+        # Construct the final connection string
+        connection_string = f"postgresql+psycopg2://{user_password}{kwargs.get('host', '')}"
+        if kwargs.get("port"):
+            connection_string += f":{kwargs.get('port')}"
+        connection_string += f"/{kwargs.get('dbname', '')}"
+        if other_parts:
+            connection_string += f"?{other_parts[:-1]}"
+
+        return connection_string
+
+    def _generate_rds_iam_auth_token(self, host, port, username) -> str:
+        """
+        Generates an AWS RDS IAM authentication token for a given RDS instance.
+
+        Parameters:
+        - hostname (str): The endpoint of the RDS instance.
+        - port (int): The port number for the RDS instance.
+        - username (str): The database username.
+
+        Returns:
+        - str: The generated IAM authentication token if successful.
+        - None: If an error occurs during token generation.
+        """
+        try:
+            session = boto3.session.Session()
+            client = session.client(
+                service_name="rds",
+                region_name=getenv("AWS_REGION")
+            )
+            token = client.generate_db_auth_token(
+                DBHostname=host,
+                DBUsername=username,
+                Port=port
+            )
+            return urllib.parse.quote_plus(token)
+        except Exception as e:
+            logger.error(f"An error occurred while generating the IAM auth token: {e}")
+            return None
 
     def refresh(self):
         url: str = DATA_CATALOGUE_URL
