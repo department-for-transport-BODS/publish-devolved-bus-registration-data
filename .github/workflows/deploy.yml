@@ -175,7 +175,7 @@ jobs:
           cat <<EOF > $GITHUB_WORKSPACE/payload.json
           {
             "type": "run_migrations",
-            "userCredentialsArn": "${RC_ENV}/${{ vars.PROJECT_NAME }}/rds/user/${{ vars.PROJECT_NAME }}_app_rw",
+            "authUser": "${{ vars.PROJECT_NAME }}_app_rw",
             "targetDatabase": "${{ vars.PROJECT_NAME }}_db",
             "databaseMigrations": {
               "bucketName": "${RC_SRC}",

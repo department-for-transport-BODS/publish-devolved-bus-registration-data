@@ -4,7 +4,6 @@ from typing import List
 from sqlalchemy import create_engine, select, Table
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
-from .aws import get_secret
 from .data import common_keys_comparsion
 from .exceptions import (
     GroupIsNotFound,
@@ -13,37 +12,113 @@ from .exceptions import (
 )
 from .logger import log
 from .pydant_model import DBCreds, Registration
-from .settings import ENVIRONMENT
+from .settings import AWS_REGION, ENVIRONMENT
 
 
 class CreateEngine:
     @staticmethod
-    def get_db_creds():
-        creds = None
+    def generate_connection_string(**kwargs) -> str:
+        """
+        Generates an AWS RDS IAM authentication token for a given RDS instance.
 
+        Parameters:
+        - **kwargs (any): A dictionary of key/value pairs that correspond to the expected values below
+
+        Returns:
+        - str: The generated connection string from parsed key/value pairs
+        """
+        user_password = ""
+        if kwargs.get("user"):
+            user_password += kwargs.get("user")
+            if kwargs.get("password"):
+                user_password += ":" + kwargs.get("password")
+            user_password += "@"
+
+        # Construct other parts
+        other_parts = ""
+        for key, value in kwargs.get("optargs").items():
+            if key not in ["host", "port", "user", "password", "dbname"] and value:
+                other_parts += f"{key}={value}&"
+
+        # Construct the final connection string
+        connection_string = f"postgresql+psycopg2://{user_password}{kwargs.get('host', '')}"
+        if kwargs.get("port"):
+            connection_string += f":{kwargs.get('port')}"
+        connection_string += f"/{kwargs.get('dbname', '')}"
+        if other_parts:
+            connection_string += f"?{other_parts[:-1]}"
+        return connection_string
+
+    @staticmethod
+    def generate_rds_iam_auth_token(host, port, username) -> str:
+        """
+        Generates an AWS RDS IAM authentication token for a given RDS instance.
+
+        Parameters:
+        - hostname (str): The endpoint of the RDS instance.
+        - port (int): The port number for the RDS instance.
+        - username (str): The database username.
+
+        Returns:
+        - str: The generated IAM authentication token if successful.
+        - None: If an error occurs during token generation.
+        """
+        try:
+            session = boto3.session.Session()
+            client = session.client(
+                service_name="rds",
+                region_name=AWS_REGION
+            )
+            token = client.generate_db_auth_token(
+                DBHostname=host,
+                DBUsername=username,
+                Port=port
+            )
+            return urllib.parse.quote_plus(token)
+        except Exception as e:
+            log.error(f"An error occurred while generating the IAM auth token: {e}")
+            return None
+
+    @staticmethod
+    def get_credentials():
+        """
+        Method to get the connection details for the database
+        """
+        creds = DBCreds(password="initial")
         try:
             if ENVIRONMENT != "local":
-                secret = get_secret(getenv("POSTGRES_CREDENTIALS"))
-                creds = DBCreds(**json.loads(secret["text_secret_data"]))
+                log.debug("Getting DB token")
+                creds.password = CreateEngine.generate_rds_iam_auth_token(
+                                     creds.host, creds.port, creds.user
+                                 )
+                log.debug("Updated DBCreds with DB token as password")
+                creds.optargs.update({"sslmode": "require"})
             else:
-                creds = DBCreds(
-                    **{
-                        "username": getenv("POSTGRES_USER", "postgres"),
-                        "password": getenv("POSTGRES_PASSWORD", "postgres"),
-                    }
-                )
+                log.debug("Running locally, extracting DB password from environment variables")
+                creds.password = getenv("POSTGRES_PASSWORD", "postgres")
+                log.debug("Updated DBCreds with envvar as password")
+                creds.optargs.update({"sslmode": "disable"})
+
+            for key, value in creds.dict().items():
+                if value is None:
+                    log.error(f"Missing connection details value: {key}")
+                    raise ValueError(f"Missing connection details value: {key}")
+            return creds
         except Exception as e:
-            print(f"The error '{e}' occurred")
-            exit(1)
-        return creds
+            log.error("Failed to get connection details for database")
+            raise e
 
     @staticmethod
     def get_engine():
+        """Get the database engine
+
+        Returns:
+            engine: Database engine
+        """
         engine = None
-        creds = CreateEngine.get_db_creds()
+        creds = CreateEngine.get_credentials()
         try:
-            engine = create_engine(
-                f"postgresql://{creds.PG_USER}:{creds.PG_PASSWORD}@{creds.PG_HOST}:{creds.PG_PORT}/{creds.PG_DB}",
+            engine = create_engine(CreateEngine.generate_connection_string(**creds.dict()),
                 pool_pre_ping=True,
                 connect_args={
                     "keepalives": 1,
@@ -57,7 +132,7 @@ class CreateEngine:
             connection.close()
         except Exception as e:
             log.error(f"The error '{e}' occurred")
-            exit(1)
+            raise e
         return engine
 
 
@@ -75,10 +150,10 @@ class AutoMappingModels:
         self.PDBRDStage = self.Base.classes.pdbrd_stage
         self.PDBRDUser = self.Base.classes.pdbrd_user
         self.OTCLicence.__repr__ = (
-            lambda self: f"<OTCLicence(licence_number='{self.licence_number}', licence_status='{self.licence_status}, otc_licence_id={self.otc_licence_id}')>"
+            lambda self: f"<OTCLicence(licence_number='{self.licence_number}', licence_status='{self.licence_status}')>"
         )
         self.OTCOperator.__repr__ = (
-            lambda self: f"<OTCOperator(operator_name='{self.operator_name}', operator_id='{self.otc_operator_id}')>"
+            lambda self: f"<OTCOperator(operator_name='{self.operator_name}')>"
         )
         self.PDBRDRegistration.__repr__ = (
             lambda self: f"<PDBRDRegistration(route_number='{self.route_number}', route_description='{self.route_description}', variation_number='{self.variation_number}', start_point='{self.start_point}', finish_point='{self.finish_point}', via='{self.via}', subsidised='{self.subsidised}', subsidy_detail='{self.subsidy_detail}', is_short_notice='{self.is_short_notice}', received_date='{self.received_date}', granted_date='{self.granted_date}', effective_date='{self.effective_date}', end_date='{self.end_date}', otc_operator_id='{self.otc_operator_id}', bus_service_type_id='{self.bus_service_type_id}', bus_service_type_description='{self.bus_service_type_description}', registration_number='{self.registration_number}', traffic_area_id='{self.traffic_area_id}', application_type='{self.application_type}', publication_text='{self.publication_text}', other_details='{self.other_details}')>"

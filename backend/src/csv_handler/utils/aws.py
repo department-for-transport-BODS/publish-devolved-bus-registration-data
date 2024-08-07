@@ -1,43 +1,22 @@
-from os import getenv
 import boto3
-from botocore.exceptions import ClientError
 from central_config import AWS_REGION, BUCKET_NAME, PROJECT_ENV
-from .logger import log
+from os import getenv
 from time import sleep
-def get_secret(secret_name: str):
-    session = boto3.session.Session()
-    client = session.client(
-        service_name="secretsmanager",
-        region_name=AWS_REGION,
-    )
-
-    try:
-        get_secret_value_response = client.get_secret_value(SecretId=secret_name)
-    except ClientError as e:
-        if e.response["Error"]["Code"] == "ResourceNotFoundException":
-            print("The requested secret " + secret_name + " was not found")
-        elif e.response["Error"]["Code"] == "InvalidRequestException":
-            print("The request was invalid due to:", e)
-        elif e.response["Error"]["Code"] == "InvalidParameterException":
-            print("The request had invalid params:", e)
-        elif e.response["Error"]["Code"] == "DecryptionFailure":
-            print(
-                "The requested secret can't be decrypted using the provided KMS key:", e
-            )
-        elif e.response["Error"]["Code"] == "InternalServiceError":
-            print("An error occurred on service side:", e)
-    else:
-        if "SecretString" in get_secret_value_response:
-            text_secret_data = get_secret_value_response["SecretString"]
-            return {"text_secret_data": text_secret_data}
-        # else:
-        #     binary_secret_data = get_secret_value_response['SecretBinary']
-        #     return {"binary_secret_data": binary_secret_data}
+from .logger import log
 
 
 def upload_file_to_S3(
         file_path, bucket, bucket_path, local_file_name, file_name_in_s3
     ) -> None:
+        """Upload a file to an S3 bucket
+
+        Args:
+            file_path (str): The path to the file to upload
+            bucket (str): The name of the bucket
+            bucket_path (str): The path in the bucket
+            local_file_name (str): The name of the file to upload
+            file_name_in_s3 (str): The name of the file in S3
+        """
         try:
             # Connect to aws s3
             s3 = boto3.resource('s3')
@@ -70,12 +49,33 @@ class ClamAVClient:
 
 
     def scan(self):
+        """Initiate the scan process
+
+        Returns:
+            Boolean: True if the file is clean, False otherwise
+        """
         res = self.scan_file(self.bucket_name, self.s3_folder, self.file_name, self.data)
         return res
 
 
     def scan_file(self, bucket_name, s3_folder, file_name, data):
         result = False
+        """This function does the following:
+        - Uploads a file to S3 via upload_bstring_to_s3_as_file function
+        - Waits for the file to be scanned via added tags
+        - Checks the scan status
+        - Gets the scan result
+        - Deletes the file from S3
+
+        Args:
+            bucket_name (str): The name of the S3 bucket
+            s3_folder (str): The folder in the S3 bucket
+            file_name (str): The name of the file
+            data (bytes): The file data
+
+        Returns:
+            Boolean: True if the file is clean, False otherwise
+        """
         try:
             self.upload_bstring_to_s3_as_file(bucket_name,s3_folder, file_name, data)
             print(f"File {file_name} is uploaded to S3 bucket {bucket_name}.")
@@ -101,12 +101,28 @@ class ClamAVClient:
 
 
     def get_boto_client(self):
+        """Get the boto3 client
+
+        Returns:
+            client: The boto3 client
+        """
         return boto3.client(service_name='s3',region_name=AWS_REGION,)
 
 
     def upload_bstring_to_s3_as_file(
             self,bucket_name, s3_folder, file_name, binary_data
             ) -> None:
+        """Upload a binary string to S3 as a file
+
+        Args:
+            bucket_name (str): The name of the S3 bucket
+            s3_folder (str): The folder in the S3 bucket
+            file_name (str): The name of the file
+            binary_data (bytes): The binary data to upload
+
+        Raises:
+            Exception: If the file could not be uploaded
+        """
         try:
             client = self.get_boto_client()
             
@@ -121,6 +137,19 @@ class ClamAVClient:
 
 
     def read_file_tags(self, bucket_name, s3_folder, file_name):
+        """Read the tags of a file in S3
+
+        Args:
+            bucket_name (str): The name of the S3 bucket
+            s3_folder (str): The folder in the S3 bucket
+            file_name (str): The name of the file
+
+        Raises:
+            Exception: If the tags could not be read
+
+        Returns:
+            str: The tags of the file clean or infected 
+        """
         try:
             # Initialize the S3 client
             client = self.get_boto_client()
@@ -129,8 +158,6 @@ class ClamAVClient:
             print(f"Reading tags for file {object_key}.")
             response = client.get_object_tagging(Bucket=bucket_name, Key=object_key)
 
-            # 'TagSet': [{'Key': 'scanned-by', 'Value': 'ClamAV'}, {'Key': 'av-status', 'Value': 'clean'}]
-            # Return the tags
             if response is not None:
                 tag_set = response.get('TagSet')
                 if tag_set and len(tag_set) > 0:
@@ -142,6 +169,16 @@ class ClamAVClient:
 
 
     def delete_file_from_s3(self, bucket_name, s3_folder, file_name):
+        """Delete a file from S3
+
+        Args:
+            bucket_name (str): The name of the S3 bucket
+            s3_folder (str): The folder in the S3 bucket
+            file_name (str): The name of the file
+
+        Raises:
+            Exception: If the file could not be deleted
+        """
         try:
             # Initialize the S3 client
             client = self.get_boto_client()

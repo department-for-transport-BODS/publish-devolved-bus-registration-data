@@ -3,8 +3,6 @@ import "./App.css";
 import "./Sass/App.scss";
 import Home from "./pages/home";
 import UploadCsvPage from "./pages/uploadCsv";
-import Basic from "./pages/basic";
-import DefaultPage from "./pages/default";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import PartlyUploading from "./pages/uploadConfirmation";
 import SuccessfullyUploaded from "./pages/uploadConfirmationSuccessfully";
@@ -20,8 +18,8 @@ import PrivacyStatement from "./pages/privacyStatement";
 import AccessibilityStatement from "./pages/accessibilityStatement";
 import CookiePage from "./pages/cookiePage";
 import PreValidations from "./pages/preValidation";
-import FindRegisteredServices from "./pages/FindRegisteredServices";
-import RegistrationDetails from "./pages/RegistrationDetails";
+import FindRegisteredServices from "./pages/findRegisteredServices";
+import RegistrationDetails from "./pages/registrationDetails";
 function App() {
   Amplify.configure(AmplifyConfiguration);
   return (
@@ -32,8 +30,6 @@ function App() {
           path="/upload-csv"
           element={<RequireAuth component={UploadCsvPage} requiredAccess="operator"/>}
         />
-        <Route path="/basic" element={<Basic />} />
-        <Route path="/default" element={<DefaultPage />} />
         <Route
           path="/partly-uploaded"
           element={<RequireAuth component={PartlyUploading} requiredAccess="operator"/>}

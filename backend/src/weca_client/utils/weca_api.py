@@ -18,8 +18,7 @@ from .settings import (
 WECA_AUTH_TOKEN = getenv("WECA_AUTH_TOKEN", None)
 
 if ENVIRONMENT != "local":
-    secret = get_secret(WECA_AUTH_TOKEN)
-    WECA_AUTH_TOKEN = secret["text_secret_data"]
+    WECA_AUTH_TOKEN = get_secret(WECA_AUTH_TOKEN)["text_secret_data"]
 
 class EmptyResponseException(Exception):
     pass

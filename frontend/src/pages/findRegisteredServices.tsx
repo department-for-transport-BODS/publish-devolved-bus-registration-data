@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { FullColumnLayout } from "../Layout/Layout";
 import Footer from "../Layout/Footer";
-import RegistrationDetails from "./RegistrationDetails";
+import RegistrationDetails from "./registrationDetails";
 import { GridRow, OneHalfColumn } from "../Layout/Grid";
 import SearchForm from "../components/SearchForm";
 import SearchResults from "../components/SearchResults";

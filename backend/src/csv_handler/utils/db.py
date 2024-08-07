@@ -1,11 +1,12 @@
+import boto3
 import json
+import urllib.parse
 from os import getenv
 from sqlalchemy import create_engine, func, select, Table, case, desc, or_, and_
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session, Query
 from sys import exit
 from typing import List
-from .aws import get_secret
 from .csv_validator import Registration
 from .logger import log
 from .pydant_model import AuthenticatedEntity, DBCreds, SearchQuery
@@ -19,34 +20,101 @@ from .exceptions import (
     NoStagedProcess,
     PreviousProcessNotCompleted,
 )
-from central_config.env import PROJECT_ENV
+from central_config.env import AWS_REGION, PROJECT_ENV
 
 
 class CreateEngine:
     @staticmethod
-    def get_db_creds():
-        """Get the database credentials
+    def generate_connection_string(**kwargs) -> str:
+        """
+        Generates an AWS RDS IAM authentication token for a given RDS instance.
+
+        Parameters:
+        - **kwargs (any): A dictionary of key/value pairs that correspond to the expected values below
 
         Returns:
-            DBCreds: Pydantic model for the database credentials
+        - str: The generated connection string from parsed key/value pairs
         """
-        creds = None
+        user_password = ""
+        if kwargs.get("user"):
+            user_password += kwargs.get("user")
+            if kwargs.get("password"):
+                user_password += ":" + kwargs.get("password")
+            user_password += "@"
 
+        # Construct other parts
+        other_parts = ""
+        for key, value in kwargs.get("optargs").items():
+            if key not in ["host", "port", "user", "password", "dbname"] and value:
+                other_parts += f"{key}={value}&"
+
+        # Construct the final connection string
+        connection_string = f"postgresql+psycopg2://{user_password}{kwargs.get('host', '')}"
+        if kwargs.get("port"):
+            connection_string += f":{kwargs.get('port')}"
+        connection_string += f"/{kwargs.get('dbname', '')}"
+        if other_parts:
+            connection_string += f"?{other_parts[:-1]}"
+        return connection_string
+
+    @staticmethod
+    def generate_rds_iam_auth_token(host, port, username) -> str:
+        """
+        Generates an AWS RDS IAM authentication token for a given RDS instance.
+
+        Parameters:
+        - hostname (str): The endpoint of the RDS instance.
+        - port (int): The port number for the RDS instance.
+        - username (str): The database username.
+
+        Returns:
+        - str: The generated IAM authentication token if successful.
+        - None: If an error occurs during token generation.
+        """
+        try:
+            session = boto3.session.Session()
+            client = session.client(
+                service_name="rds",
+                region_name=AWS_REGION
+            )
+            token = client.generate_db_auth_token(
+                DBHostname=host,
+                DBUsername=username,
+                Port=port
+            )
+            return urllib.parse.quote_plus(token)
+        except Exception as e:
+            log.error(f"An error occurred while generating the IAM auth token: {e}")
+            return None
+
+    @staticmethod
+    def get_credentials():
+        """
+        Method to get the connection details for the database
+        """
+        creds = DBCreds(password="initial")
         try:
             if PROJECT_ENV != "local":
-                secret = get_secret(getenv("POSTGRES_CREDENTIALS"))
-                creds = DBCreds(**json.loads(secret["text_secret_data"]))
+                log.debug("Getting DB token")
+                creds.password = CreateEngine.generate_rds_iam_auth_token(
+                                     creds.host, creds.port, creds.user
+                                 )
+                log.debug("Updated DBCreds with DB token as password")
+                creds.optargs.update({"sslmode": "require"})
             else:
-                creds = DBCreds(
-                    **{
-                        "username": getenv("POSTGRES_USER", "postgres"),
-                        "password": getenv("POSTGRES_PASSWORD", "postgres"),
-                    }
-                )
+                log.debug("Running locally, extracting DB password from environment variables")
+                creds.password = getenv("POSTGRES_PASSWORD", "postgres")
+                log.debug("Updated DBCreds with envvar as password")
+                creds.optargs.update({"sslmode": "disable"})
+
+            for key, value in creds.dict().items():
+                if value is None:
+                    log.error(f"Missing connection details value: {key}")
+                    raise ValueError(f"Missing connection details value: {key}")
+            return creds
         except Exception as e:
-            print(f"The error '{e}' occurred")
-            exit(1)
-        return creds
+            log.error("Failed to get connection details for database")
+            raise e
 
     @staticmethod
     def get_engine():
@@ -56,10 +124,9 @@ class CreateEngine:
             engine: Database engine
         """
         engine = None
-        creds = CreateEngine.get_db_creds()
+        creds = CreateEngine.get_credentials()
         try:
-            engine = create_engine(
-                f"postgresql://{creds.PG_USER}:{creds.PG_PASSWORD}@{creds.PG_HOST}:{creds.PG_PORT}/{creds.PG_DB}",
+            engine = create_engine(CreateEngine.generate_connection_string(**creds.dict()),
                 pool_pre_ping=True,
                 connect_args={
                     "keepalives": 1,
@@ -69,11 +136,11 @@ class CreateEngine:
                 },
             )
             connection = engine.connect()
-            print("Connection to PostgreSQL DB successful")
+            log.info("Connection to PostgreSQL DB successful")
             connection.close()
         except Exception as e:
-            print(f"The error '{e}' occurred")
-            exit(1)
+            log.error(f"The error '{e}' occurred")
+            raise e
         return engine
 
 
@@ -122,10 +189,10 @@ class AutoMappingModels:
         self.PDBRDStage = self.Base.classes.pdbrd_stage
         self.PDBRDUser = self.Base.classes.pdbrd_user
         self.OTCLicence.__repr__ = (
-            lambda self: f"<OTCLicence(licence_number='{self.licence_number}', licence_status='{self.licence_status}, otc_licence_id={self.otc_licence_id}')>"
+            lambda self: f"<OTCLicence(licence_number='{self.licence_number}', licence_status='{self.licence_status}')>"
         )
         self.OTCOperator.__repr__ = (
-            lambda self: f"<OTCOperator(operator_name='{self.operator_name}', operator_id='{self.otc_operator_id}')>"
+            lambda self: f"<OTCOperator(operator_name='{self.operator_name}')>"
         )
         self.PDBRDRegistration.__repr__ = (
             lambda self: f"<PDBRDRegistration(route_number='{self.route_number}', route_description='{self.route_description}', variation_number='{self.variation_number}', start_point='{self.start_point}', finish_point='{self.finish_point}', via='{self.via}', subsidised='{self.subsidised}', subsidy_detail='{self.subsidy_detail}', is_short_notice='{self.is_short_notice}', received_date='{self.received_date}', granted_date='{self.granted_date}', effective_date='{self.effective_date}', end_date='{self.end_date}', otc_operator_id='{self.otc_operator_id}', bus_service_type_id='{self.bus_service_type_id}', bus_service_type_description='{self.bus_service_type_description}', registration_number='{self.registration_number}', traffic_area_id='{self.traffic_area_id}', application_type='{self.application_type}', publication_text='{self.publication_text}', other_details='{self.other_details}')>"
@@ -160,6 +227,7 @@ class AutoMappingModels:
 
 
 def add_filter_to_query(query: Query, column, value, strict_mode: bool = False):
+    """Add a filter to the query"""
     if strict_mode:
         return query.filter(column == value)
 
@@ -279,6 +347,17 @@ class DBManager:
     def fetch_operator_record(
         cls, operator_name: str, session: Session, OTCOperator, operator_record
     ):
+        """Fetch the operator record from the database
+        
+        Args:
+            operator_name (str): Operator name
+            session (Session): Database session
+            OTCOperator (Table): Operator table
+            operator_record (Record): Operator record
+
+        Returns:
+            int: ID of the operator record
+        """
         operator_record_id = add_or_get_record(
             "operator_name", operator_name, session, OTCOperator, operator_record
         )
@@ -288,6 +367,18 @@ class DBManager:
     def fetch_licence_record(
         cls, licence_number: str, session: Session, OTCLicence, licence_record
     ):
+        """Fetch the licence record from the database
+
+        Args:
+            licence_number (str): Licence number
+            session (Session): Database session
+            OTCLicence (Table): Licence table
+            licence_record (Record): Licence record
+
+        Returns:
+            int: ID of the licence record
+        """
+
         licence_record_id = add_or_get_record(
             "licence_number", licence_number, session, OTCLicence, licence_record
         )
@@ -592,6 +683,16 @@ class DBManager:
         latest_only=False,
         active_only=True,
     ):
+        """Get all the records from the database
+
+        Args:
+            authenticated_entity (AuthenticatedEntity)
+            latest_only (bool, optional):  Defaults to False.
+            active_only (bool, optional):  Defaults to True.
+
+        Returns:
+            _type_: _description_
+        """
         models, session = initiate_db_variables()
         PDBRDRegistration = models.PDBRDRegistration
         OTCOperator = models.OTCOperator
@@ -862,7 +963,16 @@ class DBManager:
     @classmethod
     def get_report_then_delete_it_from_db(
         cls, authenticated_entity: AuthenticatedEntity, report_id: str
-    ):
+    ) -> dict: 
+        """Get the report from the database and delete it
+
+        Args:
+            authenticated_entity (AuthenticatedEntity): Authenticated entity
+            report_id (str): Report ID
+
+        Returns:
+            json: Report
+        """
         models, session = initiate_db_variables()
         PDBRDReport = models.PDBRDReport
         if authenticated_entity.type == "user":
@@ -888,6 +998,19 @@ class DBManager:
     def get_staged_records(
         cls, authenticated_entity: AuthenticatedEntity, stage_id: str = None
     ):
+        """Get the staged records from the database
+
+        Args:
+            authenticated_entity (AuthenticatedEntity): Authenticated entity
+            stage_id (str, optional): Stage ID. Defaults to None.
+
+        Raises:
+            NoStagedProcess
+            StagingProcessInProgress
+
+        Returns:
+            List[dict]: List of records
+        """
         models, session = initiate_db_variables()
         PDBRDStage = models.PDBRDStage
         PDBRDLicence = models.OTCLicence
@@ -923,7 +1046,6 @@ class DBManager:
         )
         results = [rec._asdict() for rec in staged_records.all()]
         return results
-        # return [rec._asdict() for rec in staged_records.all()]
 
     @classmethod
     def commit_staged_records(
@@ -1087,8 +1209,7 @@ def send_to_db(
             # Prepare operator object and added to the database
             record, licence = record_and_licence
             OTCOperator_record = OTCOperator(
-                operator_name=licence.operator_details.operator_name,
-                otc_operator_id=licence.operator_details.otc_operator_id,
+                operator_name=licence.operator_details.operator_name
             )
 
             # Add or fetch the operator id from the database
@@ -1102,8 +1223,7 @@ def send_to_db(
             # Prepare licence object and added to the database
             OTCLicence_record = OTCLicence(
                 licence_number=licence.licence_details.licence_number,
-                licence_status=licence.licence_details.licence_status,
-                otc_licence_id=licence.licence_details.otc_licence_id,
+                licence_status=licence.licence_details.licence_status
             )
 
             # Add or fetch the licence id from the database
