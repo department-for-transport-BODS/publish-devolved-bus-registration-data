@@ -142,7 +142,6 @@ jobs:
         run: |
           lambda_function_name="${DEPLOY_ENV}-${{ vars.PROJECT_NAME }}-pg-mutate-lambda"
           cat <<EOF > $GITHUB_WORKSPACE/payload.json
-          cat <<EOF > $GITHUB_WORKSPACE/payload.json
           {
             "type": "run_migrations",
             "authUser": "${{ vars.PROJECT_NAME }}_app_rw",
