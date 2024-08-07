@@ -28,7 +28,7 @@ def validate_licence_number_existence(uploaded_records: dict):
     """
     # Collect all the licence numbers from the records
     validated_records = uploaded_records["valid_records"]
-    # otc_API_response = MockData.mock_otc_licencd_and_operator_api(validated_records)
+    # otc_API_response = MockData.mock_otc_licence_and_operator_api(validated_records)
     otc_api_response = verify_otc_api(validated_records)
     # sys.exit()
 
@@ -53,7 +53,6 @@ def validate_licence_number_existence(uploaded_records: dict):
             ):
                 invalid_records[idx] = [{"LicenceNumber": "Licence number is not found in the OTC DB"}]
             else:
-
                 # Add the licence details to the record
                 valid_records.update({idx: [record, licence]})
 

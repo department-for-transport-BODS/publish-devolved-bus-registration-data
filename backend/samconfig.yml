@@ -43,6 +43,7 @@ dev:
       parameter_overrides:
         ProjectName='pdbrd'
         Environment='dev'
+        RdsAuthUsers='/dev/pdbrd/rds/auth/users'
         RdsSecurityGroupId='/dev/pdbrd/ec2/securitygroup/rds'
         WebProxySecurityGroupId='/dev/pdbrd/ec2/securitygroup/squid'
         VpcId='/dev/pdbrd/vpc/id'
@@ -57,6 +58,7 @@ test:
       parameter_overrides:
         ProjectName='pdbrd'
         Environment='test'
+        RdsAuthUsers='/test/pdbrd/rds/auth/users'
         RdsSecurityGroupId='/test/pdbrd/ec2/securitygroup/rds'
         WebProxySecurityGroupId='/test/pdbrd/ec2/securitygroup/squid'
         VpcId='/test/pdbrd/vpc/id'
@@ -71,6 +73,7 @@ uat:
       parameter_overrides:
         ProjectName='pdbrd'
         Environment='uat'
+        RdsAuthUsers='/uat/pdbrd/rds/auth/users'
         RdsSecurityGroupId='/uat/pdbrd/ec2/securitygroup/rds'
         WebProxySecurityGroupId='/uat/pdbrd/ec2/securitygroup/squid'
         VpcId='/uat/pdbrd/vpc/id'
@@ -88,6 +91,7 @@ prod:
       parameter_overrides:
         ProjectName='pdbrd'
         Environment='prod'
+        RdsAuthUsers='/prod/pdbrd/rds/auth/users'
         RdsSecurityGroupId='/prod/pdbrd/ec2/securitygroup/rds'
         WebProxySecurityGroupId='/prod/pdbrd/ec2/securitygroup/squid'
         VpcId='/prod/pdbrd/vpc/id'

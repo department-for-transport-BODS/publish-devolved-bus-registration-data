@@ -11,10 +11,9 @@ class OTCLicence(declarative_base):
     id = Column(Integer, primary_key=True)
     licence_number = Column(String(255), unique=True)
     licence_status = Column(String(255))
-    otc_licence_id = Column(Integer, unique=True)
 
     def __repr__(self):
-        return f"OTCLicence(id={self.id}, licence_number={self.licence_number}, licence_status={self.licence_status}, otc_licence_id={self.otc_licence_id})"
+        return f"OTCLicence(id={self.id}, licence_number={self.licence_number}, licence_status={self.licence_status})"
 
 
 class PDBRDRegistration(Base):
@@ -54,7 +53,6 @@ class OTCOperator(Base):
 
     id = Column(Integer, primary_key=True)
     operator_name = Column(String(255))
-    operator_id = Column(Integer, unique=True)
 
     def __repr__(self):
-        return f"OTCOperator(id={self.id}, operator_name={self.operator_name}, operator_id={self.operator_id})"
+        return f"OTCOperator(id={self.id}, operator_name={self.operator_name})"

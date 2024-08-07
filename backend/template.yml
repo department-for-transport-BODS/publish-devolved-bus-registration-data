@@ -11,14 +11,6 @@ Description: >
   The Lambda functions are triggered by API Gateway, and the SPA makes API calls to API Gateway to interact 
   with the backend. The SPA and its static assets are served to the end users through the CloudFront distribution.
 
-Globals:
-  Function:
-    Architectures:
-      - x86_64
-    MemorySize: 256
-    Runtime: python3.11
-    Timeout: 60
-
 Parameters:
   Environment:
     Description: The environment into which the stack is being deployed
@@ -31,6 +23,9 @@ Parameters:
     Default: ''
   VpcSubnets:
     Type: AWS::SSM::Parameter::Value<List<AWS::EC2::Subnet::Id>>
+    Default: ''
+  RdsAuthUsers:
+    Type: AWS::SSM::Parameter::Value<List<String>>
     Default: ''
   RdsDbHostAddr:
     Type: String
@@ -45,6 +40,24 @@ Parameters:
 Conditions:
   IsNotLocal: !Not [!Equals [!Ref Environment, 'local']]
   IsNotProd: !Not [!Equals [!Ref Environment, 'prod']]
+
+Globals:
+  Function:
+    Architectures:
+      - x86_64
+    MemorySize: 256
+    Runtime: python3.11
+    Timeout: 60
+    Environment:
+      Variables:
+        PROJECT_ENV: !Ref Environment
+        PROJECT_NAME: !Ref ProjectName
+        HTTP_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
+        HTTPS_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
+        LOG_LEVEL: !If
+          - IsNotProd
+          - 'DEBUG'
+          - 'INFO'
 
 Resources:
   ################################################
@@ -109,21 +122,12 @@ Resources:
           - !GetAtt CsvHandlerLambdaSecurityGroup.GroupId
       Environment:
         Variables:
-          PROJECT_ENV: !Ref Environment
-          PROJECT_NAME: !Ref ProjectName
-          HTTP_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-          HTTPS_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-          LOG_LEVEL: !If
-            - IsNotProd
-            - 'DEBUG'
-            - 'INFO'
           POSTGRES_HOST:  !If
             - IsNotLocal
             - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/endpoint}}'
             - !Ref RdsDbHostAddr
-          POSTGRES_PORT: 5432
           POSTGRES_DB: !Sub '${ProjectName}_db'
-          POSTGRES_CREDENTIALS: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/name}}'
+          POSTGRES_USER: !Sub '${ProjectName}_app_rw'
           CLAMAV_S3_BUCKET_NAME: !Sub 'shared-${ProjectName}-clamav-artefacts-${AWS::AccountId}'
           COGNITO_USERPOOL_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/cognito/userpool/id}}'
           COGNITO_APP_CLIENT_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/cognito/userpool/client/id}}'
@@ -230,11 +234,11 @@ Resources:
             Resource:
               - !Sub '{{resolve:ssm:/shared/${ProjectName}/kms/s3}}'
 
-  CsvHandlerLambdaSecretsAccessPolicy:
+  CsvHandlerLambdaRdsDbConnectPolicy:
     Type: 'AWS::IAM::Policy'
     Condition: IsNotLocal
     Properties:
-      PolicyName: !Sub '${Environment}-${ProjectName}-csv-handler-lambda-secrets-access-policy'
+      PolicyName: !Sub '${Environment}-${ProjectName}-csv-handler-lambda-rds-db-connect-policy'
       Roles:
         - !Ref CsvHandlerLambdaExecutionRole
       PolicyDocument:
@@ -242,16 +246,16 @@ Resources:
         Statement:
           - Effect: Allow
             Action:
-              - secretsmanager:GetResourcePolicy
-              - secretsmanager:GetSecretValue
-              - secretsmanager:DescribeSecret
-              - secretsmanager:ListSecretVersionIds
-            Resource: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/arn}}'
-          - Effect: Allow
-            Action:
-              - kms:Decrypt
+              - rds-db:connect
             Resource:
-              - !Sub '{{resolve:ssm:/shared/${ProjectName}/kms/secretsmanager}}'
+              - !Sub
+                - 'arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${RdsId}/${RdsAuthUser}'
+                - RdsId: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/id}}'
+                  RdsAuthUser: !Select [0, !Ref RdsAuthUsers]
+              - !Sub
+                - 'arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${RdsId}/${RdsAuthUser}'
+                - RdsId: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/id}}'
+                  RdsAuthUser: !Select [1, !Ref RdsAuthUsers]
 
   ###############################################
   #### OTC CLIENT LAMBDA (& ASSC. RESOURCES) ####
@@ -300,21 +304,12 @@ Resources:
           - !GetAtt OtcClientLambdaSecurityGroup.GroupId
       Environment:
         Variables:
-          PROJECT_ENV: !Ref Environment
-          PROJECT_NAME: !Ref ProjectName
-          HTTP_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-          HTTPS_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-          LOG_LEVEL: !If
-            - IsNotProd
-            - 'DEBUG'
-            - 'INFO'
-          MS_LOGIN_URL: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/ms/login/endpoint}}'
-          MS_SCOPE: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/ms/scope}}'
-          MS_TENANT_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/ms/tenant/id}}'
-          MS_CLIENT_ID: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/ms/client/id}}'
-          MS_CLIENT_SECRET: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/otc/ms/client/secret/name}}'
-          OTC_API_URL: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/otc/api/endpoint}}'
-          OTC_API_KEY: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/otc/apikey/name}}'
+          MS_SCOPE: !Sub '{{resolve:ssm:/shared/${ProjectName}/otc/ms/scope}}'
+          MS_TENANT_ID: !Sub '{{resolve:ssm:/shared/${ProjectName}/otc/ms/tenant/id}}'
+          MS_CLIENT_ID: !Sub '{{resolve:ssm:/shared/${ProjectName}/otc/ms/client/id}}'
+          MS_CLIENT_SECRET: !Sub '{{resolve:ssm:/shared/${ProjectName}/secretsmanager/otc/ms/client/secret/name}}'
+          OTC_API_URL: !Sub '{{resolve:ssm:/shared/${ProjectName}/otc/api/endpoint}}'
+          OTC_API_KEY: !Sub '{{resolve:ssm:/shared/${ProjectName}/secretsmanager/otc/apikey/name}}'
       LoggingConfig:
         LogGroup: !Ref OtcClientLambdaLogGroup
 
@@ -395,8 +390,8 @@ Resources:
               - secretsmanager:DescribeSecret
               - secretsmanager:ListSecretVersionIds
             Resource: 
-              - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/otc/ms/client/secret/arn}}'
-              - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/otc/apikey/arn}}'
+              - !Sub '{{resolve:ssm:/shared/${ProjectName}/secretsmanager/otc/ms/client/secret/arn}}'
+              - !Sub '{{resolve:ssm:/shared/${ProjectName}/secretsmanager/otc/apikey/arn}}'
           - Effect: Allow
             Action:
               - kms:Decrypt
@@ -426,21 +421,12 @@ Resources:
           - !GetAtt DataCatalogueLambdaSecurityGroup.GroupId
       Environment:
         Variables:
-          PROJECT_ENV: !Ref Environment
-          PROJECT_NAME: !Ref ProjectName
-          HTTP_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-          HTTPS_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-          LOG_LEVEL: !If
-            - IsNotProd
-            - 'DEBUG'
-            - 'INFO'
           POSTGRES_HOST:  !If
             - IsNotLocal
             - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/endpoint}}'
             - !Ref RdsDbHostAddr
-          POSTGRES_PORT: 5432
           POSTGRES_DB: !Sub '${ProjectName}_db'
-          POSTGRES_CREDENTIALS: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/name}}'
+          POSTGRES_USER: !Sub '${ProjectName}_app_rw'
       LoggingConfig:
         LogGroup: !Ref DataCatalogueLambdaLogGroup
 
@@ -518,11 +504,11 @@ Resources:
               - logs:PutLogEvents
             Resource: !GetAtt DataCatalogueLambdaLogGroup.Arn
 
-  DataCatalogueLambdaSecretsAccessPolicy:
+  DataCatalogueLambdaRdsDbConnectPolicy:
     Type: 'AWS::IAM::Policy'
     Condition: IsNotLocal
     Properties:
-      PolicyName: !Sub '${Environment}-${ProjectName}-data-catalogue-lambda-secrets-access-policy'
+      PolicyName: !Sub '${Environment}-${ProjectName}-data-catalogue-lambda-rds-db-connect-policy'
       Roles:
         - !Ref DataCatalogueLambdaExecutionRole
       PolicyDocument:
@@ -530,16 +516,16 @@ Resources:
         Statement:
           - Effect: Allow
             Action:
-              - secretsmanager:GetResourcePolicy
-              - secretsmanager:GetSecretValue
-              - secretsmanager:DescribeSecret
-              - secretsmanager:ListSecretVersionIds
-            Resource: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/arn}}'
-          - Effect: Allow
-            Action:
-              - kms:Decrypt
+              - rds-db:connect
             Resource:
-              - !Sub '{{resolve:ssm:/shared/${ProjectName}/kms/secretsmanager}}'
+              - !Sub
+                - 'arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${RdsId}/${RdsAuthUser}'
+                - RdsId: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/id}}'
+                  RdsAuthUser: !Select [0, !Ref RdsAuthUsers]
+              - !Sub
+                - 'arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${RdsId}/${RdsAuthUser}'
+                - RdsId: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/id}}'
+                  RdsAuthUser: !Select [1, !Ref RdsAuthUsers]
 
   ################################################
   #### WECA CLIENT LAMBDA (& ASSC. RESOURCES) ####
@@ -566,27 +552,18 @@ Resources:
           - !GetAtt WecaClientLambdaSecurityGroup.GroupId
       Environment:
         Variables:
-          PROJECT_ENV: !Ref Environment
-          PROJECT_NAME: !Ref ProjectName
-          HTTP_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-          HTTPS_PROXY: !Sub 'http://squid.${ProjectName}.${Environment}:3128'
-          LOG_LEVEL: !If
-            - IsNotProd
-            - 'DEBUG'
-            - 'INFO'
           POSTGRES_HOST:  !If
             - IsNotLocal
             - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/endpoint}}'
             - !Ref RdsDbHostAddr
-          POSTGRES_PORT: 5432
           POSTGRES_DB: !Sub '${ProjectName}_db'
-          POSTGRES_CREDENTIALS: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/name}}'
+          POSTGRES_USER: !Sub '${ProjectName}_app_rw'
           OTC_CLIENT_API_URL: !Sub 'https://${OtcClientApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/api/v1/otc/licences'
-          WECA_AUTH_TOKEN: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/weca/authtoken/name}}'
-          WECA_API_URL: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/weca/api/endpoint}}'
-          WECA_PARAM_C: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/weca/param/c}}'
-          WECA_PARAM_R: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/weca/param/r}}'
-          WECA_PARAM_T: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/weca/param/t}}'
+          WECA_AUTH_TOKEN: !Sub '{{resolve:ssm:/shared/${ProjectName}/secretsmanager/weca/authtoken/name}}'
+          WECA_API_URL: !Sub '{{resolve:ssm:/shared/${ProjectName}/weca/api/endpoint}}'
+          WECA_PARAM_C: !Sub '{{resolve:ssm:/shared/${ProjectName}/weca/param/c}}'
+          WECA_PARAM_R: !Sub '{{resolve:ssm:/shared/${ProjectName}/weca/param/r}}'
+          WECA_PARAM_T: !Sub '{{resolve:ssm:/shared/${ProjectName}/weca/param/t}}'
       LoggingConfig:
         LogGroup: !Ref WecaClientLambdaLogGroup
 
@@ -664,6 +641,30 @@ Resources:
               - logs:PutLogEvents
             Resource: !GetAtt WecaClientLambdaLogGroup.Arn
 
+  WecaClientLambdaRdsDbConnectPolicy:
+    Type: 'AWS::IAM::Policy'
+    Condition: IsNotLocal
+    Properties:
+      PolicyName: !Sub '${Environment}-${ProjectName}-weca-client-lambda-rds-db-connect-policy'
+      Roles:
+        - !Ref WecaClientLambdaExecutionRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - rds-db:connect
+            Resource:
+              - !Sub
+                - 'arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${RdsId}/${RdsAuthUser}'
+                - RdsId: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/id}}'
+                  RdsAuthUser: !Select [0, !Ref RdsAuthUsers]
+              - !Sub
+                - 'arn:aws:rds-db:${AWS::Region}:${AWS::AccountId}:dbuser:${RdsId}/${RdsAuthUser}'
+                - RdsId: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/rds/id}}'
+                  RdsAuthUser: !Select [1, !Ref RdsAuthUsers]
+
+
   WecaClientLambdaSecretsAccessPolicy:
     Type: 'AWS::IAM::Policy'
     Condition: IsNotLocal
@@ -681,8 +682,7 @@ Resources:
               - secretsmanager:DescribeSecret
               - secretsmanager:ListSecretVersionIds
             Resource: 
-              - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/rds/user/app/arn}}'
-              - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/secretsmanager/weca/authtoken/arn}}'
+              - !Sub '{{resolve:ssm:/shared/${ProjectName}/secretsmanager/weca/authtoken/arn}}'
           - Effect: Allow
             Action:
               - kms:Decrypt
@@ -732,12 +732,13 @@ Resources:
       DistributionConfig:
         Enabled: true
         Comment: !Sub '${Environment}-${ProjectName}-cdn'
-        # Aliases:
-        #   - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}'
-        # ViewerCertificate:
-        #   AcmCertificateArn: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/acm/certificate/arn}}'
-        #   MinimumProtocolVersion: TLSv1.2_2021
-        #   SslSupportMethod: sni-only
+        Aliases:
+          - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}'
+        ViewerCertificate:
+          AcmCertificateArn: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/acm/certificate/arn}}'
+          MinimumProtocolVersion: TLSv1.2_2021
+          SslSupportMethod: sni-only
+        WebACLId: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/waf/webacl/cloudfront/arn}}'
         Origins:
           - Id: frontendBucket
             DomainName: !GetAtt FrontendBucket.RegionalDomainName
@@ -825,21 +826,27 @@ Resources:
         SigningBehavior: always
         SigningProtocol: sigv4
 
-  # CloudFrontRoute53RecordSetGroup:
-  #   Type: AWS::Route53::RecordSetGroup
-  #   Properties:
-  #     HostedZoneId: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/id}}'
-  #     RecordSets: 
-  #       - Name: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}'
-  #         Type: A
-  #         AliasTarget:
-  #           DNSName: !GetAtt CloudFrontDistribution.DomainName
-  #           HostedZoneId: Z2FDTNDATAQYW2
-  #       - Name: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}'
-  #         Type: AAAA
-  #         AliasTarget:
-  #           DNSName: !GetAtt CloudFrontDistribution.DomainName
-  #           HostedZoneId: Z2FDTNDATAQYW2
+  CloudFrontRoute53RecordSetGroup:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneId: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/id}}'
+      RecordSets: 
+        - Name: !If 
+            - IsNotProd
+            - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}'
+            - !Join ['.', ['www', !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}']]
+          Type: A
+          AliasTarget:
+            DNSName: !GetAtt CloudFrontDistribution.DomainName
+            HostedZoneId: Z2FDTNDATAQYW2
+        - Name: !If
+            - IsNotProd
+            - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}'
+            - !Join ['.', ['www', !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}']]
+          Type: AAAA
+          AliasTarget:
+            DNSName: !GetAtt CloudFrontDistribution.DomainName
+            HostedZoneId: Z2FDTNDATAQYW2
 
 Outputs:
   ApiGatewayUrl:
@@ -852,8 +859,7 @@ Outputs:
     Description: 'CloudFront Distribution Domain Name URL'
     Value: !Sub
       - 'https://${CloudFrontDomainName}'
-      - CloudFrontDomainName: !GetAtt CloudFrontDistribution.DomainName
-      # - CloudFrontDomainName: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}'
+      - CloudFrontDomainName: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}'
   FrontendBucketName:
     Description: 'Name of Frontend S3 Bucket'
     Value: !Sub 's3://${FrontendBucket}'

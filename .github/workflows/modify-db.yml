@@ -2,8 +2,6 @@ name: modify database
 
 on:
   workflow_dispatch:
-    branches:
-    - main
     inputs:
       action:
         type: choice
@@ -71,17 +69,21 @@ jobs:
           cat <<EOF > $GITHUB_WORKSPACE/payload.json
           {
             "type": "destroy",
-            "userCredentialsArn": "${DEPLOY_ENV}/${{ vars.PROJECT_NAME }}/rds/user/root",
+            "authUser": "postgres",
             "targetDatabase": "${{ vars.PROJECT_NAME }}_db",
-            "roles": [{
-              "name": "${{ vars.PROJECT_NAME }}_app_rw"
-            }]
+            "roles": [
+              "${{ vars.PROJECT_NAME }}_rw",
+              "${{ vars.PROJECT_NAME }}_app_rw"
+            ]
           }
           EOF
 
           openssl base64 -out $GITHUB_WORKSPACE/encoded_payload.json -in $GITHUB_WORKSPACE/payload.json 
           response=$(aws lambda invoke --function-name $lambda_function_name --region $AWS_REGION --payload file://$GITHUB_WORKSPACE/encoded_payload.json response.txt 2>&1)
-          if [[ "$response" == *"FunctionError"* || "$response" == *"[FAILURE]"* ]]; then
+          status_code=$(cat response.txt | jq -r '.statusCode')
+          status_code=${status_code:-"unset"}
+          echo "Status Code is: $status_code"
+          if [[ "$status_code" == "500" ]]; then
             echo "[ERROR] Destruction of database failed against ${DEPLOY_ENV^^} with error:"
             echo "${response}"
             exit 1
@@ -98,25 +100,32 @@ jobs:
           cat <<EOF > $GITHUB_WORKSPACE/payload.json
           {
               "type": "initialise",
-              "userCredentialsArn": "${DEPLOY_ENV}/${{ vars.PROJECT_NAME }}/rds/user/root",
+              "authUser": "postgres",
               "databases": [{
                   "name": "${{ vars.PROJECT_NAME }}_db",
                   "schemas": [
-                    "public"
+                      "public"
                   ],
                   "extensions": []
               }],
               "roles": [{
-                  "name": "${{ vars.PROJECT_NAME }}_app_rw",
+                  "name": "${{ vars.PROJECT_NAME }}_rw",
                   "kind": "rw",
-                  "credentialsArn": "${DEPLOY_ENV}/${{ vars.PROJECT_NAME }}/rds/user/${{ vars.PROJECT_NAME }}_app_rw"
+                  "users": [{
+                      "name": "${{ vars.PROJECT_NAME }}_app_rw",
+                      "authType": "scram",
+                      "credentialsArn": "${DEPLOY_ENV}/${{ vars.PROJECT_NAME }}/rds/user/${{ vars.PROJECT_NAME }}_app_rw"
+                  }]
               }]
           }
           EOF
 
           openssl base64 -out $GITHUB_WORKSPACE/encoded_payload.json -in $GITHUB_WORKSPACE/payload.json 
           response=$(aws lambda invoke --function-name $lambda_function_name --region $AWS_REGION --payload file://$GITHUB_WORKSPACE/encoded_payload.json response.txt 2>&1)
-          if [[ "$response" == *"FunctionError"* || "$response" == *"[FAILURE]"* ]]; then
+          status_code=$(cat response.txt | jq -r '.statusCode')
+          status_code=${status_code:-"unset"}
+          echo "Status Code is: $status_code"
+          if [[ "$status_code" == "500" ]]; then
             echo "[ERROR] Initialisation of database failed against ${DEPLOY_ENV^^} with error:"
             echo "${response}"
             exit 1
@@ -135,7 +144,7 @@ jobs:
           cat <<EOF > $GITHUB_WORKSPACE/payload.json
           {
             "type": "run_migrations",
-            "userCredentialsArn": "${DEPLOY_ENV}/${{ vars.PROJECT_NAME }}/rds/user/${{ vars.PROJECT_NAME }}_app_rw",
+            "authUser": "${{ vars.PROJECT_NAME }}_app_rw",
             "targetDatabase": "${{ vars.PROJECT_NAME }}_db",
             "databaseMigrations": {
               "bucketName": "${DEPLOY_SRC}",
@@ -147,7 +156,10 @@ jobs:
 
           openssl base64 -out $GITHUB_WORKSPACE/encoded_payload.json -in $GITHUB_WORKSPACE/payload.json 
           response=$(aws lambda invoke --function-name $lambda_function_name --region $AWS_REGION --payload file://$GITHUB_WORKSPACE/encoded_payload.json response.txt 2>&1)
-          if [[ "$response" == *"FunctionError"* || "$response" == *"[FAILURE]"* ]]; then
+          status_code=$(cat response.txt | jq -r '.statusCode')
+          status_code=${status_code:-"unset"}
+          echo "Status Code is: $status_code"
+          if [[ "$status_code" == "500" ]]; then
             echo "[ERROR] Execution of latest database migrations failed against ${DEPLOY_ENV^^} with error:"
             echo "${response}"
             exit 1
