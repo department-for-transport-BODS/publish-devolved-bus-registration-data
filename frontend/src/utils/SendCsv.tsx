@@ -32,8 +32,8 @@ export const GetReport = async (report_id: string, navigate: unknown) => {
 };
 
 export const getStaged = async (): Promise<any> => {
-  console.log("waiting for 60 seconds, then retrying");
-  await new Promise((resolve) => setTimeout(resolve, 60000));
+  console.log("waiting for 3 min, then retrying");
+  await new Promise((resolve) => setTimeout(resolve, 180000));
   const JWT = await GetJWT();
   try {
     const response = await axios.get(`${apiBaseUrl}/stage`, {
