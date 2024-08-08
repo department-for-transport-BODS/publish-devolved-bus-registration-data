@@ -8,6 +8,7 @@ from sqlalchemy.orm import declarative_base, Session
 from zipfile import ZipFile
 import boto3
 import logging
+import urllib.parse
 
 logging.basicConfig(format="%(levelname)s,%(message)s")
 logger = logging.getLogger(__name__)

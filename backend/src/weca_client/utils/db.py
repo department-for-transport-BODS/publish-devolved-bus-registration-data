@@ -1,4 +1,6 @@
+import boto3
 import json
+import urllib.parse
 from os import getenv
 from typing import List
 from sqlalchemy import create_engine, select, Table
