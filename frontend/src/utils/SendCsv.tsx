@@ -132,7 +132,7 @@ export const SendCsv = async (formData: FormData, navigate: any) => {
         "Content-Type": "multipart/form-data",
         Authorization: "Bearer " + JWT,
       },
-      timeout: 3000,
+      timeout: 20000,
     });
 
     const report_id = response?.data?.report_id;
@@ -142,7 +142,7 @@ export const SendCsv = async (formData: FormData, navigate: any) => {
       cookies.set("stage_id", report_id, { path: "/" });
     }
   } catch (error: any) {
-    if (error.message !== "timeout of 3000ms exceeded") {
+    if (error.message !== "timeout of 20000ms exceeded") {
       navigate("/error", { state: { error: error?.message }, replace: true });
     }
   }
