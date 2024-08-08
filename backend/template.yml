@@ -732,8 +732,10 @@ Resources:
       DistributionConfig:
         Enabled: true
         Comment: !Sub '${Environment}-${ProjectName}-cdn'
-        Aliases:
-          - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}'
+        Aliases: !If
+            - IsNotProd
+            - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}'
+            - !Join ['.', ['www', !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}']]
         ViewerCertificate:
           AcmCertificateArn: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/acm/certificate/arn}}'
           MinimumProtocolVersion: TLSv1.2_2021
