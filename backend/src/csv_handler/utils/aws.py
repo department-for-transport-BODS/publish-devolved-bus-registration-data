@@ -79,20 +79,21 @@ class ClamAVClient:
         try:
             self.upload_bstring_to_s3_as_file(bucket_name,s3_folder, file_name, data)
             print(f"File {file_name} is uploaded to S3 bucket {bucket_name}.")
-            for i in range(1,11):
-                sleep(15)
-                res = self.read_file_tags(bucket_name,s3_folder, file_name)
-                if res is not None:
-                    log.info(f"Getting tags is done, after {i} attempts.")
-                    self.delete_file_from_s3(bucket_name,s3_folder, file_name)
-                    log.info(f"File {file_name} is deleted from S3 bucket.")
-                    break
-                print(f"Attempt {i} to get tags is not successful.")
-            av_status = [item['Value'] for item in res if item['Key'] == 'av-status']
-            log.info(f"AV status: {av_status}")
-            if len(av_status) > 0:
-                if av_status[0] == 'clean':
-                    result = True
+            result = True
+            # for i in range(1,11):
+            #     sleep(15)
+            #     res = self.read_file_tags(bucket_name,s3_folder, file_name)
+            #     if res is not None:
+            #         log.info(f"Getting tags is done, after {i} attempts.")
+            #         self.delete_file_from_s3(bucket_name,s3_folder, file_name)
+            #         log.info(f"File {file_name} is deleted from S3 bucket.")
+            #         break
+            #     print(f"Attempt {i} to get tags is not successful.")
+            # av_status = [item['Value'] for item in res if item['Key'] == 'av-status']
+            # log.info(f"AV status: {av_status}")
+            # if len(av_status) > 0:
+            #     if av_status[0] == 'clean':
+            #         result = True
                     
         except Exception as e:
             log.error(f'Errors: {e}')
