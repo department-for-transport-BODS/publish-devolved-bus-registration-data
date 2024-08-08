@@ -159,7 +159,7 @@ export const handleStagedResults = async (
   try {
     if (stagedRecords !== null && stagedRecords !== undefined) {
       const records = stagedRecords.records ?? [];
-      if (records.length === 0) {
+      if (records.length === 0 && staged_id !== null && staged_id !== undefined) {
         await CommitRegistrations(staged_id);
         await GetReport(staged_id, navigate);
         cookies.remove("stage_id");

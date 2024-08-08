@@ -33,6 +33,7 @@ from utils.pydant_model import (
 )
 from uuid import uuid4
 from utils.logger import log
+import traceback
 
 
 @api_v1_router.post(
@@ -181,6 +182,9 @@ async def geting_staged_records(
 
     except Exception as e:
         log.error(f"Error: {e}")
+        print(e)
+        print("Printing traceback")
+        traceback.print_exc()
         if str(e) == "Staging process is not done yet":
             raise HTTPException(
                 status_code=status.HTTP_425_TOO_EARLY,
@@ -250,6 +254,8 @@ def get_staged_records_action(
         )
     except Exception as e:
         log.error(f"Error: {e}")
+        print("Printing traceback")
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={"message": "Encountered an error while processing the request"},

@@ -38,7 +38,7 @@ const PreValidations: React.FC = () => {
       commitRef.current.disabled = true;
       const localCookies = new Cookies();
       const stage_id = localCookies.get("stage_id");
-      if (!stage_id) {
+      if (!stage_id || stage_id === undefined || stage_id === null) {
         setErrorMessage(["No stage_id found"]);
         return;
       }
