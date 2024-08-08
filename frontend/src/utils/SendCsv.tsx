@@ -133,9 +133,10 @@ export const SendCsv = async (formData: FormData, navigate: any) => {
         "Content-Type": "multipart/form-data",
         Authorization: "Bearer " + JWT,
       },
-      timeout: 20000,
+      // timeout: 60000,
     });
-
+    console.log("printing response");
+    console.log(response);
     const report_id = response?.data?.report_id;
 
     if (report_id !== null && report_id !== undefined) {
@@ -143,6 +144,9 @@ export const SendCsv = async (formData: FormData, navigate: any) => {
       cookies.set("stage_id", report_id, { path: "/" });
     }
   } catch (error: any) {
+    console.log("printing error");
+    console.log(error);
+
     if (error.message !== "timeout of 20000ms exceeded") {
       navigate("/error", { state: { error: error?.message }, replace: true });
     }
