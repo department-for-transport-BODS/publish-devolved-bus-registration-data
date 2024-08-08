@@ -100,6 +100,7 @@ def check_is_an_app(claims: dict) -> Tuple[bool, str]:
     scope = claims.get("scope")
     if scope:
         app_name = scope.split("/")[-1]
+        log.info(f"App name: {app_name}")
         if len(app_name) > 0:
             return True, app_name
     return False, None
@@ -178,6 +179,7 @@ def get_entity(
     """
     if is_an_app:
         is_app, app_name = check_is_an_app(claims)
+        log.info(f"Is app: {is_app}")
         if is_app and len(app_name) > 0:
             return AuthenticatedEntity(type="app", name=app_name)
 

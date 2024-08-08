@@ -5,7 +5,7 @@ from os import getenv
 from pydantic import BaseModel, Field, field_validator, model_validator
 from pydantic import ValidationError
 from pydantic_core import ErrorDetails
-
+from utils.logger import log
 
 class Registration(BaseModel):
     licence_number: str = Field(
@@ -74,6 +74,7 @@ class Registration(BaseModel):
     )
     def validate_route_description(cls, v):
         # Add cutation marks to the route description
+        log.info(f"Route description: {v}") 
         if isinstance(v, str) and len(v) > 0:
             return v.strip()
         return v

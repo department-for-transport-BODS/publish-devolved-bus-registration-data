@@ -47,6 +47,7 @@ class CSVManager:
         )
         self._remove_licence_details(validated_records)
         # Add the count of valid records to the validated_records dictionary
+        log.info(f"Valid records count: {validated_records['valid_records']}")
         validated_records["valid_records_count"] = len(
             validated_records["valid_records"]
         )
@@ -121,6 +122,7 @@ class CSVManager:
         try:
             if "valid_records" in records:
                 for idx, record in records["valid_records"].items():
+                    log.info(f"Record: {record}")
                     if record and len(record) > 0:
                         records["valid_records"][idx] = record[0].model_dump(
                             exclude=["serviceCode"]
@@ -154,6 +156,7 @@ def process_csv_file(content, authenticated_entity, report_id):
             break
         except:
             pass
+    log.info(f"Choosed encoding: {encoding_types}") 
     if csv_str is None:
         raise Exception("File encoding not found")
 

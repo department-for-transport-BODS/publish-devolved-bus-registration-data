@@ -3,7 +3,7 @@ from datetime import date, datetime
 from os import getenv
 from pydantic import BaseModel, Field, field_validator
 from typing import Any, Dict, List, Literal, Optional
-
+from utils.logger import log
 
 class DBCreds(BaseModel):
     host: str = Field(default_factory=lambda: getenv("POSTGRES_HOST", "localhost"))
@@ -88,6 +88,7 @@ class Registration(BaseModel):
     )
     def validate_route_description(cls, v):
         # Add cutation marks to the route description
+        log.info(f"Route description: {v}")
         if isinstance(v, str) and len(v) > 0:
             return v.strip()
         return v

@@ -488,6 +488,7 @@ def send_to_db(
     # Remove records from the valid_records dictionary that were not added to the database
     for idx in db_invalid_insertion:
         del records["valid_records"][f"{idx}"]
+    log.info(f"already_exists_records: {already_exists_records}")
     if len(already_exists_records) > 0:
         records["invalid_records"].append(
             {"records": already_exists_records, "description": "Record already exists"}

@@ -554,6 +554,7 @@ class DBManager:
             )
 
         if registration_number:
+            log.info(f"Registration number: {registration_number}")
             if len(registration_number.split("/")) > 2:
                 registration_list = [
                     f"{registration_number.split('/')[0]}/{item}"
@@ -1122,6 +1123,7 @@ class DBManager:
             PDBRDStage.stage_status,
         ).filter(PDBRDStage.stage_user == PDBRDUser.id)
         result = [rec._asdict() for rec in staged_process.all()]
+        log.info(f"Staged process: {result}")
         if len(result) > 0:
             for record in result:
                 if record.get("stage_status") == "in_progress":
@@ -1267,10 +1269,12 @@ def send_to_db(
     # Remove records from the valid_records dictionary that were not added to the database
     for idx in db_invalid_insertion:
         del records["valid_records"][f"{idx}"]
+    log.info(f"already exists records: {already_exists_records}")
     if len(already_exists_records) > 0:
         records["invalid_records"].append(
             {"records": already_exists_records, "description": "Record already exists"}
         )
+    log.info(f"belongs to another user: {belongs_to_another_user}")
     if len(belongs_to_another_user) > 0:
         records["invalid_records"].append(
             {

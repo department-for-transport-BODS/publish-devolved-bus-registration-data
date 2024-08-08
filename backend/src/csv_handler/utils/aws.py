@@ -89,6 +89,7 @@ class ClamAVClient:
                     break
                 print(f"Attempt {i} to get tags is not successful.")
             av_status = [item['Value'] for item in res if item['Key'] == 'av-status']
+            log.info(f"AV status: {av_status}")
             if len(av_status) > 0:
                 if av_status[0] == 'clean':
                     result = True
@@ -160,6 +161,7 @@ class ClamAVClient:
 
             if response is not None:
                 tag_set = response.get('TagSet')
+                log.info(f"Tags: {tag_set}")
                 if tag_set and len(tag_set) > 0:
                     return tag_set
             

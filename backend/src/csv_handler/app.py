@@ -129,6 +129,7 @@ async def geting_staged_records(
     """
     try:
         processes = DBManager.get_staged_process(authenticated_entity)
+        log.info(f"Processes: {processes}")
         if len(processes) == 0:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
