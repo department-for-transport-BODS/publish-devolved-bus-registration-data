@@ -5,7 +5,7 @@ from os import getenv
 from pydantic import BaseModel, Field, field_validator, model_validator
 from pydantic import ValidationError
 from pydantic_core import ErrorDetails
-
+from utils.constants import ACCEPTED_APPLICATION_TYPES 
 
 class Registration(BaseModel):
     licence_number: str = Field(
@@ -68,7 +68,6 @@ class Registration(BaseModel):
         "start_point",
         "via",
         "operator_name",
-        "application_type",
         "bus_service_type_description",
         mode="before",
     )
@@ -77,6 +76,13 @@ class Registration(BaseModel):
         if isinstance(v, str) and len(v) > 0:
             return v.strip()
         return v
+
+    @field_validator("application_type")
+    def validate_application_type(cls, v):
+        service_type = v.capitalize().strip()
+        if service_type not in ACCEPTED_APPLICATION_TYPES:
+            raise ValueError("Invalid application type")
+        return service_type
 
     @field_validator(
         "received_date", "granted_date", "effective_date", "end_date", mode="before"
@@ -120,7 +126,10 @@ class DBCreds(BaseModel):
 
     def __init__(self, **data):
         super().__init__(**data)
-        self.optargs = {key: value for key, value in data.items() if key not in self.__fields__}
+        self.optargs = {
+            key: value for key, value in data.items() if key not in self.__fields__
+        }
+
 
 class InvalidLatestOnly(Exception):
     def __init__(self, message: str, value):
@@ -190,7 +199,6 @@ class SearchQuery(BaseModel):
         raise ValueError(
             "Invalid value for LatestOnly. Must be one of 'True', 'False', 'Yes', 'No'"
         )
-
 
 
 class Error(BaseModel):
