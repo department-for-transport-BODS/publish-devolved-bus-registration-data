@@ -14,18 +14,6 @@ def app_dependency_override():
     yield
     app.dependency_overrides = {}
 
-@pytest.fixture
-def app_dependency_override():
-    app.dependency_overrides[get_current_group] = lambda: "dev_2"
-    yield
-    app.dependency_overrides = {}
-
-
-@pytest.fixture
-def app_dependency_override():
-    app.dependency_overrides[get_current_group] = lambda: "dev_2"
-    yield
-    app.dependency_overrides = {}
 
 
 def test_search_records(app_dependency_override):
