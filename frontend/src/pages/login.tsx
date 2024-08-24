@@ -85,7 +85,6 @@ const LoginPage: React.FC<Props> = ({ error, nextPage }) => {
     confirmSignIn(signInInput)
       .then(() => {
         setIsLoggedIn ? setIsLoggedIn(true) : null;
-        SetAccessType();
         navigate("/");
       })
       .catch((error) => {
