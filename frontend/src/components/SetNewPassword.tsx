@@ -41,7 +41,7 @@ const SetNewPassword: React.FC<Props> = ({ errors , handleSetNewPassword, setErr
         </div>
         <div className="govuk-form-group govuk-!-margin-bottom-3">
           <label className="govuk-heading-s govuk-!-margin-bottom-2" htmlFor="password">
-            ConfirmPassword
+            Confirm Password
           </label>
           <input
             className="govuk-input"
