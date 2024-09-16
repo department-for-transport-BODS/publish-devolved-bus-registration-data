@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { SearchRegistrationNumber } from "../utils/Search";
 import { TwoThirdsColumn, GridRow } from "../Layout/Grid";
 import TableRow from "../components/TableRow";
+import { changeDateFormat } from "../utils/ChangeDateFormat";
 type RegistrationDetailsProps = {
   registration: any;
   setShowRegistationDetails: React.Dispatch<React.SetStateAction<boolean>>;
@@ -88,16 +89,23 @@ const RegistrationDetails: React.FC<RegistrationDetailsProps> = ({
                   <TableRow
                     title="Received date"
                     value={DisplayRegistration.receivedDate}
+                    isDate={true}
                   />
                   <TableRow
                     title="Granted date"
                     value={DisplayRegistration.grantedDate}
+                    isDate={true}
                   />
                   <TableRow
                     title="Effective date"
                     value={DisplayRegistration.effectiveDate}
+                    isDate={true}
                   />
-                  <TableRow title="End date" value={registration.endDate} />
+                  <TableRow
+                    title="End date"
+                    value={registration.endDate}
+                    isDate={true}
+                  />
                   <TableRow
                     title="Operator name"
                     value={DisplayRegistration.operatorName}
@@ -167,10 +175,10 @@ const RegistrationDetails: React.FC<RegistrationDetailsProps> = ({
                       </a>
                     </td>
                     <td className="govuk-table__cell govuk-table__cell--numeric">
-                      {item.receivedDate}
+                      {changeDateFormat(item.receivedDate)}
                     </td>
                     <td className="govuk-table__cell govuk-table__cell--numeric">
-                      {item.effectiveDate}
+                      {changeDateFormat(item.effectiveDate)}
                     </td>
                   </tr>
                 ))}

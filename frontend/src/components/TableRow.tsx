@@ -1,7 +1,18 @@
 import React from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { changeDateFormat } from '../utils/ChangeDateFormat';
 
-const TableRow = ({ title, value }: { title: string, value: React.ReactNode }) => {
+type TableRowPops = {
+    title: string;
+    value: React.ReactNode;
+    isDate?: boolean;
+}
+
+const TableRow= ({ title, value, isDate  }:TableRowPops) => {
+    if (isDate && typeof value === 'string') {
+      value = changeDateFormat(value);
+    }
+    
     return (
         <>
          <tr key={uuidv4()} className="govuk-table__row">
