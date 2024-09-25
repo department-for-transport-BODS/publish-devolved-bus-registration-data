@@ -37,7 +37,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({ data,handleRegistrationCl
                 </td>
                 <td className="govuk-table__cell">{item.operatorName}</td>
                 <td className="govuk-table__cell">
-                  {item.registrationNumber.split("/")[1]}
+                  {item.routeNumber}
                 </td>
                 <td className="govuk-table__cell">{item.licenceStatus}</td>
               </tr>
