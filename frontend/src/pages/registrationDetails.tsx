@@ -54,7 +54,7 @@ const RegistrationDetails: React.FC<RegistrationDetailsProps> = ({
                     value={DisplayRegistration.licenceNumber}
                   />
                   <TableRow
-                    title="Route number"
+                    title="Service number"
                     value={DisplayRegistration.routeNumber}
                   />
                   <TableRow
