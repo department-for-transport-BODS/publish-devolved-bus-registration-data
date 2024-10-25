@@ -62,7 +62,7 @@ class Registration(BaseModel):
     bus_service_type_description: str = Field(
         ..., json_schema_extra="Normal Stopping", alias="typeofservice_stervice"
     )
-    traffic_area_id: str = Field(..., json_schema_extra="C", alias="trafficarea_tervic")
+    traffic_area_id: str = Field(default="WECA", json_schema_extra="C")
     application_type: str = Field(..., json_schema_extra="New", alias="applicationtype_istervices")
     publication_text: Optional[str] = Field(
         None,
