@@ -17,7 +17,6 @@ const SetNewPassword: React.FC<Props> = ({ errors , handleSetNewPassword, setErr
     if (password !== confirmPassword) {
       setErrorMsg("Passwords do not match");
     }else{
-      // samer@SAMER!1
       setPassword(""); // Clear the password
       handleSetNewPassword(password); // Pass the correct object to handleSignIn
 
