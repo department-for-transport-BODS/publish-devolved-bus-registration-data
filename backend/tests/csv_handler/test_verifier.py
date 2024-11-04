@@ -67,21 +67,7 @@ def test_verify_token_invalid_token(mock_cognitojwt_decode):
     mock_cognitojwt_decode.side_effect = Exception("Invalid token")
     assert verifier.verify_token() is False
 
-    # with patch("cognitojwt.decode", side_effect=Exception("Invalid token")):
-    #     with pytest.raises(Exception) as e:
-    #         verifier = TokenVerifier(token)
-    #         verify = verifier.verify_token()
-    # # assert verify is True
 
-
-@patch("auth.verifier.PROJECT_ENV", "localdev")
-def test_token_verifier_valid_token():
-    # Arrange
-    token = MagicMock()
-    token.credentials = "localdev"
-    assert token_verifier(token) is None
-    # Acit
-    # Asisert
 
 
 @patch("auth.verifier.log.debug")

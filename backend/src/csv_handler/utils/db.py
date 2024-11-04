@@ -594,7 +594,6 @@ class DBManager:
                     PDBRDRegistration.registration_number,
                     PDBRDRegistration.route_number,
                 )
-                # .having(and_(PDBRDRegistration.application_type.in_(["New", "Change"]), PDBRDRegistration.effective_date <= func.current_date(), PDBRDRegistration.end_date > func.current_date()))
                 .subquery()
             )
             subquery_q4 = (
@@ -613,10 +612,14 @@ class DBManager:
                     ),
                 )
                 .filter(
-                    and_(
+                     and_(
                         PDBRDRegistration.application_type.in_(["New", "Change"]),
                         PDBRDRegistration.effective_date <= func.current_date(),
-                        PDBRDRegistration.end_date > func.current_date(),
+                        or_(
+                            PDBRDRegistration.end_date > func.current_date(),
+                            PDBRDRegistration.end_date == None
+                        )
+                     
                     )
                 )
                 .subquery()
@@ -897,7 +900,12 @@ class DBManager:
             .filter(PDBRDRegistration.id.in_(select(subquery_q2)))
             .filter(PDBRDRegistration.application_type.in_(["New", "Change"]))
             .filter(PDBRDRegistration.effective_date <= func.current_date())
-            .filter(PDBRDRegistration.end_date > func.current_date())
+            .filter(
+                or_(
+                PDBRDRegistration.end_date > func.current_date(),
+                PDBRDRegistration.end_date == None,
+                )
+                )
             .group_by(
                 OTCLicence.licence_number,
                 OTCOperator.operator_name,

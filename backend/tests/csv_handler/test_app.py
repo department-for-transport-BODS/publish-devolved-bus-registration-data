@@ -3,14 +3,14 @@ from fastapi.testclient import TestClient
 from app import app
 from os import remove
 import uuid
-from auth.verifier import get_current_group
+from auth.verifier import get_group
 import pytest
 
 client = TestClient(app)
 
 @pytest.fixture
 def app_dependency_override():
-    app.dependency_overrides[get_current_group] = lambda: "dev_2"
+    app.dependency_overrides[get_group] = lambda: "dev_2"
     yield
     app.dependency_overrides = {}
 
@@ -28,7 +28,7 @@ def test_search_records(app_dependency_override):
         "limit": "10",
         "strictMode": "Yes",
     }
-    response = client.post(
+    response = client.get(
         f"api/v1/search?licenseNumber={params['licenseNumber']}&registrationNumber={params['registrationNumber']}&operatorName={params['operatorName']}&routeNumber={params['routeNumber']}&latestOnly={params['latestOnly']}&limit={params['limit']}&strictMode={params['strictMode']}",
         headers={"Authorization": "Bearer localdev"},
     )
@@ -171,5 +171,5 @@ def test_create_upload_file(
 
 
 def test_search_records_options():
-    response = client.options("api/v1/search")
-    assert response.status_code == 200
+    response = client.get("api/v1/search")
+    assert response.status_code == 401
