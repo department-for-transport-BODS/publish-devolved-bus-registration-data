@@ -818,7 +818,7 @@ class DBManager:
                 )
                 .filter(
                     and_(
-                        PDBRDRegistration.application_type.in_(["New", "Change"]),
+                        PDBRDRegistration.application_type.in_(["New", "Change", "Variation"]),
                         PDBRDRegistration.effective_date <= func.current_date(),
                         PDBRDRegistration.end_date > func.current_date(),
                     )
