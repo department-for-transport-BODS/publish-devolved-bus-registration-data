@@ -37,7 +37,7 @@ const Home: React.FC = () => {
         </div>
         <div>
           <Link
-            to={isLoggedIn ? "/registrations" : "/login"}
+            to={isLoggedIn ? "/registrations" : "/home-options"}
             className="govuk-button govuk-button--start"
             data-module="govuk-button"
           >

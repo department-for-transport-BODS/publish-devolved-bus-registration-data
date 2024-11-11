@@ -60,15 +60,25 @@ def csv_data_structure_check(csv_data: [dict]) -> dict:
             validation_errors.update({f"{idx + 2}": modified_errors})
         except Exception as e:
             log.error(f"Error: {e}")
-    
+
     validation_description = "CSV data structure check"
     # if len(validation_errors) == 0:
     #     return {"invalid_records": [{"records" : validation_errors, "description": validation_description}],"valid_records": valid_records}
-    return {"invalid_records": [{"records" : validation_errors, "description": validation_description}], "valid_records": valid_records}
+    return {
+        "invalid_records": [
+            {"records": validation_errors, "description": validation_description}
+        ],
+        "valid_records": valid_records,
+    }
 
 
 class RecordsManager:
-    def __init__(self, csv_data: str, authenticated_entity: AuthenticatedEntity = None, report_id: str = None):
+    def __init__(
+        self,
+        csv_data: str,
+        authenticated_entity: AuthenticatedEntity = None,
+        report_id: str = None,
+    ):
         self.csv_data = csv_data
         self.group_name = authenticated_entity.group
         self.user_name = authenticated_entity.name
@@ -104,7 +114,6 @@ class RecordsManager:
         if validated_records["invalid_records"] == {}:
             del validated_records["invalid_records"]
 
-
     def _validate_csv_data(self):
         return csv_data_structure_check(self.csv_data)
 
@@ -130,9 +139,7 @@ class RecordsManager:
                 # else:
                 # records["invalid_records"]["duplicated_records"][idx] = [
                 duplicated_check_records[idx] = [
-                    {
-                        "": f"""Duplicate of record {(', ').join(duplicated_records)}"""
-                    }
+                    {"": f"""Duplicate of record {(', ').join(duplicated_records)}"""}
                 ]
                 try:
                     del records["valid_records"][idx]
@@ -147,12 +154,16 @@ class RecordsManager:
             if records.get("invalid_records") is None:
                 records["invalid_records"] = []
                 validation_description = "CSV data structure check"
-                records["invalid_records"].append({"records": duplicated_check_records, "description": validation_description})
+                records["invalid_records"].append(
+                    {
+                        "records": duplicated_check_records,
+                        "description": validation_description,
+                    }
+                )
             else:
                 data_structure_invalid = records["invalid_records"][0]
                 data_structure_invalid["records"].update(duplicated_check_records)
                 records["invalid_records"][0] = data_structure_invalid
-        
 
     def _check_licence_number_existence(self, records):
         validate_licence_number_existence(records)

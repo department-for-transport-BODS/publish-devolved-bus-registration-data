@@ -68,8 +68,6 @@ def test_verify_token_invalid_token(mock_cognitojwt_decode):
     assert verifier.verify_token() is False
 
 
-
-
 @patch("auth.verifier.log.debug")
 @patch("auth.verifier.TokenVerifier.verify_token", return_value=False)
 def test_token_verifier_invalid_token(mock_verify_token, mock_log):

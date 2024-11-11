@@ -13,11 +13,9 @@ class MockData:
                     "licence_number": "PC7654322",
                     "licence_details": {
                         "licence_number": "string",
-                        "licence_status": "string"
+                        "licence_status": "string",
                     },
-                    "operator_details": {
-                        "operator_name": "string"
-                    },
+                    "operator_details": {"operator_name": "string"},
                 },
                 {
                     "licence_number": "x001",

@@ -29,6 +29,3 @@ def get_secret(secret_name: str):
         if "SecretString" in get_secret_value_response:
             text_secret_data = get_secret_value_response["SecretString"]
             return {"text_secret_data": text_secret_data}
-        # else:
-        #     binary_secret_data = get_secret_value_response['SecretBinary']
-        #     return {"binary_secret_data": binary_secret_data}

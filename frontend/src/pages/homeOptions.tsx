@@ -5,28 +5,24 @@ import { IsLoggedInContext } from "../utils/login/LoginProvider";
 import Footer from "../Layout/Footer";
 import { v4 as uuidv4 } from "uuid";
 import { TITLE } from "../utils/Constants";
-const Registration: React.FC = () => {
+const HomeOptions: React.FC = () => {
   const { isLoggedIn } = useContext(IsLoggedInContext);
     const LINKS = [
       {
-        url: "/upload-csv",
-        text: "Upload a CSV of registered services",
-      },
-      {
-        url: "/view-registrations",
-        text: "View active registrations",
-      },
-      {
         url: "/find-registered-services",
         text: "Find registered services",
+      },
+      {
+        url: "/login",
+        text: "Login to publish registrations",
       },
     ];
 
   return (
     <>
       <FullColumnLayout
-        title="Registrations"
-        description="Home"
+        title="Home page options"
+        description="Options"
         hideCookieBanner={true}
         isLoggedIn={isLoggedIn}
       >
@@ -48,4 +44,4 @@ const Registration: React.FC = () => {
   );
 };
 
-export default Registration;
+export default HomeOptions;

@@ -5,7 +5,8 @@ from os import getenv
 from pydantic import BaseModel, Field, field_validator, model_validator
 from pydantic import ValidationError
 from pydantic_core import ErrorDetails
-from utils.constants import ACCEPTED_APPLICATION_TYPES 
+from utils.constants import ACCEPTED_APPLICATION_TYPES
+
 
 class Registration(BaseModel):
     licence_number: str = Field(
@@ -38,7 +39,9 @@ class Registration(BaseModel):
     effective_date: date = Field(
         ..., json_schema_extra="01/03/2000", alias="effectiveDate"
     )
-    end_date: Optional[date] = Field(None, json_schema_extra="01/04/2000", alias="endDate")
+    end_date: Optional[date] = Field(
+        None, json_schema_extra="01/04/2000", alias="endDate"
+    )
 
     operator_name: str = Field(
         ..., json_schema_extra="Blue Sky Buses", alias="operatorName"
@@ -50,6 +53,9 @@ class Registration(BaseModel):
         ..., json_schema_extra="Normal Stopping", alias="busServiceTypeDescription"
     )
     traffic_area_id: str = Field(..., json_schema_extra="C", alias="trafficAreaId")
+    traffic_area_id: str = Field(
+        default="WECA", json_schema_extra="C", alias="trafficAreaId"
+    )
     application_type: str = Field(..., json_schema_extra="New", alias="applicationType")
     publication_text: Optional[str] = Field(
         None,
@@ -85,17 +91,13 @@ class Registration(BaseModel):
             raise ValueError("Invalid application type")
         return service_type
 
-    @field_validator(
-        "received_date", "granted_date", "effective_date", mode="before"
-    )
+    @field_validator("received_date", "granted_date", "effective_date", mode="before")
     def parse_date(cls, v):
         return datetime.strptime(v, "%d/%m/%Y")
-    
-    @field_validator(
-        "end_date", mode="before"
-    )
+
+    @field_validator("end_date", mode="before")
     def parse_end_date(cls, v):
-        if v != '':
+        if v != "":
             return datetime.strptime(v, "%d/%m/%Y")
         return None
 

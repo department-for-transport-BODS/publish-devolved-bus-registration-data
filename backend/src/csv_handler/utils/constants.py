@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class ServiceType(Enum):
     New = "New"
     Change = "Change"
@@ -7,10 +8,15 @@ class ServiceType(Enum):
     Cancellation = "Cancellation"
 
 
-
 ACCEPTED_APPLICATION_TYPES = [
     ServiceType.New.value,
     ServiceType.Cancellation.value,
     ServiceType.Change.value,
-    ServiceType.Variation.value
+    ServiceType.Variation.value,
+]
+
+ACTIVE_APPLICATION_TYPES = [
+    ServiceType.New.value,
+    ServiceType.Change.value,
+    ServiceType.Variation.value,
 ]

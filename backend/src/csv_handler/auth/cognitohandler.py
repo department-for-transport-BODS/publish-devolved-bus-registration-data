@@ -1,4 +1,3 @@
-
 """
 Purpose
 
@@ -31,7 +30,6 @@ class CognitoIdentityProviderWrapper:
         self.user_pool_id = user_pool_id
         self.client_id = client_id
         self.client_secret = client_secret
-
 
     def _secret_hash(self, user_name):
         """
@@ -93,7 +91,6 @@ class CognitoIdentityProviderWrapper:
                 raise
         return confirmed
 
-
     def resend_confirmation(self, user_name):
         """
         Prompts Amazon Cognito to resend an email with a new confirmation code.
@@ -117,7 +114,6 @@ class CognitoIdentityProviderWrapper:
             raise
         else:
             return delivery
-
 
     def confirm_user_sign_up(self, user_name, confirmation_code):
         """
@@ -149,7 +145,6 @@ class CognitoIdentityProviderWrapper:
         else:
             return True
 
-
     def list_users(self):
         """
         Returns a list of the users in the current user pool.
@@ -169,7 +164,6 @@ class CognitoIdentityProviderWrapper:
             raise
         else:
             return users
-
 
     def start_sign_in(self, user_name, password):
         """
@@ -221,7 +215,6 @@ class CognitoIdentityProviderWrapper:
         else:
             response.pop("ResponseMetadata", None)
             return response
-
 
     def get_mfa_secret(self, session):
         """
@@ -470,4 +463,3 @@ class CognitoIdentityProviderWrapper:
             raise
         else:
             return auth_tokens
-

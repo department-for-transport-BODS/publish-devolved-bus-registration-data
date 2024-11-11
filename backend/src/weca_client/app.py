@@ -12,7 +12,9 @@ class WecaManager:
 
 def lambda_handler(event, context):
     print("WECA API ingestion is running")
-    authenticated_entity = AuthenticatedEntity(type=USER_TYPE, name=USER_NAME, group=USER_GROUP)
+    authenticated_entity = AuthenticatedEntity(
+        type=USER_TYPE, name=USER_NAME, group=USER_GROUP
+    )
     weca = WecaManager()
     received_data = weca.api_response.data
     print("Received data: ", received_data[0])

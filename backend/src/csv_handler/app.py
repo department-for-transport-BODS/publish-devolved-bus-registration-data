@@ -117,7 +117,7 @@ async def geting_staged_records(
     Args:
         authenticated_entity (AuthenticatedEntity): The authenticated entity
         stagedProcessOnly (str): Whether to retrieve only the staged process
-    
+
     Raises:
         HTTPException: status_code: 404 if no staged process found
         HTTPException: status_code: 425 if the staging process is not done yet
@@ -213,7 +213,7 @@ def get_staged_records_action(
         authenticated_entity (AuthenticatedEntity): The authenticated entity
         action (str): The action to be performed
         stage_id (str): The staged records ID
-    
+
     Raises:
         HTTPException: status_code: 400 if the staged records are not found
         HTTPException: status_code: 400 if an error occurred while processing the request
@@ -257,9 +257,6 @@ def get_staged_records_action(
 
 @api_v1_router.get("/search", status_code=status.HTTP_200_OK)
 async def search_records(
-    authenticated_entity: AuthenticatedEntity = Depends(
-        read_only_or_programmatic_access
-    ),
     licenseNumber: str = Query(
         None,
         description="The license name to filter the records",
@@ -308,7 +305,7 @@ async def search_records(
         HTTPException: status_code: 401 if the group is not found
         HTTPException: status_code: 422 if the limit is not set, or the limit is exceeded
 
-    
+
     Returns:
         res (json): The search results
     """
@@ -324,9 +321,7 @@ async def search_records(
             page=page,
             activeOnly=activeOnly,
         )
-        records = DBManager.get_records(
-            authenticated_entity, **search_query.model_dump()
-        )
+        records = DBManager.get_records(**search_query.model_dump())
 
         # Get the host and path from the request
         host = request.headers.get("host")
@@ -359,13 +354,14 @@ def read_root():
         "message": "Welcome to the PDBRD registration API",
     }
 
+
 @api_v1_router.get("/view-registrations/status", status_code=status.HTTP_200_OK)
 async def view_registrations(authenticated_entity: str = Depends(operator)):
     """This is the endpoint to view active records and their status
-    
+
     Raises:
         HTTPException: status_code: 400 if an error occurred while fetching the records
-    
+
     Returns:
         records (json): The records grouped by licence number and operator and their status
     """
