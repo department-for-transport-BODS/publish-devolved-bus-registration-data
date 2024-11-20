@@ -6,7 +6,7 @@ from pydantic import ValidationError
 from requests import HTTPError, RequestException, Timeout
 from .aws import get_secret
 from .logger import log
-from .pydant_model import  APIResponse
+from .pydant_model import APIResponse
 from .settings import (
     ENVIRONMENT,
     WECA_PARAM_C,
@@ -20,10 +20,13 @@ WECA_AUTH_TOKEN = getenv("WECA_AUTH_TOKEN", None)
 if ENVIRONMENT != "local":
     WECA_AUTH_TOKEN = get_secret(WECA_AUTH_TOKEN)["text_secret_data"]
 
+
 class EmptyResponseException(Exception):
     pass
 
+
 retry_exceptions = (RequestException, EmptyResponseException)
+
 
 class WecaClient:
     def _make_request(self, timeout: int = 30, **kwargs) -> APIResponse:

@@ -20,12 +20,14 @@ import CookiePage from "./pages/cookiePage";
 import PreValidations from "./pages/preValidation";
 import FindRegisteredServices from "./pages/findRegisteredServices";
 import RegistrationDetails from "./pages/registrationDetails";
+import HomeOptions from "./pages/homeOptions";
 function App() {
   Amplify.configure(AmplifyConfiguration);
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path='/home-options' element={<HomeOptions />} />
         <Route
           path="/upload-csv"
           element={<RequireAuth component={UploadCsvPage} requiredAccess="operator"/>}
@@ -56,7 +58,7 @@ function App() {
           path="/accessibility-statement"
           element={<AccessibilityStatement />} />
         <Route path="/cookie-page" element={<CookiePage />} />
-        <Route path="/find-registered-services" element={<RequireAuth component={FindRegisteredServices} />} />
+        <Route path="/find-registered-services" element={<FindRegisteredServices />} />
         <Route path="/registration-details" element={<RequireAuth component={RegistrationDetails} />} />
       </Routes>
     </BrowserRouter>

@@ -51,14 +51,21 @@ def validate_licence_number_existence(uploaded_records: dict):
                 or licence.licence_details is None
                 or licence.operator_details is None
             ):
-                invalid_records[idx] = [{"LicenceNumber": "Licence number is not found in the OTC DB"}]
+                invalid_records[idx] = [
+                    {"LicenceNumber": "Licence number is not found in the OTC DB"}
+                ]
             else:
                 # Add the licence details to the record
                 valid_records.update({idx: [record, licence]})
 
         except Exception as e:
             log.error(f"Error: {e}")
-        
+
     uploaded_records["valid_records"] = valid_records
     if len(invalid_records) > 0:
-        uploaded_records["invalid_records"].append({"records": invalid_records, "description": "Warning - Record failed due to OTC validation"})
+        uploaded_records["invalid_records"].append(
+            {
+                "records": invalid_records,
+                "description": "Warning - Record failed due to OTC validation",
+            }
+        )

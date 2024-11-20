@@ -29,9 +29,7 @@ def validate_licence_number_existence(uploaded_records: dict):
     """
     # Collect all the licence numbers from the records
     validated_records = uploaded_records["valid_records"]
-    # otc_API_response = MockData.mock_otc_licencd_and_operator_api(validated_records)
     otc_api_response = verify_otc_api(validated_records)
-    # sys.exit()
 
     try:
         licence_details = [
@@ -52,7 +50,9 @@ def validate_licence_number_existence(uploaded_records: dict):
                 or licence.licence_details is None
                 or licence.operator_details is None
             ):
-                invalid_records[idx] = [{"LicenceNumber": "Licence number is not found in the OTC DB"}]
+                invalid_records[idx] = [
+                    {"LicenceNumber": "Licence number is not found in the OTC DB"}
+                ]
             else:
 
                 # Add the licence details to the record
@@ -60,7 +60,12 @@ def validate_licence_number_existence(uploaded_records: dict):
 
         except Exception as e:
             log.error(f"Error: {e}")
-        
+
     uploaded_records["valid_records"] = valid_records
     if len(invalid_records) > 0:
-        uploaded_records["invalid_records"].append({"records": invalid_records, "description": "Warning - Record failed due to OTC validation"})
+        uploaded_records["invalid_records"].append(
+            {
+                "records": invalid_records,
+                "description": "Warning - Record failed due to OTC validation",
+            }
+        )

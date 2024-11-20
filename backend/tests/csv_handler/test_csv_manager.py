@@ -3,10 +3,7 @@ from managers.csv_manager import CSVManager
 from utils.pydant_model import Registration
 
 
-mocked_registration = Registration(
-    license_number="123", name="John Doe"
-)
-
+mocked_registration = Registration(license_number="123", name="John Doe")
 
 
 def test_validation_and_insertion_steps():
@@ -15,15 +12,35 @@ def test_validation_and_insertion_steps():
     csv_manager = CSVManager(data)
     csv_manager._validate_csv_data = MagicMock(
         return_value={
-            "valid_records": {'2':
-                Registration(license_number="123", name="John Doe", variation_number="1", registration_number="123", operator_name="John Doe",
-                             operator_address="123", operator_postcode="123", operator_contact="123", operator_email="123", operator_phone="123"),
-                '3':
-                Registration(license_number="456", name="Jane Smith",
-                             variation_number="1", registration_number="123", operator_name="John Doe",
-                             operator_address="123", operator_postcode="123", operator_contact="123", operator_email="123", operator_phone="123")
+            "valid_records": {
+                "2": Registration(
+                    license_number="123",
+                    name="John Doe",
+                    variation_number="1",
+                    registration_number="123",
+                    operator_name="John Doe",
+                    operator_address="123",
+                    operator_postcode="123",
+                    operator_contact="123",
+                    operator_email="123",
+                    operator_phone="123",
+                ),
+                "3": Registration(
+                    license_number="456",
+                    name="Jane Smith",
+                    variation_number="1",
+                    registration_number="123",
+                    operator_name="John Doe",
+                    operator_address="123",
+                    operator_postcode="123",
+                    operator_contact="123",
+                    operator_email="123",
+                    operator_phone="123",
+                ),
             },
-            "invalid_records": {'4':[{"license_number": "789", "name": "Invalid Record"}]},
+            "invalid_records": {
+                "4": [{"license_number": "789", "name": "Invalid Record"}]
+            },
         }
     )
     csv_manager._check_licence_number_existence = MagicMock(

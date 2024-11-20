@@ -21,6 +21,7 @@ from .exceptions import (
     PreviousProcessNotCompleted,
 )
 from central_config.env import AWS_REGION, PROJECT_ENV
+from constants import ACTIVE_APPLICATION_TYPES
 
 
 class CreateEngine:
@@ -49,7 +50,9 @@ class CreateEngine:
                 other_parts += f"{key}={value}&"
 
         # Construct the final connection string
-        connection_string = f"postgresql+psycopg2://{user_password}{kwargs.get('host', '')}"
+        connection_string = (
+            f"postgresql+psycopg2://{user_password}{kwargs.get('host', '')}"
+        )
         if kwargs.get("port"):
             connection_string += f":{kwargs.get('port')}"
         connection_string += f"/{kwargs.get('dbname', '')}"
@@ -73,14 +76,9 @@ class CreateEngine:
         """
         try:
             session = boto3.session.Session()
-            client = session.client(
-                service_name="rds",
-                region_name=AWS_REGION
-            )
+            client = session.client(service_name="rds", region_name=AWS_REGION)
             token = client.generate_db_auth_token(
-                DBHostname=host,
-                DBUsername=username,
-                Port=port
+                DBHostname=host, DBUsername=username, Port=port
             )
             return urllib.parse.quote_plus(token)
         except Exception as e:
@@ -97,12 +95,14 @@ class CreateEngine:
             if PROJECT_ENV != "local":
                 log.debug("Getting DB token")
                 creds.password = CreateEngine.generate_rds_iam_auth_token(
-                                     creds.host, creds.port, creds.user
-                                 )
+                    creds.host, creds.port, creds.user
+                )
                 log.debug("Updated DBCreds with DB token as password")
                 creds.optargs.update({"sslmode": "require"})
             else:
-                log.debug("Running locally, extracting DB password from environment variables")
+                log.debug(
+                    "Running locally, extracting DB password from environment variables"
+                )
                 creds.password = getenv("POSTGRES_PASSWORD", "postgres")
                 log.debug("Updated DBCreds with envvar as password")
                 creds.optargs.update({"sslmode": "disable"})
@@ -126,7 +126,8 @@ class CreateEngine:
         engine = None
         creds = CreateEngine.get_credentials()
         try:
-            engine = create_engine(CreateEngine.generate_connection_string(**creds.dict()),
+            engine = create_engine(
+                CreateEngine.generate_connection_string(**creds.dict()),
                 pool_pre_ping=True,
                 connect_args={
                     "keepalives": 1,
@@ -348,7 +349,7 @@ class DBManager:
         cls, operator_name: str, session: Session, OTCOperator, operator_record
     ):
         """Fetch the operator record from the database
-        
+
         Args:
             operator_name (str): Operator name
             session (Session): Database session
@@ -459,7 +460,6 @@ class DBManager:
     @classmethod
     def get_records(
         cls,
-        authenticated_entity: AuthenticatedEntity = None,
         exclude_variations: bool = False,
         registration_number: str = None,
         operator_name: str = None,
@@ -493,12 +493,7 @@ class DBManager:
         PDBRDRegistration = models.PDBRDRegistration
         OTCOperator = models.OTCOperator
         OTCLicence = models.OTCLicence
-        if authenticated_entity.type == "operators":
-            PDBRDGroup = DBGroup(models, session).get_group(
-                authenticated_entity.name, raise_exception=True
-            )
-        else:
-            PDBRDGroup = None
+        # PDBRDGroup = None
         records = (
             session.query(
                 PDBRDRegistration.variation_number.label("variationNumber"),
@@ -528,10 +523,6 @@ class DBManager:
             .join(OTCOperator, PDBRDRegistration.otc_operator_id == OTCOperator.id)
             .join(OTCLicence, PDBRDRegistration.otc_licence_id == OTCLicence.id)
         )
-        # If EGroup is not None, filter the records by the group
-        # Otherwise, get all the records
-        if PDBRDGroup:
-            records = records.filter(PDBRDRegistration.group_id == PDBRDGroup.id)
 
         if exclude_variations:
             latest_ids = select(func.max(PDBRDRegistration.id)).group_by(
@@ -540,12 +531,7 @@ class DBManager:
                 PDBRDRegistration.group_id,
                 PDBRDRegistration.route_number,
             )
-            if PDBRDGroup:
-                latest_ids = latest_ids.filter(
-                    PDBRDRegistration.group_id == PDBRDGroup.id
-                ).subquery()
-            else:
-                latest_ids = latest_ids.subquery()
+            latest_ids = latest_ids.subquery()
             records = records.filter(PDBRDRegistration.id.in_(select(latest_ids)))
 
         if license_number:
@@ -612,14 +598,15 @@ class DBManager:
                     ),
                 )
                 .filter(
-                     and_(
-                        PDBRDRegistration.application_type.in_(["New", "Change"]),
+                    and_(
+                        PDBRDRegistration.application_type.in_(
+                            ACTIVE_APPLICATION_TYPES
+                        ),
                         PDBRDRegistration.effective_date <= func.current_date(),
                         or_(
                             PDBRDRegistration.end_date > func.current_date(),
-                            PDBRDRegistration.end_date == None
-                        )
-                     
+                            PDBRDRegistration.end_date == None,
+                        ),
                     )
                 )
                 .subquery()
@@ -649,6 +636,7 @@ class DBManager:
 
         if limit:
             records = records.limit(limit)
+
 
         return [rec._asdict() for rec in records.all()]
 
@@ -774,9 +762,6 @@ class DBManager:
             .filter(PDBRDRegistration.otc_operator_id == OTCOperator.id)
             .filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
             .filter(PDBRDRegistration.otc_licence_id == OTCLicence.id)
-            # .filter(
-            #     PDBRDRegistration.registration_number == BODSDataCatalogue.xml_service_code
-            # )
         )
         if latest_only:
             records = records.filter(PDBRDRegistration.id.in_(subquery_q2))
@@ -798,7 +783,6 @@ class DBManager:
                     PDBRDRegistration.registration_number,
                     PDBRDRegistration.route_number,
                 )
-                # .having(and_(PDBRDRegistration.application_type.in_(["New", "Change"]), PDBRDRegistration.effective_date <= func.current_date(), PDBRDRegistration.end_date > func.current_date()))
                 .subquery()
             )
             subquery_q4 = (
@@ -818,7 +802,9 @@ class DBManager:
                 )
                 .filter(
                     and_(
-                        PDBRDRegistration.application_type.in_(["New", "Change", "Variation"]),
+                        PDBRDRegistration.application_type.in_(
+                            ACTIVE_APPLICATION_TYPES
+                        ),
                         PDBRDRegistration.effective_date <= func.current_date(),
                         PDBRDRegistration.end_date > func.current_date(),
                     )
@@ -898,14 +884,14 @@ class DBManager:
             .join(OTCOperator, OTCOperator.id == PDBRDRegistration.otc_operator_id)
             .filter(PDBRDRegistration.group_id == PDBRDGroup.id)
             .filter(PDBRDRegistration.id.in_(select(subquery_q2)))
-            .filter(PDBRDRegistration.application_type.in_(["New", "Change"]))
+            .filter(PDBRDRegistration.application_type.in_(ACTIVE_APPLICATION_TYPES))
             .filter(PDBRDRegistration.effective_date <= func.current_date())
             .filter(
                 or_(
-                PDBRDRegistration.end_date > func.current_date(),
-                PDBRDRegistration.end_date == None,
+                    PDBRDRegistration.end_date > func.current_date(),
+                    PDBRDRegistration.end_date == None,
                 )
-                )
+            )
             .group_by(
                 OTCLicence.licence_number,
                 OTCOperator.operator_name,
@@ -971,7 +957,7 @@ class DBManager:
     @classmethod
     def get_report_then_delete_it_from_db(
         cls, authenticated_entity: AuthenticatedEntity, report_id: str
-    ) -> dict: 
+    ) -> dict:
         """Get the report from the database and delete it
 
         Args:
@@ -1204,11 +1190,6 @@ def send_to_db(
     PDBRDUser = DBGroup(models, session).get_or_create_user(user_name, group_name)
     group_id = PDBRDUser.group_id
     # # add record to the stage table
-    # PDBRDStage_record = PDBRDStage(stage_user=PDBRDUser.id, stage_id=report_id, stage_status="in_progress")
-    # session.add(PDBRDStage_record)
-    # session.commit()
-    # PDBRDStage_id = PDBRDStage_record.id
-    # session.close()
 
     for idx, record_and_licence in records["valid_records"].items():
         try:
@@ -1231,7 +1212,7 @@ def send_to_db(
             # Prepare licence object and added to the database
             OTCLicence_record = OTCLicence(
                 licence_number=licence.licence_details.licence_number,
-                licence_status=licence.licence_details.licence_status
+                licence_status=licence.licence_details.licence_status,
             )
 
             # Add or fetch the licence id from the database
@@ -1292,17 +1273,6 @@ def send_to_db(
     staged_process.update({"stage_status": "completed"})
     session.commit()
     session.close()
-
-    # if len(records["valid_records"]) == 0:
-    #     ## Delete the staged process
-    #     session = Session(engine)
-    #     staged_process = (
-    #         session.query(PDBRDStage)
-    #         .filter(PDBRDStage.id == PDBRDStage_id)
-    #     )
-    #     staged_process.delete()
-    #     session.commit()
-    #     session.close()
 
 
 def send_report_to_db(report: dict, user_name: str, group_name: str, report_id: str):

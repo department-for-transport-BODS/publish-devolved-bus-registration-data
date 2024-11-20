@@ -10,6 +10,10 @@ from fastapi import FastAPI, HTTPException
 from mangum import Mangum
 from typing import List
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 class OTCAuthorizationTokenException(Exception):
     pass
@@ -177,7 +181,9 @@ class OTCAPIClient:
 
     def _parse_licence(self, licence_number, returned_licence):
         logger.debug(f"Attempting to parse licence {licence_number} received from OTC")
-        licence_details_component = returned_licence.get("report", None).get("licenceDetails", None)
+        licence_details_component = returned_licence.get("report", None).get(
+            "licenceDetails", None
+        )
         try:
             if licence_details_component is None:
                 raise MalformedOTCAPIResponse(
@@ -239,6 +245,9 @@ class OTCAPIClient:
             response["licences"].append(per_licence_response)
 
         return response
+
+
+# {licence_number:.....,licence_details:{licence_number:.....,Licence_status:.....},operator_details:{operator_name:.....}}
 
 
 app = FastAPI(

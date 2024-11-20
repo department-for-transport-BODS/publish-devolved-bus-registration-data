@@ -43,7 +43,9 @@ class CreateEngine:
                 other_parts += f"{key}={value}&"
 
         # Construct the final connection string
-        connection_string = f"postgresql+psycopg2://{user_password}{kwargs.get('host', '')}"
+        connection_string = (
+            f"postgresql+psycopg2://{user_password}{kwargs.get('host', '')}"
+        )
         if kwargs.get("port"):
             connection_string += f":{kwargs.get('port')}"
         connection_string += f"/{kwargs.get('dbname', '')}"
@@ -67,14 +69,9 @@ class CreateEngine:
         """
         try:
             session = boto3.session.Session()
-            client = session.client(
-                service_name="rds",
-                region_name=AWS_REGION
-            )
+            client = session.client(service_name="rds", region_name=AWS_REGION)
             token = client.generate_db_auth_token(
-                DBHostname=host,
-                DBUsername=username,
-                Port=port
+                DBHostname=host, DBUsername=username, Port=port
             )
             return urllib.parse.quote_plus(token)
         except Exception as e:
@@ -91,12 +88,14 @@ class CreateEngine:
             if ENVIRONMENT != "local":
                 log.debug("Getting DB token")
                 creds.password = CreateEngine.generate_rds_iam_auth_token(
-                                     creds.host, creds.port, creds.user
-                                 )
+                    creds.host, creds.port, creds.user
+                )
                 log.debug("Updated DBCreds with DB token as password")
                 creds.optargs.update({"sslmode": "require"})
             else:
-                log.debug("Running locally, extracting DB password from environment variables")
+                log.debug(
+                    "Running locally, extracting DB password from environment variables"
+                )
                 creds.password = getenv("POSTGRES_PASSWORD", "postgres")
                 log.debug("Updated DBCreds with envvar as password")
                 creds.optargs.update({"sslmode": "disable"})
@@ -120,7 +119,8 @@ class CreateEngine:
         engine = None
         creds = CreateEngine.get_credentials()
         try:
-            engine = create_engine(CreateEngine.generate_connection_string(**creds.dict()),
+            engine = create_engine(
+                CreateEngine.generate_connection_string(**creds.model_dump()),
                 pool_pre_ping=True,
                 connect_args={
                     "keepalives": 1,
@@ -400,7 +400,7 @@ def send_to_db(
     records: List[Registration], group_name=None, user_name=None, report_id=None
 ):
     # validated_records: List[Registration] = MockData.mock_user_csv_record()
-    models = AutoMappingModels() 
+    models = AutoMappingModels()
     engine = models.engine
     tables = models.get_tables()
     OTCOperator = tables["OTCOperator"]

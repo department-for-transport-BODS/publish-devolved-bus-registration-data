@@ -18,37 +18,52 @@ class DBCreds(BaseModel):
 
     def __init__(self, **data):
         super().__init__(**data)
-        self.optargs = {key: value for key, value in data.items() if key not in self.__fields__}
+        self.optargs = {
+            key: value for key, value in data.items() if key not in self.__fields__
+        }
 
 
 class Registration(BaseModel):
     licence_number: str = Field(
-        ..., min_length=1, json_schema_extra="PC7654321", alias="operatorlicence_istervices"
+        ...,
+        min_length=1,
+        json_schema_extra="PC7654321",
+        alias="operatorlicence_istervices",
     )
     registration_number: str = Field(
         json_schema_extra="PD7654321/87654321", alias="serialnum_ervi"
     )
-    route_number: str = Field(..., json_schema_extra="2", alias="servicenumbers_icespt7a")
+    route_number: str = Field(
+        ..., json_schema_extra="2", alias="servicenumbers_icespt7a"
+    )
     route_description: str = Field(
         "",
         json_schema_extra="City Center - Suburb - Main Street",
         alias="routedescriptio_istervices",
     )
     variation_number: int = Field(..., json_schema_extra=1, alias="variation_ervi")
-    start_point: str = Field(..., json_schema_extra="City Center", alias="startpoint_espt")
+    start_point: str = Field(
+        ..., json_schema_extra="City Center", alias="startpoint_espt"
+    )
     finish_point: str = Field(..., json_schema_extra="Suburb", alias="endpoint_sp")
-    via: str = Field(..., json_schema_extra="Main Street", alias="via_services_pt7atfu9e78z39yqc")
+    via: str = Field(
+        ..., json_schema_extra="Main Street", alias="via_services_pt7atfu9e78z39yqc"
+    )
     subsidised: str = Field(..., json_schema_extra="Fully", alias="subsidised_tervic")
     subsidy_detail: str = Field(
         ...,
         json_schema_extra="Transport for Local Authority (LA)",
         alias="subsidisedby_stervice",
     )
-    is_short_notice: bool = Field(..., json_schema_extra=False, alias="shortnotice_tervic")
+    is_short_notice: bool = Field(
+        ..., json_schema_extra=False, alias="shortnotice_tervic"
+    )
     received_date: date = Field(
         ..., json_schema_extra="01/01/2000", alias="receiveddate_stervice"
     )
-    granted_date: date = Field(..., json_schema_extra="01/02/2000", alias="granteddate_tervic")
+    granted_date: date = Field(
+        ..., json_schema_extra="01/02/2000", alias="granteddate_tervic"
+    )
     effective_date: date = Field(
         ..., json_schema_extra="01/03/2000", alias="proposedstartda_istervices"
     )
@@ -63,7 +78,9 @@ class Registration(BaseModel):
         ..., json_schema_extra="Normal Stopping", alias="typeofservice_stervice"
     )
     traffic_area_id: str = Field(default="WECA", json_schema_extra="C")
-    application_type: str = Field(..., json_schema_extra="New", alias="applicationtype_istervices")
+    application_type: str = Field(
+        ..., json_schema_extra="New", alias="applicationtype_istervices"
+    )
     publication_text: Optional[str] = Field(
         None,
         json_schema_extra="Revised timetable to improve reliability",
@@ -100,9 +117,8 @@ class Registration(BaseModel):
         if re.match(r"\d{2} \w{3} \d{4}", v):
             v = datetime.strptime(v, "%d %b %Y").strftime("%d/%m/%Y")
         if v == "":
-            return datetime.strptime("01/01/2100", "%d/%m/%Y") 
+            return datetime.strptime("01/01/2100", "%d/%m/%Y")
         return datetime.strptime(v, "%d/%m/%Y")
-
 
     @field_validator("registration_number")
     def validate_registration_number(cls, v):
@@ -138,6 +154,7 @@ class FieldModel(BaseModel):
     name: str
     desc: str
     datatype: str
+
 
 class APIResponse(BaseModel):
     fields: List[FieldModel]

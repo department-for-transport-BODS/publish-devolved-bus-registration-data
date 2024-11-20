@@ -103,8 +103,8 @@ class TimetableData:
                 "keepalives": 1,
                 "keepalives_idle": 30,
                 "keepalives_interval": 10,
-                "keepalives_count": 5
-            }
+                "keepalives_count": 5,
+            },
         )
 
     def _get_connection_details(self):
@@ -116,19 +116,21 @@ class TimetableData:
         connection_details["port"] = getenv("POSTGRES_PORT", "5432")
         connection_details["dbname"] = getenv("POSTGRES_DB", "postgres")
         connection_details["user"] = getenv("POSTGRES_USER", "postgres")
-        
+
         try:
-            if ENVIRONMENT != 'local':
+            if ENVIRONMENT != "local":
                 logger.debug("Getting DB token")
                 connection_details["password"] = self._generate_rds_iam_auth_token(
                     connection_details["host"],
                     connection_details["port"],
-                    connection_details["user"]
+                    connection_details["user"],
                 )
                 logger.debug("Updated object with DB token as password")
                 connection_details["sslmode"] = "require"
             else:
-                logger.debug("Running locally, extracting DB password from environment variables")
+                logger.debug(
+                    "Running locally, extracting DB password from environment variables"
+                )
                 connection_details["password"] = getenv("POSTGRES_PASSWORD", "postgres")
                 logger.debug("Updated object with envvar as password")
                 connection_details["sslmode"] = "disable"
@@ -166,7 +168,9 @@ class TimetableData:
                 other_parts += f"{key}={value}&"
 
         # Construct the final connection string
-        connection_string = f"postgresql+psycopg2://{user_password}{kwargs.get('host', '')}"
+        connection_string = (
+            f"postgresql+psycopg2://{user_password}{kwargs.get('host', '')}"
+        )
         if kwargs.get("port"):
             connection_string += f":{kwargs.get('port')}"
         connection_string += f"/{kwargs.get('dbname', '')}"
@@ -191,13 +195,10 @@ class TimetableData:
         try:
             session = boto3.session.Session()
             client = session.client(
-                service_name="rds",
-                region_name=getenv("AWS_REGION")
+                service_name="rds", region_name=getenv("AWS_REGION")
             )
             token = client.generate_db_auth_token(
-                DBHostname=host,
-                DBUsername=username,
-                Port=port
+                DBHostname=host, DBUsername=username, Port=port
             )
             return urllib.parse.quote_plus(token)
         except Exception as e:

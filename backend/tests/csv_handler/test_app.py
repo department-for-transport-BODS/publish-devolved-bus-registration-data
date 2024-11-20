@@ -8,12 +8,12 @@ import pytest
 
 client = TestClient(app)
 
+
 @pytest.fixture
 def app_dependency_override():
     app.dependency_overrides[get_group] = lambda: "dev_2"
     yield
     app.dependency_overrides = {}
-
 
 
 def test_search_records(app_dependency_override):
@@ -60,6 +60,7 @@ def test_search_records_validation_error(app_dependency_override):
             }
         ]
     }
+
 
 @pytest.fixture
 def file_name():
