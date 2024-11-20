@@ -21,7 +21,7 @@ from .exceptions import (
     PreviousProcessNotCompleted,
 )
 from central_config.env import AWS_REGION, PROJECT_ENV
-from constants import ACTIVE_APPLICATION_TYPES
+from utils.constants import ACTIVE_APPLICATION_TYPES
 
 
 class CreateEngine:

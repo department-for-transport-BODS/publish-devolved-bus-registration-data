@@ -31,6 +31,17 @@ def validate_licence_number_existence(uploaded_records: dict):
     validated_records = uploaded_records["valid_records"]
     otc_api_response = verify_otc_api(validated_records)
 
+    # {licence_number:.....,licence_details:{licence_number:.....,Licence_status:.....},operator_details:{operator_name:.....}}
+    mocked_list = []
+    for licence in validated_records:
+        mocked_list.append(
+            {
+                "licence_number": licence,
+                "licence_details": {"licence_number": "1", "licence_status": "valid"},
+                "operator_details": {"operator_name": "test operator"},
+            }
+        )
+
     try:
         licence_details = [
             LicenceRecord(**record) for record in otc_api_response["licences"]
