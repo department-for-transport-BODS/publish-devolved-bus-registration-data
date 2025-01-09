@@ -10,10 +10,6 @@ from fastapi import FastAPI, HTTPException
 from mangum import Mangum
 from typing import List
 
-from dotenv import load_dotenv
-
-load_dotenv()
-
 
 class OTCAuthorizationTokenException(Exception):
     pass
