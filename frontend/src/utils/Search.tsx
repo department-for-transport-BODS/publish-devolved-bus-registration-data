@@ -6,13 +6,18 @@ const apiBaseUrl = process.env.REACT_APP_API_URL
 export async function SearchRegistrationNumber(
   search: string,
   latestOnly: "Yes" | "No" = "Yes",
-  strictMode: "Yes" | "No" = "No"
+  strictMode: "Yes" | "No" = "No",
+  routeNumber = '',
 ): Promise<any> {
+  const query = `registrationNumber=${search}&latestOnly=${latestOnly}&strictMode=${strictMode}${
+    routeNumber ? `&routeNumber=${routeNumber}` : ''
+  }`;
+  const query2 = `registrationNumber=${search}&latestOnly=${latestOnly}&strictMode=${strictMode}`;
   const JWT = await GetJWT();
   let results = {};
   await axios
     .get(
-      `${apiBaseUrl}/search?registrationNumber=${search}&latestOnly=${latestOnly}&strictMode=${strictMode}`,
+      `${apiBaseUrl}/search?${query2}`,
       {
         headers: {
           "Access-Control-Allow-Origin": "*",
