@@ -211,6 +211,12 @@ class SearchQuery(BaseModel):
             "Invalid value for LatestOnly. Must be one of 'True', 'False', 'Yes', 'No'"
         )
 
+    @field_validator("route_number", "page", mode="before")
+    def validate_route_number(cls, v):
+        # Prevent route number to have _ - / . , characters
+        if v is not None:
+            if re.search(r"[_\-/.,]", v):
+                raise ValueError("Invalid route number format, invalid character in route number")
 
 class Error(BaseModel):
     type: str
