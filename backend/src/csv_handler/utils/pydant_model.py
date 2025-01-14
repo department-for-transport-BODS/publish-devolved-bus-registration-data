@@ -116,7 +116,7 @@ class Registration(BaseModel):
         print(v)
         if v is not None:
             if re.search(r"[_\-/.,]", v):
-                raise ValueError("invalid characters found in route number, please avoid using any of (_ - / . ,")
+                raise ValueError("invalid characters found in route number, please avoid using any of (_ - / . ,)")
             return v
 
 
