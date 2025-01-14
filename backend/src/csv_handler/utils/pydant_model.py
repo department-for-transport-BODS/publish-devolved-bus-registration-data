@@ -68,6 +68,7 @@ class Registration(BaseModel):
 
     @field_validator(
         "route_description",
+        "route_number",
         "subsidy_detail",
         "other_details",
         "publication_text",
@@ -107,6 +108,18 @@ class Registration(BaseModel):
         if not re.match(r"[a-zA-Z0-9]+/[a-zA-Z0-9]+", v):
             raise ValueError("Invalid registration number format")
         return v
+
+    @field_validator("route_number", mode="before")
+    def validate_route_number(cls, v):
+        # Prevent route number to have _ - / . , characters
+        print("Route number")
+        print(v)
+        if v is not None:
+            if re.search(r"[_\-/.,]", v):
+                raise ValueError("invalid characters found in route number, please avoid using any of (_ - / . ,)")
+            return v
+
+
 
 
 class LicenceDetails(BaseModel):
@@ -210,7 +223,6 @@ class SearchQuery(BaseModel):
         raise ValueError(
             "Invalid value for LatestOnly. Must be one of 'True', 'False', 'Yes', 'No'"
         )
-
 
 class Error(BaseModel):
     type: str
