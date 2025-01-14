@@ -17,7 +17,7 @@ const SuccessfullyUploaded: React.FC = () => {
         return (
             <>
                 <FullColumnLayout title="Successfully Uploaded" description="Temp Page" hideCookieBanner={true}>
-                   <div>This page can not be visted directly</div> 
+                   <div>No data to be displayed</div> 
                 </FullColumnLayout>
                 <Footer />
             </>
