@@ -27,7 +27,7 @@ const RegistrationDetails: React.FC<RegistrationDetailsProps> = ({
   };
 
   useEffect(() => {
-    SearchRegistrationNumber(registration.registrationNumber, "No", "Yes")
+    SearchRegistrationNumber(registration.registrationNumber, "No", "Yes",registration.licenceNumber,registration.routeNumber)
       .then((response) => {
         setRegistrations(response?.data);
       })
@@ -168,6 +168,8 @@ const RegistrationDetails: React.FC<RegistrationDetailsProps> = ({
               </thead>
               <tbody className="govuk-table__body">
                 {registrations.map((item, idx) => (
+                  item.variationNumber != DisplayRegistration.variationNumber ? (
+           
                   <tr className="govuk-table__row" key={uuidv4()}>
                     <td className="govuk-table__cell">
                       <a href="#" data-idx={idx} onClick={handleVariationClick}>
@@ -180,7 +182,7 @@ const RegistrationDetails: React.FC<RegistrationDetailsProps> = ({
                     <td className="govuk-table__cell govuk-table__cell--numeric">
                       {changeDateFormat(item.effectiveDate)}
                     </td>
-                  </tr>
+                  </tr>):null
                 ))}
               </tbody>
             </table>

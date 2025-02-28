@@ -764,7 +764,7 @@ class DBManager:
             .filter(PDBRDRegistration.otc_licence_id == OTCLicence.id)
         )
         if latest_only:
-            records = records.filter(PDBRDRegistration.id.in_(subquery_q2))
+            records = records.filter(PDBRDRegistration.id.in_(select(subquery_q2)))
 
         if PDBRDGroup:
             records = records.filter(PDBRDRegistration.group_id == PDBRDGroup.id)
@@ -806,7 +806,9 @@ class DBManager:
                             ACTIVE_APPLICATION_TYPES
                         ),
                         PDBRDRegistration.effective_date <= func.current_date(),
-                        PDBRDRegistration.end_date > func.current_date(),
+                        or_(PDBRDRegistration.end_date > func.current_date(),
+                            PDBRDRegistration.end_date == None,
+                        ),
                     )
                 )
                 .subquery()
@@ -968,6 +970,7 @@ class DBManager:
             json: Report
         """
         models, session = initiate_db_variables()
+        User = None
         PDBRDReport = models.PDBRDReport
         if authenticated_entity.type == "user":
             User = DBGroup(models, session).get_user(
