@@ -1,11 +1,9 @@
 import boto3
-import json
 import urllib.parse
 from os import getenv
 from sqlalchemy import create_engine, func, select, Table, case, desc, or_, and_
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session, Query
-from sys import exit
 from typing import List
 from .csv_validator import Registration
 from .logger import log
@@ -525,14 +523,27 @@ class DBManager:
         )
 
         if exclude_variations:
-            latest_ids = select(func.max(PDBRDRegistration.id)).group_by(
-                PDBRDRegistration.registration_number,
-                PDBRDRegistration.otc_operator_id,
-                PDBRDRegistration.group_id,
-                PDBRDRegistration.route_number,
+            subquery = records.subquery()
+            records = (
+                session.query(subquery)
+                .join(
+                    PDBRDRegistration,
+                    and_(
+                        subquery.c.registrationNumber == PDBRDRegistration.registration_number,
+                        subquery.c.routeNumber == PDBRDRegistration.route_number,
+                        subquery.c.variationNumber == PDBRDRegistration.variation_number,
+                    )
+                )
+                .distinct(
+                    PDBRDRegistration.registration_number,
+                    PDBRDRegistration.route_number,
+                )
+                .order_by(
+                    PDBRDRegistration.registration_number,
+                    PDBRDRegistration.route_number,
+                    desc(PDBRDRegistration.variation_number),
+                )
             )
-            latest_ids = latest_ids.subquery()
-            records = records.filter(PDBRDRegistration.id.in_(select(latest_ids)))
 
         if license_number:
             records = add_filter_to_query(
@@ -567,62 +578,18 @@ class DBManager:
                 records, PDBRDRegistration.route_number, route_number, strict_mode
             )
         if active_only:
-            subquery_q3 = (
-                session.query(
-                    PDBRDRegistration.registration_number,
-                    PDBRDRegistration.route_number,
-                    func.max(PDBRDRegistration.variation_number).label(
-                        "max_variation_number"
+            records = records.filter(
+                and_(
+                    PDBRDRegistration.application_type.in_(
+                        ACTIVE_APPLICATION_TYPES
+                    ),
+                    PDBRDRegistration.effective_date <= func.current_date(),
+                    or_(
+                        PDBRDRegistration.end_date > func.current_date(),
+                        PDBRDRegistration.end_date == None,
                     ),
                 )
-                .filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
-                .group_by(
-                    PDBRDRegistration.registration_number,
-                    PDBRDRegistration.route_number,
-                )
-                .subquery()
             )
-            subquery_q4 = (
-                session.query(
-                    PDBRDRegistration.registration_number,
-                    PDBRDRegistration.route_number,
-                )
-                .join(
-                    subquery_q3,
-                    and_(
-                        PDBRDRegistration.registration_number
-                        == subquery_q3.c.registration_number,
-                        PDBRDRegistration.route_number == subquery_q3.c.route_number,
-                        PDBRDRegistration.variation_number
-                        == subquery_q3.c.max_variation_number,
-                    ),
-                )
-                .filter(
-                    and_(
-                        PDBRDRegistration.application_type.in_(
-                            ACTIVE_APPLICATION_TYPES
-                        ),
-                        PDBRDRegistration.effective_date <= func.current_date(),
-                        or_(
-                            PDBRDRegistration.end_date > func.current_date(),
-                            PDBRDRegistration.end_date == None,
-                        ),
-                    )
-                )
-                .subquery()
-            )
-            subquery_q5 = (
-                session.query(PDBRDRegistration.id).join(
-                    subquery_q4,
-                    and_(
-                        PDBRDRegistration.registration_number
-                        == subquery_q4.c.registration_number,
-                        PDBRDRegistration.route_number == subquery_q4.c.route_number,
-                    ),
-                )
-            ).subquery()
-
-            records = records.filter(PDBRDRegistration.id.in_(select(subquery_q5)))
 
         if page:
             cls.record_count = records.count()
@@ -695,36 +662,7 @@ class DBManager:
             )
         else:
             PDBRDGroup = None
-        if latest_only:
-            subquery_q1 = (
-                session.query(
-                    PDBRDRegistration.registration_number,
-                    PDBRDRegistration.route_number,
-                    func.max(PDBRDRegistration.variation_number).label(
-                        "max_variation_number"
-                    ),
-                )
-                .filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
-                .group_by(
-                    PDBRDRegistration.registration_number,
-                    PDBRDRegistration.route_number,
-                )
-                .subquery()
-            )
-
-            subquery_q2 = (
-                session.query(PDBRDRegistration.id).join(
-                    subquery_q1,
-                    and_(
-                        PDBRDRegistration.registration_number
-                        == subquery_q1.c.registration_number,
-                        PDBRDRegistration.variation_number
-                        == subquery_q1.c.max_variation_number,
-                        PDBRDRegistration.route_number == subquery_q1.c.route_number,
-                    ),
-                )
-            ).subquery()
-
+            
         records = (
             session.query(
                 PDBRDRegistration.registration_number.label("registrationNumber"),
@@ -763,68 +701,49 @@ class DBManager:
             .filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
             .filter(PDBRDRegistration.otc_licence_id == OTCLicence.id)
         )
+        if active_only:
+            records = records.filter(
+                and_(
+                    PDBRDRegistration.application_type.in_(
+                        ACTIVE_APPLICATION_TYPES
+                    ),
+                    PDBRDRegistration.effective_date <= func.current_date(),
+                    or_(
+                        PDBRDRegistration.end_date > func.current_date(),
+                        PDBRDRegistration.end_date == None,
+                    ),
+                )
+            )
+            
         if latest_only:
-            records = records.filter(PDBRDRegistration.id.in_(select(subquery_q2)))
+            subquery = records.subquery()
+            records = (
+                session.query(subquery)
+                .join(
+                    PDBRDRegistration,
+                    and_(
+                        subquery.c.registrationNumber == PDBRDRegistration.registration_number,
+                        subquery.c.routeNumber == PDBRDRegistration.route_number,
+                        subquery.c.variationNumber == PDBRDRegistration.variation_number,
+                    )
+                )
+                .distinct(
+                    PDBRDRegistration.registration_number,
+                    PDBRDRegistration.route_number,
+                )
+                .order_by(
+                    PDBRDRegistration.registration_number,
+                    PDBRDRegistration.route_number,
+                    desc(PDBRDRegistration.variation_number),
+                )
+            )
+        
 
         if PDBRDGroup:
             records = records.filter(PDBRDRegistration.group_id == PDBRDGroup.id)
 
-        if active_only:
-            subquery_q3 = (
-                session.query(
-                    PDBRDRegistration.registration_number,
-                    PDBRDRegistration.route_number,
-                    func.max(PDBRDRegistration.variation_number).label(
-                        "max_variation_number"
-                    ),
-                )
-                .filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
-                .group_by(
-                    PDBRDRegistration.registration_number,
-                    PDBRDRegistration.route_number,
-                )
-                .subquery()
-            )
-            subquery_q4 = (
-                session.query(
-                    PDBRDRegistration.registration_number,
-                    PDBRDRegistration.route_number,
-                )
-                .join(
-                    subquery_q3,
-                    and_(
-                        PDBRDRegistration.registration_number
-                        == subquery_q3.c.registration_number,
-                        PDBRDRegistration.route_number == subquery_q3.c.route_number,
-                        PDBRDRegistration.variation_number
-                        == subquery_q3.c.max_variation_number,
-                    ),
-                )
-                .filter(
-                    and_(
-                        PDBRDRegistration.application_type.in_(
-                            ACTIVE_APPLICATION_TYPES
-                        ),
-                        PDBRDRegistration.effective_date <= func.current_date(),
-                        or_(PDBRDRegistration.end_date > func.current_date(),
-                            PDBRDRegistration.end_date == None,
-                        ),
-                    )
-                )
-                .subquery()
-            )
-            subquery_q5 = (
-                session.query(PDBRDRegistration.id).join(
-                    subquery_q4,
-                    and_(
-                        PDBRDRegistration.registration_number
-                        == subquery_q4.c.registration_number,
-                        PDBRDRegistration.route_number == subquery_q4.c.route_number,
-                    ),
-                )
-            ).subquery()
+   
 
-            records = records.filter(PDBRDRegistration.id.in_(select(subquery_q5)))
         return [rec._asdict() for rec in records.all()]
 
     @classmethod
@@ -1013,6 +932,7 @@ class DBManager:
         PDBRDLicence = models.OTCLicence
         PDBRDOperator = models.OTCOperator
         PDBRDRegistration = models.PDBRDRegistration
+        PDBRDUser = None
         if authenticated_entity.type == "user":
             PDBRDUser = DBGroup(models, session).get_user(
                 authenticated_entity.name, authenticated_entity.group
@@ -1054,6 +974,7 @@ class DBManager:
         models, session = initiate_db_variables()
         PDBRDStage = models.PDBRDStage
         PDBRDRegistration = models.PDBRDRegistration
+        PDBRDUser = None
         if authenticated_entity.type == "user":
             PDBRDUser = DBGroup(models, session).get_user(
                 authenticated_entity.name, authenticated_entity.group
