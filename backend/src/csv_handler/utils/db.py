@@ -663,6 +663,7 @@ class DBManager:
             )
         else:
             PDBRDGroup = None
+        bugfix/change_date_type
         default_date = date(2100, 1, 1)
         records = (
             session.query(
