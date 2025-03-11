@@ -1,5 +1,6 @@
 import boto3
 import urllib.parse
+from datetime import date
 from os import getenv
 from sqlalchemy import create_engine, func, select, Table, case, desc, or_, and_
 from sqlalchemy.ext.automap import automap_base
@@ -662,7 +663,8 @@ class DBManager:
             )
         else:
             PDBRDGroup = None
-            
+
+        default_date = date(2100, 1, 1)
         records = (
             session.query(
                 PDBRDRegistration.registration_number.label("registrationNumber"),
@@ -678,7 +680,7 @@ class DBManager:
                 PDBRDRegistration.received_date.label("receivedDate"),
                 PDBRDRegistration.granted_date.label("grantedDate"),
                 PDBRDRegistration.effective_date.label("effectiveDate"),
-                PDBRDRegistration.end_date.label("endDate"),
+                func.coalesce(PDBRDRegistration.end_date, default_date).label("endDate"),
                 PDBRDRegistration.bus_service_type_id.label("busServiceTypeId"),
                 PDBRDRegistration.bus_service_type_description.label(
                     "busServiceTypeDescription"
