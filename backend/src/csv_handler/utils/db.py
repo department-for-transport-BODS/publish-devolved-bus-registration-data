@@ -664,7 +664,7 @@ class DBManager:
         else:
             PDBRDGroup = None
 
-        default_date = date(2100, 1, 1)
+        default_date = "2100-01-01"
         records = (
             session.query(
                 PDBRDRegistration.registration_number.label("registrationNumber"),
