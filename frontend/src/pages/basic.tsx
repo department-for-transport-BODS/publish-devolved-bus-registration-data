@@ -6,16 +6,14 @@ const Basic = () => {
             <head>
                 <meta charSet="utf-8" />
                 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-                <meta name="theme-color" content="#0b0c0c" />
+                <meta name="theme-color" content="#1d70b8" />
                 <link rel="icon" sizes="48x48" href="/assets/images/favicon.ico" />
                 <link rel="icon" sizes="any" href="/assets/images/favicon.svg" type="image/svg+xml" />
-                <link rel="mask-icon" href="/assets/images/govuk-icon-mask.svg" color="#0b0c0c" />
+                <link rel="mask-icon" href="/assets/images/govuk-icon-mask.svg" color="#1d70b8" />
                 <link rel="apple-touch-icon" href="/assets/images/govuk-icon-180.png" />
             </head>
             <body className="govuk-template__body">
-                <a href="#main-content" className="govuk-skip-link" data-module="govuk-skip-link">
-                    Skip to main content
-                </a>
+                <a href="#main-content" className="govuk-skip-link" data-module="govuk-skip-link">Skip to main content</a>
                 <header className="govuk-header" role="banner" data-module="govuk-header">
                     <div className="govuk-header__container govuk-width-container">
                         <div className="govuk-header__logo">
@@ -59,7 +57,7 @@ const Basic = () => {
                                 width="41"
                                 aria-label="Open Government License logo"
                             >
-                                <path d="M0 0h483.2v195.7H0z" fill="#0b0c0c" />
+                                <path d="M0 0h483.2v195.7H0z" fill="#1d70b8" />
                                 <path
                                     className="govuk-footer__licence-description"
                                     fill="#fff"

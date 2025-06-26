@@ -33,7 +33,7 @@ export const BaseLayout = ({
             <Header  />
             <div className="govuk-width-container">
                 <PhaseBanner />
-                <main className="govuk-main-wrapper">{children}</main>
+                <main className="govuk-main-wrapper" id="main-content">{children}</main>
                 {/* {!hideHelp && <Help />} */}
             </div>
         </>
