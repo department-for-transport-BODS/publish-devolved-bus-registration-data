@@ -9,16 +9,16 @@ const DefaultPage: React.FC = () => {
         <meta charSet="utf-8" />
         <title>GOV.UK - The best place to find government services and information</title>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <meta name="theme-color" content="#0b0c0c" />
+        <meta name="theme-color" content="#1d70b8" />
         <link rel="icon" sizes="48x48" href="/assets/images/favicon.ico" />
         <link rel="icon" sizes="any" href="/assets/images/favicon.svg" type="image/svg+xml" />
-        <link rel="mask-icon" href="/assets/images/govuk-icon-mask.svg" color="#0b0c0c" />
+        <link rel="mask-icon" href="/assets/images/govuk-icon-mask.svg" color="#1d70b8" />
         <link rel="apple-touch-icon" href="/assets/images/govuk-icon-180.png" />
         <link rel="manifest" href="/assets/manifest.json" />
         <link rel="stylesheet" href="/stylesheets/govuk-frontend.min.css" />
       </head>
 
-      <body className="govuk-template__body js-enabled govuk-frontend-supported">
+      <body className="govuk-template__body">
         <script>
           document.body.className += ` js-enabled` + (`noModule`` in HTMLScriptElement.prototype ? ` govuk-frontend-supported` : ``);
         </script>
