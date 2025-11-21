@@ -237,6 +237,8 @@ jobs:
             | jq -r '.Parameter.Value'`
           export REACT_APP_RESPONSE_TYPE="${{ vars.REACT_APP_RESPONSE_TYPE }}"
           export REACT_APP_SCOPES="${{ vars.REACT_APP_SCOPES }}"
+          export REACT_APP_SUPPORT_EMAIL=$(aws ssm get-parameter --name "/${ENV}/${{ vars.PROJECT_NAME }}/app/support/email" --query "Parameter.Value" --output text)
+          export REACT_APP_SUPPORT_PHONE=$(aws ssm get-parameter --name "/${ENV}/${{ vars.PROJECT_NAME }}/app/support/phone" --query "Parameter.Value" --output text)
 
           npm install
           REACT_APP_ENV=$ENV npm run build

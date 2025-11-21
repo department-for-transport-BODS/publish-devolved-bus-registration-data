@@ -15,6 +15,8 @@ REACT_APP_REDIRECT_SIGN_IN=http://localhost:3000/uploadcsv
 REACT_APP_REDIRECT_SIGN_OUT=http://localhost:3000/login
 REACT_APP_RESPONSE_TYPE=code
 REACT_APP_SCOPES=openid email phone profile aws.cognito.signin.user.admin
+REACT_APP_SUPPORT_EMAIL=example@example.com
+REACT_APP_SUPPORT_PHONE=01234 567890
 
 # # PostgreSQL
 # # ------------------------------------------------------------------------------
