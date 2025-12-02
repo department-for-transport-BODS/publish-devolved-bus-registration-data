@@ -7,6 +7,8 @@ import { TITLE } from "../utils/Constants";
 
 const ContactUs: React.FC = () => {
   const {isLoggedIn } = useContext(IsLoggedInContext);
+  const ContactUsEmail = process.env.REACT_APP_SUPPORT_EMAIL
+  const ContactUsPhone = process.env.REACT_APP_SUPPORT_PHONE
 
   
   return (
@@ -31,8 +33,8 @@ const ContactUs: React.FC = () => {
         The Help Desk can be contacted by telephone or email as follows.
         </p>
         <p>
-        Telephone: 0800 028 0930<br/>
-        Email: <a href="mailto:bodshelpdesk@kpmg.co.uk">bodshelpdesk@kpmg.co.uk</a> 
+        Telephone: {ContactUsPhone}<br/>
+        Email: <a href={`mailto:${ContactUsEmail}`}>{ContactUsEmail}</a> 
         </p>
         </div>
       </TwoThirdsLayout>
