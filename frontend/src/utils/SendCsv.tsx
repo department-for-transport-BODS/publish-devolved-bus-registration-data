@@ -12,8 +12,8 @@ export const GetJWT = async () => {
   });
   return jwt;
 };
-const apiBaseUrl = process.env.REACT_APP_API_URL
-  ? process.env.REACT_APP_API_URL
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL
+  ? process.env.NEXT_PUBLIC_API_URL
   : "";
 export const GetReport = async (report_id: string, navigate: unknown) => {
   const JWT = await GetJWT();

@@ -7,8 +7,8 @@ import { TITLE } from "../utils/Constants";
 
 const ContactUs: React.FC = () => {
   const {isLoggedIn } = useContext(IsLoggedInContext);
-  const ContactUsEmail = process.env.REACT_APP_SUPPORT_EMAIL
-  const ContactUsPhone = process.env.REACT_APP_SUPPORT_PHONE
+  const ContactUsEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL
+  const ContactUsPhone = process.env.NEXT_PUBLIC_SUPPORT_PHONE
 
   
   return (

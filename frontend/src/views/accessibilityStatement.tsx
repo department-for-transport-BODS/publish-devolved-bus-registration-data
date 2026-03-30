@@ -5,7 +5,7 @@ import Footer from "../Layout/Footer";
 
 const AccessibilityStatement: React.FC = () => {
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const APP_URL = process.env.REACT_APP_URL;
+  const APP_URL = process.env.NEXT_PUBLIC_URL;
 
   return (
     <>

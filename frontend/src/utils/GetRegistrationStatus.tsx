@@ -16,7 +16,7 @@ const useRegistrationStatus = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const apiBaseUrl = process.env.REACT_APP_API_URL || "";
+                const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "";
                 let jwt = "";
                 fetchAuthSession().then(async () => {
                 Object.entries(localStorage).forEach(([key, value]) => {
