@@ -1,8 +1,8 @@
-import React, { PropsWithChildren, ReactElement, useEffect, useState } from 'react';
+import React, { PropsWithChildren, ReactElement } from 'react';
+import Head from 'next/head';
 import { ErrorInfo } from '../interfaces';
 import PhaseBanner from '../components/PhaseBanner';
 import Header from './Header';
-import { HeadProvider, Title, Link, Meta } from 'react-head';
 interface LayoutProps {
     title: string;
     description: string;
@@ -20,16 +20,12 @@ export const BaseLayout = ({
 }: PropsWithChildren<LayoutProps>): ReactElement => {
     return (
         <>
-            <HeadProvider>
-                <div className="Home">
-                    <Title>{title? title: "PDBRD Project"}</Title>
-                    <Meta name="description" content={'Upload CSV'} />
-                    <Meta name="viewport" content="width=device-width, initial-scale=1" />
-                    <Meta charSet="utf-8" />
-                    {/* Additional meta tags or links can be added here */}
-                </div>
-                {/* Rest of the component */}
-            </HeadProvider>
+            <Head>
+                <title>{title ? title : 'PDBRD Project'}</title>
+                <meta name="description" content="Upload CSV" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <meta charSet="utf-8" />
+            </Head>
             <Header  />
             <div className="govuk-width-container">
                 <PhaseBanner />
