@@ -17,13 +17,13 @@ const AccessibilityStatement: React.FC = () => {
       >
         <h1 className="govuk-heading-xl">Accessibility Statement</h1>
         <div className="govuk-!-font-size-19">
-          <p>
+          <p className="govuk-body">
             This statement applies to pages on{" "}
             <a href={`https://${APP_URL}`}>{APP_URL}</a>. <br /> <br />
             This website is run by the Department for Transport. The text should
             be clear and simple to understand. You should be able to:
           </p>
-          <ul>
+          <ul className="govuk-list govuk-list--bullet govuk-!-margin-left-2">
             <li>Zoom in up to 300% without problems</li>
             <li>
               Navigate all of the website using just a keyboard (except for maps
@@ -49,7 +49,7 @@ const AccessibilityStatement: React.FC = () => {
           <p className="govuk-heading-m">
             Reporting accessibility problems with this website
           </p>
-          <p>
+          <p className="govuk-body">
             We&apos;re always looking to improve the accessibility of this
             website. If you find any problems that are not listed on this page
             or you think we&apos;re not meeting the accessibility requirements,
@@ -57,7 +57,7 @@ const AccessibilityStatement: React.FC = () => {
             <a href="mailto:BusOpenData@dft.gov.uk">BusOpenData@dft.gov.uk</a>
           </p>
           <p className="govuk-heading-m">Enforcement procedure</p>
-          <p>
+          <p className="govuk-body">
             The Equality and Human Rights Commission (EHRC) is responsible for
             enforcing the Public Sector Bodies (Websites and Mobile
             Applications) (No. 2) Accessibility Regulations 2018 (the
@@ -67,14 +67,14 @@ const AccessibilityStatement: React.FC = () => {
               contact the Equality Advisory and Support Service (EASS).
             </a>
           </p>
-          <p>
+          <p className="govuk-body">
             Technical information about this website&apos;s accessibility
             Department for Transport is committed to making its websites
             accessible, in accordance with the Public Sector Bodies (Websites
             and Mobile Applications) (No. 2) Accessibility Regulations 2018.
           </p>
           <p className="govuk-heading-m">Compliance status</p>
-          <p>
+          <p className="govuk-body">
             This website follows the{" "}
             <a href="https://www.w3.org/TR/WCAG21/">
               Web Content Accessibility Guidelines version 2.1
@@ -84,7 +84,7 @@ const AccessibilityStatement: React.FC = () => {
           <p className="govuk-heading-m">
             Preparation of this accessibility statement
           </p>
-          <p>
+          <p className="govuk-body">
             This statement was prepared on 19 March 2024. It was last reviewed
             on 19 March 2024.
           </p>

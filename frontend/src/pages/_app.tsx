@@ -2,6 +2,7 @@ import type { AppProps, NextWebVitalsMetric } from "next/app";
 import "../index.css";
 import "../App.css";
 import "../Sass/App.scss";
+import "kainossoftwareltd-govuk-react-kainos/dist/index.css";
 
 export default function CustomApp({ Component, pageProps }: AppProps) {
   return <Component {...pageProps} />;

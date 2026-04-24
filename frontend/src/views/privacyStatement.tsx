@@ -16,10 +16,10 @@ const PrivacyStatement: React.FC = () => {
         isLoggedIn={isLoggedIn}
       >
         <h1 className="govuk-heading-xl">Privacy Statement</h1>
-        <h2>Last updated: 8th March 2024</h2>
+        <h2 className="govuk-heading-m">Last updated: 8th March 2024</h2>
         <div className="govuk-!-font-size-19">
           <p className="govuk-heading-m">Who we are</p>
-          <p>
+          <p className="govuk-body">
             The {TITLE} is a service
             for Local Authorities acting as Enhanced Partners, to publish data
             about local bus service registrations for integration with the Bus
@@ -27,7 +27,7 @@ const PrivacyStatement: React.FC = () => {
             for Transport.
           </p>
           <p className="govuk-heading-m">What data we collect from you</p>
-          <p>
+          <p className="govuk-body">
             Our main purpose is ensuring data regarding devolved bus service
             registrations is available to inform the validity and accuracy of
             data hosted within the BODS system about local bus services across
@@ -60,7 +60,7 @@ const PrivacyStatement: React.FC = () => {
             </li>
           </ul>
           <p className="govuk-heading-m">Why we need your data</p>
-          <p className="">
+          <p className="govuk-body">
             We want to build an accurate database for local bus services across
             England. So, we require the ability to monitor how the data is being
             provided and used over time.
@@ -88,19 +88,19 @@ const PrivacyStatement: React.FC = () => {
           </ul>
 
           <p className="govuk-heading-m">What we do with your data</p>
-          <p>
+          <p className="govuk-body">
             We use your data to occasionally check your activity when using the
             service. We will not:
           </p>
-          <ul>
+          <ul className="govuk-list govuk-list--bullet">
             <li>Sell or rent your data to third parties</li>
             <li>Share your data with third parties for marketing purposes</li>
           </ul>
-          <p>
+          <p className="govuk-body">
             We will share your data if we are required to do so by law - for
             example, by court order, or to prevent fraud or other crime.
           </p>
-          <p>
+          <p className="govuk-body">
             We use your data to calculate performance metrics to support
             continuous improvement of the service. When you sign up, you can
             also opt in to be contacted to participate in user research. If you
@@ -109,7 +109,7 @@ const PrivacyStatement: React.FC = () => {
             BusOpenData@dft.gov.uk</a>.
           </p>
           <p className="govuk-heading-m">How long we keep your data for</p>
-          <p>
+          <p className="govuk-body">
             We will retain your data for as long as you have an account.
             However, if you use an institutional email account and depending on
             what you choose for your account name, this may not include any
@@ -118,7 +118,7 @@ const PrivacyStatement: React.FC = () => {
           <p className="govuk-heading-m">
             Where your data is processed and stored
           </p>
-          <p>
+          <p className="govuk-body">
             We design, build and run our systems to make sure that your data is
             as safe as possible at any stage, both while it&apos;s processed
             and when it&apos;s stored. Your personal data will not be
@@ -127,7 +127,7 @@ const PrivacyStatement: React.FC = () => {
           <p className="govuk-heading-m">
             How we protect your data and keep it secure
           </p>
-          <p>
+          <p className="govuk-body">
             We are committed to doing all that we can to keep your data secure.
             To prevent unauthorised access or disclosure we have put in place
             technical and organisational procedures to secure the data we
@@ -137,7 +137,7 @@ const PrivacyStatement: React.FC = () => {
             process on our behalf secure.
           </p>
           <p className="govuk-heading-m">Children&apos;s privacy protection</p>
-          <p>
+          <p className="govuk-body">
             We understand the importance of protecting children&apos;s privacy
             online. Our services are not designed for, or intentionally targeted
             at, children 13 years of age or younger. It is not our policy to
@@ -145,8 +145,8 @@ const PrivacyStatement: React.FC = () => {
             13.
           </p>
           <p className="govuk-heading-m">What are your rights</p>
-          <p>You have the right to request:</p>
-          <ul>
+          <p className="govuk-body">You have the right to request:</p>
+          <ul className="govuk-list govuk-list--bullet">
             <li>Information about how your personal data is processed</li>
             <li>A copy of that personal data - this copy will be provided in a structured, commonly used and machine-readable format</li>
             <li>
@@ -154,8 +154,8 @@ const PrivacyStatement: React.FC = () => {
               immediately
             </li>
           </ul>
-          <p>You can also:</p>
-          <ul>
+          <p className="govuk-body">You can also:</p>
+          <ul className="govuk-list govuk-list--bullet">
             <li>
               Raise an objection about how your personal data is processed
             </li>
@@ -168,12 +168,12 @@ const PrivacyStatement: React.FC = () => {
               certain circumstances
             </li>
           </ul>
-          <p>
+          <p className="govuk-body">
             If you have any of these requests, get in contact with our Data
             Protection Officer - you can find their contact details below.
           </p>
           <p className="govuk-heading-m">Changes to this notice</p>
-          <p>
+          <p className="govuk-body">
             We may modify or amend this privacy notice at our discretion at any
             time. When we make changes to this notice, we will amend the last
             modified date at the top of this page. Any modification or amendment
@@ -182,12 +182,12 @@ const PrivacyStatement: React.FC = () => {
             privacy notice to be informed about how we are protecting your data.
           </p>
           <p className="govuk-heading-m">Contact us or make a complaint</p>
-          <p>Contact the DfT Data Protection Officer if you either:</p>
-          <ul>
+          <p className="govuk-body">Contact the DfT Data Protection Officer if you either:</p>
+          <ul className="govuk-list govuk-list--bullet">
             <li>Have any questions about anything in this document</li>
             <li>Think your personal data has been misused or mishandled</li>
           </ul>
-          <p>
+          <p className="govuk-body">
             Data Protection Officer <br />
             Department for Transport <br />
             3rd Floor <br />
@@ -196,15 +196,14 @@ const PrivacyStatement: React.FC = () => {
             East Sussex <br />
             TN34 1EA <br />
           </p>
-          <p>
+          <p className="govuk-body">
             Email:{" "}
             <a href="mailto:DataProtectionOfficer@dft.gov.uk">
               DataProtectionOfficer@dft.gov.uk
             </a>
           </p>
-          <p>
-            Our Personal Information Charter, can be found
-            <br /> here:
+          <p className="govuk-body">
+            Our Personal Information Charter, can be found here:
               {" "}
             <a href="https://www.gov.uk/government/organisations/department-for-transport/about/personal-information-charter">
               Personal information charter

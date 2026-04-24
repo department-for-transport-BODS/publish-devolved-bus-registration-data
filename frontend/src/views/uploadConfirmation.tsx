@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom"; // Add this line
-import "../Css/App.css";
 import Footer from "../Layout/Footer";
 import { TwoThirdsLayout } from "../Layout/Layout";
 import ImportantBanner from "../components/NotificationBanner";

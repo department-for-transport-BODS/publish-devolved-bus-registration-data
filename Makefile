@@ -28,7 +28,7 @@ clean-services: ## Stop and remove all related Docker container services
 
 build-frontend: ## Build the frontend locally
 	@echo "Building frontend for $(ENV)..."
-	@cd ./frontend; rm -rf ./build || true; REACT_APP_ENV=$(ENV) npm install && npm run build
+	@cd ./frontend; rm -rf ./out || true; REACT_APP_ENV=$(ENV) npm install && npm run build
 
 run-frontend: ## Run the frontend locally
 	@echo "Running frontend for $(ENV)..."
@@ -36,7 +36,7 @@ run-frontend: ## Run the frontend locally
 
 deploy-frontend: ## Deploy the frontend to target environment
 	@echo "Deploying the frontend to the $(ENV) environment in AWS..."
-	@cd ./frontend; aws s3 sync ./build s3://$(ENV)-$(PROJECT_NAME)-deployment-frontend
+	@cd ./frontend; aws s3 sync ./out s3://$(ENV)-$(PROJECT_NAME)-deployment-frontend
 
 build-backend: ## Build the backend api using sam
 	@cd ./backend; sam build

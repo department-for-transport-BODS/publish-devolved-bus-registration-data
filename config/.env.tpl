@@ -7,16 +7,16 @@ HTTPS_PROXY=
 
 # # ReactJS
 # # -----------------------------------------------------------------------------
-REACT_APP_API_URL=http://127.0.0.1:8000/api/v1
-REACT_APP_USER_POOL_ID=
-REACT_APP_USER_POOL_CLIENT_ID=
-REACT_APP_DOMAIN=
-REACT_APP_REDIRECT_SIGN_IN=http://localhost:3000/uploadcsv
-REACT_APP_REDIRECT_SIGN_OUT=http://localhost:3000/login
-REACT_APP_RESPONSE_TYPE=code
-REACT_APP_SCOPES=openid email phone profile aws.cognito.signin.user.admin
-REACT_APP_SUPPORT_EMAIL=example@example.com
-REACT_APP_SUPPORT_PHONE=01234 567890
+NEXT_APP_API_URL=http://127.0.0.1:8000/api/v1
+NEXT_APP_USER_POOL_ID=
+NEXT_APP_USER_POOL_CLIENT_ID=
+NEXT_APP_DOMAIN=
+NEXT_APP_REDIRECT_SIGN_IN=http://localhost:3000/uploadcsv
+NEXT_APP_REDIRECT_SIGN_OUT=http://localhost:3000/login
+NEXT_APP_RESPONSE_TYPE=code
+NEXT_APP_SCOPES=openid email phone profile aws.cognito.signin.user.admin
+NEXT_APP_SUPPORT_EMAIL=example@example.com
+NEXT_APP_SUPPORT_PHONE=01234 567890
 
 # # PostgreSQL
 # # ------------------------------------------------------------------------------

@@ -22,19 +22,18 @@ const Home: React.FC = () => {
           This service is for publishing devolved bus registrations data for
           public transport <br /> services, excluding rail, in England.
         </p>
-        <div>
-          <p>The service can be used by:</p>
-          <ul className="govuk-list govuk-list--bullet govuk-!-margin-left-2">
-            <li>Enhanced partnerships in England</li>
-            <li>Franchises in England</li>
-          </ul>
-        </div>
-        <div>
-          <p>Use this service to:</p>
-          <ul className="govuk-list govuk-list--bullet govuk-!-margin-left-2">
-            <li>{TITLE}</li>
-          </ul>
-        </div>
+      
+        <p className="govuk-body">The service can be used by: </p>
+        <ul className="govuk-list govuk-list--bullet govuk-!-margin-left-2">
+          <li>Enhanced partnerships in England</li>
+          <li>Franchises in England</li>
+        </ul>
+        
+        <p className="govuk-body">Use this service to:</p>
+        <ul className="govuk-list govuk-list--bullet govuk-!-margin-left-2">
+          <li>{TITLE}</li>
+        </ul>
+        
         <div>
           <Link
             to={isLoggedIn ? "/registrations" : "/home-options"}

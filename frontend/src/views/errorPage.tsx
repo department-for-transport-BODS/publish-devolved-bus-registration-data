@@ -1,5 +1,4 @@
 import React from "react";
-import "../Css/App.css";
 import Footer from "../Layout/Footer";
 import { FullColumnLayout } from "../Layout/Layout";
 import HelpAndSupport from "../components/HelpAndSupport";

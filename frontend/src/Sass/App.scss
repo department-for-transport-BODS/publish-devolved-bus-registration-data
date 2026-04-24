@@ -1,4 +1,5 @@
-@import "../../node_modules/govuk-frontend/dist/govuk/all";
+$govuk-new-organisation-colours: true;
+@import "../../node_modules/govuk-frontend/dist/govuk";
 
 
 .proccessing-data-pannel{
@@ -47,4 +48,9 @@ li.three-dots{
 }
 .govuk-secondary-text-colour{
     color: #505a5f
+}
+
+.govuk-header__container {
+  display: flex;
+  align-items: center;
 }

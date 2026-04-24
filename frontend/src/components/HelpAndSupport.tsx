@@ -7,7 +7,7 @@ const HelpAndSupport: React.FC = () =>{
     return (
         <div>
         <p className="govuk-heading-m">Help and support</p>
-        <p>    
+        <p className="govuk-body">    
         If you are having problems, please contact the {TITLE} service team via this link: <Link to="/contact-us">Contact us</Link>
         </p>
         </div>
