@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { SearchRegistrationNumber } from "../utils/Search";
-import { TwoThirdsColumn, GridRow } from "../Layout/Grid";
+import { TwoThirdsColumn, GridRow } from "../components/layout/Grid";
 import TableRow from "../components/TableRow";
 import { changeDateFormat } from "../utils/ChangeDateFormat";
 type RegistrationDetailsProps = {

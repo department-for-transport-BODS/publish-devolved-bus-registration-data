@@ -1,8 +1,9 @@
 import React, { PropsWithChildren, ReactElement } from 'react';
 import Head from 'next/head';
-import { ErrorInfo } from '../interfaces';
-import PhaseBanner from '../components/PhaseBanner';
+import { ErrorInfo } from '../../interfaces';
+import PhaseBanner from './PhaseBanner';
 import Header from './Header';
+import Footer from './Footer';
 interface LayoutProps {
     title: string;
     description: string;
@@ -27,10 +28,13 @@ export const BaseLayout = ({
                 <meta charSet="utf-8" />
             </Head>
             <Header  />
-            <div className="govuk-width-container">
-                <PhaseBanner />
-                <main className="govuk-main-wrapper">{children}</main>
-                {/* {!hideHelp && <Help />} */}
+            <div className="layout-flex-wrapper">
+                <div className="govuk-width-container">
+                    <PhaseBanner />
+                    <main className="govuk-main-wrapper">{children}</main>
+                    {/* {!hideHelp && <Help />} */}
+                </div>
+                <Footer />
             </div>
         </>
     );

@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
-import Footer from "../Layout/Footer";
-import { TwoThirdsOneThirdLayout } from "../Layout/Layout";
+import { TwoThirdsOneThirdLayout } from "../components/layout/Layout";
 import LoginForm from "../components/LoginForm";
 import SetNewPassword from "../components/SetNewPassword";
-import HelpAndSupport from "../components/HelpAndSupport";
+import HelpAndSupport from "../components/layout/HelpAndSupport";
 import RequestResetPassword from "../components/RequestResetPassword";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
@@ -16,7 +15,7 @@ import {
 } from "aws-amplify/auth";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
 import ConfirmNewPasswordForm from "../components/ConfirmNewPasswordForm";
-import { TITLE } from "../utils/Constants";
+import { serviceName } from "../utils/Constants";
 import SetAccessType from "../utils/login/AccessType";
 type Props = {
   error?: string;
@@ -165,7 +164,7 @@ const LoginPage: React.FC<Props> = ({ error, nextPage }) => {
           <div className="govuk-grid-column-two-thirds">
             <div className="govuk-!-width-three-quarters">
               <p className="govuk-heading-m govuk-!-font-size-27">
-                Enter your {TITLE} account details to sign in
+                Enter your {serviceName} account details to sign in
               </p>
               {!confirmPassword &&
                 !confirmPasswordReset &&
@@ -227,7 +226,6 @@ const LoginPage: React.FC<Props> = ({ error, nextPage }) => {
         </div>
         <HelpAndSupport />
       </TwoThirdsOneThirdLayout>
-      <Footer />
     </>
   );
 };

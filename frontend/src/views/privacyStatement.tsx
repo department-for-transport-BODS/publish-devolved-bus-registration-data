@@ -1,8 +1,7 @@
 import React, { useContext } from "react";
-import { TwoThirdsLayout } from "../Layout/Layout";
+import { TwoThirdsLayout } from "../components/layout/Layout";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
-import Footer from "../Layout/Footer";
-import { TITLE } from "../utils/Constants";
+import { serviceName } from "../utils/Constants";
 
 const PrivacyStatement: React.FC = () => {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -20,7 +19,7 @@ const PrivacyStatement: React.FC = () => {
         <div className="govuk-!-font-size-19">
           <p className="govuk-heading-m">Who we are</p>
           <p className="govuk-body">
-            The {TITLE} is a service
+            The {serviceName} is a service
             for Local Authorities acting as Enhanced Partners, to publish data
             about local bus service registrations for integration with the Bus
             Open Data Service (BODS). The service is provided by the Department
@@ -211,7 +210,6 @@ const PrivacyStatement: React.FC = () => {
           </p>
         </div>
       </TwoThirdsLayout>
-      <Footer />
     </>
   );
 };

@@ -1,7 +1,7 @@
 import React, { ReactElement } from "react";
 import { Link } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-const heigh = { height: "-webkit-fill-available" };
+
 const Footer = (): ReactElement => {
   const LINKS = [
     { name: "Privacy", url: "/privacy-statement" },
@@ -12,9 +12,11 @@ const Footer = (): ReactElement => {
   ];
   return (
     <>
-      <footer className="govuk-footer" role="contentinfo">
-        <div className="govuk-width-container">
-          <svg xmlns="http://www.w3.org/2000/svg"
+      <footer className="govuk-footer footer layout-flex-wrapper govuk-main-wrapper govuk-footer" role="contentinfo">
+      <div className="govuk-width-container">
+        <div className="govuk-footer__meta">
+          <div className="govuk-footer__meta-item govuk-footer__meta-item--grow">
+            <svg xmlns="http://www.w3.org/2000/svg"
             focusable="false"
             role="presentation"
             viewBox="0 0 64 60"
@@ -28,16 +30,12 @@ const Footer = (): ReactElement => {
               </path>
             </g>
           </svg>
-          <div className="govuk-footer__meta">
-            <div className="govuk-footer__meta-item govuk-footer__meta-item--grow">
-              <h2 className="govuk-visually-hidden">
-                Support links
-              </h2>
-              <ul className="govuk-footer__inline-list">
-                {LINKS.map((link) => (
-                  <li key={uuidv4()} className="govuk-footer__inline-list-item">
-                    <Link className="govuk-footer__link" to={link.url}>
-                      {link.name}
+            <h2 className="govuk-visually-hidden">Support links</h2>
+            <ul className="govuk-footer__inline-list">
+              {LINKS.map((link) => (
+                <li key={uuidv4()} className="govuk-footer__inline-list-item">
+                  <Link className="govuk-footer__link" to={link.url}>
+                    {link.name}
                     </Link>
                   </li>
                 ))}

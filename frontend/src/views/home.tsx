@@ -1,10 +1,9 @@
 import React, { useContext } from "react";
-import { FullColumnLayout } from "../Layout/Layout";
-import HelpAndSupport from "../components/HelpAndSupport";
+import { FullColumnLayout } from "../components/layout/Layout";
+import HelpAndSupport from "../components/layout/HelpAndSupport";
 import { Link } from "react-router-dom";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
-import Footer from "../Layout/Footer";
-import { TITLE } from "../utils/Constants";
+import { serviceName } from "../utils/Constants";
 
 const Home: React.FC = () => {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -12,12 +11,12 @@ const Home: React.FC = () => {
   return (
     <>
       <FullColumnLayout
-        title={TITLE ? TITLE : ""}
+        title={serviceName ? serviceName : ""}
         description="Home"
         hideCookieBanner={true}
         isLoggedIn={isLoggedIn}
       >
-        <h1 className="govuk-heading-xl">{TITLE}</h1>
+        <h1 className="govuk-heading-xl">{serviceName}</h1>
         <p className="govuk-body">
           This service is for publishing devolved bus registrations data for
           public transport <br /> services, excluding rail, in England.
@@ -31,7 +30,7 @@ const Home: React.FC = () => {
         
         <p className="govuk-body">Use this service to:</p>
         <ul className="govuk-list govuk-list--bullet govuk-!-margin-left-2">
-          <li>{TITLE}</li>
+          <li>{serviceName}</li>
         </ul>
         
         <div>
@@ -56,7 +55,6 @@ const Home: React.FC = () => {
         </div>
         <HelpAndSupport />
       </FullColumnLayout>
-      <Footer />
     </>
   );
 };

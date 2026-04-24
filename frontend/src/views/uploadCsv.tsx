@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
-import Footer from "../Layout/Footer";
-import FullColumnLayout from "../Layout/Layout";
+import FullColumnLayout from "../components/layout/Layout";
 import UploadCsv from "../components/UploadCsv";
 import DataProccessingWaiting from "../components/DataProccessingWaiting";
 import {
@@ -118,7 +117,6 @@ const UploadCsvPage: React.FC<Props> = ({ isLoggedIn = false }) => {
           <UploadCsv setIsLoading={setIsLoading} />
         )}
       </FullColumnLayout>
-      <Footer />
     </>
   );
 };

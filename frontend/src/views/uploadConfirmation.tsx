@@ -1,8 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom"; // Add this line
-import Footer from "../Layout/Footer";
-import { TwoThirdsLayout } from "../Layout/Layout";
-import ImportantBanner from "../components/NotificationBanner";
+import { TwoThirdsLayout } from "../components/layout/Layout";
+import ImportantBanner from "../components/layout/NotificationBanner";
 import ServiceCount from "../components/ServiceCount";
 import { useLocation } from "react-router-dom";
 import { InvalidRecords, InvalidData } from "../interfaces/invalidRecords";
@@ -93,7 +92,6 @@ const PartlyUploading: React.FC = () => {
           </div>
         </div>
       </div>
-      <Footer />
     </>
   );
 };

@@ -1,12 +1,11 @@
 import React, { useEffect } from "react";
-import { FullColumnLayout } from "../Layout/Layout";
-import Footer from "../Layout/Footer";
+import { FullColumnLayout } from "../components/layout/Layout";
 import RegistrationDetails from "./registrationDetails";
-import { GridRow, OneHalfColumn } from "../Layout/Grid";
+import { GridRow, OneHalfColumn } from "../components/layout/Grid";
 import SearchForm from "../components/SearchForm";
 import SearchResults from "../components/SearchResults";
 import SearchErrorBox from "../components/SearchErrorBox";
-import NotificationBanner from "../components/NotificationBanner";
+import NotificationBanner from "../components/layout/NotificationBanner";
 
 const FindRegisteredServices: React.FC = () => {
   const [searchError, setSearchError] = React.useState<string | null>(null);
@@ -78,7 +77,6 @@ const FindRegisteredServices: React.FC = () => {
           </GridRow>
         )}
       </FullColumnLayout>
-      <Footer />
     </>
   );
 };

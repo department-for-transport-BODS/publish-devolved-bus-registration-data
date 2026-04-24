@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
-import { TwoThirdsLayout } from "../Layout/Layout";
+import { TwoThirdsLayout } from "../components/layout/Layout";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
-import Footer from "../Layout/Footer";
 
 const AccessibilityStatement: React.FC = () => {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -90,7 +89,6 @@ const AccessibilityStatement: React.FC = () => {
           </p>
         </div>
       </TwoThirdsLayout>
-      <Footer />
     </>
   );
 };

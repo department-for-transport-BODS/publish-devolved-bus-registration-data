@@ -1,7 +1,7 @@
-import React, { ReacEtlement, useContext } from "react";
+import React, { ReactElement, useContext } from "react";
 import dynamic from "next/dynamic";
-import { IsLoggedInContext } from "../utils/login/LoginProvider";
-import { TITLE } from "../utils/Constants";
+import { IsLoggedInContext } from "../../utils/login/LoginProvider";
+import { serviceName } from "../../utils/Constants";
 
 const KainosGovukHeader = dynamic(
   () =>
@@ -28,7 +28,7 @@ const Header = (): ReactElement<Props> => {
     <>
       <div className="header-shell">
         <KainosGovukHeader
-          serviceName={TITLE}
+          serviceName={serviceName}
           serviceUrl="/"
           showNavigation={false}
           rebrand

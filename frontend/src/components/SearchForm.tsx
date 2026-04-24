@@ -1,5 +1,5 @@
 import React from "react";
-import { GridRow, OneHalfColumn } from "../Layout/Grid";
+import { GridRow, OneHalfColumn } from "./layout/Grid";
 import { SearchRegAndLicence } from "../utils/Search";
 type SearchFormProps = {
   searchError: string | null;

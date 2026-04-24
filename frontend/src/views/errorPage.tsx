@@ -1,11 +1,10 @@
 import React from "react";
-import Footer from "../Layout/Footer";
-import { FullColumnLayout } from "../Layout/Layout";
-import HelpAndSupport from "../components/HelpAndSupport";
+import { FullColumnLayout } from "../components/layout/Layout";
+import HelpAndSupport from "../components/layout/HelpAndSupport";
 import { useContext } from "react";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
 import { useLocation } from "react-router-dom";
-import { TITLE } from "../utils/Constants";
+import { serviceName } from "../utils/Constants";
 
 const ErrorPage: React.FC = () => {
   const location = useLocation();
@@ -21,7 +20,7 @@ const ErrorPage: React.FC = () => {
         isLoggedIn={isLoggedIn}
       >
         <h1 className="govuk-heading-xl">
-          {TITLE} tool
+          {serviceName} tool
         </h1>
         <div>
           <div
@@ -63,7 +62,6 @@ const ErrorPage: React.FC = () => {
         </div>
         <HelpAndSupport />
       </FullColumnLayout>
-      <Footer />
     </>
   );
 };

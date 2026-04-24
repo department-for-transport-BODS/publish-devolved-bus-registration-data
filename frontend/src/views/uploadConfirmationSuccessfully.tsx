@@ -1,6 +1,5 @@
 import React from 'react';
-import Footer from '../Layout/Footer';
-import {FullColumnLayout} from '../Layout/Layout';
+import {FullColumnLayout} from '../components/layout/Layout';
 import SuccessfullyUpdated from '../components/SuccessfullyUpdated';
 import ServiceCount from '../components/ServiceCount';
 import {Link, useLocation } from 'react-router-dom';
@@ -18,7 +17,6 @@ const SuccessfullyUploaded: React.FC = () => {
                 <FullColumnLayout title="Successfully Uploaded" description="Temp Page" hideCookieBanner={true}>
                    <div>No data to be displayed</div> 
                 </FullColumnLayout>
-                <Footer />
             </>
         );
     }
@@ -40,7 +38,6 @@ const SuccessfullyUploaded: React.FC = () => {
                     </div>
 
             </FullColumnLayout>
-            <Footer />
         </>
     );
 };

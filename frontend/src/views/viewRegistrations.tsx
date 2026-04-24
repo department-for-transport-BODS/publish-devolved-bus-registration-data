@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
-import { FullColumnLayout } from "../Layout/Layout";
+import { FullColumnLayout } from "../components/layout/Layout";
 import { Link } from "react-router-dom";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
-import Footer from "../Layout/Footer";
 import AccordionSection from "../components/AccordionSection";
 import { initAll } from "../Javascript/govuk-frontend.min";
 import useRegistrationStatus from "../utils/GetRegistrationStatus";
@@ -157,7 +156,6 @@ const ViewRegistrations: React.FC = () => {
           Return home
         </Link>
       </FullColumnLayout>
-      <Footer />
     </>
   );
 };

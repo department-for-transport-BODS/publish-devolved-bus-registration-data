@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useState, useMemo, useRef } from "react";
-import { FullColumnLayout } from "../Layout/Layout";
+import { FullColumnLayout } from "../components/layout/Layout";
 import { Link } from "react-router-dom";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
-import Footer from "../Layout/Footer";
 import PreValidationAccordionSection from "../components/PreValidationAccordionSection";
 import { initAll } from "../Javascript/govuk-frontend.min";
 import { v4 as uuidv4 } from "uuid";
@@ -162,7 +161,6 @@ const PreValidations: React.FC = () => {
           </div>
         )}
       </FullColumnLayout>
-      <Footer />
     </>
   );
 };

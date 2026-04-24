@@ -1,1 +1,1 @@
-export const TITLE = "Publish devolved bus registration data"
+export const serviceName = "Publish devolved bus registration data"

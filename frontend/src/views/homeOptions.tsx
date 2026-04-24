@@ -1,10 +1,9 @@
 import React, { useContext } from "react";
-import { FullColumnLayout } from "../Layout/Layout";
+import { FullColumnLayout } from "../components/layout/Layout";
 import { Link } from "react-router-dom";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
-import Footer from "../Layout/Footer";
 import { v4 as uuidv4 } from "uuid";
-import { TITLE } from "../utils/Constants";
+import { serviceName } from "../utils/Constants";
 const HomeOptions: React.FC = () => {
   const { isLoggedIn } = useContext(IsLoggedInContext);
     const LINKS = [
@@ -26,7 +25,7 @@ const HomeOptions: React.FC = () => {
         hideCookieBanner={true}
         isLoggedIn={isLoggedIn}
       >
-        <h1 className="govuk-heading-xl">{TITLE}</h1>
+        <h1 className="govuk-heading-xl">{serviceName}</h1>
         {LINKS.map((value) => {
           return (
             <Link
@@ -39,7 +38,6 @@ const HomeOptions: React.FC = () => {
           );
         })}
       </FullColumnLayout>
-      <Footer />
     </>
   );
 };
