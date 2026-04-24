@@ -28,14 +28,12 @@ export const BaseLayout = ({
                 <meta charSet="utf-8" />
             </Head>
             <Header  />
-            <div className="layout-flex-wrapper">
-                <div className="govuk-width-container">
-                    <PhaseBanner />
-                    <main className="govuk-main-wrapper">{children}</main>
-                    {/* {!hideHelp && <Help />} */}
-                </div>
-                <Footer />
+            <div className="govuk-width-container">
+                <PhaseBanner />
+                <main className="govuk-main-wrapper">{children}</main>
+                {/* {!hideHelp && <Help />} */}
             </div>
+            <Footer />
         </>
     );
 };
