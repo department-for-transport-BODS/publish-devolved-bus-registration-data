@@ -4,7 +4,7 @@ import HelpAndSupport from "../components/layout/HelpAndSupport";
 import { useContext } from "react";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
 import { useLocation } from "react-router-dom";
-import { serviceName } from "../utils/Constants";
+import { config } from "../utils/Config";
 
 const ErrorPage: React.FC = () => {
   const location = useLocation();
@@ -20,7 +20,7 @@ const ErrorPage: React.FC = () => {
         isLoggedIn={isLoggedIn}
       >
         <h1 className="govuk-heading-xl">
-          {serviceName} tool
+          {config.serviceName} tool
         </h1>
         <div>
           <div

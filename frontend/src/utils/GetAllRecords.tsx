@@ -1,8 +1,9 @@
 import axios, {AxiosError } from "axios";
+import { config } from "./Config";
 
 const GetAllRecords = async () => {
             try {
-                const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "";
+                const apiBaseUrl = config.publicApiUrl;
                 let jwt = "";
                 Object.entries(localStorage).forEach(([key, value]) => {
                     if (key.includes("accessToken")) {

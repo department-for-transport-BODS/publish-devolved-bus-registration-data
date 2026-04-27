@@ -1,8 +1,9 @@
 import axios from "axios";
 import { GetJWT } from "./SendCsv";
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL
-  ? process.env.NEXT_PUBLIC_API_URL
-  : "";
+import { config } from "./Config";
+
+const apiBaseUrl =  config.publicApiUrl;
+
 export async function SearchRegistrationNumber(
   search: string,
   latestOnly: "Yes" | "No" = "Yes",

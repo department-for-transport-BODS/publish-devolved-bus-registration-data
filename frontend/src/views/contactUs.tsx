@@ -1,20 +1,18 @@
 import React, {  useContext} from "react";
 import { TwoThirdsLayout } from "../components/layout/Layout";
 import {IsLoggedInContext} from "../utils/login/LoginProvider";
-import { serviceName } from "../utils/Constants";
-
+import { config } from "../utils/Config";
 
 const ContactUs: React.FC = () => {
   const {isLoggedIn } = useContext(IsLoggedInContext);
-  const ContactUsEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL
-  const ContactUsPhone = process.env.NEXT_PUBLIC_SUPPORT_PHONE
-
+  const ContactUsEmail = config.supportEmail
+  const ContactUsPhone = config.supportPhone
   
   return (
     <>
       <TwoThirdsLayout title="Contact Us" description="Home" hideCookieBanner={true} isLoggedIn={isLoggedIn}>
         <h1 className="govuk-heading-xl">
-        Contact the {serviceName.split(" ")
+        Contact the {config.serviceName.split(" ")
                           .slice(1)
                           .join(" ")} service team
         </h1>
@@ -23,7 +21,7 @@ const ContactUs: React.FC = () => {
         </p>
         <div className="govuk-!-font-size-19 govuk-!-margin-bottom-9">
         <p className="govuk-body">
-        If you are experiencing technical issues, or if you have any suggestions, comments or criticisms, please contact the {serviceName.split(" ").slice(1).join(" ")} service team through one of the channels below.
+        If you are experiencing technical issues, or if you have any suggestions, comments or criticisms, please contact the {config.serviceName.split(" ").slice(1).join(" ")} service team through one of the channels below.
         </p>
         <p className="govuk-body">
         The Help Desk is available Monday to Friday, 9am to 5pm <br />(excluding Bank Holidays in England and Wales, and the 24th of December).

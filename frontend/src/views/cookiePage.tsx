@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { TwoThirdsLayout } from "../components/layout/Layout";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
-import { serviceName } from "../utils/Constants";
+import { config } from "../utils/Config";
 
 const CookiePage: React.FC = () => {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -15,7 +15,7 @@ const CookiePage: React.FC = () => {
         isLoggedIn={isLoggedIn}
       >
         <h1 className="govuk-heading-xl">
-          Cookies on the {serviceName} Service
+          Cookies on the {config.serviceName} Service
         </h1>
         <div className="govuk-!-font-size-19">
           <p className="govuk-body">

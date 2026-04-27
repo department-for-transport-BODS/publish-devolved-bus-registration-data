@@ -15,7 +15,7 @@ import {
 } from "aws-amplify/auth";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
 import ConfirmNewPasswordForm from "../components/ConfirmNewPasswordForm";
-import { serviceName } from "../utils/Constants";
+import { config } from "../utils/Config";
 import SetAccessType from "../utils/login/AccessType";
 type Props = {
   error?: string;
@@ -164,7 +164,7 @@ const LoginPage: React.FC<Props> = ({ error, nextPage }) => {
           <div className="govuk-grid-column-two-thirds">
             <div className="govuk-!-width-three-quarters">
               <p className="govuk-heading-m govuk-!-font-size-27">
-                Enter your {serviceName} account details to sign in
+                Enter your {config.serviceName} account details to sign in
               </p>
               {!confirmPassword &&
                 !confirmPasswordReset &&

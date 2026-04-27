@@ -1,6 +1,8 @@
 import axios from "axios";
 import { fetchAuthSession } from "aws-amplify/auth";
 import Cookies from "universal-cookie";
+import { config } from "./Config";
+
 export const GetJWT = async () => {
   let jwt = "";
   await fetchAuthSession().then(() => {
@@ -12,9 +14,8 @@ export const GetJWT = async () => {
   });
   return jwt;
 };
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL
-  ? process.env.NEXT_PUBLIC_API_URL
-  : "";
+const apiBaseUrl = config.publicApiUrl;
+
 export const GetReport = async (report_id: string, navigate: unknown) => {
   const JWT = await GetJWT();
   await axios

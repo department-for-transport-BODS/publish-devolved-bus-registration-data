@@ -3,7 +3,7 @@ import { FullColumnLayout } from "../components/layout/Layout";
 import { Link } from "react-router-dom";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
 import { v4 as uuidv4 } from "uuid";
-import { serviceName } from "../utils/Constants";
+import { config } from "../utils/Config";
 const HomeOptions: React.FC = () => {
   const { isLoggedIn } = useContext(IsLoggedInContext);
     const LINKS = [
@@ -25,7 +25,7 @@ const HomeOptions: React.FC = () => {
         hideCookieBanner={true}
         isLoggedIn={isLoggedIn}
       >
-        <h1 className="govuk-heading-xl">{serviceName}</h1>
+        <h1 className="govuk-heading-xl">{config.serviceName}</h1>
         {LINKS.map((value) => {
           return (
             <Link

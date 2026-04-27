@@ -1,10 +1,11 @@
 import React, { useContext } from "react";
 import { TwoThirdsLayout } from "../components/layout/Layout";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
+import {config} from "../utils/Config";
 
 const AccessibilityStatement: React.FC = () => {
   const { isLoggedIn } = useContext(IsLoggedInContext);
-  const APP_URL = process.env.NEXT_PUBLIC_URL;
+  const APP_URL = config.appUrl;
 
   return (
     <>

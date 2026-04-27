@@ -3,7 +3,7 @@ import { FullColumnLayout } from "../components/layout/Layout";
 import HelpAndSupport from "../components/layout/HelpAndSupport";
 import { Link } from "react-router-dom";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
-import { serviceName } from "../utils/Constants";
+import { config } from "../utils/Config";
 
 const Home: React.FC = () => {
   const { isLoggedIn } = useContext(IsLoggedInContext);
@@ -11,12 +11,12 @@ const Home: React.FC = () => {
   return (
     <>
       <FullColumnLayout
-        title={serviceName}
+        title={config.serviceName}
         description="Home"
         hideCookieBanner={true}
         isLoggedIn={isLoggedIn}
       >
-        <h1 className="govuk-heading-xl">{serviceName}</h1>
+        <h1 className="govuk-heading-xl">{config.serviceName}</h1>
         <p className="govuk-body">
           This service is for publishing devolved bus registrations data for
           public transport <br /> services, excluding rail, in England.
@@ -30,7 +30,7 @@ const Home: React.FC = () => {
         
         <p className="govuk-body">Use this service to:</p>
         <ul className="govuk-list govuk-list--bullet govuk-!-margin-left-2">
-          <li>{serviceName}</li>
+          <li>{config.serviceName}</li>
         </ul>
         
         <div>
