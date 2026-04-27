@@ -61,7 +61,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
                 {searchError}
               </p>
             )}
-            <p className="govuk-body">
+            <p className="govuk-body govuk-secondary-text-colour">
               Enter a bus registration number or licence number.
             </p>
             <input

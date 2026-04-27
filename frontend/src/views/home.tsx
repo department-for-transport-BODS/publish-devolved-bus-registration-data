@@ -11,7 +11,7 @@ const Home: React.FC = () => {
   return (
     <>
       <FullColumnLayout
-        title={serviceName ? serviceName : ""}
+        title={serviceName}
         description="Home"
         hideCookieBanner={true}
         isLoggedIn={isLoggedIn}

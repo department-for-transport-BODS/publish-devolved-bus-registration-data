@@ -32,17 +32,19 @@ const Header = (): ReactElement<Props> => {
           serviceUrl="/"
           showNavigation={false}
           rebrand
+          signOutUrl="/"
         />
         {isLoggedIn ? (
-        <div style={{ position: 'absolute', top: 0, right: 250, padding: '1.5rem 2rem' }}>
-          <button 
-            className="govuk-button" 
-            type="button"
-            onClick={handleSignOut}>
-              Sign Out
-          </button>
-        </div>
-      ) : null}
+          <div className="header-sign-out-container">
+            <button
+              className="govuk-button"
+              type="button"
+              onClick={handleSignOut}>
+                Sign Out
+            </button>
+          </div>
+        ) : null}
+
       </div>
     </>
   );
