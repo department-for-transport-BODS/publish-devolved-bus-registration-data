@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import InvalidFeieldsTable from "./InvalidFeieldsTable";
+import InvalidFeieldsTable from "./InvalidFieldsTable";
 import PaginationComponent from "./PaginationComponent";
 import { InvalidRecords } from "../interfaces/invalidRecords";
 import { v4 as uuidv4 } from "uuid";

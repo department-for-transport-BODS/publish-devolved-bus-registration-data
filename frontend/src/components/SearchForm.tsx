@@ -1,5 +1,5 @@
 import React from "react";
-import { GridRow, OneHalfColumn } from "../Layout/Grid";
+import { GridRow, OneHalfColumn } from "./layout/Grid";
 import { SearchRegAndLicence } from "../utils/Search";
 type SearchFormProps = {
   searchError: string | null;
@@ -50,7 +50,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
             }`}
           >
             <label
-              className="govuk-heading-s govuk-!-margin-bottom-2"
+              className="govuk-heading-m govuk-!-margin-bottom-2"
               htmlFor="search"
             >
               Search
@@ -61,7 +61,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
                 {searchError}
               </p>
             )}
-            <p className="govuk-!-margin-1 govuk-secondary-text-colour">
+            <p className="govuk-body govuk-secondary-text-colour">
               Enter a bus registration number or licence number.
             </p>
             <input

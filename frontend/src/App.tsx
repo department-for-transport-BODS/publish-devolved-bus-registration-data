@@ -1,28 +1,30 @@
+"use client";
+
 import React from "react";
-import "./App.css";
-import "./Sass/App.scss";
-import Home from "./pages/home";
-import UploadCsvPage from "./pages/uploadCsv";
+import Home from "./views/home";
+import UploadCsvPage from "./views/uploadCsv";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import PartlyUploading from "./pages/uploadConfirmation";
-import SuccessfullyUploaded from "./pages/uploadConfirmationSuccessfully";
-import LoginPage from "./pages/login";
+import PartlyUploading from "./views/uploadConfirmation";
+import SuccessfullyUploaded from "./views/uploadConfirmationSuccessfully";
+import LoginPage from "./views/login";
 import { Amplify } from "aws-amplify";
 import AmplifyConfiguration from "./utils/login/AmplifyConfig";
 import RequireAuth from "./utils/login/RequireAuth";
-import Registration from "./pages/registrations";
-import ViewRegistrations from "./pages/viewRegistrations";
-import ErrorPage from "./pages/errorPage";
-import ContactUs from "./pages/contactUs";
-import PrivacyStatement from "./pages/privacyStatement";
-import AccessibilityStatement from "./pages/accessibilityStatement";
-import CookiePage from "./pages/cookiePage";
-import PreValidations from "./pages/preValidation";
-import FindRegisteredServices from "./pages/findRegisteredServices";
-import RegistrationDetails from "./pages/registrationDetails";
-import HomeOptions from "./pages/homeOptions";
+import Registration from "./views/registrations";
+import ViewRegistrations from "./views/viewRegistrations";
+import ErrorPage from "./views/errorPage";
+import ContactUs from "./views/contactUs";
+import PrivacyStatement from "./views/privacyStatement";
+import AccessibilityStatement from "./views/accessibilityStatement";
+import CookiePage from "./views/cookiePage";
+import PreValidations from "./views/preValidation";
+import FindRegisteredServices from "./views/findRegisteredServices";
+import RegistrationDetails from "./views/registrationDetails";
+import HomeOptions from "./views/homeOptions";
+
+Amplify.configure(AmplifyConfiguration);
+
 function App() {
-  Amplify.configure(AmplifyConfiguration);
   return (
     <BrowserRouter>
       <Routes>

@@ -1,8 +1,9 @@
 import axios from "axios";
 import { GetJWT } from "./SendCsv";
-const apiBaseUrl = process.env.REACT_APP_API_URL
-  ? process.env.REACT_APP_API_URL
-  : "";
+import { config } from "./Config";
+
+const apiBaseUrl =  config.publicApiUrl;
+
 export async function SearchRegistrationNumber(
   search: string,
   latestOnly: "Yes" | "No" = "Yes",

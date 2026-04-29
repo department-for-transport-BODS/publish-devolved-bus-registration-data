@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import axios, { AxiosError }from "axios";
 import { fetchAuthSession } from "aws-amplify/auth";
+import { config } from "./Config";
+
 type viewRegistrationsRecord = {
     licence_number: string;
     operator_name: string;
@@ -16,7 +18,7 @@ const useRegistrationStatus = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const apiBaseUrl = process.env.REACT_APP_API_URL || "";
+                const apiBaseUrl = config.publicApiUrl;
                 let jwt = "";
                 fetchAuthSession().then(async () => {
                 Object.entries(localStorage).forEach(([key, value]) => {

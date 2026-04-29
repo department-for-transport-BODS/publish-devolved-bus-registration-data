@@ -1,0 +1,56 @@
+$govuk-new-organisation-colours: true;
+@import "../../node_modules/govuk-frontend/dist/govuk";
+
+
+.proccessing-data-pannel{
+    background-color: #1d70b8;
+    color: #ffff;
+}
+
+
+#header-link{
+    // disable on :hover 
+    // disble on click color will-change
+    &:hover, &:active, &:focus, &:visited {
+        color: #ffffff;
+        background-color: black;
+    }
+
+}
+
+
+.paginated-results a {
+   &:visited{
+    color: #1d70b8;
+  }
+}
+
+
+.border {
+    border: 1px solid #b1b4b6;
+    margin: 10px;
+    border-radius: 3;
+    padding: 10px;
+    
+}
+
+.current-page {
+    background-color: #ffdd00;
+    border-bottom: black 4px solid;
+    text-decoration: none;
+    
+}
+li.three-dots{
+    color: #1d70b8;
+    // text in the in middle vertically
+    line-height:20px;
+
+}
+.govuk-secondary-text-colour{
+    color: #505a5f
+}
+
+.govuk-header__container {
+  display: flex;
+  align-items: center;
+}
