@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { AuthUser } from "@aws-amplify/auth";
-import { getCurrentUser } from "aws-amplify/auth";
+import { AuthUser, getCurrentUser } from "aws-amplify/auth";
 const useUser = () => {
   const [userData, setUserData] = useState({} as AuthUser);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
