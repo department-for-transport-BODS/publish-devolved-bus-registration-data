@@ -664,23 +664,23 @@ Resources:
                   RdsAuthUser: !Select [1, !Ref RdsAuthUsers]
 
   WecaClientLambdaS3ReadPolicy:
-  Type: 'AWS::IAM::Policy'
-  Condition: IsNotLocal
-  Properties:
-    PolicyName: !Sub '${Environment}-${ProjectName}-weca-client-lambda-s3-read-policy'
-    Roles:
-      - !Ref WecaClientLambdaExecutionRole
-    PolicyDocument:
-      Version: '2012-10-17'
-      Statement:
-        - Effect: Allow
-          Action:
-            - s3:ListBucket
-          Resource: !Sub '{{resolve:ssm:/shared/${ProjectName}/weca/s3bucket/arn}}'
-        - Effect: Allow
-          Action:
-            - s3:GetObject
-          Resource: !Sub '{{resolve:ssm:/shared/${ProjectName}/weca/s3bucket/arn}}'
+    Type: 'AWS::IAM::Policy'
+    Condition: IsNotLocal
+    Properties:
+      PolicyName: !Sub '${Environment}-${ProjectName}-weca-client-lambda-s3-read-policy'
+      Roles:
+        - !Ref WecaClientLambdaExecutionRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:ListBucket
+            Resource: !Sub '{{resolve:ssm:/shared/${ProjectName}/weca/s3bucket/arn}}'
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+            Resource: !Sub '{{resolve:ssm:/shared/${ProjectName}/weca/s3bucket/arn}}'
 
   # WecaClientLambdaSecretsAccessPolicy:
   #   Type: 'AWS::IAM::Policy'

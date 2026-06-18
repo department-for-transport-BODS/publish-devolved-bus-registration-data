@@ -68,6 +68,7 @@ run-db-initialise: cmd-exists-psql ## Initialise the database with users/roles a
 run-db-migrations: cmd-exists-psql ## Run the database migrations found under ./sql
 	@echo "Running available database migrations..."
 	@for file in `find ./sql -type f -depth 1 | sort | cut -c3-`; do ${PG_EXEC} dbname=$(POSTGRES_DB)" -f $$file; done
+## Change -depth 1 to -maxdepth 1 for WSL environments
 
 run-db-destroy: cmd-exists-psql ## Delete the database
 	@echo "Destroying the database..."
