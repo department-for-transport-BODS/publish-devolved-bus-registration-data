@@ -676,11 +676,11 @@ Resources:
           - Effect: Allow
             Action:
               - s3:ListBucket
-            Resource: !Sub '{{resolve:ssm:/shared/${ProjectName}/weca/s3bucket/arn}}'
+            Resource: !Sub 'arn:aws:s3:::{{resolve:ssm:/shared/${ProjectName}/weca/s3bucket/name}}'
           - Effect: Allow
             Action:
               - s3:GetObject
-            Resource: !Sub '{{resolve:ssm:/shared/${ProjectName}/weca/s3bucket/arn}}'
+            Resource: !Sub 'arn:aws:s3:::{{resolve:ssm:/shared/${ProjectName}/weca/s3bucket/name}}'
 
   # WecaClientLambdaSecretsAccessPolicy:
   #   Type: 'AWS::IAM::Policy'
