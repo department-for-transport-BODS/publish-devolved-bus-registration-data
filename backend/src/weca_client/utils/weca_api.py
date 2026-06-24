@@ -1,4 +1,6 @@
 from os import getenv
+import json
+
 from pydantic import ValidationError
 import boto3
 
@@ -19,7 +21,7 @@ class WecaClient:
         )
         s3_client = boto3.client("s3")
         try:
-            response_json = (
+            response_json = json.loads(
                 s3_client.get_object(Bucket=s3_bucket, Key=key)["Body"]
                 .read()
                 .decode("utf-8")
