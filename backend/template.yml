@@ -562,7 +562,7 @@ Resources:
           POSTGRES_DB: !Sub '${ProjectName}_db'
           POSTGRES_USER: !Sub '${ProjectName}_app_rw'
           OTC_CLIENT_API_URL: !Sub 'https://${OtcClientApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}/api/v1/otc/licences'
-          AWS_WECA_RAW_STORAGE_BUCKET_NAME: !Sub '{{resolve:ssm:/shared/${ProjectName}/weca/s3bucket/name}}'
+          WECA_BUCKET_NAME: !Sub '{{resolve:ssm:/shared/${ProjectName}/weca/s3bucket/name}}'
       LoggingConfig:
         LogGroup: !Ref WecaClientLambdaLogGroup
 

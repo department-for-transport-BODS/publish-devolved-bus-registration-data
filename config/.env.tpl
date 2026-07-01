@@ -45,8 +45,5 @@ OTC_API_KEY=
 
 # # WECA Client Lambda Function
 # # -----------------------------------------------------------------------------
-WECA_PARAM_C=
-WECA_PARAM_T=
-WECA_PARAM_R=
-WECA_AUTH_TOKEN=
-WECA_API_URL=
+WECA_BUCKET_NAME=
+WECA_S3_KEY_REGISTRATIONS=

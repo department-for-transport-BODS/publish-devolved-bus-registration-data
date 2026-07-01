@@ -15,7 +15,7 @@ class WecaClient:
         Response will be returned in the JSON format
         """
 
-        s3_bucket = getenv("AWS_WECA_RAW_STORAGE_BUCKET_NAME")
+        s3_bucket = getenv("WECA_BUCKET_NAME")
         key = getenv(
             "WECA_S3_KEY_REGISTRATIONS", "raw/weca/weca_registrations_latest.json"
         )
