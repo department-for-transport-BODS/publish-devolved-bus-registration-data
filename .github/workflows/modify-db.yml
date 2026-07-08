@@ -6,11 +6,11 @@ on:
       action:
         type: choice
         description: database modification action
-        options: 
+        options:
+        - 'run-migrations'
+        - 'initialise'
         - 'refresh'
         - 'destroy'
-        - 'initialise'
-        - 'run-migrations'
       environment:
         type: choice
         description: deployment environment
@@ -100,36 +100,36 @@ jobs:
           lambda_function_name="${DEPLOY_ENV}-${{ vars.PROJECT_NAME }}-pg-mutate-lambda"
           cat <<EOF > $GITHUB_WORKSPACE/payload.json
           {
-              "type": "initialise",
-              "authUser": "postgres",
-              "databases": [{
-                  "name": "${{ vars.PROJECT_NAME }}_db",
-                  "schemas": [
-                      "public"
-                  ],
-                  "extensions": []
-              }],
-              "roles": [{
-                  "name": "${{ vars.PROJECT_NAME }}_rw",
-                  "kind": "rw",
-                  "users": [{
-                      "name": "${{ vars.PROJECT_NAME }}_app_rw",
-                      "authType": "scram",
-                      "credentialsArn": "${DEPLOY_ENV}/${{ vars.PROJECT_NAME }}/rds/user/${{ vars.PROJECT_NAME }}_app_rw"
-                  }]
-              }, {
-                  "name": "${{ vars.PROJECT_NAME }}_ro",
-                  "kind": "ro",
-                  "users": [{
-                      "name": "${{ vars.PROJECT_NAME }}_db_ro",
-                      "authType": "scram",
-                      "credentialsArn": "${DEPLOY_ENV}/${{ vars.PROJECT_NAME }}/rds/user/${{ vars.PROJECT_NAME }}_db_ro"
-                  }]
+            "type": "initialise",
+            "authUser": "postgres",
+            "databases": [{
+              "name": "${{ vars.PROJECT_NAME }}_db",
+              "schemas": [
+                "public"
+              ],
+              "extensions": []
+            }],
+            "roles": [{
+              "name": "${{ vars.PROJECT_NAME }}_rw",
+              "kind": "rw",
+              "users": [{
+                "name": "${{ vars.PROJECT_NAME }}_app_rw",
+                "authType": "scram",
+                "credentialsArn": "${DEPLOY_ENV}/${{ vars.PROJECT_NAME }}/rds/user/${{ vars.PROJECT_NAME }}_app_rw"
               }]
+            }, {
+              "name": "${{ vars.PROJECT_NAME }}_ro",
+              "kind": "ro",
+              "users": [{
+                "name": "${{ vars.PROJECT_NAME }}_db_ro",
+                "authType": "scram",
+                "credentialsArn": "${DEPLOY_ENV}/${{ vars.PROJECT_NAME }}/rds/user/${{ vars.PROJECT_NAME }}_db_ro"
+              }]
+            }]
           }
           EOF
 
-          openssl base64 -out $GITHUB_WORKSPACE/encoded_payload.json -in $GITHUB_WORKSPACE/payload.json 
+          openssl base64 -out $GITHUB_WORKSPACE/encoded_payload.json -in $GITHUB_WORKSPACE/payload.json
           response=$(aws lambda invoke --function-name $lambda_function_name --region $AWS_REGION --payload file://$GITHUB_WORKSPACE/encoded_payload.json response.txt 2>&1)
           status_code=$(cat response.txt | jq -r '.statusCode')
           status_code=${status_code:-"unset"}
