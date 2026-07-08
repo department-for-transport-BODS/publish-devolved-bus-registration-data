@@ -73,7 +73,8 @@ jobs:
             "targetDatabase": "${{ vars.PROJECT_NAME }}_db",
             "roles": [
               "${{ vars.PROJECT_NAME }}_rw",
-              "${{ vars.PROJECT_NAME }}_app_rw"
+              "${{ vars.PROJECT_NAME }}_app_rw",
+              "${{ vars.PROJECT_NAME }}_db_ro"
             ]
           }
           EOF
@@ -115,6 +116,14 @@ jobs:
                       "name": "${{ vars.PROJECT_NAME }}_app_rw",
                       "authType": "scram",
                       "credentialsArn": "${DEPLOY_ENV}/${{ vars.PROJECT_NAME }}/rds/user/${{ vars.PROJECT_NAME }}_app_rw"
+                  }]
+              }, {
+                  "name": "${{ vars.PROJECT_NAME }}_ro",
+                  "kind": "ro",
+                  "users": [{
+                      "name": "${{ vars.PROJECT_NAME }}_db_ro",
+                      "authType": "scram",
+                      "credentialsArn": "${DEPLOY_ENV}/${{ vars.PROJECT_NAME }}/rds/user/${{ vars.PROJECT_NAME }}_db_ro"
                   }]
               }]
           }
