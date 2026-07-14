@@ -20,7 +20,7 @@ REACT_APP_SUPPORT_PHONE=01234 567890
 
 # # PostgreSQL
 # # ------------------------------------------------------------------------------
-POSTGRES_HOST=localhost
+POSTGRES_HOST=postgres
 POSTGRES_PORT=5432
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
