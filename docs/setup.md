@@ -1,6 +1,6 @@
 # Prerequisites
 * [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)
-* [Node (v18.x.x) / npm (v9.x.x)](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+* [Node (v20.x.x) / npm (v9.x.x)](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 * [nodemon (npm Package)](https://www.npmjs.com/package//nodemon)
 * [PostgreSQL Client (psql)](https://www.postgresql.org/download/)
 * [Docker Desktop](https://www.docker.com/get-started/) **or another container runtime of your choosing**
@@ -47,7 +47,7 @@ make stop-services
 make clean-services
 ```
 
-As part of the startup of PostgreSQL, the initial project database will be created 
+As part of the startup of PostgreSQL, the initial project database will be created
 with roles defined within the `./sql/local` directory.
 
 ### Step 4: Initialise the Database Schema
@@ -94,3 +94,26 @@ terminals to be able to take full advantage of any debug logging that may
 occur as a result of running these applications. It is worth noting that 
 changes to the underlying codebase should be reflected in the already
 running application(s), without the need for additional rebuilding.
+
+### Step 6: Set Up a User Account
+
+To log into the application locally, you need a user in the Cognito User Pool and the correct environment variables
+pointing to it.
+
+Create a user in the dev Cognito User Pool via the AWS Console (Cognito → User Pools → select the dev pool → Create
+user).
+
+Update the following environment variables with the dev User Pool values:
+
+```dotenv
+# CSV Handler Lambda
+COGNITO_USERPOOL_ID=<dev-user-pool-id>
+COGNITO_APP_CLIENT_ID=<dev-app-client-id>
+
+# React Frontend
+REACT_APP_USER_POOL_ID=<dev-user-pool-id>
+REACT_APP_USER_POOL_CLIENT_ID=<dev-app-client-id>
+```
+
+Start the services (see Step 5) and navigate to `http://localhost:3000/login` — you should now be able to log in with
+the user you created.
