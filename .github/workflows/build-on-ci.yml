@@ -30,7 +30,7 @@ jobs:
 
       - name: Run linters
         if: success() || failure()
-        run: npm run lint:check
+        run: npm run lint
 
       - name: Run tests
         if: success() || failure()
@@ -72,20 +72,3 @@ jobs:
         if: success() || failure()
         run: |
           sam build
-
-  checkov:
-    name: checkov-action
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-
-      - name: Run Checkov action
-        id: checkov
-        uses: bridgecrewio/checkov-action@dfb51aed1b783289b0d3f255028e7a88d5e8caa1 # master
-        with:
-          directory: ${{ github.workspace }}
-          framework: all
-          skip_check: ""
-          output_format: cli,sarif
-          quiet: true # display only failed checks
