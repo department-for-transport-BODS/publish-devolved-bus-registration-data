@@ -1,7 +1,6 @@
 import React, { ReactElement } from "react";
 import { Link } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
-const heigh = { height: "-webkit-fill-available" };
 const Footer = (): ReactElement => {
   const LINKS = [
     { name: "Privacy", url: "/privacy-statement" },

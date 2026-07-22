@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios, { AxiosError }from "axios";
+import axios, { AxiosError } from "axios";
 import { fetchAuthSession } from "aws-amplify/auth";
 type viewRegistrationsRecord = {
     licence_number: string;
@@ -11,7 +11,7 @@ type viewRegistrationsRecord = {
 const useRegistrationStatus = () => {
     const [data, setData] = useState<viewRegistrationsRecord[]|null>(null);
     const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<AxiosError | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -39,8 +39,10 @@ const useRegistrationStatus = () => {
                     setError(error);
                 });
             });
-            } catch (error: AxiosError | any) {
-                setError(error);
+            } catch (error: unknown) {
+                if (axios.isAxiosError(error)) {
+                    setError(error);
+                }
             } finally {
                 setLoading(false);
             }

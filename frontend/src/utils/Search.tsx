@@ -1,17 +1,21 @@
 import axios from "axios";
 import { GetJWT } from "./SendCsv";
+import { Registration } from "../interfaces/registrationTypes";
+
+type SearchResult = { data: Registration[] } | { error: { message: string } };
+
 const apiBaseUrl = process.env.REACT_APP_API_URL
   ? process.env.REACT_APP_API_URL
   : "";
 export async function SearchRegistrationNumber(
-  search: string,
+  search?: string,
   latestOnly: "Yes" | "No" = "Yes",
   strictMode: "Yes" | "No" = "No",
   licenceNumber: string| null  = "",
   routeNumber: string | null= ""
-): Promise<any> {
+): Promise<SearchResult> {
   const JWT = await GetJWT();
-  let results = {};
+  let results: SearchResult = { data: [] };
   let requestString = `${apiBaseUrl}/search?registrationNumber=${search}&latestOnly=${latestOnly}&strictMode=${strictMode}`;
   if (licenceNumber) {
     requestString += `&licenceNumber=${licenceNumber}`;
@@ -44,7 +48,7 @@ export async function SearchRegistrationNumber(
   return results;
 }
 
-export async function SearchRegAndLicence(search: string): Promise<any> {
+export async function SearchRegAndLicence(search: string): Promise<SearchResult> {
   // if search is not digits or letters or / then throw error
   if (!/^[a-zA-Z0-9///]*$/.test(search)) {
     throw new Error("Invalid search inputs");

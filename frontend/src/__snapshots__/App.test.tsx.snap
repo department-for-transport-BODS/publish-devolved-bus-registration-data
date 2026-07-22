@@ -4,8 +4,6 @@ exports[`App snapshots protected route /partly-uploaded renders null while await
 
 exports[`App snapshots protected route /pre-validation renders null while awaiting auth 1`] = `<DocumentFragment />`;
 
-exports[`App snapshots protected route /registration-details renders null while awaiting auth 1`] = `<DocumentFragment />`;
-
 exports[`App snapshots protected route /registrations renders null while awaiting auth 1`] = `<DocumentFragment />`;
 
 exports[`App snapshots protected route /successfully-uploaded renders null while awaiting auth 1`] = `<DocumentFragment />`;

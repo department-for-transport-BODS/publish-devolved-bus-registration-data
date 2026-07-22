@@ -8,7 +8,7 @@ type Props = {
   handleRquestPasswordReset: (email:string) => void;
 };
 
-const RequestResetPassword : React.FC<Props> = ({ errors , handleRquestPasswordReset, setErrorMsg,email, setEmail}) => {
+const RequestResetPassword : React.FC<Props> = ({ handleRquestPasswordReset, email, setEmail}) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     handleRquestPasswordReset(email); // Pass the correct object to handleRquestPasswordReset

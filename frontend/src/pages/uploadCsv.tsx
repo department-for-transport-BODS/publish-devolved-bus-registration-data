@@ -8,21 +8,29 @@ import {
   getStaged,
   handleStagedResults,
 } from "../utils/SendCsv";
+import { Stage } from "../interfaces/apiTypes";
 import { Link, useNavigate } from "react-router-dom";
-import Cookies from "universal-cookie";
+import { AxiosError } from "axios";
+
+
 type Props = {
   isLoggedIn?: boolean;
 };
 const UploadCsvPage: React.FC<Props> = ({ isLoggedIn = false }) => {
   const [isloading, setIsLoading] = React.useState<boolean | null>(null);
   const [previousStage, setPreviousStage] = React.useState<boolean>(false);
-  const [stages, setStages] = React.useState<any>([]);
+  const [stages, setStages] = React.useState<Stage[]>([]);
   const [showError, setShowError] = React.useState<boolean | null>(null);
-  const [error, setError] = React.useState<string[]>([]);
+  const [_error, setError] = React.useState<string[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     CheckStageProcesses().then((response) => {
+      if (response instanceof AxiosError) {
+        setPreviousStage(false);
+        setShowError(false);
+        return;
+      }
       const processes = response?.processes ?? [];
       if (processes.length > 0) {
         setStages(processes);
@@ -34,15 +42,20 @@ const UploadCsvPage: React.FC<Props> = ({ isLoggedIn = false }) => {
     });
   }, []);
 
-  const handleClick = (e: any) => {
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    const cookies = new Cookies();
-    // cookies.set('stage_id', stage_id, { path: '/' });
     setIsLoading(true);
     setShowError(false);
     setPreviousStage(false);
     getStaged()
       .then((stagedRecords) => {
+        if (stagedRecords instanceof AxiosError) {
+          navigate("/error", {
+            state: { error: "Getting records failed try again later!" },
+            replace: true,
+          });
+          return;
+        }
         handleStagedResults(stagedRecords, navigate);
       })
       .catch(() => {
@@ -55,12 +68,13 @@ const UploadCsvPage: React.FC<Props> = ({ isLoggedIn = false }) => {
 
   useEffect(() => {
     if (previousStage) {
-      stages.map((stage: any) => {
+      // TODO: error state is populated but never rendered — either display these messages or remove the state
+      stages.map((stage: Stage) => {
         setError((prev) => [...prev, `Stage processes ${stage.created_at}`]);
       });
       setShowError(true);
     }
-  }, [previousStage]);
+  }, [previousStage, stages]);
 
   // if (showError===undefined || showError===null) {
   //   return null
@@ -98,7 +112,7 @@ const UploadCsvPage: React.FC<Props> = ({ isLoggedIn = false }) => {
               previous stage before uploading a new file
             </p>
             {previousStage &&
-              stages.map((stage: any) => {
+              stages.map((stage: Stage) => {
                 return (
                   <div key={stage.created_at}>
                     <Link

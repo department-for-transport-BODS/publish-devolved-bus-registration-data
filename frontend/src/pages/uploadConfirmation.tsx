@@ -49,7 +49,7 @@ const PartlyUploading: React.FC = () => {
         <h2 className="govuk-!-margin-top-7 govuk-!-margin-bottom-1">
         Summary of records that failed to upload 
         </h2>
-        {InvalidFieldsData.map((element: any) => (
+        {InvalidFieldsData.map((element: InvalidData) => (
           <div className="govuk-grid-column-one-quarter" key={uuidv4()}>
             <ServiceCount
               key={uuidv4()}

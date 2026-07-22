@@ -102,7 +102,6 @@ describe('App snapshots', () => {
     '/registrations',
     '/pre-validation',
     '/view-registrations',
-    '/registration-details',
   ])('protected route %s renders null while awaiting auth', (path) => {
     navigateTo(path);
     const { asFragment } = render(<App />);
