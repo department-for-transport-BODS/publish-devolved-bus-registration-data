@@ -6,10 +6,6 @@ import SuccessfullyUpdated from '../components/SuccessfullyUpdated';
 import ServiceCount from '../components/ServiceCount';
 import {Link, useLocation } from 'react-router-dom';
 
-export interface SuccessfullyUploadedProps{
-    initialProps: any,
-    state?: any
-}
 const SuccessfullyUploaded: React.FC = () => {
     const location = useLocation();
     const SuccessfullyUploadedRecords: number = location.state?.valid_records_count ? location.state.valid_records_count : undefined;

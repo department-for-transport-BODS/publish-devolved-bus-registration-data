@@ -11,20 +11,21 @@ const PaginationComponent: React.FC<PaginationProps> = ({
   setCurrentPage,
   currentPage,
 }) => {
-  const clickHandler = (e: any) => {
+  const clickHandler = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    if (e.target.rel === "prev") {
+    const target = e.target as HTMLAnchorElement;
+    if (target.rel === "prev") {
       if (currentPage === 1) return null;
 
       setCurrentPage(currentPage - 1);
       return null;
     }
-    if (e.target.rel === "next") {
+    if (target.rel === "next") {
       if (currentPage === pagesCount) return null;
       setCurrentPage(currentPage + 1);
       return null;
     }
-    setCurrentPage(parseInt(e.target.innerText));
+    setCurrentPage(parseInt(target.innerText));
     return null;
   };
   const [threePages, setThreePages] = useState([

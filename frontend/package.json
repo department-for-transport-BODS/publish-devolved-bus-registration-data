@@ -39,9 +39,12 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --watchAll=false",
+    "test:updateSnapshots": "npx react-scripts test --updateSnapshot",
     "eject": "react-scripts eject",
-    "sass": "sass src/Sass:src/Css --watch --no-source-map"
+    "sass": "sass src/Sass:src/Css --watch --no-source-map",
+    "tsc:build": "tsc --noemit",
+    "lint": "npx eslint src --ext .ts,.tsx,.js,.jsx"
   },
   "eslintConfig": {
     "extends": [

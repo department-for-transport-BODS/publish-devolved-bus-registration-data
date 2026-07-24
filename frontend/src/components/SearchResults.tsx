@@ -1,9 +1,9 @@
 import React from "react";
 import { v4 as uuidv4 } from "uuid";
+import { Registration } from "../interfaces/registrationTypes";
 type SearchResultsProps = {
-  data: any[];
-  handleRegistrationClick: any;
-
+  data: Registration[];
+  handleRegistrationClick: (e: React.MouseEvent<HTMLAnchorElement>) => void;
 };
 const SearchResults: React.FC<SearchResultsProps> = ({ data,handleRegistrationClick }) => {
   return (

@@ -1,9 +1,4 @@
 import React from 'react';
-interface SuccessfullyUpdatedProps {
-    title: string;
-    validRecords: number;
-}
-
 
 const SuccessfullyUpdated: React.FC = () => {
     return (

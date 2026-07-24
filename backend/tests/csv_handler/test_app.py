@@ -3,7 +3,9 @@ from fastapi.testclient import TestClient
 from app import app
 from os import remove
 import uuid
-from auth.verifier import get_group
+from auth.verifier import operator
+from utils.pydant_model import AuthenticatedEntity
+from utils.exceptions import PreviousProcessNotCompleted
 import pytest
 
 client = TestClient(app)
@@ -11,14 +13,15 @@ client = TestClient(app)
 
 @pytest.fixture
 def app_dependency_override():
-    app.dependency_overrides[get_group] = lambda: "dev_2"
+    app.dependency_overrides[operator] = lambda: AuthenticatedEntity(
+        type="user", name="testuser", group="testgroup"
+    )
     yield
     app.dependency_overrides = {}
 
 
+@patch("utils.db.DBManager.get_records", return_value=[])
 def test_search_records(app_dependency_override):
-    AutoMappingModels = MagicMock()
-    AutoMappingModels.engine = MagicMock()
     params = {
         "licenseNumber": "ABC123",
         "registrationNumber": "123456",
@@ -32,31 +35,23 @@ def test_search_records(app_dependency_override):
         f"api/v1/search?licenseNumber={params['licenseNumber']}&registrationNumber={params['registrationNumber']}&operatorName={params['operatorName']}&routeNumber={params['routeNumber']}&latestOnly={params['latestOnly']}&limit={params['limit']}&strictMode={params['strictMode']}",
         headers={"Authorization": "Bearer localdev"},
     )
-    assert response.status_code == 422
-    # assert response.json() == []
+    assert response.status_code == 200
+    assert response.json() == {"Results": []}
 
 
+@patch("utils.db.DBManager.get_records", return_value=[])
 def test_search_records_validation_error(app_dependency_override):
-    response = client.post(
-        "api/v1/search",
+    response = client.get(
+        "api/v1/search?latestOnly=InvalidValue",
         headers={"Authorization": "Bearer local"},
-        json={
-            "licenseNumber": "ABC123",
-            "registrationNumber": "123456",
-            "operatorName": "Test Operator",
-            "routeNumber": "123",
-            "latestOnly": "Yes",
-            "limit": "10",
-            "strictMode": "InvalidValue",
-        },
     )
     assert response.status_code == 422
     assert response.json() == {
         "detail": [
             {
                 "type": "value_error",
-                "loc": [],
-                "msg": "Value error, At least one of the search parameters must be provided",
+                "loc": ["latestOnly"],
+                "msg": "Value error, Invalid value for LatestOnly. Must be one of 'True', 'False', 'Yes', 'No'",
             }
         ]
     }
@@ -78,99 +73,50 @@ def test_create_upload_file_without_authentications(file_name):
     # Send a POST request to the endpoint with the test file
     response = client.post("api/v1/upload-file/", files={"file": open(file_name, "rb")})
 
-    # Assert that the response status code is 200
     assert response.status_code == 401
-
-    # Assert that the response contains the expected filename
     assert response.json() == {"detail": "Not authenticated"}
 
-
-def test_create_upload_file_unsupported_format(file_name, app_dependency_override):
-    # Send a POST request to the endpoint with the test file
-    response = client.post(
-        "api/v1/upload-file/",
-        files={"file": open(file_name, "rb")},
-        headers={"Authorization": "Bearer localdev"},
-    )
-
-    # Assert that the response status code is 200
-    assert response.status_code == 422
-
-    # Assert that the response contains the expected filename
-    assert response.json() == {
-        "detail": {
-            "invalid_records": {
-                "2": [
-                    {"licenceNumber": "Field required"},
-                    {"registrationNumber": "Field required"},
-                    {"routeNumber": "Field required"},
-                    {"routeDescription": "Field required"},
-                    {"variationNumber": "Field required"},
-                    {"startPoint": "Field required"},
-                    {"finishPoint": "Field required"},
-                    {"via": "Field required"},
-                    {"subsidised": "Field required"},
-                    {"subsidyDetail": "Field required"},
-                    {"isShortNotice": "Field required"},
-                    {"receivedDate": "Field required"},
-                    {"grantedDate": "Field required"},
-                    {"effectiveDate": "Field required"},
-                    {"endDate": "Field required"},
-                    {"operatorName": "Field required"},
-                    {"busServiceTypeId": "Field required"},
-                    {"busServiceTypeDescription": "Field " "required"},
-                    {"trafficAreaId": "Field required"},
-                    {"applicationType": "Field required"},
-                ],
-                "3": [
-                    {"licenceNumber": "Field required"},
-                    {"registrationNumber": "Field required"},
-                    {"routeNumber": "Field required"},
-                    {"routeDescription": "Field required"},
-                    {"variationNumber": "Field required"},
-                    {"startPoint": "Field required"},
-                    {"finishPoint": "Field required"},
-                    {"via": "Field required"},
-                    {"subsidised": "Field required"},
-                    {"subsidyDetail": "Field required"},
-                    {"isShortNotice": "Field required"},
-                    {"receivedDate": "Field required"},
-                    {"grantedDate": "Field required"},
-                    {"effectiveDate": "Field required"},
-                    {"endDate": "Field required"},
-                    {"operatorName": "Field required"},
-                    {"busServiceTypeId": "Field required"},
-                    {"busServiceTypeDescription": "Field " "required"},
-                    {"trafficAreaId": "Field required"},
-                    {"applicationType": "Field required"},
-                ],
-            },
-            "valid_records_count": 0,
-        },
-    }
-
-
-@patch(
-    "app.CSVManager.validation_and_insertion_steps",
-    return_value={"valid_records_count": 2, "invalid_records": None},
-)
-def test_create_upload_file(
-    mock_validation_and_insertion_steps, file_name, app_dependency_override
+@patch("app.process_csv_file", side_effect=PreviousProcessNotCompleted)
+def test_create_upload_file_previous_process_not_completed(
+    mock_process, file_name, app_dependency_override
 ):
-    # Send a POST request to the endpoint with the test file
+    """Test 422 is returned when a previous process is still running."""
     response = client.post(
         "api/v1/upload-file/",
         files={"file": open(file_name, "rb")},
         headers={"Authorization": "Bearer localdev"},
     )
+    assert response.status_code == 422
+    assert response.json() == {"detail": {"message": "Previous process is not completed yet"}}
 
-    # Assert that the response status code is 201
-    assert response.status_code == 201
+@patch("app.process_csv_file", side_effect=Exception("Unexpected error"))
+def test_create_upload_file_generic_exception(
+    mock_process, file_name, app_dependency_override
+):
+    """Test 400 is returned when an unexpected error occurs during processing."""
+    response = client.post(
+        "api/v1/upload-file/",
+        files={"file": open(file_name, "rb")},
+        headers={"Authorization": "Bearer localdev"},
+    )
+    assert response.status_code == 400
+    assert response.json() == {"detail": {"message": "Encountered an error while processing the file"}}
 
-    # Assert that the response contains the expected records report
-    assert response.json() == {"valid_records_count": 2, "invalid_records": None}
+@patch("app.process_csv_file")
+def test_create_upload_file(mock_process, file_name, app_dependency_override):
+    response = client.post(
+        "api/v1/upload-file/",
+        files={"file": open(file_name, "rb")},
+        headers={"Authorization": "Bearer localdev"},
+    )
+    assert response.status_code == 200
+    assert response.json()["message"] == "File is being processed"
+    assert "report_id" in response.json()
+    mock_process.assert_called_once()
 
-
-def test_search_records_options():
+@patch("utils.db.DBManager.get_records", return_value=[])
+def test_search_records_options(mock_get_records):
     response = client.get("api/v1/search")
-    assert response.status_code == 401
+    assert response.status_code == 200
+    assert response.json() == {"Results": []}
+    

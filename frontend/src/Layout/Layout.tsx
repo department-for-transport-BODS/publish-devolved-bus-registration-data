@@ -1,8 +1,8 @@
-import React, { PropsWithChildren, ReactElement, useEffect, useState } from 'react';
+import React, { PropsWithChildren, ReactElement } from 'react';
 import { ErrorInfo } from '../interfaces';
 import PhaseBanner from '../components/PhaseBanner';
 import Header from './Header';
-import { HeadProvider, Title, Link, Meta } from 'react-head';
+import { HeadProvider, Title, Meta } from 'react-head';
 interface LayoutProps {
     title: string;
     description: string;

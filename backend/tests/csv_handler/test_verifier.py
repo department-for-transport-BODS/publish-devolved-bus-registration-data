@@ -69,6 +69,9 @@ def test_verify_token_invalid_token(mock_cognitojwt_decode):
 
 
 @patch("auth.verifier.log.debug")
+@patch("auth.verifier.AWS_REGION", "test_region")
+@patch("auth.verifier.USERPOOL_ID", "test_userpool_id")
+@patch("auth.verifier.APP_CLIENT_ID", "test_app_client_id")
 @patch("auth.verifier.TokenVerifier.verify_token", return_value=False)
 def test_token_verifier_invalid_token(mock_verify_token, mock_log):
     # Arrange

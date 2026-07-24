@@ -6,10 +6,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 function RequireAuth({
   component: Component,
-  requiredAccess,
-  ...rest
+  requiredAccess: _requiredAccess,
 }: {
-  component: React.ComponentType<any>;
+  component: React.ComponentType<{ isLoggedIn?: boolean }>;
   requiredAccess?: string;
 }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -34,13 +33,13 @@ function RequireAuth({
     };
 
     fetchUserData();
-  }, []);
+  }, [location.pathname, navigate]);
 
   if (state === "loading") {
     return null;
   }
 
-  return <Component isLoggedIn={isLoggedIn} {...rest} />;
+  return <Component isLoggedIn={isLoggedIn} />;
 }
 
 export default RequireAuth;

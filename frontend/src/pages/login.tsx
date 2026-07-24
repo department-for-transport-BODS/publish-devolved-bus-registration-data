@@ -27,7 +27,7 @@ const LoginPage: React.FC<Props> = ({ error, nextPage }) => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState(false);
-  const [errors, setErrors] = useState<string[]>(error ? [error] : []);
+  const [errors, _setErrors] = useState<string[]>(error ? [error] : []);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
 

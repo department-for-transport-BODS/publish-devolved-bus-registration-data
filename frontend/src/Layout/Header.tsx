@@ -1,4 +1,4 @@
-import React, { ReactElement, useContext, useEffect } from "react";
+import React, { ReactElement, useContext } from "react";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
 import { TITLE } from "../utils/Constants";
 type Props = {
@@ -13,11 +13,6 @@ const Header = (): ReactElement<Props> => {
       signOutHandler();
     }
   }
-  // useEffect(() => {
-  //   console.log(isLoggedIn);
-
-
-  //   }, [isLoggedIn]);
 
   return (
     <>

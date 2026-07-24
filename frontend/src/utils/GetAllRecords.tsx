@@ -1,4 +1,4 @@
-import axios, {AxiosError } from "axios";
+import axios from "axios";
 
 const GetAllRecords = async () => {
             try {
@@ -27,14 +27,14 @@ const GetAllRecords = async () => {
                 }
                 const headers = Object.keys(response.data[0]).join(","); // Get the headers from the first row
                 // add " to each value that has a comma in it
-                response.data.forEach((row: any) => {
+                response.data.forEach((row: Record<string, unknown>) => {
                     Object.entries(row).forEach(([key, value]) => {
                         if (typeof value === "string" && value.includes(",")) {
                             row[key] = `"${value}"`;
                         }
                     });
                 })
-                const csv = [headers, ...response.data.map((row: any) => Object.values(row).join(","))].join("\n"); // Include headers in the CSV
+                const csv = [headers, ...response.data.map((row: Record<string, unknown>) => Object.values(row).join(","))].join("\n"); // Include headers in the CSV
                 const blob = new Blob([csv], { type: "text/csv" }); // Set encoding to UTF-8
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement("a");
@@ -42,16 +42,15 @@ const GetAllRecords = async () => {
                 a.download = "all-records.csv"; 
                 a.click();
                 window.URL.revokeObjectURL(url);
-                } catch (error: AxiosError | any) {
-                    if (error.message === "No records found") {
+                } catch (error: unknown) {
+                    if (error instanceof Error && error.message === "No records found") {
                         throw new Error("No records found");
                     }
-                    if (error.response) {
-                        const errorMsg = error.response.data.detail?? "Failed to download CSV";
+                    if (axios.isAxiosError(error)) {
+                        const errorMsg = error.response?.data?.detail ?? "Failed to download CSV";
                         throw new Error(errorMsg);
-                    }else {
-                    throw new Error("Failed to download CSV");
                     }
+                    throw new Error("Failed to download CSV");
                 }}
 
 export default GetAllRecords;
