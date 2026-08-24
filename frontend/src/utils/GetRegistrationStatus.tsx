@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
-import axios, { AxiosError }from "axios";
+import axios, { AxiosError } from "axios";
 import { fetchAuthSession } from "aws-amplify/auth";
-import { config } from "./Config";
-
 type viewRegistrationsRecord = {
     licence_number: string;
     operator_name: string;
@@ -13,12 +11,12 @@ type viewRegistrationsRecord = {
 const useRegistrationStatus = () => {
     const [data, setData] = useState<viewRegistrationsRecord[]|null>(null);
     const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<AxiosError | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const apiBaseUrl = config.publicApiUrl;
+                const apiBaseUrl = process.env.REACT_APP_API_URL || "";
                 let jwt = "";
                 fetchAuthSession().then(async () => {
                 Object.entries(localStorage).forEach(([key, value]) => {
@@ -41,8 +39,10 @@ const useRegistrationStatus = () => {
                     setError(error);
                 });
             });
-            } catch (error: AxiosError | any) {
-                setError(error);
+            } catch (error: unknown) {
+                if (axios.isAxiosError(error)) {
+                    setError(error);
+                }
             } finally {
                 setLoading(false);
             }

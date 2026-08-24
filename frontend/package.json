@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "dependencies": {
-    "@aws-amplify/ui-react": "^6.1.4",
+    "@aws-amplify/ui-react": "^6.15.3",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -12,15 +12,13 @@
     "@types/node": "^16.18.76",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
-    "aws-amplify": "^6.0.17",
-    "axios": "^1.6.7",
+    "aws-amplify": "^6.16.4",
+    "axios": "^1.13.5",
     "cookie-parser": "^1.4.6",
     "csurf": "^1.11.0",
-    "govuk-frontend": "^6.1.0",
-    "govuk-react": "^0.10.7",
-    "kainossoftwareltd-govuk-react-kainos": "1.0.9",
+    "govuk-frontend": "5.11.0",
+    "govuk-react": "0.10.7",
     "nth-check": "^2.1.1",
-    "next": "^16.1.6",
     "postcss": "^8.4.33",
     "react": "^18.2.0",
     "react-auth-kit": "^3.1.2",
@@ -28,9 +26,10 @@
     "react-dom": "^18.2.0",
     "react-error-boundary": "^4.0.13",
     "react-favicon": "^2.0.3",
-    "react-helmet-async": "^2.0.5",
+    "react-head": "^3.4.2",
     "react-portal": "^4.2.2",
     "react-router-dom": "^6.21.3",
+    "react-scripts": "^5.0.1",
     "react-spinners": "^0.13.8",
     "styled-components": "^6.1.8",
     "typescript": "^4.9.5",
@@ -38,12 +37,20 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "dev": "next dev",
-    "start": "next dev",
-    "build": "next build",
-    "lint": "next lint",
-    "test": "next build",
-    "sass": "sass src/Sass:src/Css --watch --no-source-map"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --watchAll=false",
+    "test:updateSnapshots": "npx react-scripts test --updateSnapshot",
+    "eject": "react-scripts eject",
+    "sass": "sass src/Sass:src/Css --watch --no-source-map",
+    "tsc:build": "tsc --noemit",
+    "lint": "npx eslint src --ext .ts,.tsx,.js,.jsx"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
   },
   "browserslist": {
     "production": [
@@ -66,7 +73,6 @@
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "eslint": "^8.56.0",
-    "eslint-config-next": "^15.5.14",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "sass": "^1.70.0"

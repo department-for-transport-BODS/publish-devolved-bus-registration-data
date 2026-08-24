@@ -1,5 +1,5 @@
 import { SignInInput } from "aws-amplify/auth";
-import React, { useState, useRef ,useEffect} from "react";
+import React from "react";
 
 type Props = {
   email: string;
@@ -15,7 +15,6 @@ type Props = {
 };
 
 const LoginForm: React.FC<Props> = ({
-  errors,
   handleSignIn,
   email,
   setEmail,

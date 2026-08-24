@@ -4,11 +4,11 @@ Description: >
   This SAM template deploys the following resources for a serverless application:
   - Lambda functions that provide the backend functionality of the application.
   - API Gateway that provides HTTP endpoints for the Lambda functions.
-  - CloudFront distribution that serves as a content delivery network (CDN) to improve the 
+  - CloudFront distribution that serves as a content delivery network (CDN) to improve the
     performance and security of the application.
   - S3 bucket that is used to host the static files (HTML, CSS, JavaScript, etc.) for the React SPA.
-  
-  The Lambda functions are triggered by API Gateway, and the SPA makes API calls to API Gateway to interact 
+
+  The Lambda functions are triggered by API Gateway, and the SPA makes API calls to API Gateway to interact
   with the backend. The SPA and its static assets are served to the end users through the CloudFront distribution.
 
 Parameters:
@@ -40,6 +40,9 @@ Parameters:
 Conditions:
   IsNotLocal: !Not [!Equals [!Ref Environment, 'local']]
   IsNotProd: !Not [!Equals [!Ref Environment, 'prod']]
+  IsNotLocalAndNotProd: !And
+    - Condition: IsNotLocal
+    - Condition: IsNotProd
 
 Globals:
   Function:
@@ -68,7 +71,7 @@ Resources:
     Properties:
       Name: !Sub  ${Environment}-${ProjectName}-csv-handler-api
       StageName: !Ref Environment
-      EndpointConfiguration: 
+      EndpointConfiguration:
         Type: REGIONAL
       TracingEnabled: true
       Auth:
@@ -265,7 +268,7 @@ Resources:
     Properties:
       Name: !Sub  ${Environment}-${ProjectName}-otc-client-api
       StageName: !Ref Environment
-      EndpointConfiguration: 
+      EndpointConfiguration:
         Type: PRIVATE
       TracingEnabled: true
       Auth:
@@ -436,7 +439,7 @@ Resources:
     Properties:
       GroupDescription: !Sub 'Security group for ${Environment}-${ProjectName}-data-catalogue-lambda function'
       GroupName: !Sub '${Environment}-${ProjectName}-data-catalogue-lambda'
-      SecurityGroupEgress: 
+      SecurityGroupEgress:
         - IpProtocol: tcp
           FromPort: 5432
           ToPort: 5432
@@ -681,7 +684,7 @@ Resources:
               - secretsmanager:GetSecretValue
               - secretsmanager:DescribeSecret
               - secretsmanager:ListSecretVersionIds
-            Resource: 
+            Resource:
               - !Sub '{{resolve:ssm:/shared/${ProjectName}/secretsmanager/weca/authtoken/arn}}'
           - Effect: Allow
             Action:
@@ -769,7 +772,7 @@ Resources:
             MinTTL: 0
             MaxTTL: 0
             ViewerProtocolPolicy: redirect-to-https
-            AllowedMethods: 
+            AllowedMethods:
               - GET
               - HEAD
             CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad # Managed-CachingDisabled
@@ -779,7 +782,7 @@ Resources:
             MinTTL: 0
             MaxTTL: 0
             ViewerProtocolPolicy: redirect-to-https
-            AllowedMethods: 
+            AllowedMethods:
               - GET
               - HEAD
             CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad # Managed-CachingDisabled
@@ -789,7 +792,7 @@ Resources:
             MinTTL: 0
             MaxTTL: 0
             ViewerProtocolPolicy: redirect-to-https
-            AllowedMethods: 
+            AllowedMethods:
               - GET
               - HEAD
             CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad # Managed-CachingDisabled
@@ -799,7 +802,7 @@ Resources:
             MinTTL: 0
             MaxTTL: 0
             ViewerProtocolPolicy: https-only
-            AllowedMethods: 
+            AllowedMethods:
               - GET
               - HEAD
               - OPTIONS
@@ -828,12 +831,151 @@ Resources:
         SigningBehavior: always
         SigningProtocol: sigv4
 
+  ##############################################
+  #### V2 FRONTEND BUCKET & CLOUDFRONT (CDN) ###
+  ##############################################
+  FrontendBucketV2:
+    Type: AWS::S3::Bucket
+    Condition: IsNotLocal
+    Properties:
+      BucketName: !Sub '${Environment}-${ProjectName}-deployment-frontend-v2'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  FrontendBucketV2Policy:
+    Type: AWS::S3::BucketPolicy
+    Condition: IsNotLocal
+    Properties:
+      Bucket: !Ref FrontendBucketV2
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: AllowCloudFrontServicePrincipal
+            Effect: Allow
+            Principal:
+              Service: 'cloudfront.amazonaws.com'
+            Action: 's3:GetObject'
+            Resource: !Sub
+              - 'arn:aws:s3:::${Bucket}/*'
+              - Bucket: !Ref FrontendBucketV2
+            Condition:
+              StringEquals:
+                aws:SourceArn: !If
+                  - IsNotProd
+                  - !Sub
+                    - 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}'
+                    - Distribution: !Ref CloudFrontDistributionV2
+                  - !Sub
+                    - 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}'
+                    - Distribution: !Ref CloudFrontDistribution
+
+  CloudFrontOriginAccessControlV2:
+    Type: AWS::CloudFront::OriginAccessControl
+    Condition: IsNotLocalAndNotProd
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub ${Environment}-${ProjectName}-cdn-v2-oac
+        Description: !Sub 'CloudFront access control used for access to ${Environment}-${ProjectName}-deployment-frontend-v2 S3 bucket'
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  CloudFrontDistributionV2:
+    Type: AWS::CloudFront::Distribution
+    Condition: IsNotLocalAndNotProd
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Sub '${Environment}-${ProjectName}-cdn-v2'
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true
+        WebACLId: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/waf/webacl/cloudfront/arn}}'
+        Origins:
+          - Id: frontendBucketV2
+            DomainName: !GetAtt FrontendBucketV2.RegionalDomainName
+            OriginAccessControlId: !GetAtt CloudFrontOriginAccessControlV2.Id
+            S3OriginConfig:
+              OriginAccessIdentity: ''
+          - Id: backendApi
+            DomainName: !Sub '${CsvHandlerApi}.execute-api.${AWS::Region}.amazonaws.com'
+            OriginPath: !Sub '/${Environment}'
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+        DefaultRootObject: index.html
+        DefaultCacheBehavior:
+          TargetOriginId: frontendBucketV2
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf # Managed-CORS-S3Origin
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6 # Managed-CachingOptimised
+        CacheBehaviors:
+          - TargetOriginId: backendApi
+            PathPattern: '/api/v1/docs'
+            DefaultTTL: 0
+            MinTTL: 0
+            MaxTTL: 0
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad # Managed-CachingDisabled
+          - TargetOriginId: backendApi
+            PathPattern: '/api/v1/redoc'
+            DefaultTTL: 0
+            MinTTL: 0
+            MaxTTL: 0
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad # Managed-CachingDisabled
+          - TargetOriginId: backendApi
+            PathPattern: '/api/v1/openapi.json'
+            DefaultTTL: 0
+            MinTTL: 0
+            MaxTTL: 0
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad # Managed-CachingDisabled
+          - TargetOriginId: backendApi
+            PathPattern: '/api/v1/*'
+            DefaultTTL: 0
+            MinTTL: 0
+            MaxTTL: 0
+            ViewerProtocolPolicy: https-only
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - POST
+              - PATCH
+              - DELETE
+            CachePolicyId: !Sub '{{resolve:ssm:/shared/${ProjectName}/cloudfront/cachepolicy/id}}' # Custom-CachingHeader-ApiGatewayRequireAuthorization
+            OriginRequestPolicyId: !Sub '{{resolve:ssm:/shared/${ProjectName}/cloudfront/originrequestpolicy/id}}' # Custom-OriginRequest-ApiGatewayRequireAuthorization
+        Logging:
+          Bucket: !Sub 'shared-${ProjectName}-cdn-logging-${AWS::AccountId}.s3.amazonaws.com'
+          Prefix: !Sub '${Environment}-v2'
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ErrorCachingMinTTL: 10
+            ResponseCode: 200
+            ResponsePagePath: '/index.html'
+
   CloudFrontRoute53RecordSetGroup:
     Type: AWS::Route53::RecordSetGroup
     Properties:
       HostedZoneId: !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/id}}'
-      RecordSets: 
-        - Name: !If 
+      RecordSets:
+        - Name: !If
             - IsNotProd
             - !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}'
             - !Join ['.', ['www', !Sub '{{resolve:ssm:/${Environment}/${ProjectName}/route53/hostedzone/name}}']]
@@ -865,3 +1007,15 @@ Outputs:
   FrontendBucketName:
     Description: 'Name of Frontend S3 Bucket'
     Value: !Sub 's3://${FrontendBucket}'
+  FrontendBucketV2Name:
+    Description: 'Name of V2 Frontend S3 Bucket'
+    Condition: IsNotLocal
+    Value: !Sub 's3://${FrontendBucketV2}'
+  CloudFrontDistributionV2Id:
+    Description: 'V2 CloudFront Distribution ID'
+    Condition: IsNotLocalAndNotProd
+    Value: !Ref CloudFrontDistributionV2
+  CloudFrontDistributionV2Url:
+    Description: 'V2 CloudFront Distribution Domain Name URL'
+    Condition: IsNotLocalAndNotProd
+    Value: !Sub 'https://${CloudFrontDistributionV2.DomainName}'

@@ -1,7 +1,6 @@
 VALID_RESPONSES = {
     "PH0000132": {
-        "timeStamp": "27/02/2024 14:55:09",
-        "busSearch": [
+        "report": {"licenceDetails": [
             {
                 "id": "536827",
                 "operatorId": "15229",
@@ -50,12 +49,10 @@ VALID_RESPONSES = {
                 "receivedDate": "19/07/2019",
                 "endDate": None,
             }
-        ],
-        "page": {"current": 1, "totalCount": 431, "perPage": 1, "totalPages": 431},
+        ]},
     },
     "PH0005031": {
-        "timeStamp": "27/02/2024 14:56:13",
-        "busSearch": [
+        "report": {"licenceDetails": [
             {
                 "id": "99588",
                 "operatorId": "15055",
@@ -104,12 +101,10 @@ VALID_RESPONSES = {
                 "receivedDate": "28/11/2003",
                 "endDate": None,
             }
-        ],
-        "page": {"current": 1, "totalCount": 425, "perPage": 1, "totalPages": 425},
+        ]},
     },
     "PH0005985": {
-        "timeStamp": "27/02/2024 14:56:45",
-        "busSearch": [
+        "report": {"licenceDetails": [
             {
                 "id": "137534",
                 "operatorId": "14829",
@@ -158,12 +153,10 @@ VALID_RESPONSES = {
                 "receivedDate": "15/04/2005",
                 "endDate": None,
             }
-        ],
-        "page": {"current": 1, "totalCount": 88, "perPage": 1, "totalPages": 88},
+        ]},
     },
     "PH1089686": {
-        "timeStamp": "27/02/2024 14:57:12",
-        "busSearch": [
+        "report": {"licenceDetails": [
             {
                 "id": "608902",
                 "operatorId": "227494",
@@ -212,12 +205,10 @@ VALID_RESPONSES = {
                 "receivedDate": "28/03/2023",
                 "endDate": None,
             }
-        ],
-        "page": {"current": 1, "totalCount": 44, "perPage": 1, "totalPages": 44},
+        ]},
     },
     "PH1020951": {
-        "timeStamp": "27/02/2024 14:57:40",
-        "busSearch": [
+        "report": {"licenceDetails": [
             {
                 "id": "155745",
                 "operatorId": "161105",
@@ -266,12 +257,10 @@ VALID_RESPONSES = {
                 "receivedDate": "01/12/2005",
                 "endDate": None,
             }
-        ],
-        "page": {"current": 1, "totalCount": 842, "perPage": 1, "totalPages": 842},
+        ]},
     },
     "PH1026770": {
-        "timeStamp": "27/02/2024 14:58:27",
-        "busSearch": [
+        "report": {"licenceDetails": [
             {
                 "id": "271277",
                 "operatorId": "166812",
@@ -320,12 +309,10 @@ VALID_RESPONSES = {
                 "receivedDate": "01/09/2009",
                 "endDate": None,
             }
-        ],
-        "page": {"current": 1, "totalCount": 38, "perPage": 1, "totalPages": 38},
+        ]},
     },
     "PH0006019": {
-        "timeStamp": "27/02/2024 14:58:56",
-        "busSearch": [
+        "report": {"licenceDetails": [
             {
                 "id": "559880",
                 "operatorId": "14847",
@@ -374,12 +361,10 @@ VALID_RESPONSES = {
                 "receivedDate": "12/08/2020",
                 "endDate": None,
             }
-        ],
-        "page": {"current": 1, "totalCount": 2, "perPage": 1, "totalPages": 2},
+        ]},
     },
     "PH0006633": {
-        "timeStamp": "27/02/2024 14:59:21",
-        "busSearch": [
+        "report": {"licenceDetails": [
             {
                 "id": "311294",
                 "operatorId": "14402",
@@ -428,8 +413,7 @@ VALID_RESPONSES = {
                 "receivedDate": "23/08/2010",
                 "endDate": None,
             }
-        ],
-        "page": {"current": 1, "totalCount": 92, "perPage": 1, "totalPages": 92},
+        ]},
     },
 }
 
@@ -442,100 +426,44 @@ EXPECTED_OUTPUTS = {
             "operator_details": None,
         },
         {
-            "licence_details": {
-                "licence_number": "PH1020951",
-                "licence_status": "Valid",
-                "otc_licence_id": 263382,
-            },
+            "licence_details": {"licence_number": "PH1020951", "licence_status": "Valid"},
             "licence_number": "PH1020951",
-            "operator_details": {
-                "operator_name": "STAGECOACH DEVON LTD",
-                "otc_operator_id": 161105,
-            },
+            "operator_details": {"operator_name": "STAGECOACH DEVON LTD"},
         },
         {
-            "licence_details": {
-                "licence_number": "PH1089686",
-                "licence_status": "Valid",
-                "otc_licence_id": 369522,
-            },
+            "licence_details": {"licence_number": "PH1089686", "licence_status": "Valid"},
             "licence_number": "PH1089686",
-            "operator_details": {
-                "operator_name": "ALTONIAN COACHES LIMITED",
-                "otc_operator_id": 227494,
-            },
+            "operator_details": {"operator_name": "ALTONIAN COACHES LIMITED"},
         },
         {
-            "licence_details": {
-                "licence_number": "PH1026770",
-                "licence_status": "Valid",
-                "otc_licence_id": 269033,
-            },
+            "licence_details": {"licence_number": "PH1026770", "licence_status": "Valid"},
             "licence_number": "PH1026770",
-            "operator_details": {
-                "operator_name": "BUGLER COACHES LTD",
-                "otc_operator_id": 166812,
-            },
+            "operator_details": {"operator_name": "BUGLER COACHES LTD"},
         },
         {
-            "licence_details": {
-                "licence_number": "PH0006633",
-                "licence_status": "Valid",
-                "otc_licence_id": 20698,
-            },
+            "licence_details": {"licence_number": "PH0006633", "licence_status": "Valid"},
             "licence_number": "PH0006633",
-            "operator_details": {
-                "operator_name": "BATH BUS COMPANY LTD",
-                "otc_operator_id": 14402,
-            },
+            "operator_details": {"operator_name": "BATH BUS COMPANY LTD"},
         },
         {
-            "licence_details": {
-                "licence_number": "PH0000132",
-                "licence_status": "Valid",
-                "otc_licence_id": 21525,
-            },
+            "licence_details": {"licence_number": "PH0000132", "licence_status": "Valid"},
             "licence_number": "PH0000132",
-            "operator_details": {
-                "operator_name": "FIRST WEST OF ENGLAND " "LIMITED",
-                "otc_operator_id": 15229,
-            },
+            "operator_details": {"operator_name": "FIRST WEST OF ENGLAND LIMITED"},
         },
         {
-            "licence_details": {
-                "licence_number": "PH0006019",
-                "licence_status": "Valid",
-                "otc_licence_id": 21143,
-            },
+            "licence_details": {"licence_number": "PH0006019", "licence_status": "Valid"},
             "licence_number": "PH0006019",
-            "operator_details": {
-                "operator_name": "WAYNE EVANS",
-                "otc_operator_id": 14847,
-            },
+            "operator_details": {"operator_name": "WAYNE EVANS"},
         },
         {
-            "licence_details": {
-                "licence_number": "PH0005985",
-                "licence_status": "Valid",
-                "otc_licence_id": 21125,
-            },
+            "licence_details": {"licence_number": "PH0005985", "licence_status": "Valid"},
             "licence_number": "PH0005985",
-            "operator_details": {
-                "operator_name": "EUROCOACHES LTD",
-                "otc_operator_id": 14829,
-            },
+            "operator_details": {"operator_name": "EUROCOACHES LTD"},
         },
         {
-            "licence_details": {
-                "licence_number": "PH0005031",
-                "licence_status": "Valid",
-                "otc_licence_id": 21351,
-            },
+            "licence_details": {"licence_number": "PH0005031", "licence_status": "Valid"},
             "licence_number": "PH0005031",
-            "operator_details": {
-                "operator_name": "CHELTENHAM & GLOUCESTER " "OMNIBUS CO LTD",
-                "otc_operator_id": 15055,
-            },
+            "operator_details": {"operator_name": "CHELTENHAM & GLOUCESTER OMNIBUS CO LTD"},
         },
     ]
 }

@@ -9,14 +9,14 @@ on:
         type: choice
         description: component to deploy. Defaults to 'all'
         default: 'all'
-        options: 
+        options:
         - 'all'
         - 'database'
         - 'application'
       environment:
         type: choice
         description: deployment environment
-        options: 
+        options:
         - 'dev'
         - 'test'
         - 'uat'
@@ -57,7 +57,7 @@ jobs:
 
     steps:
       - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # 6.2.0
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/${{ vars.AWS_ASSUME_ROLE_NAME }}
@@ -157,7 +157,7 @@ jobs:
 
     steps:
       - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # 6.2.0
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/${{ vars.AWS_ASSUME_ROLE_NAME }}
@@ -212,17 +212,17 @@ jobs:
 
     steps:
       - name: setup python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # 6.2.0
         with:
           python-version: 3.11
 
       - name: setup sam
-        uses: aws-actions/setup-sam@v2
+        uses: aws-actions/setup-sam@89ddb14d60e682855e3fea4be85b3c56485de310 # 3
         with:
           use-installer: true
 
       - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # 6.2.0
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/${{ vars.AWS_ASSUME_ROLE_NAME }}
@@ -240,12 +240,13 @@ jobs:
           aws s3 cp s3://$RC_SRC/$rc_path/packaged.yml .
           aws s3 cp s3://$RC_SRC/$rc_path/samconfig.yml .
           echo "[INFO] Application component (BACKEND) with version ${VERSION} successfully downloaded"
-      
+
       - name: get stack name
         id: get-stack
-        uses: mikefarah/yq@v4.42.1
+        uses: mikefarah/yq@1b9b4ac5187171d2e5e3129be0cfa827c7f9d53d # 4.53.3
         with:
-          cmd: yq -r '."${{ env.RC_ENV }}".deploy.parameters.stack_name' samconfig.yml
+          cmd: |
+            yq -r '."${{ env.RC_ENV }}".deploy.parameters.stack_name' samconfig.yml
 
       - name: deploy backend for ${{ env.RC_ENV }}
         env:
@@ -268,13 +269,13 @@ jobs:
       (github.event_name == 'repository_dispatch' && github.event.client_payload.component == 'all') }}
     environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment ||
       github.event_name == 'repository_dispatch' && github.event.client_payload.environment }}
-    needs: 
+    needs:
       - validation
       - backend
 
     steps:
       - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@e7f100cf4c008499ea8adda475de1042d6975c7b # 6.2.0
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/${{ vars.AWS_ASSUME_ROLE_NAME }}
@@ -302,14 +303,28 @@ jobs:
               --query 'Stacks[0].Outputs[?OutputKey==`FrontendBucketName`].OutputValue' \
               --output text \
           )" >> $GITHUB_OUTPUT
-          
+
           echo "cloudfront-distribution-id=$( \
             aws cloudformation describe-stacks \
               --stack-name ${{ needs.backend.outputs.stack-name }} \
               --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontDistributionId`].OutputValue' \
               --output text \
           )" >> $GITHUB_OUTPUT
-      
+
+          echo "frontend-bucket-v2-name=$( \
+            aws cloudformation describe-stacks \
+              --stack-name ${{ needs.backend.outputs.stack-name }} \
+              --query 'Stacks[0].Outputs[?OutputKey==`FrontendBucketV2Name`].OutputValue' \
+              --output text \
+          )" >> $GITHUB_OUTPUT
+
+          echo "cloudfront-distribution-v2-id=$( \
+            aws cloudformation describe-stacks \
+              --stack-name ${{ needs.backend.outputs.stack-name }} \
+              --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontDistributionV2Id`].OutputValue' \
+              --output text \
+          )" >> $GITHUB_OUTPUT
+
       - name: clear frontend for ${{ env.RC_ENV }}
         run: |
           aws s3 rm ${{ steps.get-values.outputs.frontend-bucket-name }} --recursive
@@ -320,7 +335,7 @@ jobs:
           echo "[INFO] Executing invalidation against CloudFront Distribution Id ${{ steps.get-values.outputs.cloudfront-distribution-id }}"
           invalidation_id=$(aws cloudfront create-invalidation --distribution-id ${{ steps.get-values.outputs.cloudfront-distribution-id }} --paths '/*' --output json \
             | jq -r '.Invalidation.Id')
-          
+
           echo "[INFO] Waiting for invalidation to complete..."
           aws cloudfront wait invalidation-completed --distribution-id ${{ steps.get-values.outputs.cloudfront-distribution-id }} --id $invalidation_id
 
@@ -337,3 +352,39 @@ jobs:
         run: |
           aws s3 cp build/ ${{ steps.get-values.outputs.frontend-bucket-name }} --recursive
           echo "[INFO] Application component (FRONTEND) with version ${RC_VER} successfully deployed for ${RC_ENV^^}"
+
+      - name: clear v2 frontend for ${{ env.RC_ENV }}
+        if: ${{ env.RC_ENV != 'prod' }}
+        run: |
+          aws s3 rm ${{ steps.get-values.outputs.frontend-bucket-v2-name }} --recursive
+          echo "[INFO] V2 S3 Bucket for application component (FRONTEND) successfully cleared for ${RC_ENV^^}"
+
+      - name: invalidate v2 cloudfront cache for ${{ env.RC_ENV }}
+        if: ${{ env.RC_ENV != 'prod' }}
+        run: |
+          DIST_V2_ID="${{ steps.get-values.outputs.cloudfront-distribution-v2-id }}"
+          if [ -n "$DIST_V2_ID" ]; then
+            echo "[INFO] Executing invalidation against V2 CloudFront Distribution Id $DIST_V2_ID"
+            invalidation_id=$(aws cloudfront create-invalidation --distribution-id $DIST_V2_ID --paths '/*' --output json \
+              | jq -r '.Invalidation.Id')
+
+            echo "[INFO] Waiting for invalidation to complete..."
+            aws cloudfront wait invalidation-completed --distribution-id $DIST_V2_ID --id $invalidation_id
+
+            if [ $? -eq 0 ]; then
+              echo "[INFO] V2 CloudFront cache for application in ${RC_ENV^^} was successfully invalidated"
+            elif [ $? -eq 255 ]; then
+              echo "[WARN] V2 CloudFront cache for application in ${RC_ENV^^} could not be invalidated"
+            fi
+          else
+            echo "[INFO] No V2 CloudFront distribution found for ${RC_ENV^^}, skipping invalidation"
+          fi
+        continue-on-error: true
+
+      - name: deploy v2 frontend for ${{ env.RC_ENV }}
+        if: ${{ env.RC_ENV != 'prod' }}
+        env:
+          VERSION: ${{ needs.validation.outputs.version }}
+        run: |
+          aws s3 cp build/ ${{ steps.get-values.outputs.frontend-bucket-v2-name }} --recursive
+          echo "[INFO] Application component (FRONTEND) with version ${RC_VER} successfully deployed to V2 bucket for ${RC_ENV^^}"

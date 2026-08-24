@@ -98,7 +98,8 @@ def token_verifier(token: str = Security(CustomHTTPBearer())):
 
 def check_is_an_app(claims: dict) -> Tuple[bool, str]:
     scope = claims.get("scope")
-    if scope:
+    is_user = scope == "aws.cognito.signin.user.admin"
+    if scope and not is_user:
         app_name = scope.split("/")[-1]
         if len(app_name) > 0:
             return True, app_name

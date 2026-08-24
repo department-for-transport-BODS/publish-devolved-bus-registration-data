@@ -1,10 +1,11 @@
 import React from "react";
-import { GridRow, OneHalfColumn } from "./layout/Grid";
+import { GridRow, OneHalfColumn } from "../Layout/Grid";
 import { SearchRegAndLicence } from "../utils/Search";
+import { Registration } from "../interfaces/registrationTypes";
 type SearchFormProps = {
   searchError: string | null;
   setSearchError: React.Dispatch<React.SetStateAction<string | null>>;
-  setData: React.Dispatch<React.SetStateAction<any[]>>;
+  setData: React.Dispatch<React.SetStateAction<Registration[]>>;
   search: string;
   setSearch: React.Dispatch<React.SetStateAction<string>>;
   setEmptyResults: React.Dispatch<React.SetStateAction<boolean>>;
@@ -24,8 +25,11 @@ const SearchForm: React.FC<SearchFormProps> = ({
       setSearchError("Please enter a search term");
       return;
     }
+    type SearchResponse =
+      | { data: Registration[]; error?: never }
+      | { error: { message: string }; data?: never };
     SearchRegAndLicence(search)
-      .then((response: any) => {
+      .then((response: SearchResponse) => {
         if (response?.data !== undefined){
             if (response.data.length === 0) {
                 setEmptyResults(true);
@@ -50,7 +54,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
             }`}
           >
             <label
-              className="govuk-heading-m govuk-!-margin-bottom-2"
+              className="govuk-heading-s govuk-!-margin-bottom-2"
               htmlFor="search"
             >
               Search
@@ -61,7 +65,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
                 {searchError}
               </p>
             )}
-            <p className="govuk-body govuk-secondary-text-colour">
+            <p className="govuk-!-margin-1 govuk-secondary-text-colour">
               Enter a bus registration number or licence number.
             </p>
             <input

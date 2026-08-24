@@ -6,7 +6,7 @@ type Props = {
   setErrorMsg: (msg: string) => void;
 };
 
-const SetNewPassword: React.FC<Props> = ({ errors , handleSetNewPassword, setErrorMsg}) => {
+const SetNewPassword: React.FC<Props> = ({ handleSetNewPassword, setErrorMsg}) => {
 
 
   const [password, setPassword] = useState("");

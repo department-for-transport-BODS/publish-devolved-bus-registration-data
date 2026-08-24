@@ -1,0 +1,3364 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`App snapshots protected route /partly-uploaded renders null while awaiting auth 1`] = `<DocumentFragment />`;
+
+exports[`App snapshots protected route /pre-validation renders null while awaiting auth 1`] = `<DocumentFragment />`;
+
+exports[`App snapshots protected route /registrations renders null while awaiting auth 1`] = `<DocumentFragment />`;
+
+exports[`App snapshots protected route /successfully-uploaded renders null while awaiting auth 1`] = `<DocumentFragment />`;
+
+exports[`App snapshots protected route /upload-csv renders null while awaiting auth 1`] = `<DocumentFragment />`;
+
+exports[`App snapshots protected route /view-registrations renders null while awaiting auth 1`] = `<DocumentFragment />`;
+
+exports[`App snapshots renders the /accessibility-statement page correctly 1`] = `
+<DocumentFragment>
+  <div
+    class="Home"
+  >
+    <title>
+      Accessibility Statement
+    </title>
+  </div>
+  <header
+    class="govuk-header"
+    data-module="govuk-header"
+    role="banner"
+  >
+    <div
+      class="govuk-header__container govuk-width-container"
+    >
+      <div
+        class="govuk-header__logo"
+      >
+        <a
+          class="govuk-header__link govuk-header__link--homepage"
+          href="https://www.gov.uk/"
+        >
+          <svg
+            aria-label="GOV.UK"
+            class="govuk-header__logotype"
+            fill="currentcolor"
+            focusable="false"
+            height="30"
+            role="img"
+            viewBox="0 0 324 60"
+            width="162"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <title>
+              GOV.UK
+            </title>
+            <g>
+              <circle
+                cx="20"
+                cy="17.6"
+                r="3.7"
+              />
+              <circle
+                cx="10.2"
+                cy="23.5"
+                r="3.7"
+              />
+              <circle
+                cx="3.7"
+                cy="33.2"
+                r="3.7"
+              />
+              <circle
+                cx="31.7"
+                cy="30.6"
+                r="3.7"
+              />
+              <circle
+                cx="43.3"
+                cy="17.6"
+                r="3.7"
+              />
+              <circle
+                cx="53.2"
+                cy="23.5"
+                r="3.7"
+              />
+              <circle
+                cx="59.7"
+                cy="33.2"
+                r="3.7"
+              />
+              <circle
+                cx="31.7"
+                cy="30.6"
+                r="3.7"
+              />
+              <path
+                d="M33.1,9.8c.2-.1.3-.3.5-.5l4.6,2.4v-6.8l-4.6,1.5c-.1-.2-.3-.3-.5-.5l1.9-5.9h-6.7l1.9,5.9c-.2.1-.3.3-.5.5l-4.6-1.5v6.8l4.6-2.4c.1.2.3.3.5.5l-2.6,8c-.9,2.8,1.2,5.7,4.1,5.7h0c3,0,5.1-2.9,4.1-5.7l-2.6-8ZM37,37.9s-3.4,3.8-4.1,6.1c2.2,0,4.2-.5,6.4-2.8l-.7,8.5c-2-2.8-4.4-4.1-5.7-3.8.1,3.1.5,6.7,5.8,7.2,3.7.3,6.7-1.5,7-3.8.4-2.6-2-4.3-3.7-1.6-1.4-4.5,2.4-6.1,4.9-3.2-1.9-4.5-1.8-7.7,2.4-10.9,3,4,2.6,7.3-1.2,11.1,2.4-1.3,6.2,0,4,4.6-1.2-2.8-3.7-2.2-4.2.2-.3,1.7.7,3.7,3,4.2,1.9.3,4.7-.9,7-5.9-1.3,0-2.4.7-3.9,1.7l2.4-8c.6,2.3,1.4,3.7,2.2,4.5.6-1.6.5-2.8,0-5.3l5,1.8c-2.6,3.6-5.2,8.7-7.3,17.5-7.4-1.1-15.7-1.7-24.5-1.7h0c-8.8,0-17.1.6-24.5,1.7-2.1-8.9-4.7-13.9-7.3-17.5l5-1.8c-.5,2.5-.6,3.7,0,5.3.8-.8,1.6-2.3,2.2-4.5l2.4,8c-1.5-1-2.6-1.7-3.9-1.7,2.3,5,5.2,6.2,7,5.9,2.3-.4,3.3-2.4,3-4.2-.5-2.4-3-3.1-4.2-.2-2.2-4.6,1.6-6,4-4.6-3.7-3.7-4.2-7.1-1.2-11.1,4.2,3.2,4.3,6.4,2.4,10.9,2.5-2.8,6.3-1.3,4.9,3.2-1.8-2.7-4.1-1-3.7,1.6.3,2.3,3.3,4.1,7,3.8,5.4-.5,5.7-4.2,5.8-7.2-1.3-.2-3.7,1-5.7,3.8l-.7-8.5c2.2,2.3,4.2,2.7,6.4,2.8-.7-2.3-4.1-6.1-4.1-6.1h10.6,0Z"
+              />
+            </g>
+            <circle
+              class="govuk-logo-dot"
+              cx="227"
+              cy="36"
+              r="7.3"
+            />
+            <path
+              d="M94.7,36.1c0,1.9.2,3.6.7,5.4.5,1.7,1.2,3.2,2.1,4.5.9,1.3,2.2,2.4,3.6,3.2,1.5.8,3.2,1.2,5.3,1.2s3.6-.3,4.9-.9c1.3-.6,2.3-1.4,3.1-2.3.8-.9,1.3-2,1.6-3,.3-1.1.5-2.1.5-3v-.4h-11v-6.6h19.5v24h-7.7v-5.4c-.5.8-1.2,1.6-2,2.3-.8.7-1.7,1.3-2.7,1.8-1,.5-2.1.9-3.3,1.2-1.2.3-2.5.4-3.8.4-3.2,0-6-.6-8.4-1.7-2.5-1.1-4.5-2.7-6.2-4.7-1.7-2-3-4.4-3.8-7.1-.9-2.7-1.3-5.6-1.3-8.7s.5-6,1.5-8.7,2.4-5.1,4.2-7.1c1.8-2,4-3.6,6.5-4.7s5.4-1.7,8.6-1.7,4,.2,5.9.7c1.8.5,3.5,1.1,5.1,2,1.5.9,2.9,1.9,4,3.2,1.2,1.2,2.1,2.6,2.8,4.1l-7.7,4.3c-.5-.9-1-1.8-1.6-2.6-.6-.8-1.3-1.5-2.2-2.1-.8-.6-1.7-1-2.8-1.4-1-.3-2.2-.5-3.5-.5-2,0-3.8.4-5.3,1.2s-2.7,1.9-3.6,3.2c-.9,1.3-1.7,2.8-2.1,4.6s-.7,3.5-.7,5.3v.3h0ZM152.9,13.7c3.2,0,6.1.6,8.7,1.7,2.6,1.2,4.7,2.7,6.5,4.7,1.8,2,3.1,4.4,4.1,7.1s1.4,5.6,1.4,8.7-.5,6-1.4,8.7c-.9,2.7-2.3,5.1-4.1,7.1s-4,3.6-6.5,4.7c-2.6,1.1-5.5,1.7-8.7,1.7s-6.1-.6-8.7-1.7c-2.6-1.1-4.7-2.7-6.5-4.7-1.8-2-3.1-4.4-4.1-7.1-.9-2.7-1.4-5.6-1.4-8.7s.5-6,1.4-8.7,2.3-5.1,4.1-7.1c1.8-2,4-3.6,6.5-4.7s5.4-1.7,8.7-1.7h0ZM152.9,50.4c1.9,0,3.6-.4,5-1.1,1.4-.7,2.7-1.7,3.6-3,1-1.3,1.7-2.8,2.2-4.5.5-1.7.8-3.6.8-5.7v-.2c0-2-.3-3.9-.8-5.7-.5-1.7-1.3-3.3-2.2-4.5-1-1.3-2.2-2.3-3.6-3-1.4-.7-3.1-1.1-5-1.1s-3.6.4-5,1.1c-1.5.7-2.7,1.7-3.6,3s-1.7,2.8-2.2,4.5c-.5,1.7-.8,3.6-.8,5.7v.2c0,2.1.3,4,.8,5.7.5,1.7,1.2,3.2,2.2,4.5,1,1.3,2.2,2.3,3.6,3,1.5.7,3.1,1.1,5,1.1ZM189.1,58l-12.3-44h9.8l8.4,32.9h.3l8.2-32.9h9.7l-12.3,44M262.9,50.4c1.3,0,2.5-.2,3.6-.6,1.1-.4,2-.9,2.8-1.7.8-.8,1.4-1.7,1.9-2.9.5-1.2.7-2.5.7-4.1V14h8.6v28.5c0,2.4-.4,4.6-1.3,6.6-.9,2-2.1,3.6-3.7,5-1.6,1.4-3.4,2.4-5.6,3.2-2.2.7-4.5,1.1-7.1,1.1s-4.9-.4-7.1-1.1c-2.2-.7-4-1.8-5.6-3.2s-2.8-3-3.7-5c-.9-2-1.3-4.1-1.3-6.6V14h8.7v27.2c0,1.6.2,2.9.7,4.1.5,1.2,1.1,2.1,1.9,2.9.8.8,1.7,1.3,2.8,1.7s2.3.6,3.6.6h0ZM288.5,14h8.7v19.1l15.5-19.1h10.8l-15.1,17.6,16.1,26.4h-10.2l-11.5-19.7-5.6,6.3v13.5h-8.7"
+            />
+          </svg>
+        </a>
+      </div>
+      <div
+        class="govuk-header__content"
+      >
+        <span
+          class="govuk-header__service-name"
+        >
+          <a
+            class="govuk-header__link"
+            href="/"
+          >
+            Publish devolved bus registration data
+          </a>
+        </span>
+      </div>
+    </div>
+  </header>
+  <div
+    class="govuk-width-container"
+  >
+    <div
+      class="govuk-phase-banner"
+    >
+      <p
+        class="govuk-phase-banner__content"
+      >
+        <strong
+          class="govuk-tag govuk-phase-banner__content__tag"
+        >
+          Alpha
+        </strong>
+        <span
+          class="govuk-phase-banner__text"
+        >
+          This is a new service – your 
+          <a
+            class="govuk-link"
+            href="#"
+          >
+            feedback
+          </a>
+           will help us to improve it.
+        </span>
+      </p>
+    </div>
+    <main
+      class="govuk-main-wrapper"
+    >
+      <div
+        class="govuk-grid-row"
+      >
+        <div
+          class="govuk-grid-column-two-thirds"
+        >
+          <h1
+            class="govuk-heading-xl"
+          >
+            Accessibility Statement
+          </h1>
+          <div
+            class="govuk-!-font-size-19"
+          >
+            <p>
+              This statement applies to pages on 
+              <a
+                href="https://undefined"
+              />
+              . 
+              <br />
+               
+              <br />
+              This website is run by the Department for Transport. The text should be clear and simple to understand. You should be able to:
+            </p>
+            <ul>
+              <li>
+                Zoom in up to 300% without problems
+              </li>
+              <li>
+                Navigate all of the website using just a keyboard (except for maps which are not essential to the functionality)
+              </li>
+              <li>
+                Navigate all of the website using speech recognition software
+              </li>
+              <li>
+                Use all of the website using a screen reader (including the most recent versions of JAWS, NVDA and VoiceOver)
+              </li>
+              <li>
+                Interpret page information through access technology due to a consistent heading structure
+              </li>
+              <li>
+                Use all of the functionality with Javascript turned off
+              </li>
+              <li>
+                Access the site and use the associated services with Google Chrome, Internet Explorer, Safari, Opera, Firefox, and Edge
+              </li>
+            </ul>
+            <p
+              class="govuk-heading-m"
+            >
+              Reporting accessibility problems with this website
+            </p>
+            <p>
+              We're always looking to improve the accessibility of this website. If you find any problems that are not listed on this page or you think we're not meeting the accessibility requirements, contact: 
+              <a
+                href="mailto:BusOpenData@dft.gov.uk"
+              >
+                BusOpenData@dft.gov.uk
+              </a>
+            </p>
+            <p
+              class="govuk-heading-m"
+            >
+              Enforcement procedure
+            </p>
+            <p>
+              The Equality and Human Rights Commission (EHRC) is responsible for enforcing the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018 (the 'accessibility regulations'). If you're not happy with how we respond to your complaint, 
+              <a
+                href="https://www.equalityadvisoryservice.com/"
+              >
+                contact the Equality Advisory and Support Service (EASS).
+              </a>
+            </p>
+            <p>
+              Technical information about this website's accessibility Department for Transport is committed to making its websites accessible, in accordance with the Public Sector Bodies (Websites and Mobile Applications) (No. 2) Accessibility Regulations 2018.
+            </p>
+            <p
+              class="govuk-heading-m"
+            >
+              Compliance status
+            </p>
+            <p>
+              This website follows the 
+              <a
+                href="https://www.w3.org/TR/WCAG21/"
+              >
+                Web Content Accessibility Guidelines version 2.1
+              </a>
+               AA standard.
+            </p>
+            <p
+              class="govuk-heading-m"
+            >
+              Preparation of this accessibility statement
+            </p>
+            <p>
+              This statement was prepared on 19 March 2024. It was last reviewed on 19 March 2024.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <footer
+    class="govuk-footer"
+    role="contentinfo"
+  >
+    <div
+      class="govuk-width-container"
+    >
+      <svg
+        class="govuk-footer__crown"
+        fill="currentcolor"
+        focusable="false"
+        height="30"
+        role="presentation"
+        viewBox="0 0 64 60"
+        width="32"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g>
+          <circle
+            cx="20"
+            cy="17.6"
+            r="3.7"
+          />
+          <circle
+            cx="10.2"
+            cy="23.5"
+            r="3.7"
+          />
+          <circle
+            cx="3.7"
+            cy="33.2"
+            r="3.7"
+          />
+          <circle
+            cx="31.7"
+            cy="30.6"
+            r="3.7"
+          />
+          <circle
+            cx="43.3"
+            cy="17.6"
+            r="3.7"
+          />
+          <circle
+            cx="53.2"
+            cy="23.5"
+            r="3.7"
+          />
+          <circle
+            cx="59.7"
+            cy="33.2"
+            r="3.7"
+          />
+          <circle
+            cx="31.7"
+            cy="30.6"
+            r="3.7"
+          />
+          <path
+            d="M33.1,9.8c.2-.1.3-.3.5-.5l4.6,2.4v-6.8l-4.6,1.5c-.1-.2-.3-.3-.5-.5l1.9-5.9h-6.7l1.9,5.9c-.2.1-.3.3-.5.5l-4.6-1.5v6.8l4.6-2.4c.1.2.3.3.5.5l-2.6,8c-.9,2.8,1.2,5.7,4.1,5.7h0c3,0,5.1-2.9,4.1-5.7l-2.6-8ZM37,37.9s-3.4,3.8-4.1,6.1c2.2,0,4.2-.5,6.4-2.8l-.7,8.5c-2-2.8-4.4-4.1-5.7-3.8.1,3.1.5,6.7,5.8,7.2,3.7.3,6.7-1.5,7-3.8.4-2.6-2-4.3-3.7-1.6-1.4-4.5,2.4-6.1,4.9-3.2-1.9-4.5-1.8-7.7,2.4-10.9,3,4,2.6,7.3-1.2,11.1,2.4-1.3,6.2,0,4,4.6-1.2-2.8-3.7-2.2-4.2.2-.3,1.7.7,3.7,3,4.2,1.9.3,4.7-.9,7-5.9-1.3,0-2.4.7-3.9,1.7l2.4-8c.6,2.3,1.4,3.7,2.2,4.5.6-1.6.5-2.8,0-5.3l5,1.8c-2.6,3.6-5.2,8.7-7.3,17.5-7.4-1.1-15.7-1.7-24.5-1.7h0c-8.8,0-17.1.6-24.5,1.7-2.1-8.9-4.7-13.9-7.3-17.5l5-1.8c-.5,2.5-.6,3.7,0,5.3.8-.8,1.6-2.3,2.2-4.5l2.4,8c-1.5-1-2.6-1.7-3.9-1.7,2.3,5,5.2,6.2,7,5.9,2.3-.4,3.3-2.4,3-4.2-.5-2.4-3-3.1-4.2-.2-2.2-4.6,1.6-6,4-4.6-3.7-3.7-4.2-7.1-1.2-11.1,4.2,3.2,4.3,6.4,2.4,10.9,2.5-2.8,6.3-1.3,4.9,3.2-1.8-2.7-4.1-1-3.7,1.6.3,2.3,3.3,4.1,7,3.8,5.4-.5,5.7-4.2,5.8-7.2-1.3-.2-3.7,1-5.7,3.8l-.7-8.5c2.2,2.3,4.2,2.7,6.4,2.8-.7-2.3-4.1-6.1-4.1-6.1h10.6,0Z"
+          />
+        </g>
+      </svg>
+      <div
+        class="govuk-footer__meta"
+      >
+        <div
+          class="govuk-footer__meta-item govuk-footer__meta-item--grow"
+        >
+          <h2
+            class="govuk-visually-hidden"
+          >
+            Support links
+          </h2>
+          <ul
+            class="govuk-footer__inline-list"
+          >
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/privacy-statement"
+              >
+                Privacy
+              </a>
+            </li>
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/cookie-page"
+              >
+                Cookies
+              </a>
+            </li>
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/accessibility-statement"
+              >
+                Accessibility statement
+              </a>
+            </li>
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/contact-us"
+              >
+                Contact
+              </a>
+            </li>
+          </ul>
+          <p
+            class="govuk-footer__body"
+          >
+            Built by the
+            <a
+              class="hover govuk-footer__link"
+              href="https://www.gov.uk/government/organisations/department-for-transport"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Department for Transport
+            </a>
+          </p>
+          <svg
+            aria-hidden="true"
+            class="govuk-footer__licence-logo"
+            focusable="false"
+            height="17"
+            role="presentation"
+            viewBox="0 0 483.2 195.7"
+            width="41"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M421.5 142.8V.1l-50.7 32.3v161.1h112.4v-50.7zm-122.3-9.6A47.12 47.12 0 0 1 221 97.8c0-26 21.1-47.1 47.1-47.1 16.7 0 31.4 8.7 39.7 21.8l42.7-27.2A97.63 97.63 0 0 0 268.1 0c-36.5 0-68.3 20.1-85.1 49.7A98 98 0 0 0 97.8 0C43.9 0 0 43.9 0 97.8s43.9 97.8 97.8 97.8c36.5 0 68.3-20.1 85.1-49.7a97.76 97.76 0 0 0 149.6 25.4l19.4 22.2h3v-87.8h-80l24.3 27.5zM97.8 145c-26 0-47.1-21.1-47.1-47.1s21.1-47.1 47.1-47.1 47.2 21 47.2 47S123.8 145 97.8 145"
+              fill="currentColor"
+            />
+          </svg>
+          <span
+            class="govuk-footer__licence-description"
+          >
+            All content is available under the
+            <a
+              class="govuk-footer__link"
+              href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Open Government Licence v3.0
+            </a>
+            , except where otherwise stated
+          </span>
+        </div>
+        <div
+          class="govuk-footer__meta-item"
+        >
+          <a
+            class="govuk-footer__link govuk-footer__copyright-logo"
+            href="https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/"
+            rel="noreferrer"
+            target="_blank"
+          >
+            © Crown copyright
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</DocumentFragment>
+`;
+
+exports[`App snapshots renders the /contact-us page correctly 1`] = `
+<DocumentFragment>
+  <div
+    class="Home"
+  >
+    <title>
+      Contact Us
+    </title>
+  </div>
+  <header
+    class="govuk-header"
+    data-module="govuk-header"
+    role="banner"
+  >
+    <div
+      class="govuk-header__container govuk-width-container"
+    >
+      <div
+        class="govuk-header__logo"
+      >
+        <a
+          class="govuk-header__link govuk-header__link--homepage"
+          href="https://www.gov.uk/"
+        >
+          <svg
+            aria-label="GOV.UK"
+            class="govuk-header__logotype"
+            fill="currentcolor"
+            focusable="false"
+            height="30"
+            role="img"
+            viewBox="0 0 324 60"
+            width="162"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <title>
+              GOV.UK
+            </title>
+            <g>
+              <circle
+                cx="20"
+                cy="17.6"
+                r="3.7"
+              />
+              <circle
+                cx="10.2"
+                cy="23.5"
+                r="3.7"
+              />
+              <circle
+                cx="3.7"
+                cy="33.2"
+                r="3.7"
+              />
+              <circle
+                cx="31.7"
+                cy="30.6"
+                r="3.7"
+              />
+              <circle
+                cx="43.3"
+                cy="17.6"
+                r="3.7"
+              />
+              <circle
+                cx="53.2"
+                cy="23.5"
+                r="3.7"
+              />
+              <circle
+                cx="59.7"
+                cy="33.2"
+                r="3.7"
+              />
+              <circle
+                cx="31.7"
+                cy="30.6"
+                r="3.7"
+              />
+              <path
+                d="M33.1,9.8c.2-.1.3-.3.5-.5l4.6,2.4v-6.8l-4.6,1.5c-.1-.2-.3-.3-.5-.5l1.9-5.9h-6.7l1.9,5.9c-.2.1-.3.3-.5.5l-4.6-1.5v6.8l4.6-2.4c.1.2.3.3.5.5l-2.6,8c-.9,2.8,1.2,5.7,4.1,5.7h0c3,0,5.1-2.9,4.1-5.7l-2.6-8ZM37,37.9s-3.4,3.8-4.1,6.1c2.2,0,4.2-.5,6.4-2.8l-.7,8.5c-2-2.8-4.4-4.1-5.7-3.8.1,3.1.5,6.7,5.8,7.2,3.7.3,6.7-1.5,7-3.8.4-2.6-2-4.3-3.7-1.6-1.4-4.5,2.4-6.1,4.9-3.2-1.9-4.5-1.8-7.7,2.4-10.9,3,4,2.6,7.3-1.2,11.1,2.4-1.3,6.2,0,4,4.6-1.2-2.8-3.7-2.2-4.2.2-.3,1.7.7,3.7,3,4.2,1.9.3,4.7-.9,7-5.9-1.3,0-2.4.7-3.9,1.7l2.4-8c.6,2.3,1.4,3.7,2.2,4.5.6-1.6.5-2.8,0-5.3l5,1.8c-2.6,3.6-5.2,8.7-7.3,17.5-7.4-1.1-15.7-1.7-24.5-1.7h0c-8.8,0-17.1.6-24.5,1.7-2.1-8.9-4.7-13.9-7.3-17.5l5-1.8c-.5,2.5-.6,3.7,0,5.3.8-.8,1.6-2.3,2.2-4.5l2.4,8c-1.5-1-2.6-1.7-3.9-1.7,2.3,5,5.2,6.2,7,5.9,2.3-.4,3.3-2.4,3-4.2-.5-2.4-3-3.1-4.2-.2-2.2-4.6,1.6-6,4-4.6-3.7-3.7-4.2-7.1-1.2-11.1,4.2,3.2,4.3,6.4,2.4,10.9,2.5-2.8,6.3-1.3,4.9,3.2-1.8-2.7-4.1-1-3.7,1.6.3,2.3,3.3,4.1,7,3.8,5.4-.5,5.7-4.2,5.8-7.2-1.3-.2-3.7,1-5.7,3.8l-.7-8.5c2.2,2.3,4.2,2.7,6.4,2.8-.7-2.3-4.1-6.1-4.1-6.1h10.6,0Z"
+              />
+            </g>
+            <circle
+              class="govuk-logo-dot"
+              cx="227"
+              cy="36"
+              r="7.3"
+            />
+            <path
+              d="M94.7,36.1c0,1.9.2,3.6.7,5.4.5,1.7,1.2,3.2,2.1,4.5.9,1.3,2.2,2.4,3.6,3.2,1.5.8,3.2,1.2,5.3,1.2s3.6-.3,4.9-.9c1.3-.6,2.3-1.4,3.1-2.3.8-.9,1.3-2,1.6-3,.3-1.1.5-2.1.5-3v-.4h-11v-6.6h19.5v24h-7.7v-5.4c-.5.8-1.2,1.6-2,2.3-.8.7-1.7,1.3-2.7,1.8-1,.5-2.1.9-3.3,1.2-1.2.3-2.5.4-3.8.4-3.2,0-6-.6-8.4-1.7-2.5-1.1-4.5-2.7-6.2-4.7-1.7-2-3-4.4-3.8-7.1-.9-2.7-1.3-5.6-1.3-8.7s.5-6,1.5-8.7,2.4-5.1,4.2-7.1c1.8-2,4-3.6,6.5-4.7s5.4-1.7,8.6-1.7,4,.2,5.9.7c1.8.5,3.5,1.1,5.1,2,1.5.9,2.9,1.9,4,3.2,1.2,1.2,2.1,2.6,2.8,4.1l-7.7,4.3c-.5-.9-1-1.8-1.6-2.6-.6-.8-1.3-1.5-2.2-2.1-.8-.6-1.7-1-2.8-1.4-1-.3-2.2-.5-3.5-.5-2,0-3.8.4-5.3,1.2s-2.7,1.9-3.6,3.2c-.9,1.3-1.7,2.8-2.1,4.6s-.7,3.5-.7,5.3v.3h0ZM152.9,13.7c3.2,0,6.1.6,8.7,1.7,2.6,1.2,4.7,2.7,6.5,4.7,1.8,2,3.1,4.4,4.1,7.1s1.4,5.6,1.4,8.7-.5,6-1.4,8.7c-.9,2.7-2.3,5.1-4.1,7.1s-4,3.6-6.5,4.7c-2.6,1.1-5.5,1.7-8.7,1.7s-6.1-.6-8.7-1.7c-2.6-1.1-4.7-2.7-6.5-4.7-1.8-2-3.1-4.4-4.1-7.1-.9-2.7-1.4-5.6-1.4-8.7s.5-6,1.4-8.7,2.3-5.1,4.1-7.1c1.8-2,4-3.6,6.5-4.7s5.4-1.7,8.7-1.7h0ZM152.9,50.4c1.9,0,3.6-.4,5-1.1,1.4-.7,2.7-1.7,3.6-3,1-1.3,1.7-2.8,2.2-4.5.5-1.7.8-3.6.8-5.7v-.2c0-2-.3-3.9-.8-5.7-.5-1.7-1.3-3.3-2.2-4.5-1-1.3-2.2-2.3-3.6-3-1.4-.7-3.1-1.1-5-1.1s-3.6.4-5,1.1c-1.5.7-2.7,1.7-3.6,3s-1.7,2.8-2.2,4.5c-.5,1.7-.8,3.6-.8,5.7v.2c0,2.1.3,4,.8,5.7.5,1.7,1.2,3.2,2.2,4.5,1,1.3,2.2,2.3,3.6,3,1.5.7,3.1,1.1,5,1.1ZM189.1,58l-12.3-44h9.8l8.4,32.9h.3l8.2-32.9h9.7l-12.3,44M262.9,50.4c1.3,0,2.5-.2,3.6-.6,1.1-.4,2-.9,2.8-1.7.8-.8,1.4-1.7,1.9-2.9.5-1.2.7-2.5.7-4.1V14h8.6v28.5c0,2.4-.4,4.6-1.3,6.6-.9,2-2.1,3.6-3.7,5-1.6,1.4-3.4,2.4-5.6,3.2-2.2.7-4.5,1.1-7.1,1.1s-4.9-.4-7.1-1.1c-2.2-.7-4-1.8-5.6-3.2s-2.8-3-3.7-5c-.9-2-1.3-4.1-1.3-6.6V14h8.7v27.2c0,1.6.2,2.9.7,4.1.5,1.2,1.1,2.1,1.9,2.9.8.8,1.7,1.3,2.8,1.7s2.3.6,3.6.6h0ZM288.5,14h8.7v19.1l15.5-19.1h10.8l-15.1,17.6,16.1,26.4h-10.2l-11.5-19.7-5.6,6.3v13.5h-8.7"
+            />
+          </svg>
+        </a>
+      </div>
+      <div
+        class="govuk-header__content"
+      >
+        <span
+          class="govuk-header__service-name"
+        >
+          <a
+            class="govuk-header__link"
+            href="/"
+          >
+            Publish devolved bus registration data
+          </a>
+        </span>
+      </div>
+    </div>
+  </header>
+  <div
+    class="govuk-width-container"
+  >
+    <div
+      class="govuk-phase-banner"
+    >
+      <p
+        class="govuk-phase-banner__content"
+      >
+        <strong
+          class="govuk-tag govuk-phase-banner__content__tag"
+        >
+          Alpha
+        </strong>
+        <span
+          class="govuk-phase-banner__text"
+        >
+          This is a new service – your 
+          <a
+            class="govuk-link"
+            href="#"
+          >
+            feedback
+          </a>
+           will help us to improve it.
+        </span>
+      </p>
+    </div>
+    <main
+      class="govuk-main-wrapper"
+    >
+      <div
+        class="govuk-grid-row"
+      >
+        <div
+          class="govuk-grid-column-two-thirds"
+        >
+          <h1
+            class="govuk-heading-xl"
+          >
+            Contact the devolved bus registration data service team
+          </h1>
+          <p
+            class="govuk-heading-m"
+          >
+            Feedback and support
+          </p>
+          <div
+            class="govuk-!-font-size-19 govuk-!-margin-bottom-9"
+          >
+            <p
+              class=""
+            >
+              If you are experiencing technical issues, or if you have any suggestions, comments or criticisms, please contact the devolved bus registration data service team through one of the channels below.
+            </p>
+            <p>
+              The Help Desk is available Monday to Friday, 9am to 5pm 
+              <br />
+              (excluding Bank Holidays in England and Wales, and the 24th of December).
+            </p>
+            <p>
+              The Help Desk can be contacted by telephone or email as follows.
+            </p>
+            <p>
+              Telephone: 
+              <br />
+              Email: 
+              <a
+                href="mailto:undefined"
+              />
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <footer
+    class="govuk-footer"
+    role="contentinfo"
+  >
+    <div
+      class="govuk-width-container"
+    >
+      <svg
+        class="govuk-footer__crown"
+        fill="currentcolor"
+        focusable="false"
+        height="30"
+        role="presentation"
+        viewBox="0 0 64 60"
+        width="32"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g>
+          <circle
+            cx="20"
+            cy="17.6"
+            r="3.7"
+          />
+          <circle
+            cx="10.2"
+            cy="23.5"
+            r="3.7"
+          />
+          <circle
+            cx="3.7"
+            cy="33.2"
+            r="3.7"
+          />
+          <circle
+            cx="31.7"
+            cy="30.6"
+            r="3.7"
+          />
+          <circle
+            cx="43.3"
+            cy="17.6"
+            r="3.7"
+          />
+          <circle
+            cx="53.2"
+            cy="23.5"
+            r="3.7"
+          />
+          <circle
+            cx="59.7"
+            cy="33.2"
+            r="3.7"
+          />
+          <circle
+            cx="31.7"
+            cy="30.6"
+            r="3.7"
+          />
+          <path
+            d="M33.1,9.8c.2-.1.3-.3.5-.5l4.6,2.4v-6.8l-4.6,1.5c-.1-.2-.3-.3-.5-.5l1.9-5.9h-6.7l1.9,5.9c-.2.1-.3.3-.5.5l-4.6-1.5v6.8l4.6-2.4c.1.2.3.3.5.5l-2.6,8c-.9,2.8,1.2,5.7,4.1,5.7h0c3,0,5.1-2.9,4.1-5.7l-2.6-8ZM37,37.9s-3.4,3.8-4.1,6.1c2.2,0,4.2-.5,6.4-2.8l-.7,8.5c-2-2.8-4.4-4.1-5.7-3.8.1,3.1.5,6.7,5.8,7.2,3.7.3,6.7-1.5,7-3.8.4-2.6-2-4.3-3.7-1.6-1.4-4.5,2.4-6.1,4.9-3.2-1.9-4.5-1.8-7.7,2.4-10.9,3,4,2.6,7.3-1.2,11.1,2.4-1.3,6.2,0,4,4.6-1.2-2.8-3.7-2.2-4.2.2-.3,1.7.7,3.7,3,4.2,1.9.3,4.7-.9,7-5.9-1.3,0-2.4.7-3.9,1.7l2.4-8c.6,2.3,1.4,3.7,2.2,4.5.6-1.6.5-2.8,0-5.3l5,1.8c-2.6,3.6-5.2,8.7-7.3,17.5-7.4-1.1-15.7-1.7-24.5-1.7h0c-8.8,0-17.1.6-24.5,1.7-2.1-8.9-4.7-13.9-7.3-17.5l5-1.8c-.5,2.5-.6,3.7,0,5.3.8-.8,1.6-2.3,2.2-4.5l2.4,8c-1.5-1-2.6-1.7-3.9-1.7,2.3,5,5.2,6.2,7,5.9,2.3-.4,3.3-2.4,3-4.2-.5-2.4-3-3.1-4.2-.2-2.2-4.6,1.6-6,4-4.6-3.7-3.7-4.2-7.1-1.2-11.1,4.2,3.2,4.3,6.4,2.4,10.9,2.5-2.8,6.3-1.3,4.9,3.2-1.8-2.7-4.1-1-3.7,1.6.3,2.3,3.3,4.1,7,3.8,5.4-.5,5.7-4.2,5.8-7.2-1.3-.2-3.7,1-5.7,3.8l-.7-8.5c2.2,2.3,4.2,2.7,6.4,2.8-.7-2.3-4.1-6.1-4.1-6.1h10.6,0Z"
+          />
+        </g>
+      </svg>
+      <div
+        class="govuk-footer__meta"
+      >
+        <div
+          class="govuk-footer__meta-item govuk-footer__meta-item--grow"
+        >
+          <h2
+            class="govuk-visually-hidden"
+          >
+            Support links
+          </h2>
+          <ul
+            class="govuk-footer__inline-list"
+          >
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/privacy-statement"
+              >
+                Privacy
+              </a>
+            </li>
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/cookie-page"
+              >
+                Cookies
+              </a>
+            </li>
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/accessibility-statement"
+              >
+                Accessibility statement
+              </a>
+            </li>
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/contact-us"
+              >
+                Contact
+              </a>
+            </li>
+          </ul>
+          <p
+            class="govuk-footer__body"
+          >
+            Built by the
+            <a
+              class="hover govuk-footer__link"
+              href="https://www.gov.uk/government/organisations/department-for-transport"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Department for Transport
+            </a>
+          </p>
+          <svg
+            aria-hidden="true"
+            class="govuk-footer__licence-logo"
+            focusable="false"
+            height="17"
+            role="presentation"
+            viewBox="0 0 483.2 195.7"
+            width="41"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M421.5 142.8V.1l-50.7 32.3v161.1h112.4v-50.7zm-122.3-9.6A47.12 47.12 0 0 1 221 97.8c0-26 21.1-47.1 47.1-47.1 16.7 0 31.4 8.7 39.7 21.8l42.7-27.2A97.63 97.63 0 0 0 268.1 0c-36.5 0-68.3 20.1-85.1 49.7A98 98 0 0 0 97.8 0C43.9 0 0 43.9 0 97.8s43.9 97.8 97.8 97.8c36.5 0 68.3-20.1 85.1-49.7a97.76 97.76 0 0 0 149.6 25.4l19.4 22.2h3v-87.8h-80l24.3 27.5zM97.8 145c-26 0-47.1-21.1-47.1-47.1s21.1-47.1 47.1-47.1 47.2 21 47.2 47S123.8 145 97.8 145"
+              fill="currentColor"
+            />
+          </svg>
+          <span
+            class="govuk-footer__licence-description"
+          >
+            All content is available under the
+            <a
+              class="govuk-footer__link"
+              href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Open Government Licence v3.0
+            </a>
+            , except where otherwise stated
+          </span>
+        </div>
+        <div
+          class="govuk-footer__meta-item"
+        >
+          <a
+            class="govuk-footer__link govuk-footer__copyright-logo"
+            href="https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/"
+            rel="noreferrer"
+            target="_blank"
+          >
+            © Crown copyright
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</DocumentFragment>
+`;
+
+exports[`App snapshots renders the /cookie-page page correctly 1`] = `
+<DocumentFragment>
+  <div
+    class="Home"
+  >
+    <title>
+      Cookie Policy
+    </title>
+  </div>
+  <header
+    class="govuk-header"
+    data-module="govuk-header"
+    role="banner"
+  >
+    <div
+      class="govuk-header__container govuk-width-container"
+    >
+      <div
+        class="govuk-header__logo"
+      >
+        <a
+          class="govuk-header__link govuk-header__link--homepage"
+          href="https://www.gov.uk/"
+        >
+          <svg
+            aria-label="GOV.UK"
+            class="govuk-header__logotype"
+            fill="currentcolor"
+            focusable="false"
+            height="30"
+            role="img"
+            viewBox="0 0 324 60"
+            width="162"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <title>
+              GOV.UK
+            </title>
+            <g>
+              <circle
+                cx="20"
+                cy="17.6"
+                r="3.7"
+              />
+              <circle
+                cx="10.2"
+                cy="23.5"
+                r="3.7"
+              />
+              <circle
+                cx="3.7"
+                cy="33.2"
+                r="3.7"
+              />
+              <circle
+                cx="31.7"
+                cy="30.6"
+                r="3.7"
+              />
+              <circle
+                cx="43.3"
+                cy="17.6"
+                r="3.7"
+              />
+              <circle
+                cx="53.2"
+                cy="23.5"
+                r="3.7"
+              />
+              <circle
+                cx="59.7"
+                cy="33.2"
+                r="3.7"
+              />
+              <circle
+                cx="31.7"
+                cy="30.6"
+                r="3.7"
+              />
+              <path
+                d="M33.1,9.8c.2-.1.3-.3.5-.5l4.6,2.4v-6.8l-4.6,1.5c-.1-.2-.3-.3-.5-.5l1.9-5.9h-6.7l1.9,5.9c-.2.1-.3.3-.5.5l-4.6-1.5v6.8l4.6-2.4c.1.2.3.3.5.5l-2.6,8c-.9,2.8,1.2,5.7,4.1,5.7h0c3,0,5.1-2.9,4.1-5.7l-2.6-8ZM37,37.9s-3.4,3.8-4.1,6.1c2.2,0,4.2-.5,6.4-2.8l-.7,8.5c-2-2.8-4.4-4.1-5.7-3.8.1,3.1.5,6.7,5.8,7.2,3.7.3,6.7-1.5,7-3.8.4-2.6-2-4.3-3.7-1.6-1.4-4.5,2.4-6.1,4.9-3.2-1.9-4.5-1.8-7.7,2.4-10.9,3,4,2.6,7.3-1.2,11.1,2.4-1.3,6.2,0,4,4.6-1.2-2.8-3.7-2.2-4.2.2-.3,1.7.7,3.7,3,4.2,1.9.3,4.7-.9,7-5.9-1.3,0-2.4.7-3.9,1.7l2.4-8c.6,2.3,1.4,3.7,2.2,4.5.6-1.6.5-2.8,0-5.3l5,1.8c-2.6,3.6-5.2,8.7-7.3,17.5-7.4-1.1-15.7-1.7-24.5-1.7h0c-8.8,0-17.1.6-24.5,1.7-2.1-8.9-4.7-13.9-7.3-17.5l5-1.8c-.5,2.5-.6,3.7,0,5.3.8-.8,1.6-2.3,2.2-4.5l2.4,8c-1.5-1-2.6-1.7-3.9-1.7,2.3,5,5.2,6.2,7,5.9,2.3-.4,3.3-2.4,3-4.2-.5-2.4-3-3.1-4.2-.2-2.2-4.6,1.6-6,4-4.6-3.7-3.7-4.2-7.1-1.2-11.1,4.2,3.2,4.3,6.4,2.4,10.9,2.5-2.8,6.3-1.3,4.9,3.2-1.8-2.7-4.1-1-3.7,1.6.3,2.3,3.3,4.1,7,3.8,5.4-.5,5.7-4.2,5.8-7.2-1.3-.2-3.7,1-5.7,3.8l-.7-8.5c2.2,2.3,4.2,2.7,6.4,2.8-.7-2.3-4.1-6.1-4.1-6.1h10.6,0Z"
+              />
+            </g>
+            <circle
+              class="govuk-logo-dot"
+              cx="227"
+              cy="36"
+              r="7.3"
+            />
+            <path
+              d="M94.7,36.1c0,1.9.2,3.6.7,5.4.5,1.7,1.2,3.2,2.1,4.5.9,1.3,2.2,2.4,3.6,3.2,1.5.8,3.2,1.2,5.3,1.2s3.6-.3,4.9-.9c1.3-.6,2.3-1.4,3.1-2.3.8-.9,1.3-2,1.6-3,.3-1.1.5-2.1.5-3v-.4h-11v-6.6h19.5v24h-7.7v-5.4c-.5.8-1.2,1.6-2,2.3-.8.7-1.7,1.3-2.7,1.8-1,.5-2.1.9-3.3,1.2-1.2.3-2.5.4-3.8.4-3.2,0-6-.6-8.4-1.7-2.5-1.1-4.5-2.7-6.2-4.7-1.7-2-3-4.4-3.8-7.1-.9-2.7-1.3-5.6-1.3-8.7s.5-6,1.5-8.7,2.4-5.1,4.2-7.1c1.8-2,4-3.6,6.5-4.7s5.4-1.7,8.6-1.7,4,.2,5.9.7c1.8.5,3.5,1.1,5.1,2,1.5.9,2.9,1.9,4,3.2,1.2,1.2,2.1,2.6,2.8,4.1l-7.7,4.3c-.5-.9-1-1.8-1.6-2.6-.6-.8-1.3-1.5-2.2-2.1-.8-.6-1.7-1-2.8-1.4-1-.3-2.2-.5-3.5-.5-2,0-3.8.4-5.3,1.2s-2.7,1.9-3.6,3.2c-.9,1.3-1.7,2.8-2.1,4.6s-.7,3.5-.7,5.3v.3h0ZM152.9,13.7c3.2,0,6.1.6,8.7,1.7,2.6,1.2,4.7,2.7,6.5,4.7,1.8,2,3.1,4.4,4.1,7.1s1.4,5.6,1.4,8.7-.5,6-1.4,8.7c-.9,2.7-2.3,5.1-4.1,7.1s-4,3.6-6.5,4.7c-2.6,1.1-5.5,1.7-8.7,1.7s-6.1-.6-8.7-1.7c-2.6-1.1-4.7-2.7-6.5-4.7-1.8-2-3.1-4.4-4.1-7.1-.9-2.7-1.4-5.6-1.4-8.7s.5-6,1.4-8.7,2.3-5.1,4.1-7.1c1.8-2,4-3.6,6.5-4.7s5.4-1.7,8.7-1.7h0ZM152.9,50.4c1.9,0,3.6-.4,5-1.1,1.4-.7,2.7-1.7,3.6-3,1-1.3,1.7-2.8,2.2-4.5.5-1.7.8-3.6.8-5.7v-.2c0-2-.3-3.9-.8-5.7-.5-1.7-1.3-3.3-2.2-4.5-1-1.3-2.2-2.3-3.6-3-1.4-.7-3.1-1.1-5-1.1s-3.6.4-5,1.1c-1.5.7-2.7,1.7-3.6,3s-1.7,2.8-2.2,4.5c-.5,1.7-.8,3.6-.8,5.7v.2c0,2.1.3,4,.8,5.7.5,1.7,1.2,3.2,2.2,4.5,1,1.3,2.2,2.3,3.6,3,1.5.7,3.1,1.1,5,1.1ZM189.1,58l-12.3-44h9.8l8.4,32.9h.3l8.2-32.9h9.7l-12.3,44M262.9,50.4c1.3,0,2.5-.2,3.6-.6,1.1-.4,2-.9,2.8-1.7.8-.8,1.4-1.7,1.9-2.9.5-1.2.7-2.5.7-4.1V14h8.6v28.5c0,2.4-.4,4.6-1.3,6.6-.9,2-2.1,3.6-3.7,5-1.6,1.4-3.4,2.4-5.6,3.2-2.2.7-4.5,1.1-7.1,1.1s-4.9-.4-7.1-1.1c-2.2-.7-4-1.8-5.6-3.2s-2.8-3-3.7-5c-.9-2-1.3-4.1-1.3-6.6V14h8.7v27.2c0,1.6.2,2.9.7,4.1.5,1.2,1.1,2.1,1.9,2.9.8.8,1.7,1.3,2.8,1.7s2.3.6,3.6.6h0ZM288.5,14h8.7v19.1l15.5-19.1h10.8l-15.1,17.6,16.1,26.4h-10.2l-11.5-19.7-5.6,6.3v13.5h-8.7"
+            />
+          </svg>
+        </a>
+      </div>
+      <div
+        class="govuk-header__content"
+      >
+        <span
+          class="govuk-header__service-name"
+        >
+          <a
+            class="govuk-header__link"
+            href="/"
+          >
+            Publish devolved bus registration data
+          </a>
+        </span>
+      </div>
+    </div>
+  </header>
+  <div
+    class="govuk-width-container"
+  >
+    <div
+      class="govuk-phase-banner"
+    >
+      <p
+        class="govuk-phase-banner__content"
+      >
+        <strong
+          class="govuk-tag govuk-phase-banner__content__tag"
+        >
+          Alpha
+        </strong>
+        <span
+          class="govuk-phase-banner__text"
+        >
+          This is a new service – your 
+          <a
+            class="govuk-link"
+            href="#"
+          >
+            feedback
+          </a>
+           will help us to improve it.
+        </span>
+      </p>
+    </div>
+    <main
+      class="govuk-main-wrapper"
+    >
+      <div
+        class="govuk-grid-row"
+      >
+        <div
+          class="govuk-grid-column-two-thirds"
+        >
+          <h1
+            class="govuk-heading-xl"
+          >
+            Cookies on the Publish devolved bus registration data Service
+          </h1>
+          <div
+            class="govuk-!-font-size-19"
+          >
+            <p>
+              Cookies are files saved on your phone, tablet or computer when you visit a website.
+            </p>
+            <p>
+              We only use essential cookies on this website. These cookies are to make this site work.
+            </p>
+            <p
+              class="govuk-heading-m"
+            >
+              Essential cookies
+            </p>
+            <p>
+              Essential cookies keep your information secure while you use this service. We don't need to ask permission to use them.
+            </p>
+            <table
+              class="govuk-table"
+            >
+              <thead
+                class="govuk-table__head"
+              >
+                <tr
+                  class="govuk-table__row"
+                >
+                  <th
+                    class="govuk-table__header app-custom-class"
+                    scope="col"
+                  >
+                    Name
+                  </th>
+                  <th
+                    class="govuk-table__header app-custom-class"
+                    scope="col"
+                  >
+                    Purpose
+                  </th>
+                  <th
+                    class="govuk-table__header app-custom-class"
+                    scope="col"
+                  >
+                    Expires
+                  </th>
+                </tr>
+              </thead>
+              <tbody
+                class="govuk-table__body"
+              >
+                <tr
+                  class="govuk-table__row"
+                >
+                  <td
+                    class="govuk-table__cell"
+                    scope="row"
+                  >
+                    session_cookie
+                  </td>
+                  <td
+                    class="govuk-table__cell"
+                  >
+                    Used to keep you signed in
+                  </td>
+                  <td
+                    class="govuk-table__cell"
+                  >
+                    20 minutes
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <footer
+    class="govuk-footer"
+    role="contentinfo"
+  >
+    <div
+      class="govuk-width-container"
+    >
+      <svg
+        class="govuk-footer__crown"
+        fill="currentcolor"
+        focusable="false"
+        height="30"
+        role="presentation"
+        viewBox="0 0 64 60"
+        width="32"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g>
+          <circle
+            cx="20"
+            cy="17.6"
+            r="3.7"
+          />
+          <circle
+            cx="10.2"
+            cy="23.5"
+            r="3.7"
+          />
+          <circle
+            cx="3.7"
+            cy="33.2"
+            r="3.7"
+          />
+          <circle
+            cx="31.7"
+            cy="30.6"
+            r="3.7"
+          />
+          <circle
+            cx="43.3"
+            cy="17.6"
+            r="3.7"
+          />
+          <circle
+            cx="53.2"
+            cy="23.5"
+            r="3.7"
+          />
+          <circle
+            cx="59.7"
+            cy="33.2"
+            r="3.7"
+          />
+          <circle
+            cx="31.7"
+            cy="30.6"
+            r="3.7"
+          />
+          <path
+            d="M33.1,9.8c.2-.1.3-.3.5-.5l4.6,2.4v-6.8l-4.6,1.5c-.1-.2-.3-.3-.5-.5l1.9-5.9h-6.7l1.9,5.9c-.2.1-.3.3-.5.5l-4.6-1.5v6.8l4.6-2.4c.1.2.3.3.5.5l-2.6,8c-.9,2.8,1.2,5.7,4.1,5.7h0c3,0,5.1-2.9,4.1-5.7l-2.6-8ZM37,37.9s-3.4,3.8-4.1,6.1c2.2,0,4.2-.5,6.4-2.8l-.7,8.5c-2-2.8-4.4-4.1-5.7-3.8.1,3.1.5,6.7,5.8,7.2,3.7.3,6.7-1.5,7-3.8.4-2.6-2-4.3-3.7-1.6-1.4-4.5,2.4-6.1,4.9-3.2-1.9-4.5-1.8-7.7,2.4-10.9,3,4,2.6,7.3-1.2,11.1,2.4-1.3,6.2,0,4,4.6-1.2-2.8-3.7-2.2-4.2.2-.3,1.7.7,3.7,3,4.2,1.9.3,4.7-.9,7-5.9-1.3,0-2.4.7-3.9,1.7l2.4-8c.6,2.3,1.4,3.7,2.2,4.5.6-1.6.5-2.8,0-5.3l5,1.8c-2.6,3.6-5.2,8.7-7.3,17.5-7.4-1.1-15.7-1.7-24.5-1.7h0c-8.8,0-17.1.6-24.5,1.7-2.1-8.9-4.7-13.9-7.3-17.5l5-1.8c-.5,2.5-.6,3.7,0,5.3.8-.8,1.6-2.3,2.2-4.5l2.4,8c-1.5-1-2.6-1.7-3.9-1.7,2.3,5,5.2,6.2,7,5.9,2.3-.4,3.3-2.4,3-4.2-.5-2.4-3-3.1-4.2-.2-2.2-4.6,1.6-6,4-4.6-3.7-3.7-4.2-7.1-1.2-11.1,4.2,3.2,4.3,6.4,2.4,10.9,2.5-2.8,6.3-1.3,4.9,3.2-1.8-2.7-4.1-1-3.7,1.6.3,2.3,3.3,4.1,7,3.8,5.4-.5,5.7-4.2,5.8-7.2-1.3-.2-3.7,1-5.7,3.8l-.7-8.5c2.2,2.3,4.2,2.7,6.4,2.8-.7-2.3-4.1-6.1-4.1-6.1h10.6,0Z"
+          />
+        </g>
+      </svg>
+      <div
+        class="govuk-footer__meta"
+      >
+        <div
+          class="govuk-footer__meta-item govuk-footer__meta-item--grow"
+        >
+          <h2
+            class="govuk-visually-hidden"
+          >
+            Support links
+          </h2>
+          <ul
+            class="govuk-footer__inline-list"
+          >
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/privacy-statement"
+              >
+                Privacy
+              </a>
+            </li>
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/cookie-page"
+              >
+                Cookies
+              </a>
+            </li>
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/accessibility-statement"
+              >
+                Accessibility statement
+              </a>
+            </li>
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/contact-us"
+              >
+                Contact
+              </a>
+            </li>
+          </ul>
+          <p
+            class="govuk-footer__body"
+          >
+            Built by the
+            <a
+              class="hover govuk-footer__link"
+              href="https://www.gov.uk/government/organisations/department-for-transport"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Department for Transport
+            </a>
+          </p>
+          <svg
+            aria-hidden="true"
+            class="govuk-footer__licence-logo"
+            focusable="false"
+            height="17"
+            role="presentation"
+            viewBox="0 0 483.2 195.7"
+            width="41"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M421.5 142.8V.1l-50.7 32.3v161.1h112.4v-50.7zm-122.3-9.6A47.12 47.12 0 0 1 221 97.8c0-26 21.1-47.1 47.1-47.1 16.7 0 31.4 8.7 39.7 21.8l42.7-27.2A97.63 97.63 0 0 0 268.1 0c-36.5 0-68.3 20.1-85.1 49.7A98 98 0 0 0 97.8 0C43.9 0 0 43.9 0 97.8s43.9 97.8 97.8 97.8c36.5 0 68.3-20.1 85.1-49.7a97.76 97.76 0 0 0 149.6 25.4l19.4 22.2h3v-87.8h-80l24.3 27.5zM97.8 145c-26 0-47.1-21.1-47.1-47.1s21.1-47.1 47.1-47.1 47.2 21 47.2 47S123.8 145 97.8 145"
+              fill="currentColor"
+            />
+          </svg>
+          <span
+            class="govuk-footer__licence-description"
+          >
+            All content is available under the
+            <a
+              class="govuk-footer__link"
+              href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Open Government Licence v3.0
+            </a>
+            , except where otherwise stated
+          </span>
+        </div>
+        <div
+          class="govuk-footer__meta-item"
+        >
+          <a
+            class="govuk-footer__link govuk-footer__copyright-logo"
+            href="https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/"
+            rel="noreferrer"
+            target="_blank"
+          >
+            © Crown copyright
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</DocumentFragment>
+`;
+
+exports[`App snapshots renders the /find-registered-services page correctly 1`] = `
+<DocumentFragment>
+  <div
+    class="Home"
+  >
+    <title>
+      Search
+    </title>
+  </div>
+  <header
+    class="govuk-header"
+    data-module="govuk-header"
+    role="banner"
+  >
+    <div
+      class="govuk-header__container govuk-width-container"
+    >
+      <div
+        class="govuk-header__logo"
+      >
+        <a
+          class="govuk-header__link govuk-header__link--homepage"
+          href="https://www.gov.uk/"
+        >
+          <svg
+            aria-label="GOV.UK"
+            class="govuk-header__logotype"
+            fill="currentcolor"
+            focusable="false"
+            height="30"
+            role="img"
+            viewBox="0 0 324 60"
+            width="162"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <title>
+              GOV.UK
+            </title>
+            <g>
+              <circle
+                cx="20"
+                cy="17.6"
+                r="3.7"
+              />
+              <circle
+                cx="10.2"
+                cy="23.5"
+                r="3.7"
+              />
+              <circle
+                cx="3.7"
+                cy="33.2"
+                r="3.7"
+              />
+              <circle
+                cx="31.7"
+                cy="30.6"
+                r="3.7"
+              />
+              <circle
+                cx="43.3"
+                cy="17.6"
+                r="3.7"
+              />
+              <circle
+                cx="53.2"
+                cy="23.5"
+                r="3.7"
+              />
+              <circle
+                cx="59.7"
+                cy="33.2"
+                r="3.7"
+              />
+              <circle
+                cx="31.7"
+                cy="30.6"
+                r="3.7"
+              />
+              <path
+                d="M33.1,9.8c.2-.1.3-.3.5-.5l4.6,2.4v-6.8l-4.6,1.5c-.1-.2-.3-.3-.5-.5l1.9-5.9h-6.7l1.9,5.9c-.2.1-.3.3-.5.5l-4.6-1.5v6.8l4.6-2.4c.1.2.3.3.5.5l-2.6,8c-.9,2.8,1.2,5.7,4.1,5.7h0c3,0,5.1-2.9,4.1-5.7l-2.6-8ZM37,37.9s-3.4,3.8-4.1,6.1c2.2,0,4.2-.5,6.4-2.8l-.7,8.5c-2-2.8-4.4-4.1-5.7-3.8.1,3.1.5,6.7,5.8,7.2,3.7.3,6.7-1.5,7-3.8.4-2.6-2-4.3-3.7-1.6-1.4-4.5,2.4-6.1,4.9-3.2-1.9-4.5-1.8-7.7,2.4-10.9,3,4,2.6,7.3-1.2,11.1,2.4-1.3,6.2,0,4,4.6-1.2-2.8-3.7-2.2-4.2.2-.3,1.7.7,3.7,3,4.2,1.9.3,4.7-.9,7-5.9-1.3,0-2.4.7-3.9,1.7l2.4-8c.6,2.3,1.4,3.7,2.2,4.5.6-1.6.5-2.8,0-5.3l5,1.8c-2.6,3.6-5.2,8.7-7.3,17.5-7.4-1.1-15.7-1.7-24.5-1.7h0c-8.8,0-17.1.6-24.5,1.7-2.1-8.9-4.7-13.9-7.3-17.5l5-1.8c-.5,2.5-.6,3.7,0,5.3.8-.8,1.6-2.3,2.2-4.5l2.4,8c-1.5-1-2.6-1.7-3.9-1.7,2.3,5,5.2,6.2,7,5.9,2.3-.4,3.3-2.4,3-4.2-.5-2.4-3-3.1-4.2-.2-2.2-4.6,1.6-6,4-4.6-3.7-3.7-4.2-7.1-1.2-11.1,4.2,3.2,4.3,6.4,2.4,10.9,2.5-2.8,6.3-1.3,4.9,3.2-1.8-2.7-4.1-1-3.7,1.6.3,2.3,3.3,4.1,7,3.8,5.4-.5,5.7-4.2,5.8-7.2-1.3-.2-3.7,1-5.7,3.8l-.7-8.5c2.2,2.3,4.2,2.7,6.4,2.8-.7-2.3-4.1-6.1-4.1-6.1h10.6,0Z"
+              />
+            </g>
+            <circle
+              class="govuk-logo-dot"
+              cx="227"
+              cy="36"
+              r="7.3"
+            />
+            <path
+              d="M94.7,36.1c0,1.9.2,3.6.7,5.4.5,1.7,1.2,3.2,2.1,4.5.9,1.3,2.2,2.4,3.6,3.2,1.5.8,3.2,1.2,5.3,1.2s3.6-.3,4.9-.9c1.3-.6,2.3-1.4,3.1-2.3.8-.9,1.3-2,1.6-3,.3-1.1.5-2.1.5-3v-.4h-11v-6.6h19.5v24h-7.7v-5.4c-.5.8-1.2,1.6-2,2.3-.8.7-1.7,1.3-2.7,1.8-1,.5-2.1.9-3.3,1.2-1.2.3-2.5.4-3.8.4-3.2,0-6-.6-8.4-1.7-2.5-1.1-4.5-2.7-6.2-4.7-1.7-2-3-4.4-3.8-7.1-.9-2.7-1.3-5.6-1.3-8.7s.5-6,1.5-8.7,2.4-5.1,4.2-7.1c1.8-2,4-3.6,6.5-4.7s5.4-1.7,8.6-1.7,4,.2,5.9.7c1.8.5,3.5,1.1,5.1,2,1.5.9,2.9,1.9,4,3.2,1.2,1.2,2.1,2.6,2.8,4.1l-7.7,4.3c-.5-.9-1-1.8-1.6-2.6-.6-.8-1.3-1.5-2.2-2.1-.8-.6-1.7-1-2.8-1.4-1-.3-2.2-.5-3.5-.5-2,0-3.8.4-5.3,1.2s-2.7,1.9-3.6,3.2c-.9,1.3-1.7,2.8-2.1,4.6s-.7,3.5-.7,5.3v.3h0ZM152.9,13.7c3.2,0,6.1.6,8.7,1.7,2.6,1.2,4.7,2.7,6.5,4.7,1.8,2,3.1,4.4,4.1,7.1s1.4,5.6,1.4,8.7-.5,6-1.4,8.7c-.9,2.7-2.3,5.1-4.1,7.1s-4,3.6-6.5,4.7c-2.6,1.1-5.5,1.7-8.7,1.7s-6.1-.6-8.7-1.7c-2.6-1.1-4.7-2.7-6.5-4.7-1.8-2-3.1-4.4-4.1-7.1-.9-2.7-1.4-5.6-1.4-8.7s.5-6,1.4-8.7,2.3-5.1,4.1-7.1c1.8-2,4-3.6,6.5-4.7s5.4-1.7,8.7-1.7h0ZM152.9,50.4c1.9,0,3.6-.4,5-1.1,1.4-.7,2.7-1.7,3.6-3,1-1.3,1.7-2.8,2.2-4.5.5-1.7.8-3.6.8-5.7v-.2c0-2-.3-3.9-.8-5.7-.5-1.7-1.3-3.3-2.2-4.5-1-1.3-2.2-2.3-3.6-3-1.4-.7-3.1-1.1-5-1.1s-3.6.4-5,1.1c-1.5.7-2.7,1.7-3.6,3s-1.7,2.8-2.2,4.5c-.5,1.7-.8,3.6-.8,5.7v.2c0,2.1.3,4,.8,5.7.5,1.7,1.2,3.2,2.2,4.5,1,1.3,2.2,2.3,3.6,3,1.5.7,3.1,1.1,5,1.1ZM189.1,58l-12.3-44h9.8l8.4,32.9h.3l8.2-32.9h9.7l-12.3,44M262.9,50.4c1.3,0,2.5-.2,3.6-.6,1.1-.4,2-.9,2.8-1.7.8-.8,1.4-1.7,1.9-2.9.5-1.2.7-2.5.7-4.1V14h8.6v28.5c0,2.4-.4,4.6-1.3,6.6-.9,2-2.1,3.6-3.7,5-1.6,1.4-3.4,2.4-5.6,3.2-2.2.7-4.5,1.1-7.1,1.1s-4.9-.4-7.1-1.1c-2.2-.7-4-1.8-5.6-3.2s-2.8-3-3.7-5c-.9-2-1.3-4.1-1.3-6.6V14h8.7v27.2c0,1.6.2,2.9.7,4.1.5,1.2,1.1,2.1,1.9,2.9.8.8,1.7,1.3,2.8,1.7s2.3.6,3.6.6h0ZM288.5,14h8.7v19.1l15.5-19.1h10.8l-15.1,17.6,16.1,26.4h-10.2l-11.5-19.7-5.6,6.3v13.5h-8.7"
+            />
+          </svg>
+        </a>
+      </div>
+      <div
+        class="govuk-header__content"
+      >
+        <span
+          class="govuk-header__service-name"
+        >
+          <a
+            class="govuk-header__link"
+            href="/"
+          >
+            Publish devolved bus registration data
+          </a>
+        </span>
+      </div>
+    </div>
+  </header>
+  <div
+    class="govuk-width-container"
+  >
+    <div
+      class="govuk-phase-banner"
+    >
+      <p
+        class="govuk-phase-banner__content"
+      >
+        <strong
+          class="govuk-tag govuk-phase-banner__content__tag"
+        >
+          Alpha
+        </strong>
+        <span
+          class="govuk-phase-banner__text"
+        >
+          This is a new service – your 
+          <a
+            class="govuk-link"
+            href="#"
+          >
+            feedback
+          </a>
+           will help us to improve it.
+        </span>
+      </p>
+    </div>
+    <main
+      class="govuk-main-wrapper"
+    >
+      <div
+        class="govuk-grid-row"
+      >
+        <div
+          class="govuk-grid-column-full"
+        >
+          <h1
+            class="govuk-heading-xl"
+          >
+            Find a registered bus service
+          </h1>
+          <div
+            class="govuk-grid-row"
+          >
+            <div
+              class="govuk-grid-column-one-half"
+            >
+              <form>
+                <div
+                  class="govuk-form-group govuk-!-margin-bottom-3 null"
+                >
+                  <label
+                    class="govuk-heading-s govuk-!-margin-bottom-2"
+                    for="search"
+                  >
+                    Search
+                  </label>
+                  <p
+                    class="govuk-!-margin-1 govuk-secondary-text-colour"
+                  >
+                    Enter a bus registration number or licence number.
+                  </p>
+                  <input
+                    class="govuk-input null"
+                    id="search"
+                    name="search"
+                    spellcheck="false"
+                    type="text"
+                    value=""
+                  />
+                </div>
+                <button
+                  class="govuk-button"
+                  data-module="govuk-button"
+                  type="submit"
+                >
+                  Search
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <footer
+    class="govuk-footer"
+    role="contentinfo"
+  >
+    <div
+      class="govuk-width-container"
+    >
+      <svg
+        class="govuk-footer__crown"
+        fill="currentcolor"
+        focusable="false"
+        height="30"
+        role="presentation"
+        viewBox="0 0 64 60"
+        width="32"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g>
+          <circle
+            cx="20"
+            cy="17.6"
+            r="3.7"
+          />
+          <circle
+            cx="10.2"
+            cy="23.5"
+            r="3.7"
+          />
+          <circle
+            cx="3.7"
+            cy="33.2"
+            r="3.7"
+          />
+          <circle
+            cx="31.7"
+            cy="30.6"
+            r="3.7"
+          />
+          <circle
+            cx="43.3"
+            cy="17.6"
+            r="3.7"
+          />
+          <circle
+            cx="53.2"
+            cy="23.5"
+            r="3.7"
+          />
+          <circle
+            cx="59.7"
+            cy="33.2"
+            r="3.7"
+          />
+          <circle
+            cx="31.7"
+            cy="30.6"
+            r="3.7"
+          />
+          <path
+            d="M33.1,9.8c.2-.1.3-.3.5-.5l4.6,2.4v-6.8l-4.6,1.5c-.1-.2-.3-.3-.5-.5l1.9-5.9h-6.7l1.9,5.9c-.2.1-.3.3-.5.5l-4.6-1.5v6.8l4.6-2.4c.1.2.3.3.5.5l-2.6,8c-.9,2.8,1.2,5.7,4.1,5.7h0c3,0,5.1-2.9,4.1-5.7l-2.6-8ZM37,37.9s-3.4,3.8-4.1,6.1c2.2,0,4.2-.5,6.4-2.8l-.7,8.5c-2-2.8-4.4-4.1-5.7-3.8.1,3.1.5,6.7,5.8,7.2,3.7.3,6.7-1.5,7-3.8.4-2.6-2-4.3-3.7-1.6-1.4-4.5,2.4-6.1,4.9-3.2-1.9-4.5-1.8-7.7,2.4-10.9,3,4,2.6,7.3-1.2,11.1,2.4-1.3,6.2,0,4,4.6-1.2-2.8-3.7-2.2-4.2.2-.3,1.7.7,3.7,3,4.2,1.9.3,4.7-.9,7-5.9-1.3,0-2.4.7-3.9,1.7l2.4-8c.6,2.3,1.4,3.7,2.2,4.5.6-1.6.5-2.8,0-5.3l5,1.8c-2.6,3.6-5.2,8.7-7.3,17.5-7.4-1.1-15.7-1.7-24.5-1.7h0c-8.8,0-17.1.6-24.5,1.7-2.1-8.9-4.7-13.9-7.3-17.5l5-1.8c-.5,2.5-.6,3.7,0,5.3.8-.8,1.6-2.3,2.2-4.5l2.4,8c-1.5-1-2.6-1.7-3.9-1.7,2.3,5,5.2,6.2,7,5.9,2.3-.4,3.3-2.4,3-4.2-.5-2.4-3-3.1-4.2-.2-2.2-4.6,1.6-6,4-4.6-3.7-3.7-4.2-7.1-1.2-11.1,4.2,3.2,4.3,6.4,2.4,10.9,2.5-2.8,6.3-1.3,4.9,3.2-1.8-2.7-4.1-1-3.7,1.6.3,2.3,3.3,4.1,7,3.8,5.4-.5,5.7-4.2,5.8-7.2-1.3-.2-3.7,1-5.7,3.8l-.7-8.5c2.2,2.3,4.2,2.7,6.4,2.8-.7-2.3-4.1-6.1-4.1-6.1h10.6,0Z"
+          />
+        </g>
+      </svg>
+      <div
+        class="govuk-footer__meta"
+      >
+        <div
+          class="govuk-footer__meta-item govuk-footer__meta-item--grow"
+        >
+          <h2
+            class="govuk-visually-hidden"
+          >
+            Support links
+          </h2>
+          <ul
+            class="govuk-footer__inline-list"
+          >
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/privacy-statement"
+              >
+                Privacy
+              </a>
+            </li>
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/cookie-page"
+              >
+                Cookies
+              </a>
+            </li>
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/accessibility-statement"
+              >
+                Accessibility statement
+              </a>
+            </li>
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/contact-us"
+              >
+                Contact
+              </a>
+            </li>
+          </ul>
+          <p
+            class="govuk-footer__body"
+          >
+            Built by the
+            <a
+              class="hover govuk-footer__link"
+              href="https://www.gov.uk/government/organisations/department-for-transport"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Department for Transport
+            </a>
+          </p>
+          <svg
+            aria-hidden="true"
+            class="govuk-footer__licence-logo"
+            focusable="false"
+            height="17"
+            role="presentation"
+            viewBox="0 0 483.2 195.7"
+            width="41"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M421.5 142.8V.1l-50.7 32.3v161.1h112.4v-50.7zm-122.3-9.6A47.12 47.12 0 0 1 221 97.8c0-26 21.1-47.1 47.1-47.1 16.7 0 31.4 8.7 39.7 21.8l42.7-27.2A97.63 97.63 0 0 0 268.1 0c-36.5 0-68.3 20.1-85.1 49.7A98 98 0 0 0 97.8 0C43.9 0 0 43.9 0 97.8s43.9 97.8 97.8 97.8c36.5 0 68.3-20.1 85.1-49.7a97.76 97.76 0 0 0 149.6 25.4l19.4 22.2h3v-87.8h-80l24.3 27.5zM97.8 145c-26 0-47.1-21.1-47.1-47.1s21.1-47.1 47.1-47.1 47.2 21 47.2 47S123.8 145 97.8 145"
+              fill="currentColor"
+            />
+          </svg>
+          <span
+            class="govuk-footer__licence-description"
+          >
+            All content is available under the
+            <a
+              class="govuk-footer__link"
+              href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Open Government Licence v3.0
+            </a>
+            , except where otherwise stated
+          </span>
+        </div>
+        <div
+          class="govuk-footer__meta-item"
+        >
+          <a
+            class="govuk-footer__link govuk-footer__copyright-logo"
+            href="https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/"
+            rel="noreferrer"
+            target="_blank"
+          >
+            © Crown copyright
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</DocumentFragment>
+`;
+
+exports[`App snapshots renders the /home-options page correctly 1`] = `
+<DocumentFragment>
+  <div
+    class="Home"
+  >
+    <title>
+      Home page options
+    </title>
+  </div>
+  <header
+    class="govuk-header"
+    data-module="govuk-header"
+    role="banner"
+  >
+    <div
+      class="govuk-header__container govuk-width-container"
+    >
+      <div
+        class="govuk-header__logo"
+      >
+        <a
+          class="govuk-header__link govuk-header__link--homepage"
+          href="https://www.gov.uk/"
+        >
+          <svg
+            aria-label="GOV.UK"
+            class="govuk-header__logotype"
+            fill="currentcolor"
+            focusable="false"
+            height="30"
+            role="img"
+            viewBox="0 0 324 60"
+            width="162"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <title>
+              GOV.UK
+            </title>
+            <g>
+              <circle
+                cx="20"
+                cy="17.6"
+                r="3.7"
+              />
+              <circle
+                cx="10.2"
+                cy="23.5"
+                r="3.7"
+              />
+              <circle
+                cx="3.7"
+                cy="33.2"
+                r="3.7"
+              />
+              <circle
+                cx="31.7"
+                cy="30.6"
+                r="3.7"
+              />
+              <circle
+                cx="43.3"
+                cy="17.6"
+                r="3.7"
+              />
+              <circle
+                cx="53.2"
+                cy="23.5"
+                r="3.7"
+              />
+              <circle
+                cx="59.7"
+                cy="33.2"
+                r="3.7"
+              />
+              <circle
+                cx="31.7"
+                cy="30.6"
+                r="3.7"
+              />
+              <path
+                d="M33.1,9.8c.2-.1.3-.3.5-.5l4.6,2.4v-6.8l-4.6,1.5c-.1-.2-.3-.3-.5-.5l1.9-5.9h-6.7l1.9,5.9c-.2.1-.3.3-.5.5l-4.6-1.5v6.8l4.6-2.4c.1.2.3.3.5.5l-2.6,8c-.9,2.8,1.2,5.7,4.1,5.7h0c3,0,5.1-2.9,4.1-5.7l-2.6-8ZM37,37.9s-3.4,3.8-4.1,6.1c2.2,0,4.2-.5,6.4-2.8l-.7,8.5c-2-2.8-4.4-4.1-5.7-3.8.1,3.1.5,6.7,5.8,7.2,3.7.3,6.7-1.5,7-3.8.4-2.6-2-4.3-3.7-1.6-1.4-4.5,2.4-6.1,4.9-3.2-1.9-4.5-1.8-7.7,2.4-10.9,3,4,2.6,7.3-1.2,11.1,2.4-1.3,6.2,0,4,4.6-1.2-2.8-3.7-2.2-4.2.2-.3,1.7.7,3.7,3,4.2,1.9.3,4.7-.9,7-5.9-1.3,0-2.4.7-3.9,1.7l2.4-8c.6,2.3,1.4,3.7,2.2,4.5.6-1.6.5-2.8,0-5.3l5,1.8c-2.6,3.6-5.2,8.7-7.3,17.5-7.4-1.1-15.7-1.7-24.5-1.7h0c-8.8,0-17.1.6-24.5,1.7-2.1-8.9-4.7-13.9-7.3-17.5l5-1.8c-.5,2.5-.6,3.7,0,5.3.8-.8,1.6-2.3,2.2-4.5l2.4,8c-1.5-1-2.6-1.7-3.9-1.7,2.3,5,5.2,6.2,7,5.9,2.3-.4,3.3-2.4,3-4.2-.5-2.4-3-3.1-4.2-.2-2.2-4.6,1.6-6,4-4.6-3.7-3.7-4.2-7.1-1.2-11.1,4.2,3.2,4.3,6.4,2.4,10.9,2.5-2.8,6.3-1.3,4.9,3.2-1.8-2.7-4.1-1-3.7,1.6.3,2.3,3.3,4.1,7,3.8,5.4-.5,5.7-4.2,5.8-7.2-1.3-.2-3.7,1-5.7,3.8l-.7-8.5c2.2,2.3,4.2,2.7,6.4,2.8-.7-2.3-4.1-6.1-4.1-6.1h10.6,0Z"
+              />
+            </g>
+            <circle
+              class="govuk-logo-dot"
+              cx="227"
+              cy="36"
+              r="7.3"
+            />
+            <path
+              d="M94.7,36.1c0,1.9.2,3.6.7,5.4.5,1.7,1.2,3.2,2.1,4.5.9,1.3,2.2,2.4,3.6,3.2,1.5.8,3.2,1.2,5.3,1.2s3.6-.3,4.9-.9c1.3-.6,2.3-1.4,3.1-2.3.8-.9,1.3-2,1.6-3,.3-1.1.5-2.1.5-3v-.4h-11v-6.6h19.5v24h-7.7v-5.4c-.5.8-1.2,1.6-2,2.3-.8.7-1.7,1.3-2.7,1.8-1,.5-2.1.9-3.3,1.2-1.2.3-2.5.4-3.8.4-3.2,0-6-.6-8.4-1.7-2.5-1.1-4.5-2.7-6.2-4.7-1.7-2-3-4.4-3.8-7.1-.9-2.7-1.3-5.6-1.3-8.7s.5-6,1.5-8.7,2.4-5.1,4.2-7.1c1.8-2,4-3.6,6.5-4.7s5.4-1.7,8.6-1.7,4,.2,5.9.7c1.8.5,3.5,1.1,5.1,2,1.5.9,2.9,1.9,4,3.2,1.2,1.2,2.1,2.6,2.8,4.1l-7.7,4.3c-.5-.9-1-1.8-1.6-2.6-.6-.8-1.3-1.5-2.2-2.1-.8-.6-1.7-1-2.8-1.4-1-.3-2.2-.5-3.5-.5-2,0-3.8.4-5.3,1.2s-2.7,1.9-3.6,3.2c-.9,1.3-1.7,2.8-2.1,4.6s-.7,3.5-.7,5.3v.3h0ZM152.9,13.7c3.2,0,6.1.6,8.7,1.7,2.6,1.2,4.7,2.7,6.5,4.7,1.8,2,3.1,4.4,4.1,7.1s1.4,5.6,1.4,8.7-.5,6-1.4,8.7c-.9,2.7-2.3,5.1-4.1,7.1s-4,3.6-6.5,4.7c-2.6,1.1-5.5,1.7-8.7,1.7s-6.1-.6-8.7-1.7c-2.6-1.1-4.7-2.7-6.5-4.7-1.8-2-3.1-4.4-4.1-7.1-.9-2.7-1.4-5.6-1.4-8.7s.5-6,1.4-8.7,2.3-5.1,4.1-7.1c1.8-2,4-3.6,6.5-4.7s5.4-1.7,8.7-1.7h0ZM152.9,50.4c1.9,0,3.6-.4,5-1.1,1.4-.7,2.7-1.7,3.6-3,1-1.3,1.7-2.8,2.2-4.5.5-1.7.8-3.6.8-5.7v-.2c0-2-.3-3.9-.8-5.7-.5-1.7-1.3-3.3-2.2-4.5-1-1.3-2.2-2.3-3.6-3-1.4-.7-3.1-1.1-5-1.1s-3.6.4-5,1.1c-1.5.7-2.7,1.7-3.6,3s-1.7,2.8-2.2,4.5c-.5,1.7-.8,3.6-.8,5.7v.2c0,2.1.3,4,.8,5.7.5,1.7,1.2,3.2,2.2,4.5,1,1.3,2.2,2.3,3.6,3,1.5.7,3.1,1.1,5,1.1ZM189.1,58l-12.3-44h9.8l8.4,32.9h.3l8.2-32.9h9.7l-12.3,44M262.9,50.4c1.3,0,2.5-.2,3.6-.6,1.1-.4,2-.9,2.8-1.7.8-.8,1.4-1.7,1.9-2.9.5-1.2.7-2.5.7-4.1V14h8.6v28.5c0,2.4-.4,4.6-1.3,6.6-.9,2-2.1,3.6-3.7,5-1.6,1.4-3.4,2.4-5.6,3.2-2.2.7-4.5,1.1-7.1,1.1s-4.9-.4-7.1-1.1c-2.2-.7-4-1.8-5.6-3.2s-2.8-3-3.7-5c-.9-2-1.3-4.1-1.3-6.6V14h8.7v27.2c0,1.6.2,2.9.7,4.1.5,1.2,1.1,2.1,1.9,2.9.8.8,1.7,1.3,2.8,1.7s2.3.6,3.6.6h0ZM288.5,14h8.7v19.1l15.5-19.1h10.8l-15.1,17.6,16.1,26.4h-10.2l-11.5-19.7-5.6,6.3v13.5h-8.7"
+            />
+          </svg>
+        </a>
+      </div>
+      <div
+        class="govuk-header__content"
+      >
+        <span
+          class="govuk-header__service-name"
+        >
+          <a
+            class="govuk-header__link"
+            href="/"
+          >
+            Publish devolved bus registration data
+          </a>
+        </span>
+      </div>
+    </div>
+  </header>
+  <div
+    class="govuk-width-container"
+  >
+    <div
+      class="govuk-phase-banner"
+    >
+      <p
+        class="govuk-phase-banner__content"
+      >
+        <strong
+          class="govuk-tag govuk-phase-banner__content__tag"
+        >
+          Alpha
+        </strong>
+        <span
+          class="govuk-phase-banner__text"
+        >
+          This is a new service – your 
+          <a
+            class="govuk-link"
+            href="#"
+          >
+            feedback
+          </a>
+           will help us to improve it.
+        </span>
+      </p>
+    </div>
+    <main
+      class="govuk-main-wrapper"
+    >
+      <div
+        class="govuk-grid-row"
+      >
+        <div
+          class="govuk-grid-column-full"
+        >
+          <h1
+            class="govuk-heading-xl"
+          >
+            Publish devolved bus registration data
+          </h1>
+          <a
+            class="govuk-link govuk-heading-m govuk-!-margin-bottom-7"
+            href="/find-registered-services"
+          >
+            Find registered services
+          </a>
+          <a
+            class="govuk-link govuk-heading-m govuk-!-margin-bottom-7"
+            href="/login"
+          >
+            Login to publish registrations
+          </a>
+        </div>
+      </div>
+    </main>
+  </div>
+  <footer
+    class="govuk-footer"
+    role="contentinfo"
+  >
+    <div
+      class="govuk-width-container"
+    >
+      <svg
+        class="govuk-footer__crown"
+        fill="currentcolor"
+        focusable="false"
+        height="30"
+        role="presentation"
+        viewBox="0 0 64 60"
+        width="32"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g>
+          <circle
+            cx="20"
+            cy="17.6"
+            r="3.7"
+          />
+          <circle
+            cx="10.2"
+            cy="23.5"
+            r="3.7"
+          />
+          <circle
+            cx="3.7"
+            cy="33.2"
+            r="3.7"
+          />
+          <circle
+            cx="31.7"
+            cy="30.6"
+            r="3.7"
+          />
+          <circle
+            cx="43.3"
+            cy="17.6"
+            r="3.7"
+          />
+          <circle
+            cx="53.2"
+            cy="23.5"
+            r="3.7"
+          />
+          <circle
+            cx="59.7"
+            cy="33.2"
+            r="3.7"
+          />
+          <circle
+            cx="31.7"
+            cy="30.6"
+            r="3.7"
+          />
+          <path
+            d="M33.1,9.8c.2-.1.3-.3.5-.5l4.6,2.4v-6.8l-4.6,1.5c-.1-.2-.3-.3-.5-.5l1.9-5.9h-6.7l1.9,5.9c-.2.1-.3.3-.5.5l-4.6-1.5v6.8l4.6-2.4c.1.2.3.3.5.5l-2.6,8c-.9,2.8,1.2,5.7,4.1,5.7h0c3,0,5.1-2.9,4.1-5.7l-2.6-8ZM37,37.9s-3.4,3.8-4.1,6.1c2.2,0,4.2-.5,6.4-2.8l-.7,8.5c-2-2.8-4.4-4.1-5.7-3.8.1,3.1.5,6.7,5.8,7.2,3.7.3,6.7-1.5,7-3.8.4-2.6-2-4.3-3.7-1.6-1.4-4.5,2.4-6.1,4.9-3.2-1.9-4.5-1.8-7.7,2.4-10.9,3,4,2.6,7.3-1.2,11.1,2.4-1.3,6.2,0,4,4.6-1.2-2.8-3.7-2.2-4.2.2-.3,1.7.7,3.7,3,4.2,1.9.3,4.7-.9,7-5.9-1.3,0-2.4.7-3.9,1.7l2.4-8c.6,2.3,1.4,3.7,2.2,4.5.6-1.6.5-2.8,0-5.3l5,1.8c-2.6,3.6-5.2,8.7-7.3,17.5-7.4-1.1-15.7-1.7-24.5-1.7h0c-8.8,0-17.1.6-24.5,1.7-2.1-8.9-4.7-13.9-7.3-17.5l5-1.8c-.5,2.5-.6,3.7,0,5.3.8-.8,1.6-2.3,2.2-4.5l2.4,8c-1.5-1-2.6-1.7-3.9-1.7,2.3,5,5.2,6.2,7,5.9,2.3-.4,3.3-2.4,3-4.2-.5-2.4-3-3.1-4.2-.2-2.2-4.6,1.6-6,4-4.6-3.7-3.7-4.2-7.1-1.2-11.1,4.2,3.2,4.3,6.4,2.4,10.9,2.5-2.8,6.3-1.3,4.9,3.2-1.8-2.7-4.1-1-3.7,1.6.3,2.3,3.3,4.1,7,3.8,5.4-.5,5.7-4.2,5.8-7.2-1.3-.2-3.7,1-5.7,3.8l-.7-8.5c2.2,2.3,4.2,2.7,6.4,2.8-.7-2.3-4.1-6.1-4.1-6.1h10.6,0Z"
+          />
+        </g>
+      </svg>
+      <div
+        class="govuk-footer__meta"
+      >
+        <div
+          class="govuk-footer__meta-item govuk-footer__meta-item--grow"
+        >
+          <h2
+            class="govuk-visually-hidden"
+          >
+            Support links
+          </h2>
+          <ul
+            class="govuk-footer__inline-list"
+          >
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/privacy-statement"
+              >
+                Privacy
+              </a>
+            </li>
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/cookie-page"
+              >
+                Cookies
+              </a>
+            </li>
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/accessibility-statement"
+              >
+                Accessibility statement
+              </a>
+            </li>
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/contact-us"
+              >
+                Contact
+              </a>
+            </li>
+          </ul>
+          <p
+            class="govuk-footer__body"
+          >
+            Built by the
+            <a
+              class="hover govuk-footer__link"
+              href="https://www.gov.uk/government/organisations/department-for-transport"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Department for Transport
+            </a>
+          </p>
+          <svg
+            aria-hidden="true"
+            class="govuk-footer__licence-logo"
+            focusable="false"
+            height="17"
+            role="presentation"
+            viewBox="0 0 483.2 195.7"
+            width="41"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M421.5 142.8V.1l-50.7 32.3v161.1h112.4v-50.7zm-122.3-9.6A47.12 47.12 0 0 1 221 97.8c0-26 21.1-47.1 47.1-47.1 16.7 0 31.4 8.7 39.7 21.8l42.7-27.2A97.63 97.63 0 0 0 268.1 0c-36.5 0-68.3 20.1-85.1 49.7A98 98 0 0 0 97.8 0C43.9 0 0 43.9 0 97.8s43.9 97.8 97.8 97.8c36.5 0 68.3-20.1 85.1-49.7a97.76 97.76 0 0 0 149.6 25.4l19.4 22.2h3v-87.8h-80l24.3 27.5zM97.8 145c-26 0-47.1-21.1-47.1-47.1s21.1-47.1 47.1-47.1 47.2 21 47.2 47S123.8 145 97.8 145"
+              fill="currentColor"
+            />
+          </svg>
+          <span
+            class="govuk-footer__licence-description"
+          >
+            All content is available under the
+            <a
+              class="govuk-footer__link"
+              href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Open Government Licence v3.0
+            </a>
+            , except where otherwise stated
+          </span>
+        </div>
+        <div
+          class="govuk-footer__meta-item"
+        >
+          <a
+            class="govuk-footer__link govuk-footer__copyright-logo"
+            href="https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/"
+            rel="noreferrer"
+            target="_blank"
+          >
+            © Crown copyright
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</DocumentFragment>
+`;
+
+exports[`App snapshots renders the /login page correctly 1`] = `
+<DocumentFragment>
+  <div
+    class="Home"
+  >
+    <title>
+      Sign in
+    </title>
+  </div>
+  <header
+    class="govuk-header"
+    data-module="govuk-header"
+    role="banner"
+  >
+    <div
+      class="govuk-header__container govuk-width-container"
+    >
+      <div
+        class="govuk-header__logo"
+      >
+        <a
+          class="govuk-header__link govuk-header__link--homepage"
+          href="https://www.gov.uk/"
+        >
+          <svg
+            aria-label="GOV.UK"
+            class="govuk-header__logotype"
+            fill="currentcolor"
+            focusable="false"
+            height="30"
+            role="img"
+            viewBox="0 0 324 60"
+            width="162"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <title>
+              GOV.UK
+            </title>
+            <g>
+              <circle
+                cx="20"
+                cy="17.6"
+                r="3.7"
+              />
+              <circle
+                cx="10.2"
+                cy="23.5"
+                r="3.7"
+              />
+              <circle
+                cx="3.7"
+                cy="33.2"
+                r="3.7"
+              />
+              <circle
+                cx="31.7"
+                cy="30.6"
+                r="3.7"
+              />
+              <circle
+                cx="43.3"
+                cy="17.6"
+                r="3.7"
+              />
+              <circle
+                cx="53.2"
+                cy="23.5"
+                r="3.7"
+              />
+              <circle
+                cx="59.7"
+                cy="33.2"
+                r="3.7"
+              />
+              <circle
+                cx="31.7"
+                cy="30.6"
+                r="3.7"
+              />
+              <path
+                d="M33.1,9.8c.2-.1.3-.3.5-.5l4.6,2.4v-6.8l-4.6,1.5c-.1-.2-.3-.3-.5-.5l1.9-5.9h-6.7l1.9,5.9c-.2.1-.3.3-.5.5l-4.6-1.5v6.8l4.6-2.4c.1.2.3.3.5.5l-2.6,8c-.9,2.8,1.2,5.7,4.1,5.7h0c3,0,5.1-2.9,4.1-5.7l-2.6-8ZM37,37.9s-3.4,3.8-4.1,6.1c2.2,0,4.2-.5,6.4-2.8l-.7,8.5c-2-2.8-4.4-4.1-5.7-3.8.1,3.1.5,6.7,5.8,7.2,3.7.3,6.7-1.5,7-3.8.4-2.6-2-4.3-3.7-1.6-1.4-4.5,2.4-6.1,4.9-3.2-1.9-4.5-1.8-7.7,2.4-10.9,3,4,2.6,7.3-1.2,11.1,2.4-1.3,6.2,0,4,4.6-1.2-2.8-3.7-2.2-4.2.2-.3,1.7.7,3.7,3,4.2,1.9.3,4.7-.9,7-5.9-1.3,0-2.4.7-3.9,1.7l2.4-8c.6,2.3,1.4,3.7,2.2,4.5.6-1.6.5-2.8,0-5.3l5,1.8c-2.6,3.6-5.2,8.7-7.3,17.5-7.4-1.1-15.7-1.7-24.5-1.7h0c-8.8,0-17.1.6-24.5,1.7-2.1-8.9-4.7-13.9-7.3-17.5l5-1.8c-.5,2.5-.6,3.7,0,5.3.8-.8,1.6-2.3,2.2-4.5l2.4,8c-1.5-1-2.6-1.7-3.9-1.7,2.3,5,5.2,6.2,7,5.9,2.3-.4,3.3-2.4,3-4.2-.5-2.4-3-3.1-4.2-.2-2.2-4.6,1.6-6,4-4.6-3.7-3.7-4.2-7.1-1.2-11.1,4.2,3.2,4.3,6.4,2.4,10.9,2.5-2.8,6.3-1.3,4.9,3.2-1.8-2.7-4.1-1-3.7,1.6.3,2.3,3.3,4.1,7,3.8,5.4-.5,5.7-4.2,5.8-7.2-1.3-.2-3.7,1-5.7,3.8l-.7-8.5c2.2,2.3,4.2,2.7,6.4,2.8-.7-2.3-4.1-6.1-4.1-6.1h10.6,0Z"
+              />
+            </g>
+            <circle
+              class="govuk-logo-dot"
+              cx="227"
+              cy="36"
+              r="7.3"
+            />
+            <path
+              d="M94.7,36.1c0,1.9.2,3.6.7,5.4.5,1.7,1.2,3.2,2.1,4.5.9,1.3,2.2,2.4,3.6,3.2,1.5.8,3.2,1.2,5.3,1.2s3.6-.3,4.9-.9c1.3-.6,2.3-1.4,3.1-2.3.8-.9,1.3-2,1.6-3,.3-1.1.5-2.1.5-3v-.4h-11v-6.6h19.5v24h-7.7v-5.4c-.5.8-1.2,1.6-2,2.3-.8.7-1.7,1.3-2.7,1.8-1,.5-2.1.9-3.3,1.2-1.2.3-2.5.4-3.8.4-3.2,0-6-.6-8.4-1.7-2.5-1.1-4.5-2.7-6.2-4.7-1.7-2-3-4.4-3.8-7.1-.9-2.7-1.3-5.6-1.3-8.7s.5-6,1.5-8.7,2.4-5.1,4.2-7.1c1.8-2,4-3.6,6.5-4.7s5.4-1.7,8.6-1.7,4,.2,5.9.7c1.8.5,3.5,1.1,5.1,2,1.5.9,2.9,1.9,4,3.2,1.2,1.2,2.1,2.6,2.8,4.1l-7.7,4.3c-.5-.9-1-1.8-1.6-2.6-.6-.8-1.3-1.5-2.2-2.1-.8-.6-1.7-1-2.8-1.4-1-.3-2.2-.5-3.5-.5-2,0-3.8.4-5.3,1.2s-2.7,1.9-3.6,3.2c-.9,1.3-1.7,2.8-2.1,4.6s-.7,3.5-.7,5.3v.3h0ZM152.9,13.7c3.2,0,6.1.6,8.7,1.7,2.6,1.2,4.7,2.7,6.5,4.7,1.8,2,3.1,4.4,4.1,7.1s1.4,5.6,1.4,8.7-.5,6-1.4,8.7c-.9,2.7-2.3,5.1-4.1,7.1s-4,3.6-6.5,4.7c-2.6,1.1-5.5,1.7-8.7,1.7s-6.1-.6-8.7-1.7c-2.6-1.1-4.7-2.7-6.5-4.7-1.8-2-3.1-4.4-4.1-7.1-.9-2.7-1.4-5.6-1.4-8.7s.5-6,1.4-8.7,2.3-5.1,4.1-7.1c1.8-2,4-3.6,6.5-4.7s5.4-1.7,8.7-1.7h0ZM152.9,50.4c1.9,0,3.6-.4,5-1.1,1.4-.7,2.7-1.7,3.6-3,1-1.3,1.7-2.8,2.2-4.5.5-1.7.8-3.6.8-5.7v-.2c0-2-.3-3.9-.8-5.7-.5-1.7-1.3-3.3-2.2-4.5-1-1.3-2.2-2.3-3.6-3-1.4-.7-3.1-1.1-5-1.1s-3.6.4-5,1.1c-1.5.7-2.7,1.7-3.6,3s-1.7,2.8-2.2,4.5c-.5,1.7-.8,3.6-.8,5.7v.2c0,2.1.3,4,.8,5.7.5,1.7,1.2,3.2,2.2,4.5,1,1.3,2.2,2.3,3.6,3,1.5.7,3.1,1.1,5,1.1ZM189.1,58l-12.3-44h9.8l8.4,32.9h.3l8.2-32.9h9.7l-12.3,44M262.9,50.4c1.3,0,2.5-.2,3.6-.6,1.1-.4,2-.9,2.8-1.7.8-.8,1.4-1.7,1.9-2.9.5-1.2.7-2.5.7-4.1V14h8.6v28.5c0,2.4-.4,4.6-1.3,6.6-.9,2-2.1,3.6-3.7,5-1.6,1.4-3.4,2.4-5.6,3.2-2.2.7-4.5,1.1-7.1,1.1s-4.9-.4-7.1-1.1c-2.2-.7-4-1.8-5.6-3.2s-2.8-3-3.7-5c-.9-2-1.3-4.1-1.3-6.6V14h8.7v27.2c0,1.6.2,2.9.7,4.1.5,1.2,1.1,2.1,1.9,2.9.8.8,1.7,1.3,2.8,1.7s2.3.6,3.6.6h0ZM288.5,14h8.7v19.1l15.5-19.1h10.8l-15.1,17.6,16.1,26.4h-10.2l-11.5-19.7-5.6,6.3v13.5h-8.7"
+            />
+          </svg>
+        </a>
+      </div>
+      <div
+        class="govuk-header__content"
+      >
+        <span
+          class="govuk-header__service-name"
+        >
+          <a
+            class="govuk-header__link"
+            href="/"
+          >
+            Publish devolved bus registration data
+          </a>
+        </span>
+      </div>
+    </div>
+  </header>
+  <div
+    class="govuk-width-container"
+  >
+    <div
+      class="govuk-phase-banner"
+    >
+      <p
+        class="govuk-phase-banner__content"
+      >
+        <strong
+          class="govuk-tag govuk-phase-banner__content__tag"
+        >
+          Alpha
+        </strong>
+        <span
+          class="govuk-phase-banner__text"
+        >
+          This is a new service – your 
+          <a
+            class="govuk-link"
+            href="#"
+          >
+            feedback
+          </a>
+           will help us to improve it.
+        </span>
+      </p>
+    </div>
+    <main
+      class="govuk-main-wrapper"
+    >
+      <div
+        class="govuk-grid-row"
+      >
+        <div
+          class="govuk-grid-row"
+        >
+          <div
+            class="govuk-grid-column-two-thirds"
+          >
+            <h1
+              class="govuk-heading-xl"
+            >
+              Sign in
+            </h1>
+          </div>
+        </div>
+        <div
+          class="govuk-grid-row"
+        >
+          <div
+            class="govuk-grid-column-two-thirds"
+          >
+            <div
+              class="govuk-!-width-three-quarters"
+            >
+              <p
+                class="govuk-heading-m govuk-!-font-size-27"
+              >
+                Enter your Publish devolved bus registration data account details to sign in
+              </p>
+              <form>
+                <div
+                  class="govuk-form-group govuk-!-margin-bottom-3 null"
+                >
+                  <label
+                    class="govuk-heading-s govuk-!-margin-bottom-2"
+                    for="email"
+                  >
+                    Email address
+                  </label>
+                  <input
+                    aria-describedby="email-hint"
+                    autocomplete="email"
+                    class="govuk-input"
+                    id="email"
+                    name="email"
+                    spellcheck="false"
+                    type="email"
+                    value=""
+                  />
+                </div>
+                <div
+                  class="govuk-form-group null"
+                >
+                  <label
+                    class="govuk-heading-s govuk-!-margin-bottom-2"
+                    for="password"
+                  >
+                    Password
+                  </label>
+                  <input
+                    class="govuk-input"
+                    id="password"
+                    name="password"
+                    spellcheck="false"
+                    type="password"
+                    value=""
+                  />
+                </div>
+                <div
+                  class="row"
+                >
+                  <div
+                    class="govuk-button-group govuk-!-margin-bottom-8"
+                  >
+                    <button
+                      class="govuk-button"
+                      data-module="govuk-button"
+                      type="submit"
+                    >
+                      Sign in
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div
+            class="govuk-grid-column-one-third"
+          >
+            <div
+              class="govuk-!-margin-2 govuk-!-margin-bottom-7"
+            >
+              <h3
+                class="govuk-heading-m"
+              >
+                Forgot your password?
+              </h3>
+              <a
+                class="govuk-link"
+                href="#"
+              >
+                Reset your password
+              </a>
+            </div>
+            <div
+              class="govuk-!-margin-2 govuk-!-margin-bottom-7"
+            />
+          </div>
+        </div>
+        <div>
+          <p
+            class="govuk-heading-m"
+          >
+            Help and support
+          </p>
+          <p>
+            If you are having problems, please contact the Publish devolved bus registration data service team via this link: 
+            <a
+              href="/contact-us"
+            >
+              Contact us
+            </a>
+          </p>
+        </div>
+      </div>
+    </main>
+  </div>
+  <footer
+    class="govuk-footer"
+    role="contentinfo"
+  >
+    <div
+      class="govuk-width-container"
+    >
+      <svg
+        class="govuk-footer__crown"
+        fill="currentcolor"
+        focusable="false"
+        height="30"
+        role="presentation"
+        viewBox="0 0 64 60"
+        width="32"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g>
+          <circle
+            cx="20"
+            cy="17.6"
+            r="3.7"
+          />
+          <circle
+            cx="10.2"
+            cy="23.5"
+            r="3.7"
+          />
+          <circle
+            cx="3.7"
+            cy="33.2"
+            r="3.7"
+          />
+          <circle
+            cx="31.7"
+            cy="30.6"
+            r="3.7"
+          />
+          <circle
+            cx="43.3"
+            cy="17.6"
+            r="3.7"
+          />
+          <circle
+            cx="53.2"
+            cy="23.5"
+            r="3.7"
+          />
+          <circle
+            cx="59.7"
+            cy="33.2"
+            r="3.7"
+          />
+          <circle
+            cx="31.7"
+            cy="30.6"
+            r="3.7"
+          />
+          <path
+            d="M33.1,9.8c.2-.1.3-.3.5-.5l4.6,2.4v-6.8l-4.6,1.5c-.1-.2-.3-.3-.5-.5l1.9-5.9h-6.7l1.9,5.9c-.2.1-.3.3-.5.5l-4.6-1.5v6.8l4.6-2.4c.1.2.3.3.5.5l-2.6,8c-.9,2.8,1.2,5.7,4.1,5.7h0c3,0,5.1-2.9,4.1-5.7l-2.6-8ZM37,37.9s-3.4,3.8-4.1,6.1c2.2,0,4.2-.5,6.4-2.8l-.7,8.5c-2-2.8-4.4-4.1-5.7-3.8.1,3.1.5,6.7,5.8,7.2,3.7.3,6.7-1.5,7-3.8.4-2.6-2-4.3-3.7-1.6-1.4-4.5,2.4-6.1,4.9-3.2-1.9-4.5-1.8-7.7,2.4-10.9,3,4,2.6,7.3-1.2,11.1,2.4-1.3,6.2,0,4,4.6-1.2-2.8-3.7-2.2-4.2.2-.3,1.7.7,3.7,3,4.2,1.9.3,4.7-.9,7-5.9-1.3,0-2.4.7-3.9,1.7l2.4-8c.6,2.3,1.4,3.7,2.2,4.5.6-1.6.5-2.8,0-5.3l5,1.8c-2.6,3.6-5.2,8.7-7.3,17.5-7.4-1.1-15.7-1.7-24.5-1.7h0c-8.8,0-17.1.6-24.5,1.7-2.1-8.9-4.7-13.9-7.3-17.5l5-1.8c-.5,2.5-.6,3.7,0,5.3.8-.8,1.6-2.3,2.2-4.5l2.4,8c-1.5-1-2.6-1.7-3.9-1.7,2.3,5,5.2,6.2,7,5.9,2.3-.4,3.3-2.4,3-4.2-.5-2.4-3-3.1-4.2-.2-2.2-4.6,1.6-6,4-4.6-3.7-3.7-4.2-7.1-1.2-11.1,4.2,3.2,4.3,6.4,2.4,10.9,2.5-2.8,6.3-1.3,4.9,3.2-1.8-2.7-4.1-1-3.7,1.6.3,2.3,3.3,4.1,7,3.8,5.4-.5,5.7-4.2,5.8-7.2-1.3-.2-3.7,1-5.7,3.8l-.7-8.5c2.2,2.3,4.2,2.7,6.4,2.8-.7-2.3-4.1-6.1-4.1-6.1h10.6,0Z"
+          />
+        </g>
+      </svg>
+      <div
+        class="govuk-footer__meta"
+      >
+        <div
+          class="govuk-footer__meta-item govuk-footer__meta-item--grow"
+        >
+          <h2
+            class="govuk-visually-hidden"
+          >
+            Support links
+          </h2>
+          <ul
+            class="govuk-footer__inline-list"
+          >
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/privacy-statement"
+              >
+                Privacy
+              </a>
+            </li>
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/cookie-page"
+              >
+                Cookies
+              </a>
+            </li>
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/accessibility-statement"
+              >
+                Accessibility statement
+              </a>
+            </li>
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/contact-us"
+              >
+                Contact
+              </a>
+            </li>
+          </ul>
+          <p
+            class="govuk-footer__body"
+          >
+            Built by the
+            <a
+              class="hover govuk-footer__link"
+              href="https://www.gov.uk/government/organisations/department-for-transport"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Department for Transport
+            </a>
+          </p>
+          <svg
+            aria-hidden="true"
+            class="govuk-footer__licence-logo"
+            focusable="false"
+            height="17"
+            role="presentation"
+            viewBox="0 0 483.2 195.7"
+            width="41"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M421.5 142.8V.1l-50.7 32.3v161.1h112.4v-50.7zm-122.3-9.6A47.12 47.12 0 0 1 221 97.8c0-26 21.1-47.1 47.1-47.1 16.7 0 31.4 8.7 39.7 21.8l42.7-27.2A97.63 97.63 0 0 0 268.1 0c-36.5 0-68.3 20.1-85.1 49.7A98 98 0 0 0 97.8 0C43.9 0 0 43.9 0 97.8s43.9 97.8 97.8 97.8c36.5 0 68.3-20.1 85.1-49.7a97.76 97.76 0 0 0 149.6 25.4l19.4 22.2h3v-87.8h-80l24.3 27.5zM97.8 145c-26 0-47.1-21.1-47.1-47.1s21.1-47.1 47.1-47.1 47.2 21 47.2 47S123.8 145 97.8 145"
+              fill="currentColor"
+            />
+          </svg>
+          <span
+            class="govuk-footer__licence-description"
+          >
+            All content is available under the
+            <a
+              class="govuk-footer__link"
+              href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Open Government Licence v3.0
+            </a>
+            , except where otherwise stated
+          </span>
+        </div>
+        <div
+          class="govuk-footer__meta-item"
+        >
+          <a
+            class="govuk-footer__link govuk-footer__copyright-logo"
+            href="https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/"
+            rel="noreferrer"
+            target="_blank"
+          >
+            © Crown copyright
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</DocumentFragment>
+`;
+
+exports[`App snapshots renders the /privacy-statement page correctly 1`] = `
+<DocumentFragment>
+  <div
+    class="Home"
+  >
+    <title>
+      Privacy Statement
+    </title>
+  </div>
+  <header
+    class="govuk-header"
+    data-module="govuk-header"
+    role="banner"
+  >
+    <div
+      class="govuk-header__container govuk-width-container"
+    >
+      <div
+        class="govuk-header__logo"
+      >
+        <a
+          class="govuk-header__link govuk-header__link--homepage"
+          href="https://www.gov.uk/"
+        >
+          <svg
+            aria-label="GOV.UK"
+            class="govuk-header__logotype"
+            fill="currentcolor"
+            focusable="false"
+            height="30"
+            role="img"
+            viewBox="0 0 324 60"
+            width="162"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <title>
+              GOV.UK
+            </title>
+            <g>
+              <circle
+                cx="20"
+                cy="17.6"
+                r="3.7"
+              />
+              <circle
+                cx="10.2"
+                cy="23.5"
+                r="3.7"
+              />
+              <circle
+                cx="3.7"
+                cy="33.2"
+                r="3.7"
+              />
+              <circle
+                cx="31.7"
+                cy="30.6"
+                r="3.7"
+              />
+              <circle
+                cx="43.3"
+                cy="17.6"
+                r="3.7"
+              />
+              <circle
+                cx="53.2"
+                cy="23.5"
+                r="3.7"
+              />
+              <circle
+                cx="59.7"
+                cy="33.2"
+                r="3.7"
+              />
+              <circle
+                cx="31.7"
+                cy="30.6"
+                r="3.7"
+              />
+              <path
+                d="M33.1,9.8c.2-.1.3-.3.5-.5l4.6,2.4v-6.8l-4.6,1.5c-.1-.2-.3-.3-.5-.5l1.9-5.9h-6.7l1.9,5.9c-.2.1-.3.3-.5.5l-4.6-1.5v6.8l4.6-2.4c.1.2.3.3.5.5l-2.6,8c-.9,2.8,1.2,5.7,4.1,5.7h0c3,0,5.1-2.9,4.1-5.7l-2.6-8ZM37,37.9s-3.4,3.8-4.1,6.1c2.2,0,4.2-.5,6.4-2.8l-.7,8.5c-2-2.8-4.4-4.1-5.7-3.8.1,3.1.5,6.7,5.8,7.2,3.7.3,6.7-1.5,7-3.8.4-2.6-2-4.3-3.7-1.6-1.4-4.5,2.4-6.1,4.9-3.2-1.9-4.5-1.8-7.7,2.4-10.9,3,4,2.6,7.3-1.2,11.1,2.4-1.3,6.2,0,4,4.6-1.2-2.8-3.7-2.2-4.2.2-.3,1.7.7,3.7,3,4.2,1.9.3,4.7-.9,7-5.9-1.3,0-2.4.7-3.9,1.7l2.4-8c.6,2.3,1.4,3.7,2.2,4.5.6-1.6.5-2.8,0-5.3l5,1.8c-2.6,3.6-5.2,8.7-7.3,17.5-7.4-1.1-15.7-1.7-24.5-1.7h0c-8.8,0-17.1.6-24.5,1.7-2.1-8.9-4.7-13.9-7.3-17.5l5-1.8c-.5,2.5-.6,3.7,0,5.3.8-.8,1.6-2.3,2.2-4.5l2.4,8c-1.5-1-2.6-1.7-3.9-1.7,2.3,5,5.2,6.2,7,5.9,2.3-.4,3.3-2.4,3-4.2-.5-2.4-3-3.1-4.2-.2-2.2-4.6,1.6-6,4-4.6-3.7-3.7-4.2-7.1-1.2-11.1,4.2,3.2,4.3,6.4,2.4,10.9,2.5-2.8,6.3-1.3,4.9,3.2-1.8-2.7-4.1-1-3.7,1.6.3,2.3,3.3,4.1,7,3.8,5.4-.5,5.7-4.2,5.8-7.2-1.3-.2-3.7,1-5.7,3.8l-.7-8.5c2.2,2.3,4.2,2.7,6.4,2.8-.7-2.3-4.1-6.1-4.1-6.1h10.6,0Z"
+              />
+            </g>
+            <circle
+              class="govuk-logo-dot"
+              cx="227"
+              cy="36"
+              r="7.3"
+            />
+            <path
+              d="M94.7,36.1c0,1.9.2,3.6.7,5.4.5,1.7,1.2,3.2,2.1,4.5.9,1.3,2.2,2.4,3.6,3.2,1.5.8,3.2,1.2,5.3,1.2s3.6-.3,4.9-.9c1.3-.6,2.3-1.4,3.1-2.3.8-.9,1.3-2,1.6-3,.3-1.1.5-2.1.5-3v-.4h-11v-6.6h19.5v24h-7.7v-5.4c-.5.8-1.2,1.6-2,2.3-.8.7-1.7,1.3-2.7,1.8-1,.5-2.1.9-3.3,1.2-1.2.3-2.5.4-3.8.4-3.2,0-6-.6-8.4-1.7-2.5-1.1-4.5-2.7-6.2-4.7-1.7-2-3-4.4-3.8-7.1-.9-2.7-1.3-5.6-1.3-8.7s.5-6,1.5-8.7,2.4-5.1,4.2-7.1c1.8-2,4-3.6,6.5-4.7s5.4-1.7,8.6-1.7,4,.2,5.9.7c1.8.5,3.5,1.1,5.1,2,1.5.9,2.9,1.9,4,3.2,1.2,1.2,2.1,2.6,2.8,4.1l-7.7,4.3c-.5-.9-1-1.8-1.6-2.6-.6-.8-1.3-1.5-2.2-2.1-.8-.6-1.7-1-2.8-1.4-1-.3-2.2-.5-3.5-.5-2,0-3.8.4-5.3,1.2s-2.7,1.9-3.6,3.2c-.9,1.3-1.7,2.8-2.1,4.6s-.7,3.5-.7,5.3v.3h0ZM152.9,13.7c3.2,0,6.1.6,8.7,1.7,2.6,1.2,4.7,2.7,6.5,4.7,1.8,2,3.1,4.4,4.1,7.1s1.4,5.6,1.4,8.7-.5,6-1.4,8.7c-.9,2.7-2.3,5.1-4.1,7.1s-4,3.6-6.5,4.7c-2.6,1.1-5.5,1.7-8.7,1.7s-6.1-.6-8.7-1.7c-2.6-1.1-4.7-2.7-6.5-4.7-1.8-2-3.1-4.4-4.1-7.1-.9-2.7-1.4-5.6-1.4-8.7s.5-6,1.4-8.7,2.3-5.1,4.1-7.1c1.8-2,4-3.6,6.5-4.7s5.4-1.7,8.7-1.7h0ZM152.9,50.4c1.9,0,3.6-.4,5-1.1,1.4-.7,2.7-1.7,3.6-3,1-1.3,1.7-2.8,2.2-4.5.5-1.7.8-3.6.8-5.7v-.2c0-2-.3-3.9-.8-5.7-.5-1.7-1.3-3.3-2.2-4.5-1-1.3-2.2-2.3-3.6-3-1.4-.7-3.1-1.1-5-1.1s-3.6.4-5,1.1c-1.5.7-2.7,1.7-3.6,3s-1.7,2.8-2.2,4.5c-.5,1.7-.8,3.6-.8,5.7v.2c0,2.1.3,4,.8,5.7.5,1.7,1.2,3.2,2.2,4.5,1,1.3,2.2,2.3,3.6,3,1.5.7,3.1,1.1,5,1.1ZM189.1,58l-12.3-44h9.8l8.4,32.9h.3l8.2-32.9h9.7l-12.3,44M262.9,50.4c1.3,0,2.5-.2,3.6-.6,1.1-.4,2-.9,2.8-1.7.8-.8,1.4-1.7,1.9-2.9.5-1.2.7-2.5.7-4.1V14h8.6v28.5c0,2.4-.4,4.6-1.3,6.6-.9,2-2.1,3.6-3.7,5-1.6,1.4-3.4,2.4-5.6,3.2-2.2.7-4.5,1.1-7.1,1.1s-4.9-.4-7.1-1.1c-2.2-.7-4-1.8-5.6-3.2s-2.8-3-3.7-5c-.9-2-1.3-4.1-1.3-6.6V14h8.7v27.2c0,1.6.2,2.9.7,4.1.5,1.2,1.1,2.1,1.9,2.9.8.8,1.7,1.3,2.8,1.7s2.3.6,3.6.6h0ZM288.5,14h8.7v19.1l15.5-19.1h10.8l-15.1,17.6,16.1,26.4h-10.2l-11.5-19.7-5.6,6.3v13.5h-8.7"
+            />
+          </svg>
+        </a>
+      </div>
+      <div
+        class="govuk-header__content"
+      >
+        <span
+          class="govuk-header__service-name"
+        >
+          <a
+            class="govuk-header__link"
+            href="/"
+          >
+            Publish devolved bus registration data
+          </a>
+        </span>
+      </div>
+    </div>
+  </header>
+  <div
+    class="govuk-width-container"
+  >
+    <div
+      class="govuk-phase-banner"
+    >
+      <p
+        class="govuk-phase-banner__content"
+      >
+        <strong
+          class="govuk-tag govuk-phase-banner__content__tag"
+        >
+          Alpha
+        </strong>
+        <span
+          class="govuk-phase-banner__text"
+        >
+          This is a new service – your 
+          <a
+            class="govuk-link"
+            href="#"
+          >
+            feedback
+          </a>
+           will help us to improve it.
+        </span>
+      </p>
+    </div>
+    <main
+      class="govuk-main-wrapper"
+    >
+      <div
+        class="govuk-grid-row"
+      >
+        <div
+          class="govuk-grid-column-two-thirds"
+        >
+          <h1
+            class="govuk-heading-xl"
+          >
+            Privacy Statement
+          </h1>
+          <h2>
+            Last updated: 8th March 2024
+          </h2>
+          <div
+            class="govuk-!-font-size-19"
+          >
+            <p
+              class="govuk-heading-m"
+            >
+              Who we are
+            </p>
+            <p>
+              The Publish devolved bus registration data is a service for Local Authorities acting as Enhanced Partners, to publish data about local bus service registrations for integration with the Bus Open Data Service (BODS). The service is provided by the Department for Transport.
+            </p>
+            <p
+              class="govuk-heading-m"
+            >
+              What data we collect from you
+            </p>
+            <p>
+              Our main purpose is ensuring data regarding devolved bus service registrations is available to inform the validity and accuracy of data hosted within the BODS system about local bus services across England is in the public domain and utilised responsibly. This data is provided by registered users from Local Authorities.
+            </p>
+            <p
+              class="govuk-heading-m"
+            >
+              The personal data we collect from you includes:
+            </p>
+            <ul
+              class="govuk-list govuk-list--bullet"
+            >
+              <li>
+                Your questions, queries or feedback and email address if you contact Bus Open Data Service, supporting mailboxes or team members
+              </li>
+              <li>
+                For authorised contributors, your sign- up information when registering with the service
+              </li>
+              <li>
+                How you use our emails - for example whether you open them, and which links you click on
+              </li>
+              <li>
+                Your Internet Protocol (IP) address, and web browser version
+              </li>
+              <li>
+                Information on how you use the site, using cookies and page tagging
+              </li>
+            </ul>
+            <p
+              class="govuk-heading-m"
+            >
+              Why we need your data
+            </p>
+            <p
+              class=""
+            >
+              We want to build an accurate database for local bus services across England. So, we require the ability to monitor how the data is being provided and used over time.
+            </p>
+            <p
+              class="govuk-heading-m"
+            >
+              We also collect data in order to:
+            </p>
+            <ul
+              class="govuk-list govuk-list--bullet"
+            >
+              <li>
+                Reply to any feedback you send us, if you've asked us to allow you to access government services and make transactions
+              </li>
+              <li>
+                Provide you with information about local services
+              </li>
+              <li>
+                Monitor use of the site to identify security threats 
+              </li>
+              <li>
+                Communicate service messages aimed at keeping users informed of the service provided, which includes service updates and support that is provided as part of the overall service
+              </li>
+              <li>
+                Spot check the level of service usage for both authorised contributors and consumers
+              </li>
+            </ul>
+            <p
+              class="govuk-heading-m"
+            >
+              What we do with your data
+            </p>
+            <p>
+              We use your data to occasionally check your activity when using the service. We will not:
+            </p>
+            <ul>
+              <li>
+                Sell or rent your data to third parties
+              </li>
+              <li>
+                Share your data with third parties for marketing purposes
+              </li>
+            </ul>
+            <p>
+              We will share your data if we are required to do so by law - for example, by court order, or to prevent fraud or other crime.
+            </p>
+            <p>
+              We use your data to calculate performance metrics to support continuous improvement of the service. When you sign up, you can also opt in to be contacted to participate in user research. If you change your mind later about this, please let us know by emailing  
+              <a
+                href="mailto:BusOpenData@dft.gov.uk"
+              >
+                BusOpenData@dft.gov.uk
+              </a>
+              .
+            </p>
+            <p
+              class="govuk-heading-m"
+            >
+              How long we keep your data for
+            </p>
+            <p>
+              We will retain your data for as long as you have an account. However, if you use an institutional email account and depending on what you choose for your account name, this may not include any personally identifiable information.
+            </p>
+            <p
+              class="govuk-heading-m"
+            >
+              Where your data is processed and stored
+            </p>
+            <p>
+              We design, build and run our systems to make sure that your data is as safe as possible at any stage, both while it's processed and when it's stored. Your personal data will not be transferred outside of the European Economic Area (EEA).
+            </p>
+            <p
+              class="govuk-heading-m"
+            >
+              How we protect your data and keep it secure
+            </p>
+            <p>
+              We are committed to doing all that we can to keep your data secure. To prevent unauthorised access or disclosure we have put in place technical and organisational procedures to secure the data we collect about you - for example, we protect your data using varying levels of encryption. We also make sure that any third parties that we deal with have an obligation to keep all personal data they process on our behalf secure.
+            </p>
+            <p
+              class="govuk-heading-m"
+            >
+              Children's privacy protection
+            </p>
+            <p>
+              We understand the importance of protecting children's privacy online. Our services are not designed for, or intentionally targeted at, children 13 years of age or younger. It is not our policy to intentionally collect or maintain data about anyone under the age of 13.
+            </p>
+            <p
+              class="govuk-heading-m"
+            >
+              What are your rights
+            </p>
+            <p>
+              You have the right to request:
+            </p>
+            <ul>
+              <li>
+                Information about how your personal data is processed
+              </li>
+              <li>
+                A copy of that personal data - this copy will be provided in a structured, commonly used and machine-readable format
+              </li>
+              <li>
+                That anything inaccurate in your personal data is corrected immediately
+              </li>
+            </ul>
+            <p>
+              You can also:
+            </p>
+            <ul>
+              <li>
+                Raise an objection about how your personal data is processed
+              </li>
+              <li>
+                Request that your personal data is erased if there is no longer a justification for it
+              </li>
+              <li>
+                Ask that the processing of your personal data is restricted in certain circumstances
+              </li>
+            </ul>
+            <p>
+              If you have any of these requests, get in contact with our Data Protection Officer - you can find their contact details below.
+            </p>
+            <p
+              class="govuk-heading-m"
+            >
+              Changes to this notice
+            </p>
+            <p>
+              We may modify or amend this privacy notice at our discretion at any time. When we make changes to this notice, we will amend the last modified date at the top of this page. Any modification or amendment to this privacy notice will be applied to you and your data as of that revision date. We encourage you to periodically review this privacy notice to be informed about how we are protecting your data.
+            </p>
+            <p
+              class="govuk-heading-m"
+            >
+              Contact us or make a complaint
+            </p>
+            <p>
+              Contact the DfT Data Protection Officer if you either:
+            </p>
+            <ul>
+              <li>
+                Have any questions about anything in this document
+              </li>
+              <li>
+                Think your personal data has been misused or mishandled
+              </li>
+            </ul>
+            <p>
+              Data Protection Officer 
+              <br />
+              Department for Transport 
+              <br />
+              3rd Floor 
+              <br />
+              One Priory Square 
+              <br />
+              Hastings 
+              <br />
+              East Sussex 
+              <br />
+              TN34 1EA 
+              <br />
+            </p>
+            <p>
+              Email: 
+              <a
+                href="mailto:DataProtectionOfficer@dft.gov.uk"
+              >
+                DataProtectionOfficer@dft.gov.uk
+              </a>
+            </p>
+            <p>
+              Our Personal Information Charter, can be found
+              <br />
+               here: 
+              <a
+                href="https://www.gov.uk/government/organisations/department-for-transport/about/personal-information-charter"
+              >
+                Personal information charter
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <footer
+    class="govuk-footer"
+    role="contentinfo"
+  >
+    <div
+      class="govuk-width-container"
+    >
+      <svg
+        class="govuk-footer__crown"
+        fill="currentcolor"
+        focusable="false"
+        height="30"
+        role="presentation"
+        viewBox="0 0 64 60"
+        width="32"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g>
+          <circle
+            cx="20"
+            cy="17.6"
+            r="3.7"
+          />
+          <circle
+            cx="10.2"
+            cy="23.5"
+            r="3.7"
+          />
+          <circle
+            cx="3.7"
+            cy="33.2"
+            r="3.7"
+          />
+          <circle
+            cx="31.7"
+            cy="30.6"
+            r="3.7"
+          />
+          <circle
+            cx="43.3"
+            cy="17.6"
+            r="3.7"
+          />
+          <circle
+            cx="53.2"
+            cy="23.5"
+            r="3.7"
+          />
+          <circle
+            cx="59.7"
+            cy="33.2"
+            r="3.7"
+          />
+          <circle
+            cx="31.7"
+            cy="30.6"
+            r="3.7"
+          />
+          <path
+            d="M33.1,9.8c.2-.1.3-.3.5-.5l4.6,2.4v-6.8l-4.6,1.5c-.1-.2-.3-.3-.5-.5l1.9-5.9h-6.7l1.9,5.9c-.2.1-.3.3-.5.5l-4.6-1.5v6.8l4.6-2.4c.1.2.3.3.5.5l-2.6,8c-.9,2.8,1.2,5.7,4.1,5.7h0c3,0,5.1-2.9,4.1-5.7l-2.6-8ZM37,37.9s-3.4,3.8-4.1,6.1c2.2,0,4.2-.5,6.4-2.8l-.7,8.5c-2-2.8-4.4-4.1-5.7-3.8.1,3.1.5,6.7,5.8,7.2,3.7.3,6.7-1.5,7-3.8.4-2.6-2-4.3-3.7-1.6-1.4-4.5,2.4-6.1,4.9-3.2-1.9-4.5-1.8-7.7,2.4-10.9,3,4,2.6,7.3-1.2,11.1,2.4-1.3,6.2,0,4,4.6-1.2-2.8-3.7-2.2-4.2.2-.3,1.7.7,3.7,3,4.2,1.9.3,4.7-.9,7-5.9-1.3,0-2.4.7-3.9,1.7l2.4-8c.6,2.3,1.4,3.7,2.2,4.5.6-1.6.5-2.8,0-5.3l5,1.8c-2.6,3.6-5.2,8.7-7.3,17.5-7.4-1.1-15.7-1.7-24.5-1.7h0c-8.8,0-17.1.6-24.5,1.7-2.1-8.9-4.7-13.9-7.3-17.5l5-1.8c-.5,2.5-.6,3.7,0,5.3.8-.8,1.6-2.3,2.2-4.5l2.4,8c-1.5-1-2.6-1.7-3.9-1.7,2.3,5,5.2,6.2,7,5.9,2.3-.4,3.3-2.4,3-4.2-.5-2.4-3-3.1-4.2-.2-2.2-4.6,1.6-6,4-4.6-3.7-3.7-4.2-7.1-1.2-11.1,4.2,3.2,4.3,6.4,2.4,10.9,2.5-2.8,6.3-1.3,4.9,3.2-1.8-2.7-4.1-1-3.7,1.6.3,2.3,3.3,4.1,7,3.8,5.4-.5,5.7-4.2,5.8-7.2-1.3-.2-3.7,1-5.7,3.8l-.7-8.5c2.2,2.3,4.2,2.7,6.4,2.8-.7-2.3-4.1-6.1-4.1-6.1h10.6,0Z"
+          />
+        </g>
+      </svg>
+      <div
+        class="govuk-footer__meta"
+      >
+        <div
+          class="govuk-footer__meta-item govuk-footer__meta-item--grow"
+        >
+          <h2
+            class="govuk-visually-hidden"
+          >
+            Support links
+          </h2>
+          <ul
+            class="govuk-footer__inline-list"
+          >
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/privacy-statement"
+              >
+                Privacy
+              </a>
+            </li>
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/cookie-page"
+              >
+                Cookies
+              </a>
+            </li>
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/accessibility-statement"
+              >
+                Accessibility statement
+              </a>
+            </li>
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/contact-us"
+              >
+                Contact
+              </a>
+            </li>
+          </ul>
+          <p
+            class="govuk-footer__body"
+          >
+            Built by the
+            <a
+              class="hover govuk-footer__link"
+              href="https://www.gov.uk/government/organisations/department-for-transport"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Department for Transport
+            </a>
+          </p>
+          <svg
+            aria-hidden="true"
+            class="govuk-footer__licence-logo"
+            focusable="false"
+            height="17"
+            role="presentation"
+            viewBox="0 0 483.2 195.7"
+            width="41"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M421.5 142.8V.1l-50.7 32.3v161.1h112.4v-50.7zm-122.3-9.6A47.12 47.12 0 0 1 221 97.8c0-26 21.1-47.1 47.1-47.1 16.7 0 31.4 8.7 39.7 21.8l42.7-27.2A97.63 97.63 0 0 0 268.1 0c-36.5 0-68.3 20.1-85.1 49.7A98 98 0 0 0 97.8 0C43.9 0 0 43.9 0 97.8s43.9 97.8 97.8 97.8c36.5 0 68.3-20.1 85.1-49.7a97.76 97.76 0 0 0 149.6 25.4l19.4 22.2h3v-87.8h-80l24.3 27.5zM97.8 145c-26 0-47.1-21.1-47.1-47.1s21.1-47.1 47.1-47.1 47.2 21 47.2 47S123.8 145 97.8 145"
+              fill="currentColor"
+            />
+          </svg>
+          <span
+            class="govuk-footer__licence-description"
+          >
+            All content is available under the
+            <a
+              class="govuk-footer__link"
+              href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Open Government Licence v3.0
+            </a>
+            , except where otherwise stated
+          </span>
+        </div>
+        <div
+          class="govuk-footer__meta-item"
+        >
+          <a
+            class="govuk-footer__link govuk-footer__copyright-logo"
+            href="https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/"
+            rel="noreferrer"
+            target="_blank"
+          >
+            © Crown copyright
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</DocumentFragment>
+`;
+
+exports[`App snapshots renders the home page (/) correctly 1`] = `
+<DocumentFragment>
+  <div
+    class="Home"
+  >
+    <title>
+      Publish devolved bus registration data
+    </title>
+  </div>
+  <header
+    class="govuk-header"
+    data-module="govuk-header"
+    role="banner"
+  >
+    <div
+      class="govuk-header__container govuk-width-container"
+    >
+      <div
+        class="govuk-header__logo"
+      >
+        <a
+          class="govuk-header__link govuk-header__link--homepage"
+          href="https://www.gov.uk/"
+        >
+          <svg
+            aria-label="GOV.UK"
+            class="govuk-header__logotype"
+            fill="currentcolor"
+            focusable="false"
+            height="30"
+            role="img"
+            viewBox="0 0 324 60"
+            width="162"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <title>
+              GOV.UK
+            </title>
+            <g>
+              <circle
+                cx="20"
+                cy="17.6"
+                r="3.7"
+              />
+              <circle
+                cx="10.2"
+                cy="23.5"
+                r="3.7"
+              />
+              <circle
+                cx="3.7"
+                cy="33.2"
+                r="3.7"
+              />
+              <circle
+                cx="31.7"
+                cy="30.6"
+                r="3.7"
+              />
+              <circle
+                cx="43.3"
+                cy="17.6"
+                r="3.7"
+              />
+              <circle
+                cx="53.2"
+                cy="23.5"
+                r="3.7"
+              />
+              <circle
+                cx="59.7"
+                cy="33.2"
+                r="3.7"
+              />
+              <circle
+                cx="31.7"
+                cy="30.6"
+                r="3.7"
+              />
+              <path
+                d="M33.1,9.8c.2-.1.3-.3.5-.5l4.6,2.4v-6.8l-4.6,1.5c-.1-.2-.3-.3-.5-.5l1.9-5.9h-6.7l1.9,5.9c-.2.1-.3.3-.5.5l-4.6-1.5v6.8l4.6-2.4c.1.2.3.3.5.5l-2.6,8c-.9,2.8,1.2,5.7,4.1,5.7h0c3,0,5.1-2.9,4.1-5.7l-2.6-8ZM37,37.9s-3.4,3.8-4.1,6.1c2.2,0,4.2-.5,6.4-2.8l-.7,8.5c-2-2.8-4.4-4.1-5.7-3.8.1,3.1.5,6.7,5.8,7.2,3.7.3,6.7-1.5,7-3.8.4-2.6-2-4.3-3.7-1.6-1.4-4.5,2.4-6.1,4.9-3.2-1.9-4.5-1.8-7.7,2.4-10.9,3,4,2.6,7.3-1.2,11.1,2.4-1.3,6.2,0,4,4.6-1.2-2.8-3.7-2.2-4.2.2-.3,1.7.7,3.7,3,4.2,1.9.3,4.7-.9,7-5.9-1.3,0-2.4.7-3.9,1.7l2.4-8c.6,2.3,1.4,3.7,2.2,4.5.6-1.6.5-2.8,0-5.3l5,1.8c-2.6,3.6-5.2,8.7-7.3,17.5-7.4-1.1-15.7-1.7-24.5-1.7h0c-8.8,0-17.1.6-24.5,1.7-2.1-8.9-4.7-13.9-7.3-17.5l5-1.8c-.5,2.5-.6,3.7,0,5.3.8-.8,1.6-2.3,2.2-4.5l2.4,8c-1.5-1-2.6-1.7-3.9-1.7,2.3,5,5.2,6.2,7,5.9,2.3-.4,3.3-2.4,3-4.2-.5-2.4-3-3.1-4.2-.2-2.2-4.6,1.6-6,4-4.6-3.7-3.7-4.2-7.1-1.2-11.1,4.2,3.2,4.3,6.4,2.4,10.9,2.5-2.8,6.3-1.3,4.9,3.2-1.8-2.7-4.1-1-3.7,1.6.3,2.3,3.3,4.1,7,3.8,5.4-.5,5.7-4.2,5.8-7.2-1.3-.2-3.7,1-5.7,3.8l-.7-8.5c2.2,2.3,4.2,2.7,6.4,2.8-.7-2.3-4.1-6.1-4.1-6.1h10.6,0Z"
+              />
+            </g>
+            <circle
+              class="govuk-logo-dot"
+              cx="227"
+              cy="36"
+              r="7.3"
+            />
+            <path
+              d="M94.7,36.1c0,1.9.2,3.6.7,5.4.5,1.7,1.2,3.2,2.1,4.5.9,1.3,2.2,2.4,3.6,3.2,1.5.8,3.2,1.2,5.3,1.2s3.6-.3,4.9-.9c1.3-.6,2.3-1.4,3.1-2.3.8-.9,1.3-2,1.6-3,.3-1.1.5-2.1.5-3v-.4h-11v-6.6h19.5v24h-7.7v-5.4c-.5.8-1.2,1.6-2,2.3-.8.7-1.7,1.3-2.7,1.8-1,.5-2.1.9-3.3,1.2-1.2.3-2.5.4-3.8.4-3.2,0-6-.6-8.4-1.7-2.5-1.1-4.5-2.7-6.2-4.7-1.7-2-3-4.4-3.8-7.1-.9-2.7-1.3-5.6-1.3-8.7s.5-6,1.5-8.7,2.4-5.1,4.2-7.1c1.8-2,4-3.6,6.5-4.7s5.4-1.7,8.6-1.7,4,.2,5.9.7c1.8.5,3.5,1.1,5.1,2,1.5.9,2.9,1.9,4,3.2,1.2,1.2,2.1,2.6,2.8,4.1l-7.7,4.3c-.5-.9-1-1.8-1.6-2.6-.6-.8-1.3-1.5-2.2-2.1-.8-.6-1.7-1-2.8-1.4-1-.3-2.2-.5-3.5-.5-2,0-3.8.4-5.3,1.2s-2.7,1.9-3.6,3.2c-.9,1.3-1.7,2.8-2.1,4.6s-.7,3.5-.7,5.3v.3h0ZM152.9,13.7c3.2,0,6.1.6,8.7,1.7,2.6,1.2,4.7,2.7,6.5,4.7,1.8,2,3.1,4.4,4.1,7.1s1.4,5.6,1.4,8.7-.5,6-1.4,8.7c-.9,2.7-2.3,5.1-4.1,7.1s-4,3.6-6.5,4.7c-2.6,1.1-5.5,1.7-8.7,1.7s-6.1-.6-8.7-1.7c-2.6-1.1-4.7-2.7-6.5-4.7-1.8-2-3.1-4.4-4.1-7.1-.9-2.7-1.4-5.6-1.4-8.7s.5-6,1.4-8.7,2.3-5.1,4.1-7.1c1.8-2,4-3.6,6.5-4.7s5.4-1.7,8.7-1.7h0ZM152.9,50.4c1.9,0,3.6-.4,5-1.1,1.4-.7,2.7-1.7,3.6-3,1-1.3,1.7-2.8,2.2-4.5.5-1.7.8-3.6.8-5.7v-.2c0-2-.3-3.9-.8-5.7-.5-1.7-1.3-3.3-2.2-4.5-1-1.3-2.2-2.3-3.6-3-1.4-.7-3.1-1.1-5-1.1s-3.6.4-5,1.1c-1.5.7-2.7,1.7-3.6,3s-1.7,2.8-2.2,4.5c-.5,1.7-.8,3.6-.8,5.7v.2c0,2.1.3,4,.8,5.7.5,1.7,1.2,3.2,2.2,4.5,1,1.3,2.2,2.3,3.6,3,1.5.7,3.1,1.1,5,1.1ZM189.1,58l-12.3-44h9.8l8.4,32.9h.3l8.2-32.9h9.7l-12.3,44M262.9,50.4c1.3,0,2.5-.2,3.6-.6,1.1-.4,2-.9,2.8-1.7.8-.8,1.4-1.7,1.9-2.9.5-1.2.7-2.5.7-4.1V14h8.6v28.5c0,2.4-.4,4.6-1.3,6.6-.9,2-2.1,3.6-3.7,5-1.6,1.4-3.4,2.4-5.6,3.2-2.2.7-4.5,1.1-7.1,1.1s-4.9-.4-7.1-1.1c-2.2-.7-4-1.8-5.6-3.2s-2.8-3-3.7-5c-.9-2-1.3-4.1-1.3-6.6V14h8.7v27.2c0,1.6.2,2.9.7,4.1.5,1.2,1.1,2.1,1.9,2.9.8.8,1.7,1.3,2.8,1.7s2.3.6,3.6.6h0ZM288.5,14h8.7v19.1l15.5-19.1h10.8l-15.1,17.6,16.1,26.4h-10.2l-11.5-19.7-5.6,6.3v13.5h-8.7"
+            />
+          </svg>
+        </a>
+      </div>
+      <div
+        class="govuk-header__content"
+      >
+        <span
+          class="govuk-header__service-name"
+        >
+          <a
+            class="govuk-header__link"
+            href="/"
+          >
+            Publish devolved bus registration data
+          </a>
+        </span>
+      </div>
+    </div>
+  </header>
+  <div
+    class="govuk-width-container"
+  >
+    <div
+      class="govuk-phase-banner"
+    >
+      <p
+        class="govuk-phase-banner__content"
+      >
+        <strong
+          class="govuk-tag govuk-phase-banner__content__tag"
+        >
+          Alpha
+        </strong>
+        <span
+          class="govuk-phase-banner__text"
+        >
+          This is a new service – your 
+          <a
+            class="govuk-link"
+            href="#"
+          >
+            feedback
+          </a>
+           will help us to improve it.
+        </span>
+      </p>
+    </div>
+    <main
+      class="govuk-main-wrapper"
+    >
+      <div
+        class="govuk-grid-row"
+      >
+        <div
+          class="govuk-grid-column-full"
+        >
+          <h1
+            class="govuk-heading-xl"
+          >
+            Publish devolved bus registration data
+          </h1>
+          <p
+            class="govuk-body"
+          >
+            This service is for publishing devolved bus registrations data for public transport 
+            <br />
+             services, excluding rail, in England.
+          </p>
+          <div>
+            <p>
+              The service can be used by:
+            </p>
+            <ul
+              class="govuk-list govuk-list--bullet govuk-!-margin-left-2"
+            >
+              <li>
+                Enhanced partnerships in England
+              </li>
+              <li>
+                Franchises in England
+              </li>
+            </ul>
+          </div>
+          <div>
+            <p>
+              Use this service to:
+            </p>
+            <ul
+              class="govuk-list govuk-list--bullet govuk-!-margin-left-2"
+            >
+              <li>
+                Publish devolved bus registration data
+              </li>
+            </ul>
+          </div>
+          <div>
+            <a
+              class="govuk-button govuk-button--start"
+              data-module="govuk-button"
+              href="/home-options"
+            >
+              Start now
+              <svg
+                aria-hidden="true"
+                class="govuk-button__start-icon"
+                focusable="false"
+                height="19"
+                viewBox="0 0 33 40"
+                width="17.5"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M0 0h13l20 20-20 20H0l20-20z"
+                  fill="currentColor"
+                />
+              </svg>
+            </a>
+          </div>
+          <div>
+            <p
+              class="govuk-heading-m"
+            >
+              Help and support
+            </p>
+            <p>
+              If you are having problems, please contact the Publish devolved bus registration data service team via this link: 
+              <a
+                href="/contact-us"
+              >
+                Contact us
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <footer
+    class="govuk-footer"
+    role="contentinfo"
+  >
+    <div
+      class="govuk-width-container"
+    >
+      <svg
+        class="govuk-footer__crown"
+        fill="currentcolor"
+        focusable="false"
+        height="30"
+        role="presentation"
+        viewBox="0 0 64 60"
+        width="32"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <g>
+          <circle
+            cx="20"
+            cy="17.6"
+            r="3.7"
+          />
+          <circle
+            cx="10.2"
+            cy="23.5"
+            r="3.7"
+          />
+          <circle
+            cx="3.7"
+            cy="33.2"
+            r="3.7"
+          />
+          <circle
+            cx="31.7"
+            cy="30.6"
+            r="3.7"
+          />
+          <circle
+            cx="43.3"
+            cy="17.6"
+            r="3.7"
+          />
+          <circle
+            cx="53.2"
+            cy="23.5"
+            r="3.7"
+          />
+          <circle
+            cx="59.7"
+            cy="33.2"
+            r="3.7"
+          />
+          <circle
+            cx="31.7"
+            cy="30.6"
+            r="3.7"
+          />
+          <path
+            d="M33.1,9.8c.2-.1.3-.3.5-.5l4.6,2.4v-6.8l-4.6,1.5c-.1-.2-.3-.3-.5-.5l1.9-5.9h-6.7l1.9,5.9c-.2.1-.3.3-.5.5l-4.6-1.5v6.8l4.6-2.4c.1.2.3.3.5.5l-2.6,8c-.9,2.8,1.2,5.7,4.1,5.7h0c3,0,5.1-2.9,4.1-5.7l-2.6-8ZM37,37.9s-3.4,3.8-4.1,6.1c2.2,0,4.2-.5,6.4-2.8l-.7,8.5c-2-2.8-4.4-4.1-5.7-3.8.1,3.1.5,6.7,5.8,7.2,3.7.3,6.7-1.5,7-3.8.4-2.6-2-4.3-3.7-1.6-1.4-4.5,2.4-6.1,4.9-3.2-1.9-4.5-1.8-7.7,2.4-10.9,3,4,2.6,7.3-1.2,11.1,2.4-1.3,6.2,0,4,4.6-1.2-2.8-3.7-2.2-4.2.2-.3,1.7.7,3.7,3,4.2,1.9.3,4.7-.9,7-5.9-1.3,0-2.4.7-3.9,1.7l2.4-8c.6,2.3,1.4,3.7,2.2,4.5.6-1.6.5-2.8,0-5.3l5,1.8c-2.6,3.6-5.2,8.7-7.3,17.5-7.4-1.1-15.7-1.7-24.5-1.7h0c-8.8,0-17.1.6-24.5,1.7-2.1-8.9-4.7-13.9-7.3-17.5l5-1.8c-.5,2.5-.6,3.7,0,5.3.8-.8,1.6-2.3,2.2-4.5l2.4,8c-1.5-1-2.6-1.7-3.9-1.7,2.3,5,5.2,6.2,7,5.9,2.3-.4,3.3-2.4,3-4.2-.5-2.4-3-3.1-4.2-.2-2.2-4.6,1.6-6,4-4.6-3.7-3.7-4.2-7.1-1.2-11.1,4.2,3.2,4.3,6.4,2.4,10.9,2.5-2.8,6.3-1.3,4.9,3.2-1.8-2.7-4.1-1-3.7,1.6.3,2.3,3.3,4.1,7,3.8,5.4-.5,5.7-4.2,5.8-7.2-1.3-.2-3.7,1-5.7,3.8l-.7-8.5c2.2,2.3,4.2,2.7,6.4,2.8-.7-2.3-4.1-6.1-4.1-6.1h10.6,0Z"
+          />
+        </g>
+      </svg>
+      <div
+        class="govuk-footer__meta"
+      >
+        <div
+          class="govuk-footer__meta-item govuk-footer__meta-item--grow"
+        >
+          <h2
+            class="govuk-visually-hidden"
+          >
+            Support links
+          </h2>
+          <ul
+            class="govuk-footer__inline-list"
+          >
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/privacy-statement"
+              >
+                Privacy
+              </a>
+            </li>
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/cookie-page"
+              >
+                Cookies
+              </a>
+            </li>
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/accessibility-statement"
+              >
+                Accessibility statement
+              </a>
+            </li>
+            <li
+              class="govuk-footer__inline-list-item"
+            >
+              <a
+                class="govuk-footer__link"
+                href="/contact-us"
+              >
+                Contact
+              </a>
+            </li>
+          </ul>
+          <p
+            class="govuk-footer__body"
+          >
+            Built by the
+            <a
+              class="hover govuk-footer__link"
+              href="https://www.gov.uk/government/organisations/department-for-transport"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Department for Transport
+            </a>
+          </p>
+          <svg
+            aria-hidden="true"
+            class="govuk-footer__licence-logo"
+            focusable="false"
+            height="17"
+            role="presentation"
+            viewBox="0 0 483.2 195.7"
+            width="41"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M421.5 142.8V.1l-50.7 32.3v161.1h112.4v-50.7zm-122.3-9.6A47.12 47.12 0 0 1 221 97.8c0-26 21.1-47.1 47.1-47.1 16.7 0 31.4 8.7 39.7 21.8l42.7-27.2A97.63 97.63 0 0 0 268.1 0c-36.5 0-68.3 20.1-85.1 49.7A98 98 0 0 0 97.8 0C43.9 0 0 43.9 0 97.8s43.9 97.8 97.8 97.8c36.5 0 68.3-20.1 85.1-49.7a97.76 97.76 0 0 0 149.6 25.4l19.4 22.2h3v-87.8h-80l24.3 27.5zM97.8 145c-26 0-47.1-21.1-47.1-47.1s21.1-47.1 47.1-47.1 47.2 21 47.2 47S123.8 145 97.8 145"
+              fill="currentColor"
+            />
+          </svg>
+          <span
+            class="govuk-footer__licence-description"
+          >
+            All content is available under the
+            <a
+              class="govuk-footer__link"
+              href="https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+              rel="noreferrer"
+              target="_blank"
+            >
+              Open Government Licence v3.0
+            </a>
+            , except where otherwise stated
+          </span>
+        </div>
+        <div
+          class="govuk-footer__meta-item"
+        >
+          <a
+            class="govuk-footer__link govuk-footer__copyright-logo"
+            href="https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/"
+            rel="noreferrer"
+            target="_blank"
+          >
+            © Crown copyright
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</DocumentFragment>
+`;

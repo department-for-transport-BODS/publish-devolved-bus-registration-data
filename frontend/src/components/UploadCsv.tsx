@@ -1,6 +1,7 @@
 import React, { ReactElement, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { SendCsv, getStaged , handleStagedResults} from "../utils/SendCsv";
+import { SendCsv, getStaged, handleStagedResults } from "../utils/SendCsv";
+import { AxiosError } from "axios";
 
 
 interface UploadCsvProps {
@@ -50,13 +51,24 @@ const UploadCsv: React.FC<UploadCsvProps> = ({
         formData.append("file", selectedFile);
         setIsLoading(true);
         await SendCsv(formData, navigate);
-        getStaged().then((stagedRecords) => {
-          handleStagedResults(stagedRecords, navigate);
-        }).catch((error) => {
-          console.error(error);
-
-          navigate("/error", { state: { error: "Getting records failed try again later!" }, replace: true });
-        });   
+        getStaged()
+          .then((stagedRecords) => {
+            if (stagedRecords instanceof AxiosError) {
+              navigate("/error", {
+                state: { error: "Getting records failed try again later!" },
+                replace: true,
+              });
+              return;
+            }
+            handleStagedResults(stagedRecords, navigate);
+          })
+          .catch((error: unknown) => {
+            console.error(error);
+            navigate("/error", {
+              state: { error: "Getting records failed try again later!" },
+              replace: true,
+            });
+          });
 
       } else {
         handleFileError(new Error("The file format must be .CSV"));
