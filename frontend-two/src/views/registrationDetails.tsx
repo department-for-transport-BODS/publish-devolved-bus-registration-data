@@ -4,20 +4,21 @@ import { SearchRegistrationNumber } from "../utils/Search";
 import { TwoThirdsColumn, GridRow } from "../components/layout/Grid";
 import TableRow from "../components/TableRow";
 import { changeDateFormat } from "../utils/ChangeDateFormat";
+import { Registration } from "../interfaces/registrationTypes";
 type RegistrationDetailsProps = {
-  registration: any;
-  setShowRegistationDetails: React.Dispatch<React.SetStateAction<boolean>>;
+  registration: Registration;
+  setShowRegistrationDetails: React.Dispatch<React.SetStateAction<boolean>>;
 };
 const RegistrationDetails: React.FC<RegistrationDetailsProps> = ({
   registration,
-  setShowRegistationDetails,
+  setShowRegistrationDetails,
 }) => {
   const handleBackToSearch = () => {
-    setShowRegistationDetails(false);
+    setShowRegistrationDetails(false);
   };
   const [DisplayRegistration, setDisplayRegistration] =
-    React.useState<any>(registration);
-  const [registrations, setRegistrations] = React.useState<any[]>([]);
+    React.useState<Registration>(registration);
+  const [registrations, setRegistrations] = React.useState<Registration[]>([]);
 
   const handleVariationClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -29,12 +30,14 @@ const RegistrationDetails: React.FC<RegistrationDetailsProps> = ({
   useEffect(() => {
     SearchRegistrationNumber(registration.registrationNumber, "No", "Yes",registration.licenceNumber,registration.routeNumber)
       .then((response) => {
-        setRegistrations(response?.data);
+        if ("data" in response) {
+          setRegistrations(response.data);
+        }
       })
       .catch((error) => {
         console.error("Error fetching registration data: ", error);
       });
-  }, []);
+  }, [registration.registrationNumber, registration.licenceNumber, registration.routeNumber]);
 
   return (
     <>
@@ -177,10 +180,10 @@ const RegistrationDetails: React.FC<RegistrationDetailsProps> = ({
                       </a>
                     </td>
                     <td className="govuk-table__cell govuk-table__cell--numeric">
-                      {changeDateFormat(item.receivedDate)}
+                      {changeDateFormat(item.receivedDate ?? "")}
                     </td>
                     <td className="govuk-table__cell govuk-table__cell--numeric">
-                      {changeDateFormat(item.effectiveDate)}
+                      {changeDateFormat(item.effectiveDate ?? "")}
                     </td>
                   </tr>):null
                 ))}

@@ -1,7 +1,7 @@
-// write coocke banner component using react
 import React from 'react';
 
 const CookieBanner: React.FC = () => {
+    // TODO: Fix cookie banner functionality. It is currently always set to accepted on page load.
     React.useEffect(() => {
         document.cookie = 'cookies_accepted=true;max-age=31536000';
     }, []);
@@ -18,7 +18,7 @@ const CookieBanner: React.FC = () => {
                     </div>
                 </div>
                 <div className="govuk-button-group">
-                    <button type="button" className="govuk-button" data-module="govuk-button" id="cookieAccepted" onClick={() => {}} >
+                    <button type="button" className="govuk-button" data-module="govuk-button" id="cookieAccepted">
                         Accept analytics cookies
                     </button>
                     <button type="button" className="govuk-button" data-module="govuk-button">

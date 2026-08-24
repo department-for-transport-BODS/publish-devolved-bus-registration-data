@@ -11,7 +11,7 @@ type Props = {
   handleSignIn: (input: SignInInput) => Promise<void>;
 };
 
-const ConfirmNewPasswordForm: React.FC<Props> = ({ errors , confirmResetPassword, setErrorMsg,email, setEmail, handleSignIn}) => {
+const ConfirmNewPasswordForm: React.FC<Props> = ({ confirmResetPassword, setErrorMsg,email, setEmail, handleSignIn}) => {
   
   
   const [newPassword, setNewPassword] = useState("");
@@ -28,7 +28,7 @@ const ConfirmNewPasswordForm: React.FC<Props> = ({ errors , confirmResetPassword
         newPassword: newPassword,
         confirmationCode: confirmationCode,
       };
-      confirmResetPassword(formData).then((data) => {
+      confirmResetPassword(formData).then(() => {
         handleSignIn({username: email, password: newPassword})          ;
       }
       ).catch((err) => {

@@ -19,7 +19,6 @@ import AccessibilityStatement from "./views/accessibilityStatement";
 import CookiePage from "./views/cookiePage";
 import PreValidations from "./views/preValidation";
 import FindRegisteredServices from "./views/findRegisteredServices";
-import RegistrationDetails from "./views/registrationDetails";
 import HomeOptions from "./views/homeOptions";
 
 Amplify.configure(AmplifyConfiguration);
@@ -61,7 +60,6 @@ function App() {
           element={<AccessibilityStatement />} />
         <Route path="/cookie-page" element={<CookiePage />} />
         <Route path="/find-registered-services" element={<FindRegisteredServices />} />
-        <Route path="/registration-details" element={<RequireAuth component={RegistrationDetails} />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState, useMemo, useRef } from "react";
 import { FullColumnLayout } from "../components/layout/Layout";
-import { Link } from "react-router-dom";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
 import PreValidationAccordionSection from "../components/PreValidationAccordionSection";
 import { initAll } from "../Javascript/govuk-frontend.min";
@@ -12,6 +11,7 @@ import {
   GetReport,
 } from "../utils/SendCsv";
 import Cookies from "universal-cookie";
+import { PreValidationRecord } from "../interfaces/apiTypes";
 
 type buttonRef = { current: null | HTMLButtonElement };
 const PreValidations: React.FC = () => {
@@ -21,9 +21,9 @@ const PreValidations: React.FC = () => {
   const [ErrorMessage, setErrorMessage] = useState<string[]>([]);
   const [showError, setShowError] = useState(false);
   const [error, setError] = useState<null | string>(null);
-  const [loading, setLoading] = useState(false);
-  const [recordsCommitted, setRecordsCommitted] = useState(false);
-  const [recordsDiscarded, setRecordsDiscarded] = useState(false);
+  const [loading] = useState(false);
+  const [, setRecordsCommitted] = useState(false);
+  const [, setRecordsDiscarded] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const data = location.state?.data;
@@ -31,7 +31,7 @@ const PreValidations: React.FC = () => {
     return data;
   }, [data]);
 
-  const handleCommitRegistrations = async (e: any) => {
+  const handleCommitRegistrations = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (commitRef.current && !commitRef.current.disabled) {
       commitRef.current.disabled = true;
@@ -48,12 +48,13 @@ const PreValidations: React.FC = () => {
           GetReport(stage_id, navigate);
         })
         .catch((error) => {
+          console.error("Error committing registrations: ", error);
           setErrorMessage(["Error committing registrations"]);
         });
     }
   };
 
-  const handleDiscardRegistrations = async (e: any) => {
+  const handleDiscardRegistrations = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (discardRef.current && !discardRef.current.disabled) {
       discardRef.current.disabled = true;
@@ -65,7 +66,7 @@ const PreValidations: React.FC = () => {
           setRecordsDiscarded(true);
           navigate("/upload-csv", { replace: true });
         })
-        .catch((error) => {
+        .catch((_error) => {
           setErrorMessage(["Error discarding registrations"]);
         });
     }
@@ -91,7 +92,7 @@ const PreValidations: React.FC = () => {
         setErrorMessage([...ErrorMessage, errorMsg]);
       }
     }
-  }, [error]);
+  }, [error, ErrorMessage]);
 
   return (
     <>
@@ -135,7 +136,7 @@ const PreValidations: React.FC = () => {
             data-module="govuk-accordion"
             id="accordion-default"
           >
-            {memoData.map((record: any) => {
+            {memoData.map((record: PreValidationRecord) => {
               return (
                 <PreValidationAccordionSection
                   key={uuidv4()}

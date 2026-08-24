@@ -6,11 +6,12 @@ import SearchForm from "../components/SearchForm";
 import SearchResults from "../components/SearchResults";
 import SearchErrorBox from "../components/SearchErrorBox";
 import NotificationBanner from "../components/layout/NotificationBanner";
+import { Registration } from "../interfaces/registrationTypes";
 
 const FindRegisteredServices: React.FC = () => {
   const [searchError, setSearchError] = React.useState<string | null>(null);
   const [search, setSearch] = React.useState<string>("");
-  const [data, setData] = React.useState<any[]>([]);
+  const [data, setData] = React.useState<Registration[]>([]);
   const [showData, setShowData] = React.useState<boolean>(false);
   const [emptyResults, setEmptyResults] = React.useState<boolean>(false);
   const [showRegistrationDetails, setShowRegistrationDetails] =
@@ -49,7 +50,7 @@ const FindRegisteredServices: React.FC = () => {
         {showRegistrationDetails && (
           <RegistrationDetails
             registration={data[idx]}
-            setShowRegistationDetails={setShowRegistrationDetails}
+            setShowRegistrationDetails={setShowRegistrationDetails}
           />
         )}
         {searchError && <SearchErrorBox searchError={searchError} />}
