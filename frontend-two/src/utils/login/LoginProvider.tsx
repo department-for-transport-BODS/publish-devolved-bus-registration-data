@@ -30,7 +30,7 @@ const CustomProvider: React.FC<{ children: React.ReactNode }> = ({
     window.location.reload();
   };
 
-  const { signOut } = useAuthenticator((context: { user: any }) => [
+  const { signOut } = useAuthenticator((context) => [
     context.user,
   ]);
   const userLoggedIN = {
@@ -45,7 +45,7 @@ const CustomProvider: React.FC<{ children: React.ReactNode }> = ({
       .then(() => {
         setIsLoggedIn(true);
       })
-      .catch((error) => {
+      .catch((_error) => {
         setIsLoggedIn(false);
       });
   }, []);

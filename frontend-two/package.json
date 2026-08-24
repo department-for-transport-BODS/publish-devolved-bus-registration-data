@@ -18,7 +18,7 @@
     "govuk-frontend": "^6.1.0",
     "govuk-react": "^0.10.7",
     "kainossoftwareltd-govuk-react-kainos": "1.0.9",
-    "next": "^16.1.6",
+    "next": "^16.3.0",
     "nth-check": "^2.1.1",
     "postcss": "^8.4.33",
     "react": "^18.2.0",
@@ -32,7 +32,6 @@
     "react-router-dom": "^6.21.3",
     "react-spinners": "^0.13.8",
     "styled-components": "^6.1.8",
-    "typescript": "^4.9.5",
     "universal-cookie": "^7.0.2",
     "web-vitals": "^2.1.4"
   },
@@ -72,7 +71,8 @@
     "eslint-config-next": "^15.5.14",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "sass": "^1.70.0"
+    "sass": "^1.70.0",
+    "typescript": "7.0.2"
   },
   "overrides": {
     "nth-check": "$nth-check",

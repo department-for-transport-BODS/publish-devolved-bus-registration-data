@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from "uuid";
 import GetAllRecords from "../utils/GetAllRecords";
 import { fetchAuthSession } from "aws-amplify/auth";
 import DataProccessingWaiting from "../components/DataProccessingWaiting";
-import { AxiosError } from "axios";
+import { isAxiosError } from "axios";
 const ViewRegistrations: React.FC = () => {
   const { isLoggedIn } = useContext(IsLoggedInContext);
   const { data, loading, error } = useRegistrationStatus();
@@ -45,13 +45,15 @@ const ViewRegistrations: React.FC = () => {
               if (error.message === "Failed to download CSV") {
                 errorMsg = "The CSV has failed to download. Please retry the download process.";
               }
-              errorMsg === "" ?? "The CSV has failed to download. Please retry the download process.";
+              if (errorMsg === "") {
+                errorMsg = "The CSV has failed to download. Please retry the download process.";
+              }
             if (!ErrorMessage.includes(errorMsg)) {
               setErrorMessage([...ErrorMessage, errorMsg]);
             }
           });
       })
-      .catch((error) => {
+      .catch((_error) => {
         const errorMsg = "Network error, please try again later";
         if (!ErrorMessage.includes(errorMsg)) {
           setErrorMessage([...ErrorMessage, errorMsg]);
@@ -75,14 +77,14 @@ const ViewRegistrations: React.FC = () => {
   // }, [loading]);
   useEffect(() => {
     if (error) {
-      const errorObject = error as AxiosError<unknown, any>;
-      const errorMsg =
-        (errorObject.response?.data as any)?.detail ?? "Network error, please try again later";
+      const errorMsg: string = isAxiosError(error)
+      ? error.message
+      : "Network error, please try again later";
       if (!ErrorMessage.includes(errorMsg)) {
         setErrorMessage([...ErrorMessage, errorMsg]);
       }
     }
-  }, [error]);
+  }, [error, ErrorMessage]);
 
   return (
     <>
@@ -138,7 +140,7 @@ const ViewRegistrations: React.FC = () => {
             data-module="govuk-accordion"
             id="accordion-default"
           >
-            {Object.entries(data).map(([key, value]) => {
+            {Object.entries(data).map(([_key, value]) => {
               return (
                 <AccordionSection
                   key={uuidv4()}
