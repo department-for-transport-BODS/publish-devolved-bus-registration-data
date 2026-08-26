@@ -280,10 +280,10 @@ jobs:
 
           git add VERSION
           git commit -m "[AUTO] GitHub actions push for version $new_version"
-          git push --force
+          git push
 
           git tag $new_version
-          git push --tags --force
+          git push --tags
 
   trigger-deploy-dev:
     if: ${{ always() && !cancelled() && !contains(needs.*.result, 'failure') && contains(github.ref, 'main') }}
