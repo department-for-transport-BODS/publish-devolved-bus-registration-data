@@ -45,19 +45,21 @@ def csv_data_structure_check(csv_data: [dict]) -> dict:
     valid_records = {}
     validation_errors = {}
 
-    for idx, data_dict in enumerate(csv_data):
+    for data_dict in csv_data:
+        # Use the WECA record id so invalid records can be traced back to the incoming JSON
+        record_id = str(data_dict.get("id"))
         try:
             # Validate each record and deserialize it into a Python object.
             pydantic_model = Registration(**data_dict)
             valid_records.update(
-                {f"{idx + 2}": pydantic_model}
+                {record_id: pydantic_model}
             )  # .model_dump(exclude=["serviceCode"])
         except ValidationError as e:
             # Get json schema errors
             errors = e.errors()
             # Extract the field, message and type from the errors of a ValidationError object.
             modified_errors = extract_field_mgs_type_from_errors(errors)
-            validation_errors.update({f"{idx + 2}": modified_errors})
+            validation_errors.update({record_id: modified_errors})
         except Exception as e:
             log.error(f"Error: {e}")
 
@@ -113,6 +115,9 @@ class RecordsManager:
 
         if validated_records["invalid_records"] == {}:
             del validated_records["invalid_records"]
+
+        # Log the invalid records to provide an audit trail of dropped/rejected records
+        log.info(f"Invalid records: {validated_records.get('invalid_records')}")
 
     def _validate_csv_data(self):
         return csv_data_structure_check(self.csv_data)
