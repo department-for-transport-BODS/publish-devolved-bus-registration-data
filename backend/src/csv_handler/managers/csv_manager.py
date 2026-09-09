@@ -54,6 +54,12 @@ class CSVManager:
 
         if validated_records["invalid_records"] == {}:
             del validated_records["invalid_records"]
+
+        # Log the invalid records to provide an audit trail of dropped/rejected records
+        log.info(
+            f"Invalid records for report_id={self.report_id}: {validated_records.get('invalid_records')}"
+        )
+
         # Send the report to the database
         self._send_report_to_db(
             validated_records, self.user_name, self.group_name, self.report_id
@@ -65,17 +71,18 @@ class CSVManager:
     def _check_duplicate_records(self, records):
         records_copy = deepcopy(records)
         duplicated_check_records = {}
-        for idx, record in records_copy["valid_records"].items():
+        # record_id is the CSV row number, not an array index
+        for record_id, record in records_copy["valid_records"].items():
             duplicated_records = []
-            for idx2, records2 in records_copy["valid_records"].items():
+            for other_record_id, records2 in records_copy["valid_records"].items():
                 if (
-                    idx != idx2
+                    record_id != other_record_id
                     and record.licence_number == records2.licence_number
                     and record.variation_number == records2.variation_number
                     and record.registration_number == records2.registration_number
                     and record.route_number == records2.route_number
                 ):
-                    duplicated_records.append(idx2)
+                    duplicated_records.append(other_record_id)
             if duplicated_records:
                 # if records["invalid_records"].get(idx):
                 #     records["invalid_records"][idx].appand(
@@ -83,16 +90,16 @@ class CSVManager:
                 #     )
                 # else:
                 # records["invalid_records"]["duplicated_records"][idx] = [
-                duplicated_check_records[idx] = [
+                duplicated_check_records[record_id] = [
                     {"": f"""Duplicate of record {(', ').join(duplicated_records)}"""}
                 ]
                 try:
-                    del records["valid_records"][idx]
+                    del records["valid_records"][record_id]
                 except KeyError:
                     pass
-                for i in duplicated_records:
+                for duplicate_record_id in duplicated_records:
                     try:
-                        del records["valid_records"][i]
+                        del records["valid_records"][duplicate_record_id]
                     except KeyError:
                         pass
         if len(duplicated_check_records) > 0:
@@ -120,13 +127,14 @@ class CSVManager:
         """Removing the licence details from validated records."""
         try:
             if "valid_records" in records:
-                for idx, record in records["valid_records"].items():
+                # record_id is the CSV row number, not an array index
+                for record_id, record in records["valid_records"].items():
                     if record and len(record) > 0:
-                        records["valid_records"][idx] = record[0].model_dump(
+                        records["valid_records"][record_id] = record[0].model_dump(
                             exclude=["serviceCode"]
                         )
                     else:
-                        print(f"Error: Invalid record at index {idx}")
+                        print(f"Error: Invalid record {record_id}")
             else:
                 print("Error: 'valid_records' key not found in records")
         except Exception as e:

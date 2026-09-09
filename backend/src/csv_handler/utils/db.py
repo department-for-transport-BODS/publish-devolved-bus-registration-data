@@ -1116,7 +1116,8 @@ def send_to_db(
     group_id = PDBRDUser.group_id
     # # add record to the stage table
 
-    for idx, record_and_licence in records["valid_records"].items():
+    # record_id is the CSV row number, not an array index
+    for record_id, record_and_licence in records["valid_records"].items():
         try:
             # Create a new session
             session = Session(engine)
@@ -1160,18 +1161,18 @@ def send_to_db(
             )
         except RecordIsAlreadyExist:
             already_exists_records.update(
-                {idx: [{"Duplicated Record": "Record already exists in the database"}]}
+                {record_id: [{"Duplicated Record": "Record already exists in the database"}]}
             )
-            db_invalid_insertion.append(idx)
+            db_invalid_insertion.append(record_id)
         except RecordBelongsToAnotherUser:
             belongs_to_another_user.update(
                 {
-                    idx: [
+                    record_id: [
                         {"RecordBelongsToAnotherUser": "Record belongs to another user"}
                     ]
                 }
             )
-            db_invalid_insertion.append(idx)
+            db_invalid_insertion.append(record_id)
             session.commit()
         except Exception as e:
             log.error(f"Error: {e}")
@@ -1179,8 +1180,8 @@ def send_to_db(
         finally:
             session.close()
     # Remove records from the valid_records dictionary that were not added to the database
-    for idx in db_invalid_insertion:
-        del records["valid_records"][f"{idx}"]
+    for record_id in db_invalid_insertion:
+        del records["valid_records"][record_id]
     if len(already_exists_records) > 0:
         records["invalid_records"].append(
             {"records": already_exists_records, "description": "Record already exists"}

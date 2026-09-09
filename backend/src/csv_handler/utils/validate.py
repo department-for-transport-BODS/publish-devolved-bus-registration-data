@@ -41,7 +41,8 @@ def validate_licence_number_existence(uploaded_records: dict):
 
     valid_records = {}
     invalid_records = {}
-    for idx, record in uploaded_records["valid_records"].items():
+    # record_id is the CSV row number, not an array index
+    for record_id, record in uploaded_records["valid_records"].items():
         try:
             # Get licence details
             licence = licence_detail(record.licence_number, licence_details)
@@ -50,13 +51,13 @@ def validate_licence_number_existence(uploaded_records: dict):
                 or licence.licence_details is None
                 or licence.operator_details is None
             ):
-                invalid_records[idx] = [
+                invalid_records[record_id] = [
                     {"LicenceNumber": "Licence number is not found in the OTC DB"}
                 ]
             else:
 
                 # Add the licence details to the record
-                valid_records.update({idx: [record, licence]})
+                valid_records.update({record_id: [record, licence]})
 
         except Exception as e:
             log.error(f"Error: {e}")
