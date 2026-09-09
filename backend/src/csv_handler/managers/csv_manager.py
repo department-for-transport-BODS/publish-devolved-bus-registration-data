@@ -56,7 +56,9 @@ class CSVManager:
             del validated_records["invalid_records"]
 
         # Log the invalid records to provide an audit trail of dropped/rejected records
-        log.info(f"Invalid records: {validated_records.get('invalid_records')}")
+        log.info(
+            f"Invalid records for report_id={self.report_id}: {validated_records.get('invalid_records')}"
+        )
 
         # Send the report to the database
         self._send_report_to_db(
