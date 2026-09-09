@@ -45,19 +45,21 @@ def csv_data_structure_check(csv_data: [dict]) -> dict:
     valid_records = {}
     validation_errors = {}
 
-    for idx, data_dict in enumerate(csv_data):
+    for data_dict in csv_data:
+        # Use the WECA record id so invalid records can be traced back to the incoming JSON
+        record_id = str(data_dict.get("id"))
         try:
             # Validate each record and deserialize it into a Python object.
             pydantic_model = Registration(**data_dict)
             valid_records.update(
-                {f"{idx + 2}": pydantic_model}
+                {record_id: pydantic_model}
             )  # .model_dump(exclude=["serviceCode"])
         except ValidationError as e:
             # Get json schema errors
             errors = e.errors()
             # Extract the field, message and type from the errors of a ValidationError object.
             modified_errors = extract_field_mgs_type_from_errors(errors)
-            validation_errors.update({f"{idx + 2}": modified_errors})
+            validation_errors.update({record_id: modified_errors})
         except Exception as e:
             log.error(f"Error: {e}")
 
@@ -114,23 +116,27 @@ class RecordsManager:
         if validated_records["invalid_records"] == {}:
             del validated_records["invalid_records"]
 
+        # Log the invalid records to provide an audit trail of dropped/rejected records
+        log.info(f"Invalid records: {validated_records.get('invalid_records')}")
+
     def _validate_csv_data(self):
         return csv_data_structure_check(self.csv_data)
 
     def _check_duplicate_records(self, records):
         records_copy = deepcopy(records)
         duplicated_check_records = {}
-        for idx, record in records_copy["valid_records"].items():
+        # record_id is the WECA record id not an array index
+        for record_id, record in records_copy["valid_records"].items():
             duplicated_records = []
-            for idx2, records2 in records_copy["valid_records"].items():
+            for other_record_id, records2 in records_copy["valid_records"].items():
                 if (
-                    idx != idx2
+                    record_id != other_record_id
                     and record.licence_number == records2.licence_number
                     and record.variation_number == records2.variation_number
                     and record.registration_number == records2.registration_number
                     and record.route_number == records2.route_number
                 ):
-                    duplicated_records.append(idx2)
+                    duplicated_records.append(other_record_id)
             if duplicated_records:
                 # if records["invalid_records"].get(idx):
                 #     records["invalid_records"][idx].appand(
@@ -138,16 +144,16 @@ class RecordsManager:
                 #     )
                 # else:
                 # records["invalid_records"]["duplicated_records"][idx] = [
-                duplicated_check_records[idx] = [
+                duplicated_check_records[record_id] = [
                     {"": f"""Duplicate of record {(', ').join(duplicated_records)}"""}
                 ]
                 try:
-                    del records["valid_records"][idx]
+                    del records["valid_records"][record_id]
                 except KeyError:
                     pass
-                for i in duplicated_records:
+                for duplicate_record_id in duplicated_records:
                     try:
-                        del records["valid_records"][i]
+                        del records["valid_records"][duplicate_record_id]
                     except KeyError:
                         pass
         if len(duplicated_check_records) > 0:
@@ -175,13 +181,14 @@ class RecordsManager:
         """Removing the licence details from validated records."""
         try:
             if "valid_records" in records:
-                for idx, record in records["valid_records"].items():
+                # record_id is the WECA record id, not an array index
+                for record_id, record in records["valid_records"].items():
                     if record and len(record) > 0:
-                        records["valid_records"][idx] = record[0].model_dump(
+                        records["valid_records"][record_id] = record[0].model_dump(
                             exclude=["serviceCode"]
                         )
                     else:
-                        log.info(f"Error: Invalid record at index {idx}")
+                        log.info(f"Error: Invalid record {record_id}")
             else:
                 log.info("Error: 'valid_records' key not found in records")
         except Exception as e:
