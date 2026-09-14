@@ -530,10 +530,12 @@ class DBManager:
                 .join(
                     PDBRDRegistration,
                     and_(
-                        subquery.c.registrationNumber == PDBRDRegistration.registration_number,
+                        subquery.c.registrationNumber
+                        == PDBRDRegistration.registration_number,
                         subquery.c.routeNumber == PDBRDRegistration.route_number,
-                        subquery.c.variationNumber == PDBRDRegistration.variation_number,
-                    )
+                        subquery.c.variationNumber
+                        == PDBRDRegistration.variation_number,
+                    ),
                 )
                 .distinct(
                     PDBRDRegistration.registration_number,
@@ -581,9 +583,7 @@ class DBManager:
         if active_only:
             records = records.filter(
                 and_(
-                    PDBRDRegistration.application_type.in_(
-                        ACTIVE_APPLICATION_TYPES
-                    ),
+                    PDBRDRegistration.application_type.in_(ACTIVE_APPLICATION_TYPES),
                     PDBRDRegistration.effective_date <= func.current_date(),
                     or_(
                         PDBRDRegistration.end_date > func.current_date(),
@@ -604,7 +604,6 @@ class DBManager:
 
         if limit:
             records = records.limit(limit)
-
 
         return [rec._asdict() for rec in records.all()]
 
@@ -679,7 +678,9 @@ class DBManager:
                 PDBRDRegistration.received_date.label("receivedDate"),
                 PDBRDRegistration.granted_date.label("grantedDate"),
                 PDBRDRegistration.effective_date.label("effectiveDate"),
-                func.coalesce(PDBRDRegistration.end_date, default_date).label("endDate"),
+                func.coalesce(PDBRDRegistration.end_date, default_date).label(
+                    "endDate"
+                ),
                 PDBRDRegistration.bus_service_type_id.label("busServiceTypeId"),
                 PDBRDRegistration.bus_service_type_description.label(
                     "busServiceTypeDescription"
@@ -702,8 +703,7 @@ class DBManager:
             .filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
             .filter(PDBRDRegistration.otc_licence_id == OTCLicence.id)
         )
-        
-            
+
         if latest_only:
             subquery = records.subquery()
             records = (
@@ -711,10 +711,12 @@ class DBManager:
                 .join(
                     PDBRDRegistration,
                     and_(
-                        subquery.c.registrationNumber == PDBRDRegistration.registration_number,
+                        subquery.c.registrationNumber
+                        == PDBRDRegistration.registration_number,
                         subquery.c.routeNumber == PDBRDRegistration.route_number,
-                        subquery.c.variationNumber == PDBRDRegistration.variation_number,
-                    )
+                        subquery.c.variationNumber
+                        == PDBRDRegistration.variation_number,
+                    ),
                 )
                 .distinct(
                     PDBRDRegistration.registration_number,
@@ -726,13 +728,11 @@ class DBManager:
                     desc(PDBRDRegistration.variation_number),
                 )
             )
-            
+
         if active_only:
             records = records.filter(
                 and_(
-                    PDBRDRegistration.application_type.in_(
-                        ACTIVE_APPLICATION_TYPES
-                    ),
+                    PDBRDRegistration.application_type.in_(ACTIVE_APPLICATION_TYPES),
                     PDBRDRegistration.effective_date <= func.current_date(),
                     or_(
                         PDBRDRegistration.end_date > func.current_date(),
@@ -743,8 +743,6 @@ class DBManager:
 
         if PDBRDGroup:
             records = records.filter(PDBRDRegistration.group_id == PDBRDGroup.id)
-
-   
 
         return [rec._asdict() for rec in records.all()]
 
@@ -1162,7 +1160,11 @@ def send_to_db(
             )
         except RecordIsAlreadyExist:
             already_exists_records.update(
-                {record_id: [{"Duplicated Record": "Record already exists in the database"}]}
+                {
+                    record_id: [
+                        {"Duplicated Record": "Record already exists in the database"}
+                    ]
+                }
             )
             db_invalid_insertion.append(record_id)
         except RecordBelongsToAnotherUser:
