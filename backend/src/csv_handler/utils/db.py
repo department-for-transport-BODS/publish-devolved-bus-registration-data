@@ -702,19 +702,7 @@ class DBManager:
             .filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
             .filter(PDBRDRegistration.otc_licence_id == OTCLicence.id)
         )
-        if active_only:
-            records = records.filter(
-                and_(
-                    PDBRDRegistration.application_type.in_(
-                        ACTIVE_APPLICATION_TYPES
-                    ),
-                    PDBRDRegistration.effective_date <= func.current_date(),
-                    or_(
-                        PDBRDRegistration.end_date > func.current_date(),
-                        PDBRDRegistration.end_date == None,
-                    ),
-                )
-            )
+        
             
         if latest_only:
             subquery = records.subquery()
@@ -738,7 +726,20 @@ class DBManager:
                     desc(PDBRDRegistration.variation_number),
                 )
             )
-        
+            
+        if active_only:
+            records = records.filter(
+                and_(
+                    PDBRDRegistration.application_type.in_(
+                        ACTIVE_APPLICATION_TYPES
+                    ),
+                    PDBRDRegistration.effective_date <= func.current_date(),
+                    or_(
+                        PDBRDRegistration.end_date > func.current_date(),
+                        PDBRDRegistration.end_date == None,
+                    ),
+                )
+            )
 
         if PDBRDGroup:
             records = records.filter(PDBRDRegistration.group_id == PDBRDGroup.id)
