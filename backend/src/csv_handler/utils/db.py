@@ -472,7 +472,7 @@ class DBManager:
         """Get records from the database based on the search query
 
         Args:
-            exclude_variations (bool, optional): Defaults to False.
+            exclude_variations (bool, optional): Defaults to False. alias "latestOnly" in api call
             registration_number (str, optional): Defaults to None.
             operator_name (str, optional): Defaults to None.
             route_number (str, optional): Defaults to None.
@@ -525,7 +525,7 @@ class DBManager:
 
         if exclude_variations:
             subquery = records.subquery()
-            records = (
+            distinct_query = (
                 session.query(subquery)
                 .join(
                     PDBRDRegistration,
@@ -547,6 +547,10 @@ class DBManager:
                     desc(PDBRDRegistration.variation_number),
                 )
             )
+            # Freeze this query into a completely new subquery boundary
+            records = distinct_query.subquery()
+            # Re-expose it as a clean selectable query object
+            records = session.query(records)
 
         if license_number:
             records = add_filter_to_query(
