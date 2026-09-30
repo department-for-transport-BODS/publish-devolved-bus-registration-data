@@ -4,7 +4,7 @@ from datetime import date
 from os import getenv
 from sqlalchemy import create_engine, func, select, Table, case, desc, or_, and_
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import Session, Query
+from sqlalchemy.orm import Session, Query, aliased
 from typing import List
 from .csv_validator import Registration
 from .logger import log
@@ -523,34 +523,7 @@ class DBManager:
             .join(OTCLicence, PDBRDRegistration.otc_licence_id == OTCLicence.id)
         )
 
-        if exclude_variations:
-            subquery = records.subquery()
-            distinct_query = (
-                session.query(subquery)
-                .join(
-                    PDBRDRegistration,
-                    and_(
-                        subquery.c.registrationNumber
-                        == PDBRDRegistration.registration_number,
-                        subquery.c.routeNumber == PDBRDRegistration.route_number,
-                        subquery.c.variationNumber
-                        == PDBRDRegistration.variation_number,
-                    ),
-                )
-                .distinct(
-                    PDBRDRegistration.registration_number,
-                    PDBRDRegistration.route_number,
-                )
-                .order_by(
-                    PDBRDRegistration.registration_number,
-                    PDBRDRegistration.route_number,
-                    desc(PDBRDRegistration.variation_number),
-                )
-            )
-            # Freeze this query into a completely new subquery boundary
-            records = distinct_query.subquery()
-            # Re-expose it as a clean selectable query object
-            records = session.query(records)
+        
 
         if license_number:
             records = add_filter_to_query(
@@ -584,17 +557,7 @@ class DBManager:
             records = add_filter_to_query(
                 records, PDBRDRegistration.route_number, route_number, strict_mode
             )
-        if active_only:
-            records = records.filter(
-                and_(
-                    PDBRDRegistration.application_type.in_(ACTIVE_APPLICATION_TYPES),
-                    PDBRDRegistration.effective_date <= func.current_date(),
-                    or_(
-                        PDBRDRegistration.end_date > func.current_date(),
-                        PDBRDRegistration.end_date == None,
-                    ),
-                )
-            )
+        
 
         if page:
             cls.record_count = records.count()
@@ -608,7 +571,57 @@ class DBManager:
 
         if limit:
             records = records.limit(limit)
+        
+        if exclude_variations:
+            base_subquery = records.subquery()
+            
+            distinct_query = (
+                session.query(base_subquery, PDBRDRegistration)
+                .join(
+                    PDBRDRegistration,
+                    and_(
+                        base_subquery.c.registrationNumber == PDBRDRegistration.registration_number,
+                        base_subquery.c.routeNumber == PDBRDRegistration.route_number,
+                        base_subquery.c.variationNumber == PDBRDRegistration.variation_number,
+                    ),
+                )
+                .distinct(
+                    PDBRDRegistration.registration_number,
+                    PDBRDRegistration.route_number,
+                )
+                .order_by(
+                    PDBRDRegistration.registration_number,
+                    PDBRDRegistration.route_number,
+                    desc(PDBRDRegistration.variation_number),
+                )
+            )
+            
+            # Freeze the query into a subquery object
+            latest_subquery = distinct_query.subquery()
+            
+            # Map the subquery columns back onto an alias of the PDBRDRegistration model
+            # This automatically routes 'PDBRDRegistration_alias.application_type' to the correct subquery column.
+            PDBRDRegistration_alias = aliased(PDBRDRegistration, latest_subquery)
+            
+            # Select from the alias
+            records = session.query(PDBRDRegistration_alias)
 
+        else:
+            # Fallback to the standard table mapper if latest_only did not run
+            PDBRDRegistration_alias = PDBRDRegistration
+
+        if active_only:
+            # This remains perfectly clean and works uniformly whether latest_only ran or not!
+            records = records.filter(
+                and_(
+                    PDBRDRegistration_alias.application_type.in_(ACTIVE_APPLICATION_TYPES),
+                    PDBRDRegistration_alias.effective_date <= func.current_date(),
+                    or_(
+                        PDBRDRegistration_alias.end_date > func.current_date(),
+                        PDBRDRegistration_alias.end_date == None,
+                    ),
+                )
+            )
         return [rec._asdict() for rec in records.all()]
 
     @classmethod
@@ -709,17 +722,16 @@ class DBManager:
         )
 
         if latest_only:
-            subquery = records.subquery()
+            base_subquery = records.subquery()
+            
             distinct_query = (
-                session.query(subquery)
+                session.query(base_subquery, PDBRDRegistration)
                 .join(
                     PDBRDRegistration,
                     and_(
-                        subquery.c.registrationNumber
-                        == PDBRDRegistration.registration_number,
-                        subquery.c.routeNumber == PDBRDRegistration.route_number,
-                        subquery.c.variationNumber
-                        == PDBRDRegistration.variation_number,
+                        base_subquery.c.registrationNumber == PDBRDRegistration.registration_number,
+                        base_subquery.c.routeNumber == PDBRDRegistration.route_number,
+                        base_subquery.c.variationNumber == PDBRDRegistration.variation_number,
                     ),
                 )
                 .distinct(
@@ -732,20 +744,30 @@ class DBManager:
                     desc(PDBRDRegistration.variation_number),
                 )
             )
-        
-            # Freeze this query into a completely new subquery boundary
-            records = distinct_query.subquery()
-            # Re-expose it as a clean selectable query object
-            records = session.query(records)
+            
+            # Freeze the query into a subquery object
+            latest_subquery = distinct_query.subquery()
+            
+            # Map the subquery columns back onto an alias of the PDBRDRegistration model
+            # This automatically routes 'PDBRDRegistration_alias.application_type' to the correct subquery column.
+            PDBRDRegistration_alias = aliased(PDBRDRegistration, latest_subquery)
+            
+            # Select from the alias
+            records = session.query(PDBRDRegistration_alias)
+
+        else:
+            # Fallback to the standard table mapper if latest_only did not run
+            PDBRDRegistration_alias = PDBRDRegistration
 
         if active_only:
+            # This remains perfectly clean and works uniformly whether latest_only ran or not!
             records = records.filter(
                 and_(
-                    PDBRDRegistration.application_type.in_(ACTIVE_APPLICATION_TYPES),
-                    PDBRDRegistration.effective_date <= func.current_date(),
+                    PDBRDRegistration_alias.application_type.in_(ACTIVE_APPLICATION_TYPES),
+                    PDBRDRegistration_alias.effective_date <= func.current_date(),
                     or_(
-                        PDBRDRegistration.end_date > func.current_date(),
-                        PDBRDRegistration.end_date == None,
+                        PDBRDRegistration_alias.end_date > func.current_date(),
+                        PDBRDRegistration_alias.end_date == None,
                     ),
                 )
             )
