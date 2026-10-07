@@ -4,7 +4,7 @@ from datetime import date
 from os import getenv
 from sqlalchemy import create_engine, func, select, Table, case, desc, or_, and_
 from sqlalchemy.ext.automap import automap_base
-from sqlalchemy.orm import Session, Query, aliased
+from sqlalchemy.orm import Session, Query
 from typing import List
 from .csv_validator import Registration
 from .logger import log
@@ -510,7 +510,9 @@ class DBManager:
             PDBRDRegistration.effective_date.label("effectiveDate"),
             PDBRDRegistration.end_date.label("endDate"),
             PDBRDRegistration.bus_service_type_id.label("busServiceTypeId"),
-            PDBRDRegistration.bus_service_type_description.label("busServiceTypeDescription"),
+            PDBRDRegistration.bus_service_type_description.label(
+                "busServiceTypeDescription"
+            ),
             PDBRDRegistration.traffic_area_id.label("trafficAreaId"),
             PDBRDRegistration.application_type.label("applicationType"),
             PDBRDRegistration.publication_text.label("publicationText"),
@@ -521,10 +523,15 @@ class DBManager:
 
         # Include a variation_desc calculation uniformly for easier subquery layering
         columns.append(
-            func.row_number().over(
-                partition_by=[PDBRDRegistration.registration_number, PDBRDRegistration.route_number],
-                order_by=desc(PDBRDRegistration.variation_number)
-            ).label("variation_desc")
+            func.row_number()
+            .over(
+                partition_by=[
+                    PDBRDRegistration.registration_number,
+                    PDBRDRegistration.route_number,
+                ],
+                order_by=desc(PDBRDRegistration.variation_number),
+            )
+            .label("variation_desc")
         )
 
         # Build the primary query data set
@@ -533,8 +540,6 @@ class DBManager:
             .join(OTCOperator, PDBRDRegistration.otc_operator_id == OTCOperator.id)
             .join(OTCLicence, PDBRDRegistration.otc_licence_id == OTCLicence.id)
         )
-
-        
 
         if license_number:
             records = add_filter_to_query(
@@ -568,7 +573,6 @@ class DBManager:
             records = add_filter_to_query(
                 records, PDBRDRegistration.route_number, route_number, strict_mode
             )
-        
 
         if page:
             cls.record_count = records.count()
@@ -582,12 +586,14 @@ class DBManager:
 
         if limit:
             records = records.limit(limit)
-        
+
         subquery_latest = records.subquery()
-            
+
         if exclude_variations:
             # Filter down strictly to the newest variation per group
-            working_query = session.query(subquery_latest).filter(subquery_latest.c.variation_desc == 1)
+            working_query = session.query(subquery_latest).filter(
+                subquery_latest.c.variation_desc == 1
+            )
         else:
             # Maintain all variations
             working_query = session.query(subquery_latest)
@@ -611,7 +617,9 @@ class DBManager:
         results = []
         for row in records.all():
             row_dict = row._asdict()
-            row_dict.pop("variation_desc", None)  # Clean up the latest variation tracker column before returning
+            row_dict.pop(
+                "variation_desc", None
+            )  # Clean up the latest variation tracker column before returning
             results.append(row_dict)
 
         return results
@@ -689,7 +697,9 @@ class DBManager:
             PDBRDRegistration.effective_date.label("effectiveDate"),
             func.coalesce(PDBRDRegistration.end_date, default_date).label("endDate"),
             PDBRDRegistration.bus_service_type_id.label("busServiceTypeId"),
-            PDBRDRegistration.bus_service_type_description.label("busServiceTypeDescription"),
+            PDBRDRegistration.bus_service_type_description.label(
+                "busServiceTypeDescription"
+            ),
             PDBRDRegistration.traffic_area_id.label("trafficAreaId"),
             PDBRDRegistration.application_type.label("applicationType"),
             PDBRDRegistration.publication_text.label("publicationText"),
@@ -702,10 +712,15 @@ class DBManager:
 
         # Include a variation_desc calculation uniformly for easier subquery layering
         columns.append(
-            func.row_number().over(
-                partition_by=[PDBRDRegistration.registration_number, PDBRDRegistration.route_number],
-                order_by=desc(PDBRDRegistration.variation_number)
-            ).label("variation_desc")
+            func.row_number()
+            .over(
+                partition_by=[
+                    PDBRDRegistration.registration_number,
+                    PDBRDRegistration.route_number,
+                ],
+                order_by=desc(PDBRDRegistration.variation_number),
+            )
+            .label("variation_desc")
         )
 
         # Build the primary query data set
@@ -715,19 +730,22 @@ class DBManager:
             .join(OTCLicence, PDBRDRegistration.otc_licence_id == OTCLicence.id)
             .outerjoin(
                 BODSDataCatalogue,
-                BODSDataCatalogue.xml_service_code == PDBRDRegistration.registration_number,
+                BODSDataCatalogue.xml_service_code
+                == PDBRDRegistration.registration_number,
             )
             .filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
         )
 
         if PDBRDGroup:
             records = records.filter(PDBRDRegistration.group_id == PDBRDGroup.id)
-            
+
         subquery_latest = records.subquery()
-    
+
         if latest_only:
             # Filter down strictly to the newest variation per group
-            working_query = session.query(subquery_latest).filter(subquery_latest.c.variation_desc == 1)
+            working_query = session.query(subquery_latest).filter(
+                subquery_latest.c.variation_desc == 1
+            )
         else:
             # Maintain all variations
             working_query = session.query(subquery_latest)
@@ -742,7 +760,8 @@ class DBManager:
                     subquery_active.c.effectiveDate <= func.current_date(),
                     or_(
                         subquery_active.c.endDate > func.current_date(),
-                        subquery_active.c.endDate == default_date,  # Matches the coalesced default_date
+                        subquery_active.c.endDate
+                        == default_date,  # Matches the coalesced default_date
                     ),
                 )
             )
@@ -751,7 +770,9 @@ class DBManager:
         results = []
         for row in records.all():
             row_dict = row._asdict()
-            row_dict.pop("variation_desc", None)  # Clean up the latest variation tracker column before returning
+            row_dict.pop(
+                "variation_desc", None
+            )  # Clean up the latest variation tracker column before returning
             results.append(row_dict)
 
         return results
