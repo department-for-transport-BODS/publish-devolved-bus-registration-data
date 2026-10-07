@@ -493,32 +493,43 @@ class DBManager:
         OTCOperator = models.OTCOperator
         OTCLicence = models.OTCLicence
         # PDBRDGroup = None
+        # Base query defining the core structure and columns
+        columns = [
+            PDBRDRegistration.registration_number.label("registrationNumber"),
+            PDBRDRegistration.route_number.label("routeNumber"),
+            PDBRDRegistration.route_description.label("routeDescription"),
+            PDBRDRegistration.variation_number.label("variationNumber"),
+            PDBRDRegistration.start_point.label("startPoint"),
+            PDBRDRegistration.finish_point.label("finishPoint"),
+            PDBRDRegistration.via.label("via"),
+            PDBRDRegistration.subsidised.label("subsidised"),
+            PDBRDRegistration.subsidy_detail.label("subsidyDetail"),
+            PDBRDRegistration.is_short_notice.label("isShortNotice"),
+            PDBRDRegistration.received_date.label("receivedDate"),
+            PDBRDRegistration.granted_date.label("grantedDate"),
+            PDBRDRegistration.effective_date.label("effectiveDate"),
+            PDBRDRegistration.end_date.label("endDate"),
+            PDBRDRegistration.bus_service_type_id.label("busServiceTypeId"),
+            PDBRDRegistration.bus_service_type_description.label("busServiceTypeDescription"),
+            PDBRDRegistration.traffic_area_id.label("trafficAreaId"),
+            PDBRDRegistration.application_type.label("applicationType"),
+            PDBRDRegistration.publication_text.label("publicationText"),
+            OTCOperator.operator_name.label("operatorName"),
+            OTCLicence.licence_number.label("licenceNumber"),
+            OTCLicence.licence_status.label("licenceStatus"),
+        ]
+
+        # Include a variation_desc calculation uniformly for easier subquery layering
+        columns.append(
+            func.row_number().over(
+                partition_by=[PDBRDRegistration.registration_number, PDBRDRegistration.route_number],
+                order_by=desc(PDBRDRegistration.variation_number)
+            ).label("variation_desc")
+        )
+
+        # Build the primary query data set
         records = (
-            session.query(
-                PDBRDRegistration.variation_number.label("variationNumber"),
-                PDBRDRegistration.registration_number.label("registrationNumber"),
-                OTCOperator.operator_name.label("operatorName"),
-                OTCLicence.licence_number.label("licenceNumber"),
-                OTCLicence.licence_status.label("licenceStatus"),
-                PDBRDRegistration.route_number.label("routeNumber"),
-                PDBRDRegistration.start_point.label("startPoint"),
-                PDBRDRegistration.finish_point.label("finishPoint"),
-                PDBRDRegistration.via.label("via"),
-                PDBRDRegistration.subsidised.label("subsidised"),
-                PDBRDRegistration.subsidy_detail.label("subsidyDetail"),
-                PDBRDRegistration.is_short_notice.label("isShortNotice"),
-                PDBRDRegistration.received_date.label("receivedDate"),
-                PDBRDRegistration.granted_date.label("grantedDate"),
-                PDBRDRegistration.effective_date.label("effectiveDate"),
-                PDBRDRegistration.end_date.label("endDate"),
-                PDBRDRegistration.bus_service_type_id.label("busServiceTypeId"),
-                PDBRDRegistration.bus_service_type_description.label(
-                    "busServiceTypeDescription"
-                ),
-                PDBRDRegistration.traffic_area_id.label("trafficAreaId"),
-                PDBRDRegistration.application_type.label("applicationType"),
-                PDBRDRegistration.publication_text.label("publicationText"),
-            )
+            session.query(*columns)
             .join(OTCOperator, PDBRDRegistration.otc_operator_id == OTCOperator.id)
             .join(OTCLicence, PDBRDRegistration.otc_licence_id == OTCLicence.id)
         )
@@ -572,57 +583,38 @@ class DBManager:
         if limit:
             records = records.limit(limit)
         
+        subquery_latest = records.subquery()
+            
         if exclude_variations:
-            base_subquery = records.subquery()
-            
-            distinct_query = (
-                session.query(base_subquery, PDBRDRegistration)
-                .join(
-                    PDBRDRegistration,
-                    and_(
-                        base_subquery.c.registrationNumber == PDBRDRegistration.registration_number,
-                        base_subquery.c.routeNumber == PDBRDRegistration.route_number,
-                        base_subquery.c.variationNumber == PDBRDRegistration.variation_number,
-                    ),
-                )
-                .distinct(
-                    PDBRDRegistration.registration_number,
-                    PDBRDRegistration.route_number,
-                )
-                .order_by(
-                    PDBRDRegistration.registration_number,
-                    PDBRDRegistration.route_number,
-                    desc(PDBRDRegistration.variation_number),
-                )
-            )
-            
-            # Freeze the query into a subquery object
-            latest_subquery = distinct_query.subquery()
-            
-            # Map the subquery columns back onto an alias of the PDBRDRegistration model
-            # This automatically routes 'PDBRDRegistration_alias.application_type' to the correct subquery column.
-            PDBRDRegistration_alias = aliased(PDBRDRegistration, latest_subquery)
-            
-            # Select from the alias
-            records = session.query(PDBRDRegistration_alias)
-
+            # Filter down strictly to the newest variation per group
+            working_query = session.query(subquery_latest).filter(subquery_latest.c.variation_desc == 1)
         else:
-            # Fallback to the standard table mapper if latest_only did not run
-            PDBRDRegistration_alias = PDBRDRegistration
+            # Maintain all variations
+            working_query = session.query(subquery_latest)
+
+        subquery_active = working_query.subquery()
+        records = session.query(subquery_active)
 
         if active_only:
-            # This remains perfectly clean and works uniformly whether latest_only ran or not!
             records = records.filter(
                 and_(
-                    PDBRDRegistration_alias.application_type.in_(ACTIVE_APPLICATION_TYPES),
-                    PDBRDRegistration_alias.effective_date <= func.current_date(),
+                    subquery_active.c.applicationType.in_(ACTIVE_APPLICATION_TYPES),
+                    subquery_active.c.effectiveDate <= func.current_date(),
                     or_(
-                        PDBRDRegistration_alias.end_date > func.current_date(),
-                        PDBRDRegistration_alias.end_date == None,
+                        subquery_active.c.endDate > func.current_date(),
+                        subquery_active.c.endDate == None,
                     ),
                 )
             )
-        return [rec._asdict() for rec in records.all()]
+
+        # Format results back into standard dictionaries
+        results = []
+        for row in records.all():
+            row_dict = row._asdict()
+            row_dict.pop("variation_desc", None)  # Clean up the latest variation tracker column before returning
+            results.append(row_dict)
+
+        return results
 
     @classmethod
     def construct_next_page_url(
@@ -680,102 +672,89 @@ class DBManager:
         else:
             PDBRDGroup = None
         default_date = date(2100, 1, 1)
-        records = (
-            session.query(
-                PDBRDRegistration.registration_number.label("registrationNumber"),
-                PDBRDRegistration.route_number.label("routeNumber"),
-                PDBRDRegistration.route_description.label("routeDescription"),
-                PDBRDRegistration.variation_number.label("variationNumber"),
-                PDBRDRegistration.start_point.label("startPoint"),
-                PDBRDRegistration.finish_point.label("finishPoint"),
-                PDBRDRegistration.via.label("via"),
-                PDBRDRegistration.subsidised.label("subsidised"),
-                PDBRDRegistration.subsidy_detail.label("subsidyDetail"),
-                PDBRDRegistration.is_short_notice.label("isShortNotice"),
-                PDBRDRegistration.received_date.label("receivedDate"),
-                PDBRDRegistration.granted_date.label("grantedDate"),
-                PDBRDRegistration.effective_date.label("effectiveDate"),
-                func.coalesce(PDBRDRegistration.end_date, default_date).label(
-                    "endDate"
-                ),
-                PDBRDRegistration.bus_service_type_id.label("busServiceTypeId"),
-                PDBRDRegistration.bus_service_type_description.label(
-                    "busServiceTypeDescription"
-                ),
-                PDBRDRegistration.traffic_area_id.label("trafficAreaId"),
-                PDBRDRegistration.application_type.label("applicationType"),
-                PDBRDRegistration.publication_text.label("publicationText"),
-                OTCOperator.operator_name.label("operatorName"),
-                OTCLicence.licence_number.label("licenceNumber"),
-                OTCLicence.licence_status.label("licenceStatus"),
-                BODSDataCatalogue.requires_attention,
-                BODSDataCatalogue.timeliness_status,
-            )
-            .outerjoin(
-                BODSDataCatalogue,
-                BODSDataCatalogue.xml_service_code
-                == PDBRDRegistration.registration_number,
-            )
-            .filter(PDBRDRegistration.otc_operator_id == OTCOperator.id)
-            .filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
-            .filter(PDBRDRegistration.otc_licence_id == OTCLicence.id)
+        # Base query defining the core structure and columns
+        columns = [
+            PDBRDRegistration.registration_number.label("registrationNumber"),
+            PDBRDRegistration.route_number.label("routeNumber"),
+            PDBRDRegistration.route_description.label("routeDescription"),
+            PDBRDRegistration.variation_number.label("variationNumber"),
+            PDBRDRegistration.start_point.label("startPoint"),
+            PDBRDRegistration.finish_point.label("finishPoint"),
+            PDBRDRegistration.via.label("via"),
+            PDBRDRegistration.subsidised.label("subsidised"),
+            PDBRDRegistration.subsidy_detail.label("subsidyDetail"),
+            PDBRDRegistration.is_short_notice.label("isShortNotice"),
+            PDBRDRegistration.received_date.label("receivedDate"),
+            PDBRDRegistration.granted_date.label("grantedDate"),
+            PDBRDRegistration.effective_date.label("effectiveDate"),
+            func.coalesce(PDBRDRegistration.end_date, default_date).label("endDate"),
+            PDBRDRegistration.bus_service_type_id.label("busServiceTypeId"),
+            PDBRDRegistration.bus_service_type_description.label("busServiceTypeDescription"),
+            PDBRDRegistration.traffic_area_id.label("trafficAreaId"),
+            PDBRDRegistration.application_type.label("applicationType"),
+            PDBRDRegistration.publication_text.label("publicationText"),
+            OTCOperator.operator_name.label("operatorName"),
+            OTCLicence.licence_number.label("licenceNumber"),
+            OTCLicence.licence_status.label("licenceStatus"),
+            BODSDataCatalogue.requires_attention,
+            BODSDataCatalogue.timeliness_status,
+        ]
+
+        # Include a variation_desc calculation uniformly for easier subquery layering
+        columns.append(
+            func.row_number().over(
+                partition_by=[PDBRDRegistration.registration_number, PDBRDRegistration.route_number],
+                order_by=desc(PDBRDRegistration.variation_number)
+            ).label("variation_desc")
         )
 
-        if latest_only:
-            base_subquery = records.subquery()
-            
-            distinct_query = (
-                session.query(base_subquery, PDBRDRegistration)
-                .join(
-                    PDBRDRegistration,
-                    and_(
-                        base_subquery.c.registrationNumber == PDBRDRegistration.registration_number,
-                        base_subquery.c.routeNumber == PDBRDRegistration.route_number,
-                        base_subquery.c.variationNumber == PDBRDRegistration.variation_number,
-                    ),
-                )
-                .distinct(
-                    PDBRDRegistration.registration_number,
-                    PDBRDRegistration.route_number,
-                )
-                .order_by(
-                    PDBRDRegistration.registration_number,
-                    PDBRDRegistration.route_number,
-                    desc(PDBRDRegistration.variation_number),
-                )
+        # Build the primary query data set
+        records = (
+            session.query(*columns)
+            .join(OTCOperator, PDBRDRegistration.otc_operator_id == OTCOperator.id)
+            .join(OTCLicence, PDBRDRegistration.otc_licence_id == OTCLicence.id)
+            .outerjoin(
+                BODSDataCatalogue,
+                BODSDataCatalogue.xml_service_code == PDBRDRegistration.registration_number,
             )
-            
-            # Freeze the query into a subquery object
-            latest_subquery = distinct_query.subquery()
-            
-            # Map the subquery columns back onto an alias of the PDBRDRegistration model
-            # This automatically routes 'PDBRDRegistration_alias.application_type' to the correct subquery column.
-            PDBRDRegistration_alias = aliased(PDBRDRegistration, latest_subquery)
-            
-            # Select from the alias
-            records = session.query(PDBRDRegistration_alias)
-
-        else:
-            # Fallback to the standard table mapper if latest_only did not run
-            PDBRDRegistration_alias = PDBRDRegistration
-
-        if active_only:
-            # This remains perfectly clean and works uniformly whether latest_only ran or not!
-            records = records.filter(
-                and_(
-                    PDBRDRegistration_alias.application_type.in_(ACTIVE_APPLICATION_TYPES),
-                    PDBRDRegistration_alias.effective_date <= func.current_date(),
-                    or_(
-                        PDBRDRegistration_alias.end_date > func.current_date(),
-                        PDBRDRegistration_alias.end_date == None,
-                    ),
-                )
-            )
+            .filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
+        )
 
         if PDBRDGroup:
             records = records.filter(PDBRDRegistration.group_id == PDBRDGroup.id)
+            
+        subquery_latest = records.subquery()
+    
+        if latest_only:
+            # Filter down strictly to the newest variation per group
+            working_query = session.query(subquery_latest).filter(subquery_latest.c.variation_desc == 1)
+        else:
+            # Maintain all variations
+            working_query = session.query(subquery_latest)
 
-        return [rec._asdict() for rec in records.all()]
+        subquery_active = working_query.subquery()
+        records = session.query(subquery_active)
+
+        if active_only:
+            records = records.filter(
+                and_(
+                    subquery_active.c.applicationType.in_(ACTIVE_APPLICATION_TYPES),
+                    subquery_active.c.effectiveDate <= func.current_date(),
+                    or_(
+                        subquery_active.c.endDate > func.current_date(),
+                        subquery_active.c.endDate == default_date,  # Matches the coalesced default_date
+                    ),
+                )
+            )
+
+        # Format results back into standard dictionaries
+        results = []
+        for row in records.all():
+            row_dict = row._asdict()
+            row_dict.pop("variation_desc", None)  # Clean up the latest variation tracker column before returning
+            results.append(row_dict)
+
+        return results
 
     @classmethod
     def get_record_required_attention_percentage(
