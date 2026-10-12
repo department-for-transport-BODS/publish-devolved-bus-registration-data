@@ -67,8 +67,8 @@ run-db-initialise: cmd-exists-psql ## Initialise the database with users/roles a
 
 run-db-migrations: cmd-exists-psql ## Run the database migrations found under ./sql
 	@echo "Running available database migrations..."
-	@for file in `find ./sql -maxdepth 1 -type f | sort | cut -c3-`; do ${PG_EXEC} dbname=$(POSTGRES_DB)" -f $$file; done
-
+	@for file in `find ./sql -type f -depth 1 | sort | cut -c3-`; do ${PG_EXEC} dbname=$(POSTGRES_DB)" -f $$file; done
+	
 run-db-destroy: cmd-exists-psql ## Delete the database
 	@echo "Destroying the database..."
 	@${PG_EXEC}" -c "DROP DATABASE $(POSTGRES_DB) WITH (FORCE); "
