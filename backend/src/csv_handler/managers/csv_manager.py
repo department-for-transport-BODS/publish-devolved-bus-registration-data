@@ -160,14 +160,23 @@ def start_csv_processing(content: bytes, authenticated_entity, report_id: str) -
         "stage_id": stage_id,
         "authenticated_entity": authenticated_entity.model_dump(),
     }
+    clamav = None
     try:
-        ClamAVClient(report_id).upload(content)
+        clamav = ClamAVClient(report_id)
+        clamav.upload(content)
         if PROJECT_ENV == "local":
             process_csv_job(job)
         else:
             invoke_this_lambda_async({CSV_JOB_EVENT_KEY: job})
     except Exception as e:
         log.error(f"Could not start processing report_id={report_id}: {e}")
+        if clamav is not None:
+            try:
+                clamav.delete()
+            except Exception as cleanup_error:
+                log.error(
+                    f"Could not delete unprocessed file for report_id={report_id}: {cleanup_error}"
+                )
         _report_failed_file(authenticated_entity, report_id, stage_id)
 
 

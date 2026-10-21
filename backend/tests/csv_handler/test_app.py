@@ -252,6 +252,7 @@ def test_upload_that_cannot_be_handed_off_completes_its_stage(deployed_upload):
     assert response["statusCode"] == 200
     deployed_upload.send_report.assert_called_once()
     deployed_upload.complete_stage.assert_called_once_with(7)
+    deployed_upload.s3.delete_object.assert_called_once()
 
 @patch("utils.db.DBManager.get_records", return_value=[])
 def test_search_records_options(mock_get_records):

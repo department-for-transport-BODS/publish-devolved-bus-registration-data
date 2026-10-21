@@ -94,10 +94,8 @@ Resources:
       Handler: app.lambda_handler
       Timeout: 600
       MemorySize: 512
-      # Uploads re-invoke this function asynchronously to scan and validate the CSV.
-      # A crashed run must not be retried: its stage would already be in progress.
       EventInvokeConfig:
-        MaximumRetryAttempts: 0
+        MaximumRetryAttempts: 2
       Events:
         ApiEvents:
           Type: Api
@@ -256,7 +254,6 @@ Resources:
           - Effect: Allow
             Action:
               - lambda:InvokeFunction
-            # Built from the name, not !GetAtt, to avoid a circular dependency with the function's role.
             Resource: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${Environment}-${ProjectName}-csv-handler-lambda'
 
   CsvHandlerLambdaRdsDbConnectPolicy:
