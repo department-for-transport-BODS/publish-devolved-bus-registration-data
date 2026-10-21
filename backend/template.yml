@@ -94,6 +94,10 @@ Resources:
       Handler: app.lambda_handler
       Timeout: 600
       MemorySize: 512
+      # Uploads re-invoke this function asynchronously to scan and validate the CSV.
+      # A crashed run must not be retried: its stage would already be in progress.
+      EventInvokeConfig:
+        MaximumRetryAttempts: 0
       Events:
         ApiEvents:
           Type: Api
@@ -228,14 +232,32 @@ Resources:
           - Effect: Allow
             Action:
               - s3:DeleteObject
+              - s3:GetObject
               - s3:GetObjectTagging
               - s3:PutObject
             Resource: !Sub 'arn:aws:s3:::shared-${ProjectName}-clamav-artefacts-${AWS::AccountId}/*'
           - Effect: Allow
             Action:
+              - kms:Decrypt
               - kms:GenerateDataKey
             Resource:
               - !Sub '{{resolve:ssm:/shared/${ProjectName}/kms/s3}}'
+
+  CsvHandlerLambdaSelfInvokePolicy:
+    Type: 'AWS::IAM::Policy'
+    Condition: IsNotLocal
+    Properties:
+      PolicyName: !Sub '${Environment}-${ProjectName}-csv-handler-lambda-self-invoke-policy'
+      Roles:
+        - !Ref CsvHandlerLambdaExecutionRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - lambda:InvokeFunction
+            # Built from the name, not !GetAtt, to avoid a circular dependency with the function's role.
+            Resource: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${Environment}-${ProjectName}-csv-handler-lambda'
 
   CsvHandlerLambdaRdsDbConnectPolicy:
     Type: 'AWS::IAM::Policy'
