@@ -1,10 +1,17 @@
 import os
 from unittest.mock import Mock, patch
+from types import SimpleNamespace
 import pytest
 from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.orm import Session, declarative_base
 
-from utils.db import AutoMappingModels, DBManager, add_or_get_record, CreateEngine
+from utils.db import (
+    AutoMappingModels,
+    DBManager,
+    add_or_get_record,
+    CreateEngine,
+    send_report_to_db,
+)
 
 Base = declarative_base()
 
@@ -127,3 +134,53 @@ class TestDBManager:
         )
 
         assert result == 1
+
+
+def test_registration_retry_ignores_record_already_written_to_same_stage():
+    class RegistrationModel:
+        registration_number = "registration_number"
+        otc_operator_id = "otc_operator_id"
+        variation_number = "variation_number"
+        group_id = "group_id"
+        route_number = "route_number"
+
+    query = Mock()
+    query.filter.return_value = query
+    query.one_or_none.return_value = SimpleNamespace(pdbrd_stage_id=7)
+    session = Mock()
+    session.query.return_value = query
+    record = SimpleNamespace(
+        registration_number="R1", variation_number=0, route_number="1"
+    )
+
+    DBManager.upsert_record_to_pdbrd_registration_table(
+        record, 1, 2, session, RegistrationModel, 3, 7
+    )
+
+    session.add.assert_not_called()
+    session.commit.assert_not_called()
+
+
+def test_send_report_to_db_updates_existing_report_for_retry():
+    report_model = Mock()
+    report_model.report_id = "report_id"
+    report_model.user_id = "user_id"
+
+    existing_report = SimpleNamespace(report={"old": True})
+    session = Mock()
+    session.query.return_value.filter.return_value.one_or_none.return_value = (
+        existing_report
+    )
+    models = SimpleNamespace(PDBRDReport=report_model)
+    user = SimpleNamespace(id=5)
+
+    with patch("utils.db.initiate_db_variables", return_value=(models, session)), patch(
+        "utils.db.DBGroup"
+    ) as db_group:
+        db_group.return_value.get_or_create_user.return_value = user
+        send_report_to_db({"new": True}, "user", "group", "report-id")
+
+    assert existing_report.report == {"new": True}
+    session.add.assert_not_called()
+    session.commit.assert_called_once()
+    session.close.assert_called_once()

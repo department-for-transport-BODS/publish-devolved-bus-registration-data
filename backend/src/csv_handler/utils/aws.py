@@ -1,6 +1,8 @@
 import boto3
+import json
+from botocore.config import Config
 from central_config import AWS_REGION, BUCKET_NAME, PROJECT_ENV
-from os import getenv
+from os import environ
 from time import sleep
 from .logger import log
 
@@ -38,151 +40,52 @@ def upload_file_to_S3(
 
 
 class ClamAVClient:
-    def __init__(self, file_name, data):
+    """Stages a file in the shared ClamAV bucket, where the scanner tags it with av-status."""
+
+    POLL_INTERVAL_SECONDS = 2
+    MAX_POLLS = 75
+
+    def __init__(self, file_name):
         if not BUCKET_NAME:
             raise Exception("Bucket name is not set.")
         self.bucket_name = BUCKET_NAME
-        self.s3_folder = PROJECT_ENV if PROJECT_ENV != "local" else "dev"
-        self.file_name = file_name
-        self.data = data
+        s3_folder = PROJECT_ENV if PROJECT_ENV != "local" else "dev"
+        self.object_key = f"{s3_folder}/{file_name}.csv"
+        self.client = boto3.client(service_name="s3", region_name=AWS_REGION)
 
-    def scan(self):
-        """Initiate the scan process
+    def upload(self, data: bytes) -> None:
+        self.client.put_object(Body=data, Bucket=self.bucket_name, Key=self.object_key)
 
-        Returns:
-            Boolean: True if the file is clean, False otherwise
-        """
-        res = self.scan_file(
-            self.bucket_name, self.s3_folder, self.file_name, self.data
-        )
-        return res
+    def wait_until_clean(self) -> bool:
+        """Poll the scanner's tags. False if infected or no verdict before the deadline."""
+        for attempt in range(1, self.MAX_POLLS + 1):
+            tags = self.client.get_object_tagging(
+                Bucket=self.bucket_name, Key=self.object_key
+            ).get("TagSet", [])
+            av_status = next((t["Value"] for t in tags if t["Key"] == "av-status"), None)
+            if av_status is not None:
+                log.info(f"ClamAV verdict for {self.object_key} after {attempt} polls: {av_status}")
+                return av_status == "clean"
+            sleep(self.POLL_INTERVAL_SECONDS)
+        log.error(f"No ClamAV verdict for {self.object_key} after {self.MAX_POLLS} polls")
+        return False
 
-    def scan_file(self, bucket_name, s3_folder, file_name, data):
-        result = False
-        """This function does the following:
-        - Uploads a file to S3 via upload_bstring_to_s3_as_file function
-        - Waits for the file to be scanned via added tags
-        - Checks the scan status
-        - Gets the scan result
-        - Deletes the file from S3
+    def read(self) -> bytes:
+        return self.client.get_object(Bucket=self.bucket_name, Key=self.object_key)["Body"].read()
 
-        Args:
-            bucket_name (str): The name of the S3 bucket
-            s3_folder (str): The folder in the S3 bucket
-            file_name (str): The name of the file
-            data (bytes): The file data
+    def delete(self) -> None:
+        self.client.delete_object(Bucket=self.bucket_name, Key=self.object_key)
 
-        Returns:
-            Boolean: True if the file is clean, False otherwise
-        """
-        try:
-            self.upload_bstring_to_s3_as_file(bucket_name, s3_folder, file_name, data)
-            print(f"File {file_name} is uploaded to S3 bucket {bucket_name}.")
-            for i in range(1, 11):
-                sleep(15)
-                res = self.read_file_tags(bucket_name, s3_folder, file_name)
-                if res is not None:
-                    log.info(f"Getting tags is done, after {i} attempts.")
-                    self.delete_file_from_s3(bucket_name, s3_folder, file_name)
-                    log.info(f"File {file_name} is deleted from S3 bucket.")
-                    break
-                print(f"Attempt {i} to get tags is not successful.")
-            av_status = [item["Value"] for item in res if item["Key"] == "av-status"]
-            if len(av_status) > 0:
-                if av_status[0] == "clean":
-                    result = True
 
-        except Exception as e:
-            log.error(f"Errors: {e}")
-
-        finally:
-            return result
-
-    def get_boto_client(self):
-        """Get the boto3 client
-
-        Returns:
-            client: The boto3 client
-        """
-        return boto3.client(
-            service_name="s3",
-            region_name=AWS_REGION,
-        )
-
-    def upload_bstring_to_s3_as_file(
-        self, bucket_name, s3_folder, file_name, binary_data
-    ) -> None:
-        """Upload a binary string to S3 as a file
-
-        Args:
-            bucket_name (str): The name of the S3 bucket
-            s3_folder (str): The folder in the S3 bucket
-            file_name (str): The name of the file
-            binary_data (bytes): The binary data to upload
-
-        Raises:
-            Exception: If the file could not be uploaded
-        """
-        try:
-            client = self.get_boto_client()
-
-            # Specify the bucket name and the key (including another filename)
-            object_key = f"{s3_folder}/{file_name}.csv"
-
-            # # Upload the binary data
-            client.put_object(Body=binary_data, Bucket=bucket_name, Key=object_key)
-        except Exception as e:
-            print(f"Errors: {e}")
-            raise Exception(f"Errors: Could not upload file to S3.")
-
-    def read_file_tags(self, bucket_name, s3_folder, file_name):
-        """Read the tags of a file in S3
-
-        Args:
-            bucket_name (str): The name of the S3 bucket
-            s3_folder (str): The folder in the S3 bucket
-            file_name (str): The name of the file
-
-        Raises:
-            Exception: If the tags could not be read
-
-        Returns:
-            str: The tags of the file clean or infected
-        """
-        try:
-            # Initialize the S3 client
-            client = self.get_boto_client()
-            # Get the object tagging
-            object_key = f"{s3_folder}/{file_name}.csv"
-            print(f"Reading tags for file {object_key}.")
-            response = client.get_object_tagging(Bucket=bucket_name, Key=object_key)
-
-            if response is not None:
-                tag_set = response.get("TagSet")
-                if tag_set and len(tag_set) > 0:
-                    return tag_set
-
-        except Exception as e:
-            print(f"Errors: {e}")
-            raise Exception("Errors: Could not read file tags from S3.")
-
-    def delete_file_from_s3(self, bucket_name, s3_folder, file_name):
-        """Delete a file from S3
-
-        Args:
-            bucket_name (str): The name of the S3 bucket
-            s3_folder (str): The folder in the S3 bucket
-            file_name (str): The name of the file
-
-        Raises:
-            Exception: If the file could not be deleted
-        """
-        try:
-            # Initialize the S3 client
-            client = self.get_boto_client()
-            # Delete the object
-            object_key = f"{s3_folder}/{file_name}.csv"
-            client.delete_object(Bucket=bucket_name, Key=object_key)
-        except Exception as e:
-            print(f"Errors: {e}")
-            raise Exception("Errors: Could not delete file from S3.")
+def invoke_this_lambda_async(payload: dict) -> None:
+    """Fire-and-forget invocation of the running Lambda with a custom event."""
+    client = boto3.client(
+        "lambda",
+        region_name=AWS_REGION,
+        config=Config(connect_timeout=5, read_timeout=10, retries={"max_attempts": 2}),
+    )
+    client.invoke(
+        FunctionName=environ["AWS_LAMBDA_FUNCTION_NAME"],
+        InvocationType="Event",
+        Payload=json.dumps(payload).encode(),
+    )

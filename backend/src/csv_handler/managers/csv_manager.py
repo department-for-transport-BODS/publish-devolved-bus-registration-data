@@ -10,7 +10,8 @@ from utils.db import (
 from utils.validate import validate_licence_number_existence
 from copy import deepcopy
 from utils.pydant_model import AuthenticatedEntity
-from utils.aws import ClamAVClient
+from utils.aws import ClamAVClient, invoke_this_lambda_async
+from central_config import PROJECT_ENV
 from utils.logger import log
 
 
@@ -145,54 +146,79 @@ class CSVManager:
         send_report_to_db(records_report, user_name, group_name, report_id)
 
 
-def process_csv_file(content, authenticated_entity, report_id):
-    scan_result = False
-    # try:
+CSV_JOB_EVENT_KEY = "csv_scan_job"
+
+
+def start_csv_processing(content: bytes, authenticated_entity, report_id: str) -> None:
+    """Stage the upload and hand the scan and validation off, so the request returns
+    well inside API Gateway's 29s limit. Results are read via /stage and /get-report."""
     stage_id = initiate_stage_process(
         authenticated_entity.name, authenticated_entity.group, report_id
     )
-    # except Exception as e:
-    #     log.info(f"exception: {e}")
-    #     return
-    # Decode the CSV data
-    csv_str = None
+    job = {
+        "report_id": report_id,
+        "stage_id": stage_id,
+        "authenticated_entity": authenticated_entity.model_dump(),
+    }
+    clamav = None
+    try:
+        clamav = ClamAVClient(report_id)
+        clamav.upload(content)
+        if PROJECT_ENV == "local":
+            process_csv_job(job)
+        else:
+            invoke_this_lambda_async({CSV_JOB_EVENT_KEY: job})
+    except Exception as e:
+        log.error(f"Could not start processing report_id={report_id}: {e}")
+        if clamav is not None:
+            try:
+                clamav.delete()
+            except Exception as cleanup_error:
+                log.error(
+                    f"Could not delete unprocessed file for report_id={report_id}: {cleanup_error}"
+                )
+        _report_failed_file(authenticated_entity, report_id, stage_id)
+
+
+def process_csv_job(job: dict) -> None:
+    authenticated_entity = AuthenticatedEntity(**job["authenticated_entity"])
+    report_id, stage_id = job["report_id"], job["stage_id"]
+    clamav = None
+    try:
+        clamav = ClamAVClient(report_id)
+        if not clamav.wait_until_clean():
+            _report_failed_file(authenticated_entity, report_id, stage_id)
+            return
+        csv_str = _decode(clamav.read())
+        csv_data = list(csv.DictReader(StringIO(csv_str)))
+        CSVManager(
+            csv_data, authenticated_entity, report_id, stage_id
+        ).validation_and_insertion_steps()
+    except Exception as e:
+        log.error(f"Processing failed for report_id={report_id}: {e}")
+        _report_failed_file(authenticated_entity, report_id, stage_id)
+    finally:
+        if clamav is not None:
+            try:
+                clamav.delete()
+            except Exception as e:
+                log.error(f"Could not delete scanned file for report_id={report_id}: {e}")
+
+
+def _decode(content: bytes) -> str:
     for encoding_types in ["utf-8-sig", "utf-8", "Latin-1", "ISO-8859-1"]:
         try:
-            csv_str = content.decode(encoding_types)
-            break
-        except:
+            return content.decode(encoding_types)
+        except UnicodeDecodeError:
             pass
-    if csv_str is None:
-        raise Exception("File encoding not found")
+    raise Exception("File encoding not found")
 
-    try:
-        scan_result = ClamAVClient(report_id, content).scan()
 
-        if scan_result:
-            # Convert the CSV data into a dictionary
-            csv_data = list(csv.DictReader(StringIO(csv_str)))
-            csv_handler = CSVManager(
-                csv_data, authenticated_entity, report_id, stage_id
-            )
-            # Validate the CSV input data
-            csv_handler.validation_and_insertion_steps()
-        else:
-            print("scan failed")
-            send_report_to_db(
-                {"invalid_file": [{"description": "File is infected"}]},
-                authenticated_entity.name,
-                authenticated_entity.group,
-                report_id,
-            )
-            complete_stage_process(stage_id)
-
-    except Exception as e:
-        log.error(f"error: {e}")
-        print("scan failed")
-        send_report_to_db(
-            {"invalid_file": [{"description": "File is infected"}]},
-            authenticated_entity.name,
-            authenticated_entity.group,
-            report_id,
-        )
-        complete_stage_process(stage_id)
+def _report_failed_file(authenticated_entity, report_id, stage_id) -> None:
+    send_report_to_db(
+        {"invalid_file": [{"description": "File is infected"}]},
+        authenticated_entity.name,
+        authenticated_entity.group,
+        report_id,
+    )
+    complete_stage_process(stage_id)
