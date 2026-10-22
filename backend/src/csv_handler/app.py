@@ -6,10 +6,9 @@ from fastapi import (
     Depends,
     status,
     Query,
-    BackgroundTasks,
 )
 from pydantic import ValidationError
-from managers import process_csv_file
+from managers import CSV_JOB_EVENT_KEY, process_csv_job, start_csv_processing
 from mangum import Mangum
 from utils.exceptions import (
     LimitIsNotSet,
@@ -40,28 +39,31 @@ from utils.logger import log
     status_code=status.HTTP_200_OK,
 )
 async def create_upload_file(
-    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     authenticated_entity: AuthenticatedEntity = Depends(operator),
 ):
-    """This is the endpoint to upload a CSV file and process it.
+    """Upload a CSV file for asynchronous virus scanning and validation.
+
+    The response returns once the file is accepted, before scanning finishes.
+    Poll /stage until it stops returning 425, then fetch the outcome
+    (including any invalid records) from /get-report.
 
     Args:
-        file (UploadFile, optional): The CSV file to be uploaded
+        file (UploadFile): The CSV file to be uploaded
 
     Raises:
         HTTPException:
-            status_code: 422 if the CSV file contains invalid records
-            status_code: 200 if all records in the CSV file is successfully processed and inserted into the database
+            status_code: 422 if a previous upload is still being processed
+            status_code: 400 if the upload could not be accepted
 
     Returns:
-        _type_: _description_
+        message and report_id for the accepted upload
     """
     # Generate a unique ID for the CSV file
     report_id = str(uuid4())
     try:
         content = await file.read()
-        process_csv_file(content, authenticated_entity, report_id)
+        start_csv_processing(content, authenticated_entity, report_id)
     except PreviousProcessNotCompleted:
         raise HTTPException(
             status_code=422,
@@ -440,4 +442,10 @@ def get_all_records(
 
 
 app.include_router(api_v1_router)
-lambda_handler = Mangum(app, lifespan="off")
+asgi_handler = Mangum(app, lifespan="off")
+
+
+def lambda_handler(event, context):
+    if CSV_JOB_EVENT_KEY in event:
+        return process_csv_job(event[CSV_JOB_EVENT_KEY])
+    return asgi_handler(event, context)

@@ -422,6 +422,8 @@ class DBManager:
         )
 
         if existing_record:
+            if existing_record.pdbrd_stage_id == PDBRDStage_id:
+                return
             raise RecordIsAlreadyExist("Record already exists with the same fields")
 
         else:
@@ -1240,9 +1242,20 @@ def send_report_to_db(report: dict, user_name: str, group_name: str, report_id: 
 
     PDBRDUser = DBGroup(models, session).get_or_create_user(user_name, group_name)
     PDBRDReport = models.PDBRDReport
-    report_record = PDBRDReport(
-        report_id=report_id, user_id=PDBRDUser.id, report=report
+    existing_report = (
+        session.query(PDBRDReport)
+        .filter(
+            PDBRDReport.report_id == report_id,
+            PDBRDReport.user_id == PDBRDUser.id,
+        )
+        .one_or_none()
     )
-    session.add(report_record)
+    if existing_report:
+        existing_report.report = report
+    else:
+        report_record = PDBRDReport(
+            report_id=report_id, user_id=PDBRDUser.id, report=report
+        )
+        session.add(report_record)
     session.commit()
     session.close()
