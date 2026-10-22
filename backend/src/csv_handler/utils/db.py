@@ -561,18 +561,7 @@ class DBManager:
                 records, PDBRDRegistration.route_number, route_number, strict_mode
             )
 
-        if page:
-            cls.record_count = records.count()
-            if limit is None:
-                raise LimitIsNotSet("Limit must be provided when page is provided")
-            offset = (page - 1) * limit
-            if offset < records.count():
-                records = records.offset(offset)
-            else:
-                raise LimitExceeded("Page number exceeds the total number of records")
-
-        if limit:
-            records = records.limit(limit)
+        
 
         subquery_latest = records.subquery()
 
@@ -614,6 +603,19 @@ class DBManager:
                     ),
                 )
             )
+            
+        if page:
+            cls.record_count = records.count()
+            if limit is None:
+                raise LimitIsNotSet("Limit must be provided when page is provided")
+            offset = (page - 1) * limit
+            if offset < records.count():
+                records = records.offset(offset)
+            else:
+                raise LimitExceeded("Page number exceeds the total number of records")
+
+        if limit:
+            records = records.limit(limit)
 
         # Format results back into standard dictionaries
         results = []
