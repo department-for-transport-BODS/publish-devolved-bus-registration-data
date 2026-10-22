@@ -523,19 +523,6 @@ class DBManager:
             OTCLicence.licence_status.label("licenceStatus"),
         ]
 
-        # Include a variation_desc calculation uniformly for easier subquery layering
-        columns.append(
-            func.row_number()
-            .over(
-                partition_by=[
-                    PDBRDRegistration.registration_number,
-                    PDBRDRegistration.route_number,
-                ],
-                order_by=desc(PDBRDRegistration.variation_number),
-            )
-            .label("variation_desc")
-        )
-
         # Build the primary query data set
         records = (
             session.query(*columns)
@@ -576,28 +563,32 @@ class DBManager:
                 records, PDBRDRegistration.route_number, route_number, strict_mode
             )
 
-        if page:
-            cls.record_count = records.count()
-            if limit is None:
-                raise LimitIsNotSet("Limit must be provided when page is provided")
-            offset = (page - 1) * limit
-            if offset < records.count():
-                records = records.offset(offset)
-            else:
-                raise LimitExceeded("Page number exceeds the total number of records")
-
-        if limit:
-            records = records.limit(limit)
+        
 
         subquery_latest = records.subquery()
 
         if exclude_variations:
-            # Filter down strictly to the newest variation per group
-            working_query = session.query(subquery_latest).filter(
-                subquery_latest.c.variation_desc == 1
+            eligible_records = (
+                session.query(subquery_latest)
+                .filter(subquery_latest.c.effectiveDate < func.current_date())
+                .subquery()
+            )
+            ranked_eligible_records = session.query(
+                eligible_records,
+                func.max(eligible_records.c.variation_number)
+                .over(
+                    partition_by=[
+                        eligible_records.c.registrationNumber,
+                        eligible_records.c.routeNumber,
+                    ]
+                )
+                .label("latest_effective_variation_number"),
+            ).subquery()
+            working_query = session.query(ranked_eligible_records).filter(
+                ranked_eligible_records.c.variation_number
+                == ranked_eligible_records.c.latest_effective_variation_number
             )
         else:
-            # Maintain all variations
             working_query = session.query(subquery_latest)
 
         subquery_active = working_query.subquery()
@@ -614,13 +605,26 @@ class DBManager:
                     ),
                 )
             )
+            
+        if page:
+            cls.record_count = records.count()
+            if limit is None:
+                raise LimitIsNotSet("Limit must be provided when page is provided")
+            offset = (page - 1) * limit
+            if offset < records.count():
+                records = records.offset(offset)
+            else:
+                raise LimitExceeded("Page number exceeds the total number of records")
+
+        if limit:
+            records = records.limit(limit)
 
         # Format results back into standard dictionaries
         results = []
         for row in records.all():
             row_dict = row._asdict()
             row_dict.pop(
-                "variation_desc", None
+                "latest_effective_variation_number", None
             )  # Clean up the latest variation tracker column before returning
             results.append(row_dict)
 
@@ -664,7 +668,8 @@ class DBManager:
 
         Args:
             authenticated_entity (AuthenticatedEntity)
-            latest_only (bool, optional):  Defaults to False.
+            latest_only (bool, optional): Return the highest variation effective by
+                the current date for each registration and route. Defaults to False.
             active_only (bool, optional):  Defaults to True.
 
         Returns:
@@ -712,19 +717,6 @@ class DBManager:
             BODSDataCatalogue.timeliness_status,
         ]
 
-        # Include a variation_desc calculation uniformly for easier subquery layering
-        columns.append(
-            func.row_number()
-            .over(
-                partition_by=[
-                    PDBRDRegistration.registration_number,
-                    PDBRDRegistration.route_number,
-                ],
-                order_by=desc(PDBRDRegistration.variation_number),
-            )
-            .label("variation_desc")
-        )
-
         # Build the primary query data set
         records = (
             session.query(*columns)
@@ -744,12 +736,27 @@ class DBManager:
         subquery_latest = records.subquery()
 
         if latest_only:
-            # Filter down strictly to the newest variation per group
-            working_query = session.query(subquery_latest).filter(
-                subquery_latest.c.variation_desc == 1
+            eligible_records = (
+                session.query(subquery_latest)
+                .filter(subquery_latest.c.effectiveDate < func.current_date())
+                .subquery()
+            )
+            ranked_eligible_records = session.query(
+                eligible_records,
+                func.max(eligible_records.c.variation_number)
+                .over(
+                    partition_by=[
+                        eligible_records.c.registrationNumber,
+                        eligible_records.c.routeNumber,
+                    ]
+                )
+                .label("latest_effective_variation_number"),
+            ).subquery()
+            working_query = session.query(ranked_eligible_records).filter(
+                ranked_eligible_records.c.variation_number
+                == ranked_eligible_records.c.latest_effective_variation_number
             )
         else:
-            # Maintain all variations
             working_query = session.query(subquery_latest)
 
         subquery_active = working_query.subquery()
@@ -773,7 +780,7 @@ class DBManager:
         for row in records.all():
             row_dict = row._asdict()
             row_dict.pop(
-                "variation_desc", None
+                "latest_effective_variation_number", None
             )  # Clean up the latest variation tracker column before returning
             results.append(row_dict)
 
