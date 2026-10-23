@@ -575,7 +575,7 @@ class DBManager:
             )
             ranked_eligible_records = session.query(
                 eligible_records,
-                func.max(eligible_records.c.variation_number)
+                func.max(eligible_records.c.variationNumber)
                 .over(
                     partition_by=[
                         eligible_records.c.registrationNumber,
@@ -585,7 +585,7 @@ class DBManager:
                 .label("latest_effective_variation_number"),
             ).subquery()
             working_query = session.query(ranked_eligible_records).filter(
-                ranked_eligible_records.c.variation_number
+                ranked_eligible_records.c.variationNumber
                 == ranked_eligible_records.c.latest_effective_variation_number
             )
         else:
@@ -743,7 +743,7 @@ class DBManager:
             )
             ranked_eligible_records = session.query(
                 eligible_records,
-                func.max(eligible_records.c.variation_number)
+                func.max(eligible_records.c.variationNumber)
                 .over(
                     partition_by=[
                         eligible_records.c.registrationNumber,
@@ -753,7 +753,7 @@ class DBManager:
                 .label("latest_effective_variation_number"),
             ).subquery()
             working_query = session.query(ranked_eligible_records).filter(
-                ranked_eligible_records.c.variation_number
+                ranked_eligible_records.c.variationNumber
                 == ranked_eligible_records.c.latest_effective_variation_number
             )
         else:
