@@ -570,7 +570,7 @@ class DBManager:
         if exclude_variations:
             eligible_records = (
                 session.query(subquery_latest)
-                .filter(subquery_latest.c.effectiveDate < func.current_date())
+                .filter(subquery_latest.c.effectiveDate <= func.current_date())
                 .subquery()
             )
             ranked_eligible_records = session.query(
@@ -738,7 +738,7 @@ class DBManager:
         if latest_only:
             eligible_records = (
                 session.query(subquery_latest)
-                .filter(subquery_latest.c.effectiveDate < func.current_date())
+                .filter(subquery_latest.c.effectiveDate <= func.current_date())
                 .subquery()
             )
             ranked_eligible_records = session.query(
