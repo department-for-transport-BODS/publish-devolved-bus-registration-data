@@ -8,9 +8,9 @@ type Props = {
 const Header = (): ReactElement<Props> => {
 
   const { isLoggedIn, signOutHandler } = useContext(IsLoggedInContext);
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
     if (signOutHandler) {
-      signOutHandler();
+      await signOutHandler();
     }
   }
 
