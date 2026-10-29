@@ -687,6 +687,15 @@ class DBManager:
         else:
             PDBRDGroup = None
         default_date = date(2100, 1, 1)
+        bods_statuses = (
+            session.query(
+                BODSDataCatalogue.xml_service_code,
+                BODSDataCatalogue.requires_attention,
+                BODSDataCatalogue.timeliness_status,
+            )
+            .distinct()
+            .subquery()
+        )
         # Base query defining the core structure and columns
         columns = [
             PDBRDRegistration.registration_number.label("registrationNumber"),
@@ -713,8 +722,8 @@ class DBManager:
             OTCOperator.operator_name.label("operatorName"),
             OTCLicence.licence_number.label("licenceNumber"),
             OTCLicence.licence_status.label("licenceStatus"),
-            BODSDataCatalogue.requires_attention,
-            BODSDataCatalogue.timeliness_status,
+            bods_statuses.c.requires_attention,
+            bods_statuses.c.timeliness_status,
         ]
 
         # Build the primary query data set
@@ -723,8 +732,8 @@ class DBManager:
             .join(OTCOperator, PDBRDRegistration.otc_operator_id == OTCOperator.id)
             .join(OTCLicence, PDBRDRegistration.otc_licence_id == OTCLicence.id)
             .outerjoin(
-                BODSDataCatalogue,
-                BODSDataCatalogue.xml_service_code
+                bods_statuses,
+                bods_statuses.c.xml_service_code
                 == PDBRDRegistration.registration_number,
             )
             .filter(PDBRDRegistration.pdbrd_stage_id.is_(None))
