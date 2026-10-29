@@ -26,6 +26,7 @@ function RequireAuth({
       } catch (error) {
         const currentPath = location.pathname.substring(1);
         navigate(`/login?to=${currentPath}`, {
+          replace: true,
           state: { error: "You are not logged in" },
         });
         console.error("Error fetching user data: ", error);

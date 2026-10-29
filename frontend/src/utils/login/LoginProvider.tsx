@@ -31,7 +31,6 @@ const CustomProvider: React.FC<{ children: React.ReactNode }> = ({
       cookies.remove("stage_id");
       cookies.remove("access-type");
       setIsLoggedIn(false);
-      window.location.reload();
     }
   };
 

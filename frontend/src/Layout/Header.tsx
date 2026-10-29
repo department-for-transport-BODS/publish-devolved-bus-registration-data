@@ -1,4 +1,5 @@
 import React, { ReactElement, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { IsLoggedInContext } from "../utils/login/LoginProvider";
 import { TITLE } from "../utils/Constants";
 type Props = {
@@ -8,10 +9,12 @@ type Props = {
 const Header = (): ReactElement<Props> => {
 
   const { isLoggedIn, signOutHandler } = useContext(IsLoggedInContext);
+  const navigate = useNavigate();
   const handleSignOut = async () => {
     if (signOutHandler) {
       await signOutHandler();
     }
+    navigate("/", { replace: true });
   }
 
   return (
