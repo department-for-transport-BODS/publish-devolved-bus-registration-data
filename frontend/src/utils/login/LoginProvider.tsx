@@ -1,7 +1,7 @@
 import React, { Dispatch, createContext, useEffect, useState } from "react";
-import { useAuthenticator } from "@aws-amplify/ui-react";
 import {
   signIn,
+  signOut,
   type SignInInput,
   getCurrentUser,
   SignInOutput,
@@ -12,7 +12,7 @@ export type UserLoggedIn = {
   setIsLoggedIn?: Dispatch<boolean>;
   signOut?: () => void;
   signIn: (input: SignInInput) => Promise<SignInOutput>;
-  signOutHandler?: () => void;
+  signOutHandler?: () => Promise<void>;
 };
 export const IsLoggedInContext = createContext<UserLoggedIn>({
   signIn: signIn,
@@ -22,17 +22,18 @@ const CustomProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const cookies = new Cookies();
-  const signOutHandler = () => {
-    cookies.remove("stage_id")
-    cookies.remove("access-type");
-    signOut();
-    setIsLoggedIn(false);
-    window.location.reload();
+  const signOutHandler = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Sign out failed", error);
+    } finally {
+      cookies.remove("stage_id");
+      cookies.remove("access-type");
+      setIsLoggedIn(false);
+    }
   };
 
-  const { signOut } = useAuthenticator((context) => [
-    context.user,
-  ]);
   const userLoggedIN = {
     isLoggedIn: isLoggedIn,
     setIsLoggedIn: setIsLoggedIn,
