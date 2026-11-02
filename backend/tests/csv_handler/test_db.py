@@ -1,8 +1,9 @@
 import os
+from datetime import date
 from unittest.mock import Mock, patch
 from types import SimpleNamespace
 import pytest
-from sqlalchemy import Column, Integer, String, create_engine
+from sqlalchemy import Boolean, Column, Date, Integer, String, create_engine
 from sqlalchemy.orm import Session, declarative_base
 
 from utils.db import (
@@ -14,6 +15,128 @@ from utils.db import (
 )
 
 Base = declarative_base()
+
+
+@pytest.fixture
+def catalogue_join_db():
+    base = declarative_base()
+
+    class RegistrationModel(base):
+        __tablename__ = "pdbrd_registration"
+        id = Column(Integer, primary_key=True)
+        registration_number = Column(String)
+        route_number = Column(String)
+        route_description = Column(String)
+        variation_number = Column(Integer)
+        start_point = Column(String)
+        finish_point = Column(String)
+        via = Column(String)
+        subsidised = Column(String)
+        subsidy_detail = Column(String)
+        is_short_notice = Column(Boolean)
+        received_date = Column(Date)
+        granted_date = Column(Date)
+        effective_date = Column(Date)
+        end_date = Column(Date)
+        bus_service_type_id = Column(Integer)
+        bus_service_type_description = Column(String)
+        traffic_area_id = Column(String)
+        application_type = Column(String)
+        publication_text = Column(String)
+        otc_operator_id = Column(Integer)
+        otc_licence_id = Column(Integer)
+        pdbrd_stage_id = Column(Integer)
+        group_id = Column(Integer)
+
+    class OperatorModel(base):
+        __tablename__ = "otc_operator"
+        id = Column(Integer, primary_key=True)
+        operator_name = Column(String)
+
+    class LicenceModel(base):
+        __tablename__ = "otc_licence"
+        id = Column(Integer, primary_key=True)
+        licence_number = Column(String)
+        licence_status = Column(String)
+
+    class CatalogueModel(base):
+        __tablename__ = "bods_data_catalogue"
+        id = Column(Integer, primary_key=True)
+        xml_service_code = Column(String)
+        variation_number = Column(Integer)
+        requires_attention = Column(Boolean)
+        timeliness_status = Column(String)
+
+    models = SimpleNamespace(
+        PDBRDRegistration=RegistrationModel,
+        OTCOperator=OperatorModel,
+        OTCLicence=LicenceModel,
+        BODSDataCatalogue=CatalogueModel,
+    )
+    engine = create_engine("sqlite:///:memory:")
+    base.metadata.create_all(engine)
+    with Session(engine) as session:
+        session.add_all([OperatorModel(id=1), LicenceModel(id=1)])
+        session.add_all([
+            RegistrationModel(
+                registration_number=code,
+                route_number=route,
+                variation_number=1,
+                effective_date=date(2020, 1, 1),
+                otc_operator_id=1,
+                otc_licence_id=1,
+                group_id=1,
+            )
+            for code, route in [("R1", "1"), ("R1", "2"), ("R2", "3")]
+        ])
+        session.commit()
+        with patch("utils.db.initiate_db_variables", return_value=(models, session)):
+            yield models, session
+    engine.dispose()
+
+
+@pytest.mark.parametrize(
+    "statuses",
+    [
+        [(True, "On time"), (True, "On time")],
+        [(True, "On time"), (True, "On time"), (False, "On time")],
+        [(True, "On time"), (True, "Late"), (True, "Late")],
+        [(None, None), (None, None)],
+        [(True, None), (True, None), (True, "On time")],
+        [(None, "On time"), (None, "On time"), (False, "On time")],
+        [],
+    ],
+)
+def test_get_all_records_distinct_catalogue_statuses(catalogue_join_db, statuses):
+    models, session = catalogue_join_db
+    session.add_all([
+        models.BODSDataCatalogue(
+            xml_service_code="R1",
+            variation_number=variation,
+            requires_attention=attention,
+            timeliness_status=timeliness,
+        )
+        for variation, (attention, timeliness) in enumerate(statuses)
+    ])
+    session.add(models.BODSDataCatalogue(
+        xml_service_code="OTHER", requires_attention=False, timeliness_status="Late"
+    ))
+    session.commit()
+
+    records = DBManager.get_all_records(SimpleNamespace(type="api"), active_only=False)
+
+    expected_statuses = set(statuses) or {(None, None)}
+    assert len(records) == 2 * len(expected_statuses) + 1
+    for route in ["1", "2"]:
+        assert {
+            (row["requires_attention"], row["timeliness_status"])
+            for row in records
+            if row["registrationNumber"] == "R1" and row["routeNumber"] == route
+        } == expected_statuses
+    unmatched = [row for row in records if row["registrationNumber"] == "R2"]
+    assert len(unmatched) == 1
+    assert unmatched[0]["requires_attention"] is None
+    assert unmatched[0]["timeliness_status"] is None
 
 
 @pytest.fixture
