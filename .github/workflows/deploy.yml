@@ -214,7 +214,7 @@ jobs:
       - name: setup python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # 6.2.0
         with:
-          python-version: 3.11
+          python-version: "3.14"
 
       - name: setup sam
         uses: aws-actions/setup-sam@89ddb14d60e682855e3fea4be85b3c56485de310 # 3

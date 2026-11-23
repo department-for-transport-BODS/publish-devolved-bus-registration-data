@@ -49,7 +49,7 @@ Globals:
     Architectures:
       - x86_64
     MemorySize: 256
-    Runtime: python3.11
+    Runtime: python3.14
     Timeout: 60
     Environment:
       Variables:

@@ -2,10 +2,12 @@ from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
 from app import app, lambda_handler
 from os import remove
+import asyncio
 import base64
 import json
 import os
 from io import BytesIO
+from mangum import Mangum
 import uuid
 from auth.verifier import operator
 from utils.pydant_model import AuthenticatedEntity
@@ -206,6 +208,22 @@ def test_upload_file_responds_before_the_virus_scan_finishes(deployed_upload):
     deployed_upload.send_report.assert_not_called()
     deployed_upload.lambda_client.invoke.assert_called_once()
     assert deployed_upload.lambda_client.invoke.call_args.kwargs["InvocationType"] == "Event"
+
+
+def test_lambda_upload_cold_start_without_event_loop(deployed_upload):
+    previous_loop = asyncio.get_event_loop()
+    asyncio.set_event_loop(None)
+    loop = None
+    try:
+        handler = Mangum(app, lifespan="off")
+        loop = asyncio.get_event_loop()
+        with patch("app.asgi_handler", handler):
+            assert upload()["statusCode"] == 200
+            assert upload()["statusCode"] == 200
+    finally:
+        asyncio.set_event_loop(previous_loop)
+        if loop is not None:
+            loop.close()
 
 
 def test_async_invocation_validates_the_clean_upload(deployed_upload):
