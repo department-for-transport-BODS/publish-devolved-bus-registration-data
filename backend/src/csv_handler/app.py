@@ -203,7 +203,7 @@ def get_staged_records_action(
     action: str,
     authenticated_entity: AuthenticatedEntity = Depends(operator),
     stage_id: str = Query(
-        ..., description="The staged records ID", pattern="^[a-zA-Z0-9\-]*$"
+        ..., description="The staged records ID", pattern=r"^[a-zA-Z0-9\-]*$"
     ),
 ):
     """

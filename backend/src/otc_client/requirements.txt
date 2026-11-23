@@ -1,5 +1,5 @@
 requests==2.31.0
-pydantic==2.5.3
+pydantic==2.12.5
 cachetools==5.3.2
-fastapi==0.109.2
-mangum==0.17.0
+fastapi==0.119.1
+mangum==0.22.0

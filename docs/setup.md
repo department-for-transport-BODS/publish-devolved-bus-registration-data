@@ -1,5 +1,6 @@
 # Prerequisites
 * [AWS SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html)
+* [Python 3.14](https://www.python.org/downloads/)
 * [Node (v24.x.x) / npm (v11.x.x)](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 * [nodemon (npm Package)](https://www.npmjs.com/package//nodemon)
 * [PostgreSQL Client (psql)](https://www.postgresql.org/download/)
